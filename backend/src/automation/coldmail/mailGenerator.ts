@@ -1,3 +1,12 @@
+// Remove repeated paragraphs from a draft body
+function deduplicateParagraphs(body: string): string {
+  const seen = new Set<string>();
+  return body
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter((p) => p && !seen.has(p) && seen.add(p))
+    .join('\n\n');
+}
 import axios from "axios";
 import fs from "fs";
 import path from "path";
@@ -280,83 +289,7 @@ STYLE REFERENCE ONLY:
 ${coldMailGuide || "Keep it short, warm, and company-specific."}
 
 GOAL:
-- Research-first email
-- Use the best available latest company-specific signal from website, product pages, blog/news pages, or social pages
-- Use coldmail-format.md only as tone/style guidance, never as a fixed template
-- The email must feel freshly written from the scraped company research and lead fields
-
-STRICT RULES:
-- Subject should be short and specific
-- Email should be concise and natural, usually under 120 words
-- Warm, genuine, humble, confident
-- Humanized, not spoofed, not boring
-- No buzzwords or corporate fluff
-- No hallucinations
-- Do not say latest post / whitepaper / update unless the research explicitly supports it
-- Use the strongest company-specific hook from the research
-- Make "why them" come directly from the researched signal, product, update, blog, hiring theme, or tech direction
-- End with one clear call to action only
-- Avoid these words: passionate, excited, opportunity, leverage, synergy, looking forward
-
-PERSON:
-- Sender name: ${senderName}
-- Sender location: ${senderLoc}
-- Background: ${experience}
-- Skills: ${skills}
-
-TARGET:
-- Company: ${companyName}
-- Contact name: ${targetName}
-- Contact role: ${targetRole}
-- Role applying for: ${roleApplying}
-
-RESEARCH:
-${researchSection}
-
-HOOK PRIORITY ORDER:
-${candidateHooks.map((item) => `- ${item}`).join("\n")}
-
-WRITING INSTRUCTIONS:
-- First decide what the single strongest hook is from the research
-- Then write the email around that hook
-- Mention only details that are supported by the research or lead fields
-- If the company research is thin, stay simple and honest instead of fabricating
-- Make the email sound like one human wrote it for this one company today
-- Follow this exact body structure, but do NOT hardcode the content:
-  Subject:
-  [Company Name] [Recent Thing] was interesting
-
-  Body:
-  Hi [Company] Team,
-
-  I came across your recent [whitepaper / LinkedIn post / update] and really liked the insights — especially [short positive comment].
-
-  I’m Bharat Dhuva, a 3rd-year Computer Science student at MSU Baroda, Vadodara. Over the past year, I’ve been working with [skills] on several full-stack projects.
-
-  I’d love to intern at [Company Name] as a Software Developer. It would be great to learn from your team and contribute to actual projects while gaining real experience.
-
-  I’ve attached my resume for your reference. Would you be open to a quick 10-minute call if there’s any possibility?
-
-  Thanks for your time!
-
-  Best,
-  Bharat Dhuva
-  Vadodara, Gujarat
-  +91 9624828661
-  https://www.linkedin.com/in/bharatdhuva27/
-- Company specificity is mandatory
-- The hook line must be based on real scraped detail, not a placeholder
-- Keep the wording natural and non-robotic
-- Do not output square brackets or placeholder text
-- Use "Hi [Target Person Name]," only if the person name is clearly available; otherwise use "Hi [Company] Team,"
-- Replace "Software Developer" with the actual applied role only if it fits naturally and stays close to this template
-
-OUTPUT JSON ONLY:
-{
-  "subject": "short personalized subject",
-  "body": "final email body",
-  "personalization_hook": "the exact company-specific hook used"
-}`;
+`;
 
   try {
     let raw = "";
@@ -402,7 +335,35 @@ OUTPUT JSON ONLY:
       }
     }
 
-    const parsed = validateDraft(extractJson(raw), companyName);
+    let parsed;
+    try {
+      parsed = validateDraft(extractJson(raw), companyName);
+    } catch (e) {
+      // Fallback: use a default template if AI fails
+      parsed = {
+        subject: `${companyName}, loved your ${hook || 'recent work'}`,
+        body: deduplicateParagraphs(
+`Hi ${targetName},
+
+i just came across your recent ${hook || 'whitepaper / post / update'} and really liked the insights.
+
+I'm Bharat Dhuva, 3rd Year CSE Student From  Over the past year, I’ve been working with ${skills} on several full-stack projects.
+
+i would love to become part of ${companyName} as  ${roleApplying} intern (unpaid). i would love to be a part of team and contribute to real project 
+
+I’ve attached my resume for your reference. Would you be open to a quick 10-minute call if there’s any possibility?
+
+Thanks for your time!
+
+Bharat Dhuva  
+Vadodara, Gujarat  
++91 9624828661
+https://www.linkedin.com/in/bharatdhuva27/`
+
+        ),
+        personalization_hook: hook || '',
+      };
+    }
 
     companyQueries.updateStatus(companyId, "mail_generated", {
       generated_subject: parsed.subject,
