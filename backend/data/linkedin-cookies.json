@@ -1,0 +1,198 @@
+[
+  {
+    "name": "li_rm",
+    "value": "AQG9BdVColaJEwAAAZ0mQnI9ZZIdg74wCqnHTD5Vz58yGtoiqEGjzrrdn6Pkw-6xnTnRVbzbMtx8cC4Y4ZfW6dhzG1HqRnwitH4S6-9X57iUre2RQboil3RO",
+    "domain": ".www.linkedin.com",
+    "path": "/",
+    "expires": 1805999384.668904,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "lang",
+    "value": "v=2&lang=en-us",
+    "domain": ".linkedin.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "JSESSIONID",
+    "value": "\"ajax:2264923264025552963\"",
+    "domain": ".www.linkedin.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "bcookie",
+    "value": "\"v=2&938ab368-92d7-4b6f-87f4-5b56228f62f0\"",
+    "domain": ".linkedin.com",
+    "path": "/",
+    "expires": 1805999385.669076,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "bscookie",
+    "value": "\"v=1&202603251829424a9a9e83-a874-4b97-80d0-7f4c7c57f668AQFxo0UPppGJnRsAxRifZ22kv_8-x2-h\"",
+    "domain": ".www.linkedin.com",
+    "path": "/",
+    "expires": 1805999385.669114,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "lidc",
+    "value": "\"b=TGST02:s=T:r=T:a=T:p=T:g=3721:u=1:x=1:i=1774463382:t=1774549782:v=2:sig=AQG3L4Vta5lmrPXR9IpxgBzRwCS02GI9\"",
+    "domain": ".linkedin.com",
+    "path": "/",
+    "expires": 1774549785.669138,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "demdex",
+    "value": "06801569827926382483545681081839589314",
+    "domain": ".demdex.net",
+    "path": "/",
+    "expires": 1790015387.382648,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "AMCVS_14215E3D5995C57C0A495C55%40AdobeOrg",
+    "value": "1",
+    "domain": ".linkedin.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "AMCV_14215E3D5995C57C0A495C55%40AdobeOrg",
+    "value": "-637568504%7CMCIDTS%7C20538%7CMCMID%7C07023593033046253793601724204383069193%7CMCAAMLH-1775068186%7C12%7CMCAAMB-1775068186%7C6G1ynYcLPuiQxYZrsz_pkqfLG9yMXBpb2zX5dvJdYQJzPXImdj0y%7CMCOPTOUT-1774470586s%7CNONE%7CvVersion%7C5.1.1",
+    "domain": ".linkedin.com",
+    "path": "/",
+    "expires": 1790015386,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "aam_uuid",
+    "value": "06801569827926382483545681081839589314",
+    "domain": ".linkedin.com",
+    "path": "/",
+    "expires": 1777055386,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_pxvid",
+    "value": "98690da9-2878-11f1-8224-fbe8f52f2917",
+    "domain": ".protechts.net",
+    "path": "/",
+    "expires": 1805999386.927083,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None",
+    "partitionKey": "https://linkedin.com",
+    "_crHasCrossSiteAncestor": true
+  },
+  {
+    "name": "pxcts",
+    "value": "98691843-2878-11f1-8227-9e790555e500",
+    "domain": ".protechts.net",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None",
+    "partitionKey": "https://linkedin.com",
+    "_crHasCrossSiteAncestor": true
+  },
+  {
+    "name": "dextp",
+    "value": "771-1-1774463386863|1957-1-1774463386972",
+    "domain": ".demdex.net",
+    "path": "/",
+    "expires": 1790015386,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "MUID",
+    "value": "20C223EA46B264A0325B34CD474A656E",
+    "domain": ".bing.com",
+    "path": "/",
+    "expires": 1808159387.294471,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "MR",
+    "value": "0",
+    "domain": ".c.bing.com",
+    "path": "/",
+    "expires": 1775068187.294556,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "IDE",
+    "value": "AHWqTUnzbLVnCdcgyTdLuKRV4zq2j7YVtEy1T85ba6FLD95jxaaZE3tWJGj034EmQKI",
+    "domain": ".doubleclick.net",
+    "path": "/",
+    "expires": 1809023387.352611,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "dpm",
+    "value": "06801569827926382483545681081839589314",
+    "domain": ".dpm.demdex.net",
+    "path": "/",
+    "expires": 1790015387.382743,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "_px3",
+    "value": "c85d677045de396075780e364dfe7a6cf435eece5717a737d875fcd0ab379529:HkmljxLPB/F3hhqErMJsKWNLVmJTQSJ8XUbBS5f35cdYrnqej/4DaZcsjIpn1KvLfR/2QzUrD4qlWxUs4aXvEw==:1000:FzWdZRGmReQLt32cEF+HD8T/tmjFTvXWtLtlpn1XkR/DMol9wUIMgBtDId9/kLKtBlB+Z8oac0jlmNfq+itVq9mkuw7zzKiqzxDN0dof901EfE/KqsloNuQ7C6/gm+3Xmp3DzMYs2twD/CUXA1q9DchcRuBvX7BYfJNVmtDeTJWPdFzJh3iHmsT2jI/GvXLvJYDzW9DTWoQlH/uOsdcxPPQA+vk/SzqEBlWlPerXLLRABRBCyJHNXZLZI/X2TcDPuGyBTAwUOL9I+YBfFEfEvuIJfnfCHz/VmjKq2ipY9xEiycSi4MstwXAyOovdQwVIVrME5J2wcKEwqEvtHhHbvsGmzB1pUm2A3sUkh00crVIkZSn9RaIOOZiGIv0GBywojYVD8CWp0rOdBfIufyB8XNQ9/mMYhoCTBeF4mTG2i5A0GsJ3RS+TXlf3M/PiBJk8d3GEFUzty8LbEsnhv69/9/wqt2fL95tdkCrhLabBWveThEyIZyrbe2rrA3IsN1AJ",
+    "domain": ".protechts.net",
+    "path": "/",
+    "expires": 1774463718.994716,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None",
+    "partitionKey": "https://linkedin.com",
+    "_crHasCrossSiteAncestor": true
+  },
+  {
+    "name": "NID",
+    "value": "530=lHnEKpU18Ge-IEmxeVcasgaOTL4a22xDIIeHIdkl1IGv4SQCIJCuPEVl4bwHRg9eqkuIITllSQHkVpnWhW_nLXOWQZqEEAb5tvw11-qYT8dv8Phyx7-iFv1gh7ZFtIOjvZ0LUZBjUCb4XkK6I5CCwEUMfj5xgF9bKbFUClpmSe0wqYWWJCmv3WGn58Hf79jK4RgIu_Um0x1SkwX4",
+    "domain": ".google.com",
+    "path": "/",
+    "expires": 1790274591.414093,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  }
+]
