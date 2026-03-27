@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "jobos-v2.3",
+      name: "outly-v2.3",
       script: "dist/index.js",
       cwd: __dirname,
       instances: 1,

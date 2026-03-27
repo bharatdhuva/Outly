@@ -1,10 +1,10 @@
-# Cold Mail Guide for JobOS (Internship Focused) - 2026
+# Cold Mail Guide for Outly (Internship Focused) - 2026
 
-**Author:** Bharat Dhuva (JobOS)
+**Author:** Bharat Dhuva (Outly)
 **Version:** 1.0
 **Focus:** Internship applications (learn + contribute)
 
-Yeh guide tere JobOS Cold Mail Manager ke liye bana hai. AI prompt mein isko directly use kar sakta hai.
+Yeh guide tere Outly Cold Mail Manager ke liye bana hai. AI prompt mein isko directly use kar sakta hai.
 
 ---
 

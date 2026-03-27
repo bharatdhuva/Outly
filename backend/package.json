@@ -1,20 +1,20 @@
 {
-  "name": "jobos",
+  "name": "outly",
   "version": "1.0.0",
-  "description": "JobOS — Personal Career Automation System",
+  "description": "Outly — Personal Career Automation System",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "\"..\\\\.tools\\\\node-v22.22.1-win-x64\\\\node.exe\" .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs watch src/index.ts",
-    "build": "\"..\\\\.tools\\\\node-v22.22.1-win-x64\\\\node.exe\" .\\\\node_modules\\\\typescript\\\\bin\\\\tsc",
-    "start": "\"..\\\\.tools\\\\node-v22.22.1-win-x64\\\\node.exe\" dist/index.js",
-      "start:dev": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs src/index.ts",
-      "db:init": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs src/db/init.ts",
-      "setup:gmail": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/setup-gmail.ts",
-      "setup:linkedin": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/setup-linkedin.ts",
-      "test:whatsapp": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/test-whatsapp.ts",
-      "test:twitter": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/test-tweet.ts",
-      "test:reddit": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/test-reddit.ts"
+    "dev": "node .\\node_modules\\tsx\\dist\\cli.mjs watch src/index.ts",
+    "build": "node .\\node_modules\\typescript\\bin\\tsc",
+    "start": "node dist/index.js",
+    "start:dev": "node .\\node_modules\\tsx\\dist\\cli.mjs src/index.ts",
+    "db:init": "node .\\node_modules\\tsx\\dist\\cli.mjs src/db/init.ts",
+    "setup:gmail": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/setup-gmail.ts",
+    "setup:linkedin": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/setup-linkedin.ts",
+    "test:whatsapp": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/test-whatsapp.ts",
+    "test:twitter": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/test-tweet.ts",
+    "test:reddit": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/test-reddit.ts"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
