@@ -5,16 +5,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "start:dev": "tsx src/index.ts",
-    "db:init": "tsx src/db/init.ts",
-    "setup:gmail": "tsx scripts/setup-gmail.ts",
-    "setup:linkedin": "tsx scripts/setup-linkedin.ts",
-    "test:whatsapp": "tsx scripts/test-whatsapp.ts",
-    "test:twitter": "tsx scripts/test-tweet.ts",
-    "test:reddit": "tsx scripts/test-reddit.ts"
+    "dev": "\"..\\\\.tools\\\\node-v22.22.1-win-x64\\\\node.exe\" .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs watch src/index.ts",
+    "build": "\"..\\\\.tools\\\\node-v22.22.1-win-x64\\\\node.exe\" .\\\\node_modules\\\\typescript\\\\bin\\\\tsc",
+    "start": "\"..\\\\.tools\\\\node-v22.22.1-win-x64\\\\node.exe\" dist/index.js",
+      "start:dev": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs src/index.ts",
+      "db:init": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs src/db/init.ts",
+      "setup:gmail": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/setup-gmail.ts",
+      "setup:linkedin": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/setup-linkedin.ts",
+      "test:whatsapp": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/test-whatsapp.ts",
+      "test:twitter": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/test-tweet.ts",
+      "test:reddit": "node .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs scripts/test-reddit.ts"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
@@ -33,7 +33,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.7.9",
-    "better-sqlite3": "^11.6.0",
+    "better-sqlite3": "^12.8.0",
     "bull": "^4.16.3",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
