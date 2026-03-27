@@ -16,7 +16,7 @@ async function run() {
   const latestPost = postsList.length > 0 ? postsList[0] : null;
   const postStatus = latestPost?.status === "posted" ? "✅ Published" : "❌ Not published";
 
-  const msg = `📧 *JobOS Daily Report (Dry Run)*\n\nMails sent today: ${mailsToday}\nTotal mails sent: ${mailsSent}\nReplies received: ${replies}\nJobs applied today: ${appliedToday}\nLinkedIn post: ${postStatus}`;
+  const msg = `📧 *Outly Daily Report (Dry Run)*\n\nMails sent today: ${mailsToday}\nTotal mails sent: ${mailsSent}\nReplies received: ${replies}\nJobs applied today: ${appliedToday}\nLinkedIn post: ${postStatus}`;
 
   console.log("\nSending the following message to WhatsApp:");
   console.log("------------------------------------------");

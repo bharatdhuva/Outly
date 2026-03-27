@@ -32,7 +32,7 @@ export function getEditableSettings(): Record<EditableSettingKey, string> {
 }
 
 export function getSenderName(): string {
-  return getEditableSetting("full_name") || "JobOS User";
+  return getEditableSetting("full_name") || "Outly User";
 }
 
 export function getSenderEmail(): string {

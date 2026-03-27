@@ -11,7 +11,7 @@ export function scheduleDailySummary(): void {
     const latestPost = postQueries.getAll()[0];
     const postStatus = latestPost?.status === "posted" ? "✅ Published" : "❌ Not published";
 
-    const msg = `📧 JobOS Daily Report
+    const msg = `📧 Outly Daily Report
 Mails sent today: ${mailsToday}
 Total mails sent: ${mailsSent}
 Replies received: ${replies}

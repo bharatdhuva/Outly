@@ -40,7 +40,7 @@ export const env = {
   REDDIT_CLIENT_SECRET: process.env.REDDIT_CLIENT_SECRET ?? "",
   REDDIT_USERNAME: process.env.REDDIT_USERNAME ?? "",
   REDDIT_PASSWORD: process.env.REDDIT_PASSWORD ?? "",
-  REDDIT_USER_AGENT: process.env.REDDIT_USER_AGENT ?? "JobOS/1.0",
+  REDDIT_USER_AGENT: process.env.REDDIT_USER_AGENT ?? "Outly/1.0",
 
   TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ?? "",
   TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ?? "",
@@ -57,7 +57,7 @@ export const env = {
 
   REDIS_URL: process.env.REDIS_URL ?? "redis://localhost:6379",
 
-  DB_PATH: process.env.DB_PATH ?? path.join(projectRoot, "data", "jobos.db"),
+  DB_PATH: process.env.DB_PATH ?? path.join(projectRoot, "data", "outly.db"),
 
   MAX_EMAILS_PER_DAY: parseInt(process.env.MAX_EMAILS_PER_DAY ?? "20", 10),
   MAX_APPLIES_PER_SESSION: parseInt(

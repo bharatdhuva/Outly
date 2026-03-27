@@ -1,30 +1,4 @@
-import { useState, useRef, useEffect } from "react";
-import {
-  Mail,
-  Upload,
-  Plus,
-  Check,
-  SkipForward,
-  Send,
-  Sparkles,
-  RefreshCw,
-  ChevronRight,
-  MessageSquare,
-  Building2,
-  User,
-  ExternalLink,
-  MapPin,
-  Wrench,
-  GraduationCap,
-  Eye,
-  Trash2,
-  Edit,
-} from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/StatusBadge";
-import { api, type Company } from "@/lib/api";
-import { toast } from "sonner";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -35,455 +9,158 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
-const pipelineSteps = [
-  { key: "pending", label: "Pending" },
-  { key: "scraped", label: "Scraped" },
-  { key: "mail_generated", label: "Generated" },
-  { key: "approved", label: "Approved" },
-  { key: "mail_sent", label: "Sent" },
-];
-
-const pipelineOrder = [
-  "pending",
-  "scraped",
-  "mail_generated",
-  "approved",
-  "mail_sent",
-];
+import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { api, type Company } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function ColdMailPage() {
-  const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selected, setSelected] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [newCompany, setNewCompany] = useState<Partial<Company>>({
     company_name: "",
     website_url: "",
     hr_email: "",
-    role: "Software Development Engineer",
-    target_person_name: "",
-    target_person_role: "",
-    key_skills: "React, TypeScript, Node.js",
-    experience_level: "3rd year CS student",
-    sender_name: "",
-    sender_location: "",
-    personalization_hook: "",
   });
-  const [generateProvider, setGenerateProvider] = useState<"gemini" | "grok">("gemini");
-  const [loadingId, setLoadingId] = useState<number | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState<Partial<Company>>({});
-  const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
-  const { data: settings } = useQuery({
-    queryKey: ["settings"],
-    queryFn: api.settings.get,
-  });
-
-  const { data: companies = [], isLoading } = useQuery({
-    queryKey: ["coldmail", "companies"],
-    queryFn: api.coldmail.companies,
-    refetchInterval: 5000,
-  });
-
-  const selectedCompany = companies.find((c: Company) => c.id === selected);
-
-  useEffect(() => {
-    if (!settings) return;
-    setNewCompany((current) => ({
-      ...current,
-      sender_name: current.sender_name || settings.full_name || "",
-      sender_location: current.sender_location || settings.target_cities.split(",")[0]?.trim() || "",
-    }));
-  }, [settings]);
-
-  const uploadMutation = useMutation({
-    mutationFn: (file: File) => api.coldmail.uploadCsv(file),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-      toast.success(`Imported ${data.imported} companies`);
-    },
-    onError: (e) => toast.error(String(e)),
-  });
-
   const createMutation = useMutation({
     mutationFn: (data: Partial<Company>) => api.coldmail.create(data as any),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-      setIsAdding(false);
-      setNewCompany({
-        company_name: "",
-        website_url: "",
-        hr_email: "",
-        role: "Software Development Engineer",
-        target_person_name: "",
-        target_person_role: "",
-        key_skills: "React, TypeScript, Node.js",
-        experience_level: "3rd year CS student",
-        sender_name: settings?.full_name || "",
-        sender_location: settings?.target_cities.split(",")[0]?.trim() || "",
-        personalization_hook: "",
-      });
-      toast.success("Lead added successfully");
+      toast.success("Lead created");
+      setNewCompany({ company_name: "", website_url: "", hr_email: "" });
     },
     onError: (e) => toast.error(String(e)),
   });
-
-  const generateMutation = useMutation({
-    mutationFn: (provider: "gemini" | "grok") => api.coldmail.generateAll(provider),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-      toast.success(`Generated ${data.generated} mails`);
-    },
-    onError: (e) => toast.error(String(e)),
-  });
-
-  const approveAllMutation = useMutation({
-    mutationFn: () => api.coldmail.approveAll(),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-      toast.success(`Approved ${data.approved} mails`);
-    },
-  });
-
-  const sendApprovedMutation = useMutation({
-    mutationFn: () => api.coldmail.sendApproved(),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-      toast.success(`Queued ${data.queued} mails`);
-    },
-    onError: (e) => toast.error(String(e)),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.coldmail.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-      if (selected && companies.find((c: Company) => c.id === selected)) {
-        setSelected(null);
-      }
-      toast.success("Lead deleted");
-    },
-    onError: (e) => toast.error(String(e)),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Company> }) =>
-      api.coldmail.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-      toast.success("Lead updated");
-    },
-    onError: (e) => toast.error(String(e)),
-  });
-
-  const counts = {
-    pending: companies.filter((c: Company) => c.status === "pending").length,
-    approved: companies.filter((c: Company) => c.status === "approved").length,
-    sent: companies.filter((c: Company) =>
-      ["mail_sent", "replied"].includes(c.status),
-    ).length,
-    replied: companies.filter((c: Company) => c.status === "replied").length,
-  };
-
-  const getCurrentStepIndex = (status: string) => {
-    const idx = pipelineOrder.indexOf(status);
-    return idx === -1 ? 0 : idx;
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadMutation.mutate(file);
-    e.target.value = "";
-  };
-
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    createMutation.mutate(newCompany);
-  };
-
-  const handleCreateClick = () => {
-    createMutation.mutate(newCompany);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    deleteMutation.mutate(deleteTarget.id);
-    setDeleteTarget(null);
-  };
-
-  if (isLoading)
-    return (
-      <div className="flex justify-center py-12 text-muted-foreground">
-        Loading...
-      </div>
-    );
 
   return (
-    <>
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <AlertDialogContent className="border-border bg-card">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Lead?</AlertDialogTitle>
-            <AlertDialogDescription>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-4">Cold Mail Manager</h1>
+      <Dialog open={isAdding} onOpenChange={setIsAdding}>
+        <DialogTrigger asChild>
+          <Button onClick={() => setIsAdding(true)}>Add New Lead</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Lead</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              createMutation.mutate(newCompany);
+              setIsAdding(false);
+            }}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label>Company Name</Label>
+              <Input
+                required
+                placeholder="Acme Corp"
+                value={newCompany.company_name}
+                onChange={(e) =>
+                  setNewCompany({ ...newCompany, company_name: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Website</Label>
+              <Input
+                required
+                placeholder="https://acme.com"
+                value={newCompany.website_url}
+                onChange={(e) =>
+                  setNewCompany({ ...newCompany, website_url: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Target Email</Label>
+              <Input
+                required
+                type="email"
+                placeholder="hr@acme.com"
+                value={newCompany.hr_email}
+                onChange={(e) =>
+                  setNewCompany({ ...newCompany, hr_email: e.target.value })
+                }
+              />
+            </div>
+            <DialogFooter>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? "Adding..." : "Add Lead"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
               {deleteTarget
                 ? `This will permanently remove ${deleteTarget.company_name} from your cold mail pipeline.`
                 : "This will permanently remove this lead from your cold mail pipeline."}
             </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={handleDeleteConfirm}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Cold Mail Manager
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            AI-personalized outreach pipeline
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2 xl:justify-end">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <Dialog open={isAdding} onOpenChange={setIsAdding}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Plus className="h-3.5 w-3.5" />
-                Add Manually
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Add New Lead</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreate} className="space-y-4 py-2">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Company Name</Label>
-                    <Input
-                      required
-                      placeholder="e.g. Resilient Tech"
-                      value={newCompany.company_name}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, company_name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Website (optional)</Label>
-                    <Input
-                      type="url"
-                      placeholder="https://..."
-                      value={newCompany.website_url || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, website_url: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Target Person Name</Label>
-                    <Input
-                      placeholder="Sagar Vora"
-                      value={newCompany.target_person_name || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, target_person_name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Target Email</Label>
-                    <Input
-                      required
-                      type="email"
-                      placeholder="sagar@resilient.tech"
-                      value={newCompany.hr_email}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, hr_email: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Target Role</Label>
-                    <Input
-                      placeholder="Managing Partner"
-                      value={newCompany.target_person_role || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, target_person_role: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Role You Are Applying For</Label>
-                    <Input
-                      placeholder="Full Stack Developer"
-                      value={newCompany.role}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, role: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Personalization Hook (Mental Note)</Label>
-                  <Textarea
-                    placeholder="e.g. They are ERPNext partners and building India Compliance app."
-                    value={newCompany.personalization_hook || ""}
-                    onChange={(e) =>
-                      setNewCompany({ ...newCompany, personalization_hook: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>My Name</Label>
-                    <Input
-                      value={newCompany.sender_name || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, sender_name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>My Location</Label>
-                    <Input
-                      value={newCompany.sender_location || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, sender_location: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    onClick={handleCreateClick}
-                    disabled={createMutation.isPending}
+          return (
+            <div className="p-8">
+              <h1 className="text-2xl font-bold mb-4">Cold Mail Manager</h1>
+              <Dialog open={isAdding} onOpenChange={setIsAdding}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => setIsAdding(true)}>Add New Lead</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Lead</DialogTitle>
+                  </DialogHeader>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleCreateClick();
+                      setIsAdding(false);
+                    }}
+                    className="space-y-4"
                   >
-                    {createMutation.isPending ? "Adding..." : "Add Lead"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadMutation.isPending}
-          >
-            <Upload className="h-3.5 w-3.5" />
-            Upload CSV
-          </Button>
-          <div className="flex rounded-md border border-border overflow-hidden">
-            <Button
-              size="sm"
-              variant="ghost"
-              className={`rounded-none border-r border-border gap-2 ${generateProvider === "gemini" ? "bg-accent" : ""}`}
-              onClick={() => setGenerateProvider("gemini")}
-            >
-              Gemini
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className={`rounded-none gap-2 ${generateProvider === "grok" ? "bg-accent" : ""}`}
-              onClick={() => setGenerateProvider("grok")}
-            >
-              Groq
-            </Button>
-          </div>
-          <Button
-            size="sm"
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={() => generateMutation.mutate(generateProvider)}
-            disabled={generateMutation.isPending}
-          >
-            {generateMutation.isPending ? (
-              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="h-3.5 w-3.5" />
-            )}
-            {generateMutation.isPending ? "Generating..." : `Generate All (${generateProvider})`}
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats row */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { label: "Pending", count: counts.pending, color: "text-warning" },
-          { label: "Approved", count: counts.approved, color: "text-primary" },
-          { label: "Sent", count: counts.sent, color: "text-success" },
-          { label: "Replied", count: counts.replied, color: "text-info" },
-        ].map((s) => (
-          <div
-            key={s.label}
-            className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2"
-          >
-            <span className={`font-mono text-lg font-bold ${s.color}`}>
-              {s.count}
-            </span>
-            <span className="text-xs text-muted-foreground">{s.label}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-3 rounded-xl border border-border bg-card overflow-hidden">
-          <div className="border-b border-border px-4 py-3 bg-muted/30">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs font-medium text-muted-foreground">Lead Pipeline</p>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 gap-1.5 text-xs"
-                  onClick={() => approveAllMutation.mutate()}
-                  disabled={counts.approved === 0 || approveAllMutation.isPending}
-                >
-                  <Check className="h-3 w-3" /> Approve All
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 gap-1.5 text-xs text-primary"
+                    <div className="space-y-2">
+                      <Label>Company Name</Label>
+                      <Input
+                        required
+                        placeholder="Acme Corp"
+                        value={newCompany.company_name}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, company_name: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Website</Label>
+                      <Input
+                        required
+                        placeholder="https://acme.com"
+                        value={newCompany.website_url}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, website_url: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Target Email</Label>
+                      <Input
+                        required
+                        type="email"
+                        placeholder="hr@acme.com"
+                        value={newCompany.hr_email}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, hr_email: e.target.value })
+                        }
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit" disabled={createMutation.isPending}>
+                        {createMutation.isPending ? "Adding..." : "Add Lead"}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          );
+        }
                   onClick={() => sendApprovedMutation.mutate()}
                   disabled={
                     counts.approved === 0 || sendApprovedMutation.isPending
@@ -531,7 +208,7 @@ export default function ColdMailPage() {
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground truncate">
-                        {company.role}
+                        {company.hr_email}
                       </p>
                     </div>
                     <div className="order-4 flex items-center gap-0.5 sm:order-none">
@@ -846,18 +523,7 @@ export default function ColdMailPage() {
                       </p>
                       <p className="text-[10px] font-medium">{selectedCompany.sender_name}</p>
                    </div>
-                   <div className="space-y-1">
-                      <p className="text-[9px] text-muted-foreground flex items-center gap-1">
-                        <Wrench className="h-2.5 w-2.5" /> Skills
-                      </p>
-                      <p className="text-[10px] font-medium truncate">{selectedCompany.key_skills}</p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[9px] text-muted-foreground flex items-center gap-1">
-                        <GraduationCap className="h-2.5 w-2.5" /> Background
-                      </p>
-                      <p className="text-[10px] font-medium truncate">{selectedCompany.experience_level}</p>
-                   </div>
+
                  </div>
               </div>
             </div>
@@ -880,6 +546,5 @@ export default function ColdMailPage() {
         </div>
       </div>
       </div>
-    </>
-  );
-}
+    </div>
+

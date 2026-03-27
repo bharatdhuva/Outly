@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Initialize SQLite DB schema for Outly",
+			"type": "shell",
+			"command": "npx tsx src/db/init.ts",
+			"group": "build"
+		}
+	]
+}

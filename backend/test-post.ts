@@ -17,7 +17,7 @@ async function run() {
   console.log("\n================================================\n");
   
   console.log("3. (Safe Mode) Sending WhatsApp notification instead of posting to LinkedIn...");
-  await sendWhatsApp(`🚀 *JobOS Test Run*\n\nGenerated a new LinkedIn post draft successfully! Check your terminal to read it.`);
+  await sendWhatsApp(`🚀 *Outly Test Run*\n\nGenerated a new LinkedIn post draft successfully! Check your terminal to read it.`);
   
   console.log("✅ Check your WhatsApp!");
 }

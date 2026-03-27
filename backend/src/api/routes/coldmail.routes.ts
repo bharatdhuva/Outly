@@ -15,6 +15,19 @@ import { env } from "../../config/env.js";
 const router = Router();
 const upload = multer({ dest: path.join(env.DATA_DIR, "uploads") });
 
+// TEMP: List duplicate companies by name and email
+router.get("/duplicates", (_req, res) => {
+  const all = companyQueries.getAll();
+  const map = new Map();
+  for (const c of all) {
+    const key = `${c.company_name.toLowerCase()}|${c.hr_email.toLowerCase()}`;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(c);
+  }
+  const duplicates = Array.from(map.values()).filter(arr => arr.length > 1);
+  res.json({ duplicates });
+});
+
 router.get("/companies", (_req, res) => {
   const companies = companyQueries.getAll();
   res.json(companies);
@@ -22,9 +35,29 @@ router.get("/companies", (_req, res) => {
 
 router.post("/companies", (req, res) => {
   try {
+    const { company_name, website_url, hr_email } = req.body;
     const result = companyQueries.insert({
-      ...req.body,
-      status: req.body.status || "pending"
+      company_name,
+      website_url: website_url || null,
+      hr_email,
+      role: "Software Development Engineer", // default
+      linkedin_url: null,
+      target_person_name: null,
+      target_person_role: null,
+      key_skills: null,
+      experience_level: null,
+      sender_name: null,
+      sender_location: null,
+      status: "pending",
+      scraped_context: null,
+      generated_subject: null,
+      generated_mail: null,
+      personalization_hook: null,
+      sent_at: null,
+      reply_detected_at: null,
+      followup_sent_at: null,
+      followup_status: null,
+      error_message: null
     });
     res.json({ id: Number(result.lastInsertRowid) });
   } catch (e) {

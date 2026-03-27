@@ -41,7 +41,7 @@ export async function sendColdMail(companyId: number): Promise<boolean> {
 
   try {
     const transport = await getTransporter();
-    const messageId = `<${Date.now()}.${companyId}@jobos.local>`;
+    const messageId = `<${Date.now()}.${companyId}@outly.local>`;
     const senderName = company.sender_name || getSenderName();
     const senderEmail = getSenderEmail();
     await transport.sendMail({
@@ -95,7 +95,7 @@ export async function sendFollowUpMail(companyId: number, subject: string, body:
     const senderEmail = getSenderEmail();
     // In-reply-to would be better here, but since we don't store Message-ID, 
     // a basic RE: subject keeps it threaded in most modern clients
-    const messageId = `<followup_${Date.now()}.${companyId}@jobos.local>`;
+    const messageId = `<followup_${Date.now()}.${companyId}@outly.local>`;
     await transport.sendMail({
       from: `"${senderName}" <${senderEmail}>`,
       to: company.hr_email,

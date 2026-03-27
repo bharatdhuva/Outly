@@ -44,7 +44,7 @@ async function main() {
   registerTelegramCallbacks();
   await startServer();
 
-  logger.info("JobOS started — all services initialized", { source: "system" });
+  logger.info("Outly started — all services initialized", { source: "system" });
 }
 
 main().catch((e) => {

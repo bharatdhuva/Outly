@@ -21,7 +21,7 @@ export function getRedditClient(): Snoowrap {
   }
   if (!_client) {
     _client = new Snoowrap({
-      userAgent: env.REDDIT_USER_AGENT || "JobOS/1.0",
+      userAgent: env.REDDIT_USER_AGENT || "Outly/1.0",
       clientId: env.REDDIT_CLIENT_ID!,
       clientSecret: env.REDDIT_CLIENT_SECRET!,
       username: env.REDDIT_USERNAME!,

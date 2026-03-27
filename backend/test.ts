@@ -13,7 +13,7 @@ async function run() {
   try {
     const me = await client.v2.me();
     console.log("Me:", me);
-    const tweet = await client.v2.tweet("Automated test from JobOS! " + Date.now());
+    const tweet = await client.v2.tweet("Automated test from Outly! " + Date.now());
     console.log("Tweet success:", tweet);
   } catch (err: any) {
     if (err.data) {
