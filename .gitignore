@@ -23,9 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables - Important!
+# Environment variables
 .env
-.env.example
 backend/.env
 *.env
 .env.local
