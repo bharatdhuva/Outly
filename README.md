@@ -60,25 +60,24 @@ Upload a CSV → GPT-4 researches every company → writes hyper-personalized co
 
 <br>
 
-**Dashboard Overview**
+**Loading Screen**
 ![Dashboard Overview](https://github.com/user-attachments/assets/bc8517e4-28e2-445c-9449-374b6162a6f5)
 
-**Cold Email Generator**
+**Welcome Page**
 ![Cold Email Generator](https://github.com/user-attachments/assets/b0ed4b66-1bfd-4c91-b74c-897f180b434f)
 
-**Resume-to-JD Matcher**
+**Home-Page**
 ![Resume Matcher](https://github.com/user-attachments/assets/7f8282a5-6695-4040-84ca-6598f2ff72d9)
 
-**LinkedIn & Twitter Scheduler**
+**Cold-Mailing Page**
 ![Content Scheduler](https://github.com/user-attachments/assets/5b8a5e0b-8253-41c0-9400-28ceb18ad4d4)
 
-**Telegram Bot Notifications**
 ![Telegram Bot](https://github.com/user-attachments/assets/44e64ec1-45f9-4590-80d8-35de33f48da3)
 
-**Queue Monitor**
+
 ![Queue Monitor](https://github.com/user-attachments/assets/b802e226-2da6-46ac-842d-f437a4263f35)
 
-**Settings & Notifications**
+
 ![Settings](https://github.com/user-attachments/assets/209b38a7-2f62-4e8a-8f67-5563fd6c02e4)
 
 </details>
