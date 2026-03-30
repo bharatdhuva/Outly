@@ -32,7 +32,7 @@ Upload a CSV → GPT-4 researches every company → writes hyper-personalized co
 | Feature | What it does |
 |---------|-------------|
 | 📧 **AI Cold Email Generator** | Upload CSV → GPT-4 researches each company → writes unique personalized email → saved to Gmail Drafts |
-| 📄 **AI Resume-to-JD Matcher** | GPT-4 scores your resume vs any JD, highlights missing ATS keywords, gives exact fixes |
+| 📄 **AI Resume-to-JD Matcher(upcoming)** | GPT-4 scores your resume vs any JD, highlights missing ATS keywords, gives exact fixes |
 | 📅 **AI Content Scheduler** | GPT-4 writes LinkedIn + Twitter posts, auto-publishes at your set time via Telegram Bot |
 | ⚡ **Fault-Tolerant Job Queue** | Bull + Redis with rate-limiting, auto-retry, zero duplicate actions |
 | 🔔 **Real-Time Notifications** | Instant Telegram alerts for every action — email saved, post published, match scored |
