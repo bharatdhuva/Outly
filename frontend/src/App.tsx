@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Twitter from "./pages/Twitter";
 import Reddit from "./pages/Reddit";
 import { TelegramControl } from "./pages/TelegramControl";
+import ResumeTailorPage from "./pages/ResumeTailor";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const App = () => {
                 <Route path="/telegram" element={<TelegramControl />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/logs" element={<Logs />} />
+                <Route path="/resume-tailor" element={<ResumeTailorPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </DashboardLayout>

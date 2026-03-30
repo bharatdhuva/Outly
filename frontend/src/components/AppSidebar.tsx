@@ -18,6 +18,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 const navItems = [
   { title: "Overview", url: "/", icon: LayoutDashboard },
   { title: "Cold Mail", url: "/cold-mail", icon: Mail },
+  { title: "Resume Tailor", url: "/resume-tailor", icon: FileText },
   { title: "LinkedIn Posts", url: "/linkedin-posts", icon: FileText },
   { title: "Twitter / X", url: "/twitter", icon: Twitter },
   { title: "Reddit", url: "/reddit", icon: MessageSquare },
