@@ -29,8 +29,7 @@ export function QueueStatusBar({
     });
 
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border bg-card px-4 py-3">
-      {/* Queue indicators */}
+    <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-card px-4 py-3 shadow-sm">
       <div className="flex items-center gap-2">
         <Mail className="h-3.5 w-3.5 text-muted-foreground" />
         <span className="text-xs text-muted-foreground">Mail Queue:</span>
@@ -46,7 +45,7 @@ export function QueueStatusBar({
         )}
       </div>
 
-      <div className="h-4 w-px bg-border" />
+      <div className="hidden h-4 w-px bg-border sm:block" />
 
       <div className="flex items-center gap-2">
         <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
@@ -63,7 +62,7 @@ export function QueueStatusBar({
         )}
       </div>
 
-      <div className="h-4 w-px bg-border" />
+      <div className="hidden h-4 w-px bg-border sm:block" />
 
       <div className="flex items-center gap-2">
         <Clock className="h-3.5 w-3.5 text-muted-foreground" />
@@ -71,7 +70,7 @@ export function QueueStatusBar({
         <span className="font-mono text-xs text-foreground">{nextCron}</span>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
         <Zap className="h-3.5 w-3.5 text-primary" />
         <span className="font-mono text-xs text-muted-foreground">{istTime} IST</span>
       </div>

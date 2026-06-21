@@ -6,7 +6,7 @@ interface MiniChartProps {
   height?: number;
 }
 
-export function MiniChart({ data, color = "hsl(24 95% 53%)", height = 40 }: MiniChartProps) {
+export function MiniChart({ data, color = "hsl(245 78% 58%)", height = 40 }: MiniChartProps) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>

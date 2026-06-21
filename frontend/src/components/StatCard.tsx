@@ -13,10 +13,10 @@ interface StatCardProps {
 }
 
 const variantStyles = {
-  default: "border-border hover:border-border",
-  primary: "border-primary/20 hover:border-primary/40",
-  success: "border-success/20 hover:border-success/40",
-  warning: "border-warning/20 hover:border-warning/40",
+  default: "border-border",
+  primary: "border-primary/25",
+  success: "border-success/25",
+  warning: "border-warning/25",
 };
 
 const iconVariantStyles = {
@@ -26,25 +26,11 @@ const iconVariantStyles = {
   warning: "bg-warning/10 text-warning",
 };
 
-const glowStyles = {
-  default: "",
-  primary: "hover:shadow-[0_0_20px_hsl(24_95%_53%/0.1)]",
-  success: "hover:shadow-[0_0_20px_hsl(142_71%_45%/0.1)]",
-  warning: "hover:shadow-[0_0_20px_hsl(38_92%_50%/0.1)]",
-};
-
 const sparklineColors = {
-  default: "hsl(228, 10%, 55%)",
-  primary: "hsl(24, 95%, 53%)",
-  success: "hsl(142, 71%, 45%)",
-  warning: "hsl(38, 92%, 50%)",
-};
-
-const leftBorderStyles = {
-  default: "",
-  primary: "border-l-2 border-l-primary/50",
-  success: "border-l-2 border-l-success/50",
-  warning: "border-l-2 border-l-warning/50",
+  default: "hsl(220, 13%, 46%)",
+  primary: "hsl(245, 78%, 58%)",
+  success: "hsl(158, 64%, 40%)",
+  warning: "hsl(35, 92%, 50%)",
 };
 
 export function StatCard({
@@ -59,25 +45,23 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "rounded-xl border bg-card p-5 transition-all duration-300",
+        "rounded-lg border bg-card p-5 shadow-[var(--shadow-card)] transition-colors duration-200 hover:border-primary/30",
         variantStyles[variant],
-        glowStyles[variant],
-        leftBorderStyles[variant]
       )}
     >
       <div className="flex items-start justify-between">
         <div className="space-y-1 flex-1 min-w-0">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-[12px] font-medium text-muted-foreground">
             {title}
           </p>
-          <p className="animate-count-up text-3xl font-bold tracking-tight text-card-foreground">
+          <p className="animate-count-up text-2xl font-semibold tracking-tight text-card-foreground">
             {value}
           </p>
           {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
           {trend && (
             <p
               className={cn(
-                "mt-1 text-xs font-medium",
+                "mt-1 text-[12px] font-semibold",
                 trend.positive ? "text-success" : "text-destructive"
               )}
             >
@@ -87,11 +71,11 @@ export function StatCard({
         </div>
         <div
           className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-md",
             iconVariantStyles[variant]
           )}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-4 w-4" />
         </div>
       </div>
 

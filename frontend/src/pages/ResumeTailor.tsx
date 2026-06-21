@@ -1,8 +1,7 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, UploadCloud } from "lucide-react";
+import { Loader2, UploadCloud, X } from "lucide-react";
 import PdfViewer from "@/components/PdfViewer";
 
 export default function ResumeTailorPage() {
@@ -32,65 +31,95 @@ export default function ResumeTailorPage() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl mx-auto py-10">
-      {/* Left: Job Description Paste */}
-      <div className="flex-1 bg-[#181A20] rounded-xl shadow p-6 border border-border">
-        <h2 className="text-lg font-semibold mb-2 text-white">Paste Job Description</h2>
-        <Textarea
-          className="min-h-[220px] resize-vertical border-border bg-[#23262F] text-white placeholder:text-muted-foreground focus:ring-primary"
-          placeholder="Paste the job description here..."
-          value={jobDesc}
-          onChange={e => setJobDesc(e.target.value)}
-        />
+    <div className="mx-auto w-full max-w-6xl space-y-6">
+      <div>
+        <p className="text-[13px] font-medium text-primary">Resume Tailor</p>
+        <h1 className="mt-1 text-[28px] font-semibold tracking-tight text-foreground">Prepare a role-specific application</h1>
+        <p className="mt-2 max-w-2xl text-[14px] leading-6 text-muted-foreground">
+          Paste the role context, upload your resume, and review the source material before generating a tailored version.
+        </p>
       </div>
-      {/* Right: Resume Upload & Preview */}
-      <div className="flex-1 bg-[#181A20] rounded-xl shadow p-6 border border-border flex flex-col items-center justify-center min-h-[320px]">
-        {!resumeFile && (
-          <>
-            <div className="flex flex-col items-center gap-3">
-              <UploadCloud className="w-10 h-10 text-primary" />
-              <p className="text-white font-medium">Drag & drop or upload your resume</p>
-              <Button
-                variant="outline"
-                className="mt-2 border-border text-white hover:bg-[#23262F]"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Upload Resume
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.doc,.docx,.txt"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              <span className="text-xs text-muted-foreground">PDF, DOC, DOCX, or TXT</span>
-            </div>
-          </>
-        )}
-        {loading && (
-          <div className="flex flex-col items-center gap-2 mt-6">
-            <Loader2 className="w-7 h-7 animate-spin text-primary" />
-            <span className="text-primary text-sm">Loading your resume...</span>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+          <div className="mb-4">
+            <h2 className="text-[15px] font-semibold text-foreground">Job description</h2>
+            <p className="mt-1 text-[13px] text-muted-foreground">Include responsibilities, requirements, and any company-specific context.</p>
           </div>
-        )}
-        {resumeFile && !loading && (
-          <div className="w-full mt-2">
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-semibold text-white">{resumeFile.name}</span>
-              <Button size="xs" variant="ghost" className="text-muted-foreground" onClick={() => { setResumeFile(null); setResumeText(null); }}>Remove</Button>
-            </div>
-            {resumeFile.type === "application/pdf" ? (
-              <div className="rounded border border-border bg-[#23262F]">
-                <PdfViewer file={resumeFile} />
-              </div>
-            ) : resumeText ? (
-              <div className="max-h-[340px] overflow-y-auto bg-[#23262F] rounded p-4 border border-border">
-                <pre className="whitespace-pre-wrap text-xs text-white font-mono">{resumeText}</pre>
-              </div>
-            ) : null}
+          <Textarea
+            className="min-h-[320px] resize-y rounded-lg border-border bg-white text-[14px] leading-6 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+            placeholder="Paste the job description here..."
+            value={jobDesc}
+            onChange={(e) => setJobDesc(e.target.value)}
+          />
+        </section>
+
+        <section className="flex min-h-[420px] flex-col rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+          <div className="mb-4">
+            <h2 className="text-[15px] font-semibold text-foreground">Resume source</h2>
+            <p className="mt-1 text-[13px] text-muted-foreground">Upload a PDF, DOC, DOCX, or TXT file for preview.</p>
           </div>
-        )}
+
+          {!resumeFile && (
+            <div className="grid flex-1 place-items-center rounded-xl border border-dashed border-border bg-secondary p-8 text-center">
+              <div className="flex max-w-sm flex-col items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-primary">
+                  <UploadCloud className="h-5 w-5" />
+                </div>
+                <p className="text-[14px] font-medium text-foreground">Upload your resume</p>
+                <p className="text-[13px] leading-5 text-muted-foreground">Choose a document to preview before tailoring.</p>
+                <Button className="mt-1" onClick={() => fileInputRef.current?.click()}>
+                  Select file
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </div>
+            </div>
+          )}
+
+          {loading && (
+            <div className="grid flex-1 place-items-center rounded-xl border border-border bg-secondary">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-7 w-7 animate-spin text-primary" />
+                <span className="text-[13px] font-medium text-muted-foreground">Loading your resume...</span>
+              </div>
+            </div>
+          )}
+
+          {resumeFile && !loading && (
+            <div className="min-h-0 flex-1">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <span className="truncate text-[13px] font-semibold text-foreground">{resumeFile.name}</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="gap-1 text-muted-foreground"
+                  onClick={() => {
+                    setResumeFile(null);
+                    setResumeText(null);
+                  }}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Remove
+                </Button>
+              </div>
+              {resumeFile.type === "application/pdf" ? (
+                <div className="overflow-hidden rounded-lg border border-border bg-secondary">
+                  <PdfViewer file={resumeFile} />
+                </div>
+              ) : resumeText ? (
+                <div className="max-h-[360px] overflow-y-auto rounded-lg border border-border bg-secondary p-4">
+                  <pre className="whitespace-pre-wrap font-mono text-[12px] leading-5 text-foreground">{resumeText}</pre>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

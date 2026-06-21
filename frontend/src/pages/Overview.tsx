@@ -1,18 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  Mail,
-  FileText,
-  MessageSquare,
-  CheckCircle,
   AlertTriangle,
-  XCircle,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  FileText,
+  Mail,
+  MessageSquare,
+  RadioTower,
+  Send,
+  Settings,
+  ShieldCheck,
+  Sparkles,
   TrendingUp,
-  Star,
+  XCircle,
 } from "lucide-react";
-import { StatCard } from "@/components/StatCard";
+import { Link } from "react-router-dom";
 import { QueueStatusBar } from "@/components/QueueStatusBar";
+import { StatCard } from "@/components/StatCard";
 import { api } from "@/lib/api";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const iconMap: Record<string, typeof CheckCircle> = {
   mail_sent: CheckCircle,
@@ -27,6 +33,27 @@ const colorMap: Record<string, string> = {
   mail_failed: "text-warning",
   captcha: "text-destructive",
 };
+
+const quickActions = [
+  {
+    title: "Prepare cold mail",
+    description: "Review target companies, queue outreach, and keep follow-ups moving.",
+    href: "/cold-mail",
+    icon: Mail,
+  },
+  {
+    title: "Tailor resume",
+    description: "Generate a role-specific resume before sending the next application.",
+    href: "/resume-tailor",
+    icon: FileText,
+  },
+  {
+    title: "Tune settings",
+    description: "Confirm identity, OAuth, and posting rules before automation runs.",
+    href: "/settings",
+    icon: Settings,
+  },
+];
 
 export default function OverviewPage() {
   const {
@@ -59,110 +86,150 @@ export default function OverviewPage() {
     queryFn: api.settings.get,
   });
 
-  const weeklyData = [
-    { day: "Mon", mails: stats?.mailsToday ?? 0 },
-    { day: "Tue", mails: 0 },
-    { day: "Wed", mails: 0 },
-    { day: "Thu", mails: 0 },
-    { day: "Fri", mails: 0 },
-    { day: "Sat", mails: 0 },
-    { day: "Sun", mails: 0 },
+  const brandScore =
+    (stats?.linkedinPosts ?? 0) * 10 +
+    (stats?.twitterPosts ?? 0) * 5 +
+    (stats?.redditPosts ?? 0) * 8;
+
+  const readiness = [
+    { label: "Redis", ok: systemStatus?.redis, note: systemStatus?.redis ? "Connected" : "Queue storage offline" },
+    { label: "Gmail", ok: systemStatus?.gmail, note: systemStatus?.gmail ? "Authenticated" : "OAuth required" },
+    { label: "LinkedIn", ok: systemStatus?.linkedin, note: systemStatus?.linkedin ? "Session valid" : "Setup required" },
+    { label: "WhatsApp", ok: systemStatus?.whatsapp, note: systemStatus?.whatsapp ? "Connected" : "Not configured" },
   ];
 
-  const systemStatusList = [
-    {
-      label: "Mail Queue",
-      value: `${queueStatus?.mailPending ?? 0} pending`,
-      status: "active",
-    },
-    {
-      label: "Redis",
-      value: systemStatus?.redis ? "Connected" : "Disconnected",
-      status: systemStatus?.redis ? "active" : "idle",
-    },
-    {
-      label: "Gmail OAuth",
-      value: systemStatus?.gmail ? "Authenticated" : "Not connected",
-      status: systemStatus?.gmail ? "active" : "idle",
-    },
-    {
-      label: "LinkedIn Mode",
-      value: systemStatus?.linkedinMode === "manual" ? "Manual (Safe)" : systemStatus?.linkedinMode ?? "Unknown",
-      status: "active",
-    },
-    {
-      label: "LinkedIn Session",
-      value: systemStatus?.linkedin ? "Valid" : "Setup required",
-      status: systemStatus?.linkedin ? "active" : "idle",
-    },
-    {
-      label: "WhatsApp",
-      value: systemStatus?.whatsapp ? "Connected" : "Not configured",
-      status: systemStatus?.whatsapp ? "active" : "idle",
-    },
-    {
-      label: "Next Weekly Post",
-      value: systemStatus?.nextWeeklyPostLabel ?? "Not scheduled",
-      status: "scheduled",
-    },
+  const socialChannels = [
+    { label: "LinkedIn", value: stats?.linkedinPosts ?? 0, href: "/linkedin-posts", icon: FileText },
+    { label: "Twitter / X", value: stats?.twitterPosts ?? 0, href: "/twitter", icon: MessageSquare },
+    { label: "Reddit", value: stats?.redditPosts ?? 0, href: "/reddit", icon: RadioTower },
+    { label: "Telegram", value: systemStatus?.whatsapp ? "Live" : "Ready", href: "/telegram", icon: Send },
   ];
 
-  const CustomTooltip = ({
-    active,
-    payload,
-    label,
-  }: {
-    active?: boolean;
-    payload?: { color: string; name: string; value: number }[];
-    label?: string;
-  }) => {
-    if (!active || !payload?.length) return null;
-    return (
-      <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-lg">
-        <p className="mb-1 font-medium text-foreground">{label}</p>
-        {payload.map((point) => (
-          <p key={point.name} style={{ color: point.color }}>
-            {point.name}: {point.value}
-          </p>
-        ))}
-      </div>
-    );
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const activityByDay = new Map<string, number>();
+
+  (activity ?? []).forEach((item) => {
+    const isApplyActivity = item.type === "job_applied" || item.type === "mail_sent";
+    if (!isApplyActivity) return;
+    const key = new Date(item.created_at).toISOString().slice(0, 10);
+    activityByDay.set(key, (activityByDay.get(key) ?? 0) + 1);
+  });
+
+  if ((stats?.mailsToday ?? 0) > 0) {
+    activityByDay.set(todayKey, Math.max(activityByDay.get(todayKey) ?? 0, stats?.mailsToday ?? 0));
+  }
+
+  const streakDays = Array.from({ length: 35 }, (_, index) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (34 - index));
+    const key = date.toISOString().slice(0, 10);
+    const count = activityByDay.get(key) ?? 0;
+    return {
+      key,
+      count,
+      label: date.toLocaleDateString("en-IN", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }),
+    };
+  });
+
+  let dailyApplyStreak = 0;
+  for (let index = streakDays.length - 1; index >= 0; index -= 1) {
+    if (streakDays[index].count === 0) break;
+    dailyApplyStreak += 1;
+  }
+
+  const streakCellClass = (count: number) => {
+    if (count >= 6) return "bg-primary";
+    if (count >= 3) return "bg-primary/70";
+    if (count >= 1) return "bg-primary/35";
+    return "bg-secondary";
   };
 
   if (statsLoading && !stats && !statsError) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-muted-foreground">Loading dashboard...</p>
+      <div className="grid min-h-[460px] place-items-center">
+        <div className="w-full max-w-xl rounded-md border border-border bg-card p-6">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-md bg-primary/10 shimmer" />
+            <div className="space-y-2">
+              <div className="h-3 w-48 rounded bg-muted shimmer" />
+              <div className="h-3 w-28 rounded bg-muted shimmer" />
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="h-24 rounded-md bg-muted shimmer" />
+            <div className="h-24 rounded-md bg-muted shimmer" />
+            <div className="h-24 rounded-md bg-muted shimmer" />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (statsError) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center gap-2">
-        <AlertTriangle className="h-12 w-12 text-warning" />
-        <p className="text-muted-foreground">Backend offline. Start it with `npm run dev`.</p>
-        <p className="text-xs text-muted-foreground">The dashboard will reconnect automatically when the API is available.</p>
+      <div className="grid min-h-[460px] place-items-center">
+        <div className="w-full max-w-xl rounded-md border border-warning/25 bg-warning/5 p-6 text-center">
+          <AlertTriangle className="mx-auto h-10 w-10 text-warning" />
+          <h1 className="mt-4 text-xl font-semibold text-foreground">Outly cannot reach the backend</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Start the backend and this dashboard will reconnect automatically. The frontend is still available for layout review.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            {settings?.full_name ? `${settings.full_name}'s automation dashboard` : "Your career automation at a glance"}
-          </p>
-        </div>
-        {stats && stats.mailsSent > 0 && (
-          <div className="flex w-full items-center gap-2 rounded-lg border border-success/20 bg-success/5 px-3 py-1.5 sm:w-auto">
-            <TrendingUp className="h-3.5 w-3.5 text-success" />
-            <span className="text-xs font-medium text-success">{stats.replyRate}% reply rate</span>
+    <div className="animate-fade-in space-y-6">
+      <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-accent px-3 py-1 text-[12px] font-medium text-primary">
+                <Sparkles className="h-3.5 w-3.5" />
+                Outreach workspace
+              </div>
+              <h1 className="text-[28px] font-semibold leading-9 tracking-tight text-foreground sm:text-[34px] sm:leading-10">
+                {settings?.full_name ? `${settings.full_name}'s launch desk` : "Launch desk for career outreach"}
+              </h1>
+              <p className="mt-3 max-w-2xl text-[14px] leading-6 text-muted-foreground">
+                Outly keeps cold mail, resume tailoring, social posts, and channel health in one readable workspace.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-secondary p-4 lg:min-w-56">
+              <p className="text-[12px] font-medium text-muted-foreground">Reply rate</p>
+              <div className="mt-2 flex items-end gap-2">
+                <span className="text-[32px] font-semibold tracking-tight text-foreground">{stats?.replyRate ?? 0}%</span>
+                <TrendingUp className="mb-2 h-5 w-5 text-success" />
+              </div>
+              <p className="mt-2 text-[12px] text-muted-foreground">{stats?.replies ?? 0} replies from {stats?.mailsSent ?? 0} sent mails</p>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[12px] font-medium text-muted-foreground">Next scheduled post</p>
+              <p className="mt-2 text-[17px] font-semibold text-foreground">
+                {systemStatus?.nextWeeklyPostLabel ?? stats?.nextWeeklyPostLabel ?? "Not scheduled"}
+              </p>
+            </div>
+            <Clock className="h-8 w-8 text-primary" />
+          </div>
+          <Link
+            to="/linkedin-posts"
+            className="mt-6 inline-flex w-full items-center justify-between rounded-md border border-border bg-white px-3 py-2 text-[13px] font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            Manage content calendar
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
 
       <QueueStatusBar
         mailPending={queueStatus?.mailPending ?? 0}
@@ -170,67 +237,137 @@ export default function OverviewPage() {
         nextCron={systemStatus?.nextWeeklyPostLabel ?? stats?.nextWeeklyPostLabel ?? "Not scheduled"}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
-        <StatCard
-          title="Brand Score"
-          value={(stats?.linkedinPosts ?? 0) * 10 + (stats?.twitterPosts ?? 0) * 5 + (stats?.redditPosts ?? 0) * 8}
-          icon={Star}
-          variant="primary"
-          subtitle="Total influence"
-        />
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="Brand Score" value={brandScore} icon={ShieldCheck} variant="primary" subtitle="LinkedIn, X, and Reddit signal" />
         <StatCard
           title="Mails Sent"
           value={stats?.mailsSent ?? 0}
           icon={Mail}
-          variant="primary"
+          variant="success"
           trend={stats?.mailsToday ? { value: `+${stats.mailsToday} today`, positive: true } : undefined}
         />
-        <StatCard
-          title="LinkedIn Posts"
-          value={stats?.linkedinPosts ?? 0}
-          icon={FileText}
-          subtitle="Manual posting"
-        />
-        <StatCard
-          title="Replies"
-          value={stats?.replies ?? 0}
-          icon={MessageSquare}
-          variant="warning"
-          trend={stats?.replyRate ? { value: `${stats.replyRate}% rate`, positive: true } : undefined}
-        />
-      </div>
+        <StatCard title="Social Posts" value={(stats?.linkedinPosts ?? 0) + (stats?.twitterPosts ?? 0) + (stats?.redditPosts ?? 0)} icon={RadioTower} subtitle="Published or prepared" />
+        <StatCard title="Replies" value={stats?.replies ?? 0} icon={MessageSquare} variant="warning" subtitle="Responses captured" />
+      </section>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-xl border border-border bg-card p-5">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Weekly Activity</h2>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={weeklyData} barGap={4} barCategoryGap="30%">
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "hsl(228 10% 55%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(228 10% 55%)" }} axisLine={false} tickLine={false} width={24} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(228 12% 20% / 0.5)" }} />
-              <Bar dataKey="mails" name="Mails" fill="hsl(24 95% 53%)" radius={[4, 4, 0, 0]} maxBarSize={24} />
-            </BarChart>
-          </ResponsiveContainer>
+      <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-[15px] font-semibold text-foreground">Daily apply streak</h2>
+              <p className="text-[13px] text-muted-foreground">A GitHub-style view of daily applications and outreach activity.</p>
+            </div>
+            <span className="rounded-full border border-border bg-secondary px-2.5 py-1 text-[12px] font-medium text-muted-foreground">
+              {dailyApplyStreak} day streak
+            </span>
+          </div>
+
+          <div className="overflow-x-auto pb-1">
+            <div className="min-w-[560px] rounded-xl border border-border bg-white p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-[12px] font-medium text-muted-foreground">Last 35 days</p>
+                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span>Less</span>
+                  <span className="h-3 w-3 rounded-[3px] bg-secondary" />
+                  <span className="h-3 w-3 rounded-[3px] bg-primary/35" />
+                  <span className="h-3 w-3 rounded-[3px] bg-primary/70" />
+                  <span className="h-3 w-3 rounded-[3px] bg-primary" />
+                  <span>More</span>
+                </div>
+              </div>
+              <div className="grid grid-flow-col grid-rows-7 gap-1.5">
+                {streakDays.map((day) => (
+                  <div
+                    key={day.key}
+                    title={`${day.label}: ${day.count} ${day.count === 1 ? "apply" : "applies"}`}
+                    className={`h-4 w-4 rounded-[4px] ring-1 ring-slate-900/5 ${streakCellClass(day.count)}`}
+                    aria-label={`${day.label}: ${day.count} applies`}
+                  />
+                ))}
+              </div>
+              <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-4">
+                <div>
+                  <p className="text-[11px] font-medium text-muted-foreground">Today</p>
+                  <p className="mt-1 text-lg font-semibold text-foreground">{activityByDay.get(todayKey) ?? 0}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-medium text-muted-foreground">Current streak</p>
+                  <p className="mt-1 text-lg font-semibold text-foreground">{dailyApplyStreak}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-medium text-muted-foreground">Active days</p>
+                  <p className="mt-1 text-lg font-semibold text-foreground">{streakDays.filter((day) => day.count > 0).length}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-xl border border-border bg-card p-5">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Recent Activity</h2>
-          <div className="space-y-0.5">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+          <h2 className="text-[15px] font-semibold text-foreground">Readiness checklist</h2>
+          <p className="mt-1 text-[13px] text-muted-foreground">The core integrations that decide whether automation can run.</p>
+          <div className="mt-5 space-y-3">
+            {readiness.map((item) => (
+              <div key={item.label} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-secondary p-3">
+                <div>
+                  <p className="text-[13px] font-medium text-foreground">{item.label}</p>
+                  <p className="mt-1 text-[12px] text-muted-foreground">{item.note}</p>
+                </div>
+                <span className={`mt-1 h-2.5 w-2.5 rounded-full ${item.ok ? "bg-success" : "bg-warning"}`} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+          <h2 className="text-[15px] font-semibold text-foreground">Next best actions</h2>
+          <div className="mt-4 space-y-3">
+            {quickActions.map((action) => (
+              <Link
+                key={action.href}
+                to={action.href}
+                className="group flex items-start gap-3 rounded-lg border border-border bg-white p-3 shadow-sm transition-colors hover:border-primary/40 hover:bg-accent"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                  <action.icon className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-medium text-foreground">{action.title}</p>
+                  <p className="mt-1 text-[12px] leading-5 text-muted-foreground">{action.description}</p>
+                </div>
+                <ArrowRight className="mt-2 h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-[15px] font-semibold text-foreground">Recent activity</h2>
+              <p className="text-[13px] text-muted-foreground">Latest system events and campaign outcomes.</p>
+            </div>
+            <Link to="/logs" className="inline-flex items-center gap-2 text-[13px] font-medium text-primary">
+              View logs <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="space-y-1">
             {(activity ?? []).length === 0 ? (
-              <p className="py-4 text-sm text-muted-foreground">No activity yet</p>
+              <div className="rounded-lg border border-dashed border-border bg-secondary p-6 text-center">
+                <p className="text-[13px] font-medium text-foreground">No activity recorded yet</p>
+                <p className="mt-1 text-[12px] text-muted-foreground">Run a campaign or connect an integration to start filling this feed.</p>
+              </div>
             ) : (
-              (activity ?? []).map((item, index) => {
+              (activity ?? []).slice(0, 8).map((item, index) => {
                 const Icon = iconMap[item.type] ?? CheckCircle;
                 const color = colorMap[item.type] ?? "text-muted-foreground";
                 const time = new Date(item.created_at).toLocaleString();
                 return (
-                  <div key={index} className="flex flex-col gap-2 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/50 sm:flex-row sm:items-start">
+                  <div key={index} className="flex flex-col gap-2 rounded-md px-3 py-3 transition-colors hover:bg-accent sm:flex-row sm:items-start">
                     <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${color}`} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm text-foreground">{item.message}</p>
-                    </div>
+                    <p className="min-w-0 flex-1 text-[13px] text-foreground">{item.message}</p>
                     <span className="shrink-0 font-mono text-[11px] text-muted-foreground sm:text-right">{time}</span>
                   </div>
                 );
@@ -238,26 +375,20 @@ export default function OverviewPage() {
             )}
           </div>
         </div>
+      </section>
 
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">System Status</h2>
-          <div className="space-y-3">
-            {systemStatusList.map((item) => (
-              <div key={item.label} className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <span className="text-sm text-muted-foreground">{item.label}</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-foreground">{item.value}</span>
-                  <div
-                    className={`h-2 w-2 rounded-full ${
-                      item.status === "active" ? "bg-success" : item.status === "idle" ? "bg-warning" : "bg-info"
-                    }`}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {socialChannels.map((channel) => (
+          <Link key={channel.label} to={channel.href} className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)] transition-colors hover:border-primary/40">
+            <div className="flex items-center justify-between">
+              <channel.icon className="h-5 w-5 text-primary" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <p className="mt-4 text-[13px] font-medium text-muted-foreground">{channel.label}</p>
+            <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground">{channel.value}</p>
+          </Link>
+        ))}
+      </section>
     </div>
   );
 }

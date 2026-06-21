@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import toast from "react-hot-toast";
+import { Check, Clipboard, Send, SkipForward } from "lucide-react";
 import { API_BASE } from "@/lib/api";
 
 interface PendingApproval {
@@ -44,25 +45,17 @@ export function TelegramControl() {
 
   const handleAction = async (id: number, action: "approve" | "skip") => {
     try {
-      const res = await fetch(
-        `${API_BASE}/telegram/approvals/${id}/action`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action }),
-        },
-      );
+      const res = await fetch(`${API_BASE}/telegram/approvals/${id}/action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
       if (res.ok) {
-        const data = await res.json();
+        const approval = approvals.find((a) => a.id === id);
         if (action === "approve") {
-          const approval = approvals.find(a => a.id === id);
-          if (approval?.platform === "linkedin") {
-            toast.success("Approved! Copy and paste on LinkedIn manually 🚀");
-          } else {
-            toast.success("Approved & queued for auto-posting!");
-          }
+          toast.success(approval?.platform === "linkedin" ? "Approved. Copy and paste on LinkedIn manually." : "Approved and queued.");
         } else {
-          toast.success("Skipped!");
+          toast.success("Skipped.");
         }
         fetchApprovals();
       } else {
@@ -77,7 +70,7 @@ export function TelegramControl() {
     try {
       await navigator.clipboard.writeText(content);
       setCopiedId(id);
-      toast.success("📋 Copied to clipboard! Paste on LinkedIn.");
+      toast.success("Copied to clipboard.");
       setTimeout(() => setCopiedId(null), 3000);
     } catch (e) {
       toast.error("Failed to copy. Select and copy manually.");
@@ -85,140 +78,118 @@ export function TelegramControl() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6">
       <div>
-        <h1 className="mb-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-          Telegram Control
-        </h1>
-        <p className="text-gray-400">
-          Review and approve pending posts. LinkedIn posts require manual
-          copy-paste for safety.
+        <p className="text-[13px] font-medium text-primary">Telegram Control</p>
+        <h1 className="mt-1 text-[28px] font-semibold tracking-tight text-foreground">Approval queue</h1>
+        <p className="mt-2 max-w-2xl text-[14px] leading-6 text-muted-foreground">
+          Review pending social drafts and approve, skip, or copy LinkedIn content for manual posting.
         </p>
       </div>
 
-      {/* Telegram Commands Reference */}
-      <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-blue-400 mb-2">📱 Telegram Bot Commands</h3>
-        <div className="grid gap-2 text-xs text-gray-300 sm:grid-cols-2 xl:grid-cols-3">
-          <span><code className="text-blue-300">/today</code> — Today's summary</span>
-          <span><code className="text-blue-300">/pending</code> — Pending approvals</span>
-          <span><code className="text-blue-300">/status</code> — System status</span>
-          <span><code className="text-blue-300">/generate_linkedin</code> — New draft</span>
-          <span><code className="text-blue-300">/pause</code> — Pause/Resume</span>
-          <span><code className="text-blue-300">/report</code> — Weekly report</span>
+      <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-[15px] font-semibold text-foreground">Bot commands</h2>
+            <p className="mt-1 text-[13px] text-muted-foreground">Use these commands in Telegram to control the workflow.</p>
+          </div>
+          <Send className="h-5 w-5 text-primary" />
         </div>
-      </div>
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {["/today", "/pending", "/status", "/generate_linkedin", "/pause", "/report"].map((command) => (
+            <div key={command} className="rounded-lg border border-border bg-secondary px-3 py-2 font-mono text-[12px] text-foreground">
+              {command}
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <div className="rounded-lg border border-gray-800 bg-[#1C1C22] p-4 sm:p-6">
-        <h2 className="mb-4 text-lg font-medium text-white">
-          Pending Approvals Queue
-        </h2>
+      <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
+        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-[15px] font-semibold text-foreground">Pending approvals</h2>
+            <p className="text-[13px] text-muted-foreground">Queue refreshes automatically every few seconds.</p>
+          </div>
+          <span className="rounded-full border border-border bg-secondary px-3 py-1 text-[12px] font-medium text-muted-foreground">
+            {approvals.length} pending
+          </span>
+        </div>
+
         {loading ? (
-          <p className="text-gray-400">Loading...</p>
+          <p className="text-[13px] text-muted-foreground">Loading approvals...</p>
         ) : approvals.length === 0 ? (
-          <div className="text-center py-10 bg-[#131317] rounded-lg border border-gray-800 border-dashed">
-            <p className="text-gray-400">
-              ✅ All caught up! No approvals pending.
-            </p>
+          <div className="rounded-xl border border-dashed border-border bg-secondary py-12 text-center">
+            <p className="text-[14px] font-medium text-foreground">All caught up</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">No approvals are waiting right now.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {approvals.map((a) => {
               const content = a.edit_improved_text || a.draft_content;
               const isLinkedIn = a.platform === "linkedin";
-              
+
               return (
-                <div
-                  key={a.id}
-                  className="bg-[#131317] border border-gray-800 rounded-lg p-5"
-                >
-                  <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xl">
-                        {isLinkedIn
-                          ? "🔵"
-                          : a.platform === "twitter"
-                            ? "🐦"
-                            : "🟠"}
-                      </span>
-                      <h3 className="text-md font-semibold text-white capitalize">
-                        {a.platform} Post
-                      </h3>
-                      {isLinkedIn && (
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                          Manual Post
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs text-gray-500 font-mono">
-                        {content.length} chars
-                      </span>
-                      <span className="text-xs text-gray-500 bg-[#1C1C22] px-2 py-1 rounded">
-                        {formatDistanceToNow(new Date(a.created_at), {
-                          addSuffix: true,
-                        })}
-                      </span>
+                <article key={a.id} className="rounded-xl border border-border bg-white p-5 shadow-sm">
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-[14px] font-semibold capitalize text-foreground">{a.platform} post</h3>
+                        {isLinkedIn && (
+                          <span className="rounded-full border border-success/20 bg-success/10 px-2 py-0.5 text-[11px] font-medium text-success">
+                            Manual post
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-[12px] text-muted-foreground">
+                        {content.length} chars · {formatDistanceToNow(new Date(a.created_at), { addSuffix: true })}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <div className="p-3 bg-black/30 rounded border border-gray-800/50 text-gray-300 text-sm whitespace-pre-wrap max-h-60 overflow-y-auto w-full">
-                      {content}
-                    </div>
+                  <div className="mb-4 max-h-60 overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-secondary p-4 text-[13px] leading-6 text-foreground">
+                    {content}
                   </div>
 
                   {a.status === "edit_requested" && (
-                    <div className="mb-4 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-md">
-                      <p className="text-xs text-indigo-400 mb-1">
-                        Last user instruction:
-                      </p>
-                      <p className="text-sm text-indigo-200">
-                        {a.edit_requested_text}
-                      </p>
+                    <div className="mb-4 rounded-lg border border-primary/15 bg-accent p-3">
+                      <p className="mb-1 text-[12px] font-medium text-primary">Last user instruction</p>
+                      <p className="text-[13px] text-foreground">{a.edit_requested_text}</p>
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-3 mt-4">
+                  <div className="flex flex-wrap items-center gap-3">
                     <button
                       onClick={() => handleAction(a.id, "approve")}
-                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors"
+                      className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-[13px] font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                     >
-                      {isLinkedIn ? "✅ Approve" : "✅ Approve & Post"}
+                      <Check className="h-4 w-4" />
+                      {isLinkedIn ? "Approve" : "Approve and post"}
                     </button>
-                    
+
                     {isLinkedIn && (
                       <button
                         onClick={() => handleCopy(content, a.id)}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors border ${
-                          copiedId === a.id
-                            ? "bg-emerald-600/20 border-emerald-500/30 text-emerald-400"
-                            : "bg-[#1C1C22] border-gray-700 text-gray-300 hover:bg-blue-900/30 hover:border-blue-700/50 hover:text-blue-300"
-                        }`}
+                        className="inline-flex items-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-[13px] font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
                       >
-                        {copiedId === a.id ? "✅ Copied!" : "📋 Copy Full Post"}
+                        <Clipboard className="h-4 w-4" />
+                        {copiedId === a.id ? "Copied" : "Copy post"}
                       </button>
                     )}
-                    
+
                     <button
                       onClick={() => handleAction(a.id, "skip")}
-                      className="px-4 py-2 bg-[#1C1C22] hover:bg-red-900/40 text-gray-300 hover:text-red-400 rounded-md text-sm font-medium transition-colors border border-gray-700 hover:border-red-900/50"
+                      className="inline-flex items-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-[13px] font-medium text-muted-foreground shadow-sm transition-colors hover:border-destructive/30 hover:text-destructive"
                     >
-                      ❌ Skip
+                      <SkipForward className="h-4 w-4" />
+                      Skip
                     </button>
-                    
-                    <span className="text-xs text-gray-500 mt-2 ml-2">
-                      {isLinkedIn 
-                        ? "Copy → Paste on LinkedIn → Mark as posted" 
-                        : "Edit mode only available on Telegram"}
-                    </span>
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }
