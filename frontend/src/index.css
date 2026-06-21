@@ -7,58 +7,58 @@
 
 @layer base {
   :root {
-    --background: 228 14% 8%;
-    --foreground: 0 0% 95%;
+    --background: 214 45% 98%;
+    --foreground: 223 47% 13%;
 
-    --card: 228 14% 12%;
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 223 47% 13%;
 
-    --popover: 228 14% 14%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 223 47% 13%;
 
-    --primary: 24 95% 53%;
+    --primary: 245 78% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 228 12% 18%;
-    --secondary-foreground: 0 0% 85%;
+    --secondary: 216 33% 97%;
+    --secondary-foreground: 223 47% 13%;
 
-    --muted: 228 10% 16%;
-    --muted-foreground: 228 10% 55%;
+    --muted: 216 33% 96%;
+    --muted-foreground: 220 13% 46%;
 
-    --accent: 228 12% 20%;
-    --accent-foreground: 0 0% 90%;
+    --accent: 231 100% 98%;
+    --accent-foreground: 245 78% 42%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
+    --success: 158 64% 40%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 10%;
+    --warning: 35 92% 50%;
+    --warning-foreground: 223 47% 13%;
 
-    --info: 217 91% 60%;
+    --info: 217 91% 56%;
     --info-foreground: 0 0% 100%;
 
-    --border: 228 12% 17%;
-    --input: 228 12% 20%;
-    --ring: 24 95% 53%;
+    --border: 220 26% 90%;
+    --input: 220 26% 90%;
+    --ring: 245 78% 58%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
-    --sidebar-background: 228 14% 6%;
-    --sidebar-foreground: 228 10% 55%;
-    --sidebar-primary: 24 95% 53%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 13% 46%;
+    --sidebar-primary: 245 78% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 228 12% 14%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 228 12% 14%;
-    --sidebar-ring: 24 95% 53%;
+    --sidebar-accent: 231 100% 98%;
+    --sidebar-accent-foreground: 245 78% 42%;
+    --sidebar-border: 220 26% 90%;
+    --sidebar-ring: 245 78% 58%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(16 90% 48%));
-    --gradient-card: linear-gradient(180deg, hsl(228 14% 14%), hsl(228 14% 10%));
-    --shadow-glow: 0 0 30px hsl(24 95% 53% / 0.15);
-    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.3);
+    --gradient-primary: linear-gradient(135deg, hsl(245 78% 58%), hsl(217 91% 56%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(216 33% 98%));
+    --shadow-glow: 0 10px 35px hsl(245 78% 58% / 0.12);
+    --shadow-card: 0 18px 45px hsl(223 47% 13% / 0.08), 0 2px 8px hsl(223 47% 13% / 0.04);
   }
 }
 
@@ -71,27 +71,22 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
 
-  body.app-loading {
-    overflow: hidden;
-  }
-
-  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(228 14% 10%);
+    background: hsl(216 33% 96%);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(228 12% 22%);
+    background: hsl(220 18% 78%);
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(24 95% 53% / 0.6);
+    background: hsl(245 78% 58% / 0.55);
   }
 }
 
@@ -121,17 +116,17 @@
   }
 
   .glow-card:hover {
-    box-shadow: 0 0 20px hsl(24 95% 53% / 0.12), 0 4px 24px hsl(0 0% 0% / 0.3);
-    border-color: hsl(24 95% 53% / 0.25);
+    box-shadow: var(--shadow-card);
+    border-color: hsl(245 78% 58% / 0.22);
   }
 
   /* Shimmer loading animation */
   .shimmer {
     background: linear-gradient(
       90deg,
-      hsl(228 14% 14%) 25%,
-      hsl(228 12% 20%) 50%,
-      hsl(228 14% 14%) 75%
+      hsl(216 33% 96%) 25%,
+      hsl(220 26% 90%) 50%,
+      hsl(216 33% 96%) 75%
     );
     background-size: 200% 100%;
     animation: shimmer 1.8s infinite;
@@ -139,8 +134,8 @@
 
   /* Pipeline step active */
   .pipeline-step-active {
-    background: hsl(24 95% 53% / 0.15);
-    border-color: hsl(24 95% 53% / 0.4);
+    background: hsl(245 78% 58% / 0.1);
+    border-color: hsl(245 78% 58% / 0.35);
     color: hsl(var(--primary));
   }
 
