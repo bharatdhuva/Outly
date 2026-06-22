@@ -42,7 +42,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pageTitle = pageTitles[location.pathname] ?? "Page Not Found";
 
   useEffect(() => {
-    document.title = `${pageTitle} | Outly`;
+    document.title = `Outly - ${pageTitle}`;
   }, [pageTitle]);
 
   useEffect(() => {
