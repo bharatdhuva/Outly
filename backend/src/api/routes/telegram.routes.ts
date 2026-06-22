@@ -60,16 +60,6 @@ router.post("/approvals/:id/action", async (req, res) => {
         }
         activityQueries.add('success', 'Approved Twitter post via Dashboard');
         res.json({ success: true, message: "Tweet approved and queued for auto-posting" });
-        
-      } else if (approval.platform === 'reddit') {
-        redditQueries.update(approval.post_id, { content: draft, status: 'approved' });
-        await redditQueue.add({ dbId: approval.post_id });
-        
-        if (approval.telegram_message_id) {
-          await editTelegramMessage(approval.telegram_message_id, `✅ Reddit post approved via Dashboard & queued!`);
-        }
-        activityQueries.add('success', 'Approved Reddit post via Dashboard');
-        res.json({ success: true, message: "Reddit post approved and queued for auto-posting" });
       }
 
     } else if (action === "skip") {

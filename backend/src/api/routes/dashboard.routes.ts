@@ -5,7 +5,6 @@ import {
   activityQueries,
   settingsQueries,
   twitterQueries,
-  redditQueries,
   applicationQueries,
 } from "../../db/queries.js";
 import { mailQueue } from "../../queue/mailQueue.js";
@@ -23,7 +22,6 @@ router.get("/stats", (_req, res) => {
   const postsCount = postQueries.countPosted();
   const mailsToday = companyQueries.countMailsSentToday();
   const twitterPosts = twitterQueries.countPosted();
-  const redditPosts = redditQueries.countPosted();
   const mailsThisWeek = companyQueries.countMailsSentThisWeek();
   const repliesThisWeek = companyQueries.countRepliesThisWeek();
 
@@ -38,7 +36,6 @@ router.get("/stats", (_req, res) => {
     replies,
     linkedinPosts: postsCount,
     twitterPosts,
-    redditPosts,
     mailsToday,
     mailsThisWeek,
     repliesThisWeek,
