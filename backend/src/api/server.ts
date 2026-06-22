@@ -16,7 +16,6 @@ import coverletterRoutes from "./routes/coverletter.routes.js";
 import optimizerRoutes from "./routes/optimizer.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
-import scraperRoutes from "./routes/scraper.routes.js";
 
 const app = express();
 app.use(cors({ origin: `http://localhost:${env.CLIENT_PORT}`, credentials: true }));
@@ -35,7 +34,6 @@ app.use("/api/coverletter", coverletterRoutes);
 app.use("/api/optimizer", optimizerRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/analytics", analyticsRoutes);
-app.use("/api/scraper", scraperRoutes);
 
 // Server frontend in production
 const rootDir = process.cwd().endsWith("src") ? path.resolve(process.cwd(), "..") : process.cwd();
