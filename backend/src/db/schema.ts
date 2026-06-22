@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS companies (
   followup_sent_at DATETIME,
   followup_status TEXT,
   error_message TEXT,
+  generated_variants_json TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -93,10 +94,35 @@ CREATE TABLE IF NOT EXISTS activity_log (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- applications
+CREATE TABLE IF NOT EXISTS applications (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  company TEXT NOT NULL,
+  role TEXT NOT NULL,
+  jd_url TEXT,
+  stage TEXT DEFAULT 'saved' CHECK(stage IN ('saved', 'applied', 'interview', 'offer', 'rejected')),
+  resume_version_used TEXT,
+  notes TEXT,
+  email_history TEXT DEFAULT '[]',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- resume_vault
+CREATE TABLE IF NOT EXISTS resume_vault (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  filename TEXT NOT NULL,
+  label TEXT NOT NULL,
+  content TEXT,
+  is_default INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_companies_status ON companies(status);
 CREATE INDEX IF NOT EXISTS idx_twitter_posts_status ON twitter_posts(status);
 CREATE INDEX IF NOT EXISTS idx_reddit_posts_status ON reddit_posts(status);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON activity_log(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_applications_stage ON applications(stage);
 
 -- pending_approvals
 CREATE TABLE IF NOT EXISTS pending_approvals (

@@ -28,7 +28,8 @@ async function init() {
     "scraped_context",
     "generated_subject",
     "generated_mail",
-    "error_message"
+    "error_message",
+    "generated_variants_json"
   ];
   
   const existingCols = db.prepare("PRAGMA table_info(companies)").all() as any[];
