@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import logoIcon from "@/assets/jobos-logo-icon.svg";
+import logoIcon from "@/assets/lightlogo.png";
 import assistanceGif from "@/assets/logos/assistance.gif";
 import gmailPng from "@/assets/logos/gmail.png";
 import imageCopy3Png from "@/assets/logos/image copy 3.png";
@@ -159,7 +159,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                 }}
               >
                 <div className="flex items-center gap-2">
-                  <img src={logoIcon} alt="Outly logo" className="h-8 w-8 shrink-0" />
+                  <img src={logoIcon} alt="Outly logo" className="h-8 w-8 shrink-0 object-contain" />
                   <div className="flex items-end gap-1">
                     <span className="brand-wordmark text-[2rem] leading-none text-white">Outly</span>
                     <span className="mb-0.5 h-3 w-3 rounded-full bg-primary shadow-[0_0_18px_hsl(24_95%_53%/0.7)]" />
@@ -300,7 +300,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                     filter: "drop-shadow(0 0 30px rgba(251,146,60,0.3))",
                   }}
                 >
-                  <img src={logoIcon} alt="Outly orbit logo" className="h-12 w-12" />
+                  <img src={logoIcon} alt="Outly orbit logo" className="h-12 w-12 object-contain" />
                 </div>
 
                 {FLOATING_ICONS.map((item, index) => (
