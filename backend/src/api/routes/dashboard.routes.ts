@@ -73,6 +73,7 @@ router.get("/system-status", (_req, res) => {
     gmail: isGmailConfigured(),
     linkedin: hasValidSession(),
     whatsapp: isWhatsAppConfigured(),
+    telegram: !!env.TELEGRAM_BOT_TOKEN,
     weeklyPostEnabled: settingsQueries.get("weekly_post_enabled") !== "false",
     dailyLinkedInDraftEnabled: settingsQueries.get("daily_linkedin_draft_enabled") !== "false",
     linkedinMode: "manual",

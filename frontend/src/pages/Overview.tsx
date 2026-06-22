@@ -95,12 +95,13 @@ export default function OverviewPage() {
     { label: "Gmail", ok: systemStatus?.gmail, note: systemStatus?.gmail ? "Authenticated" : "OAuth required" },
     { label: "LinkedIn", ok: systemStatus?.linkedin, note: systemStatus?.linkedin ? "Session valid" : "Setup required" },
     { label: "WhatsApp", ok: systemStatus?.whatsapp, note: systemStatus?.whatsapp ? "Connected" : "Not configured" },
+    { label: "Telegram", ok: systemStatus?.telegram, note: systemStatus?.telegram ? "Connected" : "Disabled" },
   ];
 
   const socialChannels = [
     { label: "LinkedIn", value: stats?.linkedinPosts ?? 0, href: "/linkedin-posts", icon: FileText },
     { label: "Twitter / X", value: stats?.twitterPosts ?? 0, href: "/twitter", icon: MessageSquare },
-    { label: "Telegram", value: systemStatus?.whatsapp ? "Live" : "Ready", href: "/telegram", icon: Send },
+    { label: "Telegram", value: systemStatus?.telegram ? "Live" : "Disabled", href: "/telegram", icon: Send },
   ];
 
   const todayKey = new Date().toISOString().slice(0, 10);
