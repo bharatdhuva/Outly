@@ -13,8 +13,7 @@
     "setup:gmail": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/setup-gmail.ts",
     "setup:linkedin": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/setup-linkedin.ts",
     "test:whatsapp": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/test-whatsapp.ts",
-    "test:twitter": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/test-tweet.ts",
-    "test:reddit": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/test-reddit.ts"
+    "test:twitter": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/test-tweet.ts"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
@@ -25,7 +24,6 @@
     "@types/node-cron": "^3.0.11",
     "@types/node-telegram-bot-api": "^0.64.14",
     "@types/nodemailer": "^7.0.11",
-    "@types/snoowrap": "^1.19.0",
     "concurrently": "^9.2.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
@@ -46,7 +44,6 @@
     "nodemailer": "^6.9.16",
     "playwright": "^1.49.0",
     "rss-parser": "^3.13.0",
-    "snoowrap": "^1.23.0",
     "twilio": "^5.3.4",
     "twitter-api-v2": "^1.29.0",
     "winston": "^3.17.0"

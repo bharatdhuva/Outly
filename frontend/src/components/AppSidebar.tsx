@@ -38,7 +38,6 @@ const navSections = [
     items: [
       { title: "LinkedIn Posts", url: "/linkedin-posts", icon: FileText },
       { title: "Twitter / X", url: "/twitter", icon: Twitter },
-      { title: "Reddit", url: "/reddit", icon: MessageSquare },
       { title: "Telegram", url: "/telegram", icon: Send },
     ],
   },

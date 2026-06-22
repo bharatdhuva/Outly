@@ -10,7 +10,6 @@ import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
 import NotFound from "./pages/NotFound";
 import Twitter from "./pages/Twitter";
-import Reddit from "./pages/Reddit";
 import { TelegramControl } from "./pages/TelegramControl";
 import ResumeTailorPage from "./pages/ResumeTailor";
 import AtsScore from "./pages/AtsScore";
@@ -32,7 +31,6 @@ const App = () => (
             <Route path="/cold-mail" element={<ColdMail />} />
             <Route path="/linkedin-posts" element={<LinkedInPosts />} />
             <Route path="/twitter" element={<Twitter />} />
-            <Route path="/reddit" element={<Reddit />} />
             <Route path="/telegram" element={<TelegramControl />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/logs" element={<Logs />} />

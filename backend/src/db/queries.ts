@@ -61,20 +61,6 @@ export interface TwitterPost {
   created_at: string;
 }
 
-export interface RedditPost {
-  id: number;
-  subreddit: string;
-  title: string;
-  content: string;
-  status: string;
-  posted_at: string | null;
-  reddit_post_id: string | null;
-  upvotes: number;
-  comments: number;
-  error_message: string | null;
-  created_at: string;
-}
-
 export const companyQueries = {
   getAll: () =>
     getDb()
@@ -263,30 +249,6 @@ export const twitterQueries = {
   },
   delete: (id: number) =>
     getDb().prepare("DELETE FROM twitter_posts WHERE id = ?").run(id),
-};
-
-export const redditQueries = {
-  getAll: (limit = 50) =>
-    getDb().prepare("SELECT * FROM reddit_posts ORDER BY created_at DESC LIMIT ?").all(limit) as any[],
-  getById: (id: number) => getDb().prepare("SELECT * FROM reddit_posts WHERE id = ?").get(id) as any,
-  insert: (post: any) => {
-    const stmt = getDb().prepare(`
-      INSERT INTO reddit_posts (subreddit, title, content, status, posted_at, reddit_post_id)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `);
-    return stmt.run(post.subreddit, post.title, post.content, post.status, post.posted_at, post.reddit_post_id);
-  },
-  update: (id: number, post: Partial<any>) => {
-    const keys = Object.keys(post).filter((k) => k !== "id");
-    const sets = keys.map((k) => `${k} = ?`);
-    const vals = keys.map((k) => (post as any)[k]);
-    const query = `UPDATE reddit_posts SET ${sets.join(", ")} WHERE id = ?`;
-    return getDb().prepare(query).run(...vals, id);
-  },
-  countPosted: () => {
-    const res = getDb().prepare("SELECT COUNT(*) as count FROM reddit_posts WHERE status = 'posted'").get() as any;
-    return Number(res?.count ?? 0);
-  },
 };
 
 export const approvalQueries = {

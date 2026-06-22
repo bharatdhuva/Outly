@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import { env } from "../config/env.js";
-import { companyQueries, approvalQueries, postQueries, twitterQueries, redditQueries } from "../db/queries.js";
+import { companyQueries, approvalQueries, postQueries, twitterQueries } from "../db/queries.js";
 import { sendTelegramMessage } from "../notifications/telegram.js";
 import { logger } from "../lib/logger.js";
 
@@ -19,7 +19,7 @@ export function scheduleMorningBriefing(): void {
         approvalsText = '  ✅ No pending approvals';
       } else {
         approvalsText = pendingApprovals.map(a => {
-          const icon = a.platform === 'linkedin' ? '🔵' : a.platform === 'twitter' ? '🐦' : '🟠';
+          const icon = a.platform === 'linkedin' ? '🔵' : '🐦';
           return `  ${icon} ${a.platform} post waiting`;
         }).join('\n');
       }
@@ -38,7 +38,6 @@ export function scheduleMorningBriefing(): void {
       // ─── Social Media Stats ───
       const repliesThisWeek = companyQueries.countRepliesThisWeek();
       const twitterPosts = twitterQueries.countPosted();
-      const redditPosts = redditQueries.countPosted();
       const linkedinPosts = postQueries.countPosted();
 
       // ─── AI Tip ───
@@ -72,7 +71,6 @@ ${approvalsText}
   📬 Replies: ${repliesThisWeek}
   🔵 LinkedIn: ${linkedinPosts} posts (manual)
   🐦 Twitter: ${twitterPosts} tweets
-  🟠 Reddit: ${redditPosts} posts
 
 💡 TIP: ${tipOfDay}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━

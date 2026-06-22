@@ -2,10 +2,8 @@ import { Job } from "bull";
 import { mailQueue } from "./mailQueue.js";
 import { followUpQueue } from "./followUpQueue.js";
 import { tweetQueue } from "./tweetQueue.js";
-import { redditQueue } from "./redditQueue.js";
 import { sendColdMail, sendFollowUpMail } from "../automation/coldmail/mailSender.js";
 import { publishTwitterPost } from "../automation/twitter/tweetPublisher.js";
-import { publishRedditPost } from "../automation/reddit/redditPublisher.js";
 import { env } from "../config/env.js";
 import { companyQueries } from "../db/queries.js";
 import { sendWhatsApp } from "../notifications/whatsapp.js";
@@ -71,17 +69,5 @@ tweetQueue.process(async (job: Job<{ dbId: number }>) => {
     await sendWhatsApp(`🐦 Successfully sent dynamic Twitter post!`);
   } else {
     await sendWhatsApp(`⚠️ Twitter post failed! Connect to dashboard to view logs.`, true);
-  }
-});
-
-// Reddit publisher processor
-redditQueue.process(async (job: Job<{ dbId: number }>) => {
-  const { dbId } = job.data;
-  
-  const success = await publishRedditPost(dbId);
-  if (success) {
-    await sendWhatsApp(`🚀 Successfully posted dynamic content to Reddit!`);
-  } else {
-    await sendWhatsApp(`⚠️ Reddit post failed! Check dashboard logs.`, true);
   }
 });

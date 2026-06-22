@@ -36,12 +36,6 @@ export const env = {
   TWITTER_ACCESS_TOKEN: process.env.TWITTER_ACCESS_TOKEN ?? "",
   TWITTER_ACCESS_TOKEN_SECRET: process.env.TWITTER_ACCESS_TOKEN_SECRET ?? "",
 
-  REDDIT_CLIENT_ID: process.env.REDDIT_CLIENT_ID ?? "",
-  REDDIT_CLIENT_SECRET: process.env.REDDIT_CLIENT_SECRET ?? "",
-  REDDIT_USERNAME: process.env.REDDIT_USERNAME ?? "",
-  REDDIT_PASSWORD: process.env.REDDIT_PASSWORD ?? "",
-  REDDIT_USER_AGENT: process.env.REDDIT_USER_AGENT ?? "Outly/1.0",
-
   TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ?? "",
   TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ?? "",
   TWILIO_WHATSAPP_FROM:
@@ -85,7 +79,6 @@ export const env = {
   DAILY_SUMMARY_CRON: process.env.DAILY_SUMMARY_CRON ?? "0 20 * * *",
   DAILY_TWEET_CRON: process.env.DAILY_TWEET_CRON ?? "0 8 * * 1-5",
   WEEKLY_THREAD_CRON: process.env.WEEKLY_THREAD_CRON ?? "0 19 * * 3",
-  WEEKLY_REDDIT_CRON: process.env.WEEKLY_REDDIT_CRON ?? "0 10 * * 5",
 
   MORNING_BRIEFING_CRON: process.env.MORNING_BRIEFING_CRON ?? "0 8 * * *",
 

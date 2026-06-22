@@ -13,8 +13,6 @@ import { scheduleFollowUpChecker } from "./jobs/followUpChecker.cron.js";
 import { scheduleSocialDrafts } from "./jobs/socialDrafts.cron.js";
 import { scheduleWeeklyThread } from "./jobs/weeklyThread.cron.js";
 import { scheduleTweetTracker } from "./jobs/tweetTracker.cron.js";
-import { scheduleWeeklyRedditPost } from "./jobs/weeklyReddit.cron.js";
-import { scheduleRedditTracker } from "./jobs/redditTracker.cron.js";
 import { scheduleWeeklyReport } from "./jobs/weeklyReport.cron.js";
 import { scheduleMorningBriefing } from "./jobs/morningBriefing.cron.js";
 import { scheduleDailyLinkedInDraft } from "./jobs/dailyLinkedInDraft.cron.js";
@@ -36,8 +34,6 @@ async function main() {
   scheduleSocialDrafts();
   scheduleWeeklyThread();
   scheduleTweetTracker();
-  scheduleWeeklyRedditPost();
-  scheduleRedditTracker();
   scheduleWeeklyReport();
   scheduleDailyLinkedInDraft();
   scheduleMorningBriefing();

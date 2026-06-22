@@ -88,8 +88,7 @@ export default function OverviewPage() {
 
   const brandScore =
     (stats?.linkedinPosts ?? 0) * 10 +
-    (stats?.twitterPosts ?? 0) * 5 +
-    (stats?.redditPosts ?? 0) * 8;
+    (stats?.twitterPosts ?? 0) * 5;
 
   const readiness = [
     { label: "Redis", ok: systemStatus?.redis, note: systemStatus?.redis ? "Connected" : "Queue storage offline" },
@@ -101,7 +100,6 @@ export default function OverviewPage() {
   const socialChannels = [
     { label: "LinkedIn", value: stats?.linkedinPosts ?? 0, href: "/linkedin-posts", icon: FileText },
     { label: "Twitter / X", value: stats?.twitterPosts ?? 0, href: "/twitter", icon: MessageSquare },
-    { label: "Reddit", value: stats?.redditPosts ?? 0, href: "/reddit", icon: RadioTower },
     { label: "Telegram", value: systemStatus?.whatsapp ? "Live" : "Ready", href: "/telegram", icon: Send },
   ];
 
@@ -238,7 +236,7 @@ export default function OverviewPage() {
       />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Brand Score" value={brandScore} icon={ShieldCheck} variant="primary" subtitle="LinkedIn, X, and Reddit signal" />
+        <StatCard title="Brand Score" value={brandScore} icon={ShieldCheck} variant="primary" subtitle="LinkedIn and X signal" />
         <StatCard
           title="Mails Sent"
           value={stats?.mailsSent ?? 0}
@@ -246,7 +244,7 @@ export default function OverviewPage() {
           variant="success"
           trend={stats?.mailsToday ? { value: `+${stats.mailsToday} today`, positive: true } : undefined}
         />
-        <StatCard title="Social Posts" value={(stats?.linkedinPosts ?? 0) + (stats?.twitterPosts ?? 0) + (stats?.redditPosts ?? 0)} icon={RadioTower} subtitle="Published or prepared" />
+        <StatCard title="Social Posts" value={(stats?.linkedinPosts ?? 0) + (stats?.twitterPosts ?? 0)} icon={RadioTower} subtitle="Published or prepared" />
         <StatCard title="Replies" value={stats?.replies ?? 0} icon={MessageSquare} variant="warning" subtitle="Responses captured" />
       </section>
 

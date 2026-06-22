@@ -18,7 +18,6 @@ export const api = {
       jobsApplied: number;
       linkedinPosts: number;
       twitterPosts: number;
-      redditPosts: number;
       mailsToday: number;
       jobsToday: number;
       replyRate: number;
@@ -140,16 +139,6 @@ export const api = {
     update: (id: number, data: Partial<TwitterPost>) =>
       fetchApi(`/twitter/posts/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     delete: (id: number) => fetchApi<{ success: boolean }>(`/twitter/posts/${id}`, { method: "DELETE" }),
-  },
-  reddit: {
-    posts: () => fetchApi<RedditPost[]>("/reddit/posts"),
-    generate: (subreddit: string, topic?: string) =>
-      fetchApi<{ success: boolean; dbId: number }>("/reddit/generate", {
-        method: "POST",
-        body: JSON.stringify({ subreddit, topic }),
-      }),
-    update: (id: number, data: Partial<RedditPost>) =>
-      fetchApi(`/reddit/posts/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
   ats: {
     score: (resume: string, jd: string) =>
@@ -371,16 +360,3 @@ export interface TwitterPost {
   created_at: string;
 }
 
-export interface RedditPost {
-  id: number;
-  subreddit: string | null;
-  title: string | null;
-  content: string;
-  status: string;
-  posted_at: string | null;
-  reddit_post_id: string | null;
-  upvotes: number;
-  comments: number;
-  error_message: string | null;
-  created_at: string;
-}

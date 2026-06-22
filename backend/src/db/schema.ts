@@ -55,21 +55,6 @@ CREATE TABLE IF NOT EXISTS twitter_posts (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- reddit_posts
-CREATE TABLE IF NOT EXISTS reddit_posts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  subreddit TEXT,
-  title TEXT,
-  content TEXT,
-  status TEXT CHECK(status IN ('draft', 'approved', 'posted', 'failed')),
-  posted_at DATETIME,
-  reddit_post_id TEXT,
-  upvotes INTEGER DEFAULT 0,
-  comments INTEGER DEFAULT 0,
-  error_message TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
 -- notifications_log
 CREATE TABLE IF NOT EXISTS notifications_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -120,7 +105,6 @@ CREATE TABLE IF NOT EXISTS resume_vault (
 
 CREATE INDEX IF NOT EXISTS idx_companies_status ON companies(status);
 CREATE INDEX IF NOT EXISTS idx_twitter_posts_status ON twitter_posts(status);
-CREATE INDEX IF NOT EXISTS idx_reddit_posts_status ON reddit_posts(status);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON activity_log(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_applications_stage ON applications(stage);
 

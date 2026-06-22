@@ -25,7 +25,6 @@ const pageTitles: Record<string, string> = {
   "/cold-mail": "Cold Mail",
   "/linkedin-posts": "LinkedIn Posts",
   "/twitter": "Twitter / X",
-  "/reddit": "Reddit",
   "/telegram": "Telegram",
   "/settings": "Settings",
   "/logs": "Logs",
