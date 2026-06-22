@@ -36,7 +36,6 @@ RULES:
 - Platform tone must stay correct:
   LinkedIn: professional but human
   Twitter: punchy, casual, max 280 chars
-  Reddit: conversational paragraphs, no AI tells
 - Do NOT add new facts the original didn't have
 - If instruction is vague ('make better'), use judgment
 - Output ONLY the improved post in the JSON block — no explanation, no preamble

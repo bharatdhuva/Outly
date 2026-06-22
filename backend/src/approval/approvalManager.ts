@@ -7,7 +7,7 @@ import { logger } from "../lib/logger.js";
  * LinkedIn posts get special treatment in v2.3 with manual-post controls.
  */
 export async function requestApproval(
-  platform: "linkedin" | "twitter" | "reddit",
+  platform: "linkedin" | "twitter",
   postId: number,
   draftContent: string,
 ) {
@@ -83,7 +83,7 @@ async function sendLinkedInDraftApproval(approvalId: number, draftContent: strin
 }
 
 async function sendStandardApproval(approvalId: number, platform: string, draftContent: string) {
-  const label = platform === "twitter" ? "Tweet" : "Reddit Post";
+  const label = "Tweet";
   const message = [
     `${label} Ready`,
     "",

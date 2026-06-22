@@ -1,10 +1,9 @@
 // @ts-ignore
 import TelegramBot from 'node-telegram-bot-api';
 import { telegramBot, editTelegramMessage, sendTelegramMessage } from '../notifications/telegram.js';
-import { approvalQueries, postQueries, twitterQueries, redditQueries, activityQueries, companyQueries } from '../db/queries.js';
+import { approvalQueries, postQueries, twitterQueries, activityQueries, companyQueries } from '../db/queries.js';
 import { logger } from '../lib/logger.js';
 import { tweetQueue } from '../queue/tweetQueue.js';
-import { redditQueue } from '../queue/redditQueue.js';
 import { sendWhatsApp } from '../notifications/whatsapp.js';
 import { fetchAllNews } from '../automation/news/fetcher.js';
 import { generateLinkedInDraft } from '../automation/news/contentGenerator.js';
@@ -60,7 +59,7 @@ export function registerTelegramCallbacks() {
           await sendTelegramMessage('✅ No pending approvals! All clear.');
         } else {
           const lines = pending.map((p, i) => {
-            const icon = p.platform === 'linkedin' ? '🔵' : p.platform === 'twitter' ? '🐦' : '🟠';
+            const icon = p.platform === 'linkedin' ? '🔵' : '🐦';
             return `${i + 1}. ${icon} ${p.platform} — ${p.draft_content.substring(0, 60)}...`;
           });
           await sendTelegramMessage(`📋 Pending Approvals (${pending.length}):\n\n${lines.join('\n')}`);
@@ -118,12 +117,6 @@ export function registerTelegramCallbacks() {
           await tweetQueue.add({ dbId: approval.post_id });
           await editTelegramMessage(messageId, `✅ Tweet approved & queued for auto-posting!\n\n${draft.substring(0, 100)}...`);
           activityQueries.add('success', 'Approved Twitter post via Telegram');
-          
-        } else if (approval.platform === 'reddit') {
-          redditQueries.update(approval.post_id, { content: draft, status: 'approved' });
-          await redditQueue.add({ dbId: approval.post_id });
-          await editTelegramMessage(messageId, `✅ Reddit post approved & queued!\n\n${draft.substring(0, 100)}...`);
-          activityQueries.add('success', 'Approved Reddit post via Telegram');
         }
 
       // ─── SKIP ───
@@ -277,7 +270,7 @@ export function registerTelegramCallbacks() {
       }
       
       const lines = pending.map((p, i) => {
-        const icon = p.platform === 'linkedin' ? '🔵' : p.platform === 'twitter' ? '🐦' : '🟠';
+        const icon = p.platform === 'linkedin' ? '🔵' : '🐦';
         return `${i + 1}. ${icon} ${p.platform} — ${p.draft_content.substring(0, 60)}...`;
       });
       
@@ -301,7 +294,6 @@ ${isPaused ? '⏸️ System: PAUSED' : '▶️ System: RUNNING'}
 📧 Mail Queue: ${mailWaiting} waiting, ${mailActive} active
 🔵 LinkedIn: Manual draft mode (safe)
 🐦 Twitter: Auto-post with approval
-🟠 Reddit: Auto-post with approval
 ━━━━━━━━━━━━━━━━━━━━━━
       `.trim();
       
@@ -374,7 +366,6 @@ ${isPaused ? '⏸️ System: PAUSED' : '▶️ System: RUNNING'}
       const mailsThisWeek = companyQueries.countMailsSentThisWeek();
       const repliesThisWeek = companyQueries.countRepliesThisWeek();
       const tweetCount = twitterQueries.countPosted();
-      const redditCount = redditQueries.countPosted();
       
       const report = `
 📊 Weekly Report
@@ -383,7 +374,6 @@ ${isPaused ? '⏸️ System: PAUSED' : '▶️ System: RUNNING'}
 📧 Cold Mails: ${mailsThisWeek} sent
 📬 Replies: ${repliesThisWeek} (${mailsThisWeek > 0 ? Math.round((repliesThisWeek / mailsThisWeek) * 100) : 0}% rate)
 🐦 Tweets Posted: ${tweetCount}
-🟠 Reddit Posts: ${redditCount}
 
 ━━━━━━━━━━━━━━━━━━━━━━
 💡 Keep grinding! Consistency is key. 🚀

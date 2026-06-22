@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { approvalQueries, postQueries, twitterQueries, redditQueries, activityQueries } from "../../db/queries.js";
+import { approvalQueries, postQueries, twitterQueries, activityQueries } from "../../db/queries.js";
 import { tweetQueue } from "../../queue/tweetQueue.js";
-import { redditQueue } from "../../queue/redditQueue.js";
 import { sendWhatsApp } from "../../notifications/whatsapp.js";
 import { editTelegramMessage } from "../../notifications/telegram.js";
 import { logger } from "../../lib/logger.js";
