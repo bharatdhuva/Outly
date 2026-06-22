@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
+import { SearchPalette } from "@/components/SearchPalette";
 import { CheckCircle, Menu, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -38,6 +39,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const systemPills = useSystemStatus();
   const allOk = systemPills.every((p) => p.ok);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const pageTitle = pageTitles[location.pathname] ?? "Page Not Found";
 
   useEffect(() => {
@@ -47,6 +49,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMobileNavOpen(false);
   }, [location.pathname]);
+
+  // Global Ctrl+K trigger listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -69,10 +83,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            <div className="hidden w-full max-w-md items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2 text-muted-foreground lg:flex">
-              <Search className="h-4 w-4" />
-              <span className="text-[13px]">Search workflows, logs, and settings</span>
-            </div>
+            {/* Interactive Search Trigger */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hidden w-full max-w-md items-center justify-between gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-muted-foreground transition-all hover:border-primary/30 hover:bg-secondary/85 lg:flex cursor-pointer text-left focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <div className="flex items-center gap-2">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <span className="text-[13px]">Search workflows, logs, and settings...</span>
+              </div>
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-white px-1.5 font-mono text-[9px] font-medium text-muted-foreground/80 shadow-sm leading-none shrink-0">
+                Ctrl K
+              </kbd>
+            </button>
 
             <div
               className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-medium ${
@@ -102,6 +125,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <div className="mx-auto w-full max-w-[1360px] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">{children}</div>
         </main>
       </div>
+
+      {/* Global Search Command Dialog Palette Overlay */}
+      <SearchPalette isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   );
 }
