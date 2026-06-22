@@ -52,7 +52,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <AppSidebar mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
-      <div className="flex min-h-screen flex-col md:ml-[260px]">
+      <div className="flex min-h-screen flex-col md:ml-[260px] min-w-0 overflow-x-hidden">
         <header className="sticky top-0 z-30 border-b border-border bg-white/90 backdrop-blur-xl">
           <div className="flex min-h-[64px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">

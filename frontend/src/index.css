@@ -67,8 +67,8 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
+  html, body {
+    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden max-w-full;
   }
 
   ::-webkit-scrollbar {

@@ -251,7 +251,7 @@ export default function OverviewPage() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] min-w-0">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-[15px] font-semibold text-foreground">Daily apply streak</h2>
@@ -421,7 +421,7 @@ export default function OverviewPage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+      <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] min-w-0">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-[15px] font-semibold text-foreground">Application Pipeline</h2>
