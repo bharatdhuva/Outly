@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { twitterQueries } from "../../db/queries.js";
+import { twitterQueries, settingsQueries } from "../../db/queries.js";
 import { publishTwitterPost } from "../../automation/twitter/tweetPublisher.js";
 import { generateDailyTweet, generateWeeklyThread } from "../../automation/twitter/tweetGenerator.js";
 
@@ -20,12 +20,15 @@ router.post("/generate", async (req, res) => {
   const { type, topic } = req.body;
   try {
     let content;
+    const voiceProfile = settingsQueries.get("twitter_voice_profile");
+    const voiceEnabled = settingsQueries.get("twitter_voice_enabled") === "true";
+
     if (type === "thread") {
-      const thread = await generateWeeklyThread(topic);
+      const thread = await generateWeeklyThread(topic, voiceProfile, voiceEnabled);
       if (!thread) return res.status(500).json({ error: "Failed to generate thread" });
       content = JSON.stringify(thread);
     } else {
-      const tweet = await generateDailyTweet(topic);
+      const tweet = await generateDailyTweet(topic, voiceProfile, voiceEnabled);
       if (!tweet) return res.status(500).json({ error: "Failed to generate tweet" });
       content = tweet;
     }
@@ -54,6 +57,16 @@ router.put("/posts/:id", async (req, res) => {
         return res.status(500).json({ error: "Failed to post to Twitter" });
       }
     }
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+router.delete("/posts/:id", (req, res) => {
+  const { id } = req.params;
+  try {
+    twitterQueries.delete(Number(id));
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: String(error) });

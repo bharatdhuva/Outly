@@ -25,6 +25,11 @@ export const api = {
       maxEmailsPerDay: number;
       linkedinMode: string;
       nextWeeklyPostLabel: string;
+      savedCount?: number;
+      appliedCount?: number;
+      interviewCount?: number;
+      offerCount?: number;
+      rejectedCount?: number;
     }>("/dashboard/stats"),
     activity: () => fetchApi<Array<{ type: string; message: string; created_at: string }>>("/dashboard/activity"),
     queueStatus: () =>
@@ -110,6 +115,7 @@ export const api = {
     publishPost: (id: number) => fetchApi<{ ok: boolean; url?: string }>(`/linkedin/publish-post/${id}`, { method: "POST" }),
     setWeeklyPost: (enabled: boolean) =>
       fetchApi(`/linkedin/settings/weekly-post`, { method: "PATCH", body: JSON.stringify({ enabled }) }),
+    deletePost: (id: number) => fetchApi<{ ok: boolean }>(`/linkedin/posts/${id}`, { method: "DELETE" }),
   },
   settings: {
     get: () => fetchApi<AppSettings>("/settings/"),
@@ -133,6 +139,7 @@ export const api = {
       }),
     update: (id: number, data: Partial<TwitterPost>) =>
       fetchApi(`/twitter/posts/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    delete: (id: number) => fetchApi<{ success: boolean }>(`/twitter/posts/${id}`, { method: "DELETE" }),
   },
   reddit: {
     posts: () => fetchApi<RedditPost[]>("/reddit/posts"),
@@ -143,8 +150,130 @@ export const api = {
       }),
     update: (id: number, data: Partial<RedditPost>) =>
       fetchApi(`/reddit/posts/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  },
+  ats: {
+    score: (resume: string, jd: string) =>
+      fetchApi<{
+        score: number;
+        matched_keywords: string[];
+        missing_keywords: string[];
+        suggestions: string[];
+      }>("/ats/score", {
+        method: "POST",
+        body: JSON.stringify({ resume, jd }),
+      }),
+  },
+  applications: {
+    list: () => fetchApi<TrackerApplication[]>("/applications"),
+    create: (data: Omit<TrackerApplication, "id" | "created_at" | "updated_at">) =>
+      fetchApi<{ success: boolean; id: number }>("/applications", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Partial<Omit<TrackerApplication, "id" | "created_at">>) =>
+      fetchApi<{ success: boolean }>(`/applications/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number) =>
+      fetchApi<{ success: boolean }>(`/applications/${id}`, {
+        method: "DELETE",
+      }),
+  },
+  coverletter: {
+    generate: (resume: string, jd: string, tone: string) =>
+      fetchApi<{ coverLetter: string }>("/coverletter/generate", {
+        method: "POST",
+        body: JSON.stringify({ resume, jd, tone }),
+      }),
+  },
+  optimizer: {
+    linkedin: (jd: string, headline: string, about: string) =>
+      fetchApi<{
+        optimized_headlines: string[];
+        optimized_about: string;
+        skills_to_add: string[];
+        missing_keywords: string[];
+      }>("/optimizer/linkedin", {
+        method: "POST",
+        body: JSON.stringify({ jd, headline, about }),
+      }),
+  },
+  resume: {
+    list: () => fetchApi<ResumeVaultItem[]>("/resume"),
+    create: (data: { filename: string; label: string; content?: string; is_default?: boolean }) =>
+      fetchApi<{ success: boolean; id: number }>("/resume", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    setDefault: (id: number) =>
+      fetchApi<{ success: boolean }>(`/resume/${id}/default`, {
+        method: "POST",
+      }),
+    delete: (id: number) =>
+      fetchApi<{ success: boolean }>(`/resume/${id}`, {
+        method: "DELETE",
+      }),
+  },
+  analytics: {
+    get: () =>
+      fetchApi<{
+        summary: {
+          totalSent: number;
+          totalReplies: number;
+          pending: number;
+          approved: number;
+          replyRate: number;
+          avgReplyDelayHours: number;
+        };
+        openRateByCompany: Array<{ company: string; sent: number; opened: number; replied: number }>;
+        responseRateByEmailType: Array<{ type: string; sent: number; replies: number }>;
+        bestSubjectLines: Array<{ subject: string; openRate: number; replyRate: number }>;
+        heatmap: Array<{ day: string; hour: string; score: number }>;
+      }>("/analytics"),
+  },
+  scraper: {
+    jobs: (role: string, location: string, experience: string) =>
+      fetchApi<{
+        isLive: boolean;
+        jobs: Array<{
+          id: string;
+          title: string;
+          company: string;
+          location: string;
+          source: string;
+          url: string;
+          experience: string;
+          salary: string;
+        }>;
+      }>("/scraper/jobs", {
+        method: "POST",
+        body: JSON.stringify({ role, location, experience }),
+      }),
   }
 };
+
+export interface ResumeVaultItem {
+  id: number;
+  filename: string;
+  label: string;
+  content: string | null;
+  is_default: number;
+  created_at: string;
+}
+
+export interface TrackerApplication {
+  id: number;
+  company: string;
+  role: string;
+  jd_url: string | null;
+  stage: 'saved' | 'applied' | 'interview' | 'offer' | 'rejected';
+  resume_version_used: string | null;
+  notes: string | null;
+  email_history: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface Company {
   id: number;

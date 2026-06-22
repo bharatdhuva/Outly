@@ -6,6 +6,7 @@ import {
   settingsQueries,
   twitterQueries,
   redditQueries,
+  applicationQueries,
 } from "../../db/queries.js";
 import { mailQueue } from "../../queue/mailQueue.js";
 import { isGmailConfigured } from "../../automation/coldmail/mailSender.js";
@@ -26,6 +27,12 @@ router.get("/stats", (_req, res) => {
   const mailsThisWeek = companyQueries.countMailsSentThisWeek();
   const repliesThisWeek = companyQueries.countRepliesThisWeek();
 
+  const savedCount = applicationQueries.countByStage("saved");
+  const appliedCount = applicationQueries.countByStage("applied");
+  const interviewCount = applicationQueries.countByStage("interview");
+  const offerCount = applicationQueries.countByStage("offer");
+  const rejectedCount = applicationQueries.countByStage("rejected");
+
   res.json({
     mailsSent,
     replies,
@@ -39,6 +46,11 @@ router.get("/stats", (_req, res) => {
     maxEmailsPerDay: Number(getEditableSetting("max_emails_per_day") || env.MAX_EMAILS_PER_DAY),
     linkedinMode: "manual",
     nextWeeklyPostLabel: getWeeklyPostLabel(),
+    savedCount,
+    appliedCount,
+    interviewCount,
+    offerCount,
+    rejectedCount,
   });
 });
 

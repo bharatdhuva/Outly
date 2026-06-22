@@ -29,7 +29,9 @@ router.get("/posts", (_req, res) => {
 router.post("/generate-draft", async (_req, res) => {
   try {
     const news = await fetchAllNews();
-    const content = await generateLinkedInDraft(news);
+    const voiceProfile = settingsQueries.get("linkedin_voice_profile");
+    const voiceEnabled = settingsQueries.get("linkedin_voice_enabled") === "true";
+    const content = await generateLinkedInDraft(news, voiceProfile, voiceEnabled);
     const post = postQueries.insert({
       content,
       news_sources: JSON.stringify(news.map((n) => ({ title: n.title, url: n.url, source: n.source }))),
@@ -59,7 +61,9 @@ router.post("/generate-draft", async (_req, res) => {
 router.post("/generate-weekly-post", async (_req, res) => {
   try {
     const news = await fetchAllNews();
-    const content = await generateWeeklyLinkedInPost(news);
+    const voiceProfile = settingsQueries.get("linkedin_voice_profile");
+    const voiceEnabled = settingsQueries.get("linkedin_voice_enabled") === "true";
+    const content = await generateWeeklyLinkedInPost(news, voiceProfile, voiceEnabled);
     const post = postQueries.insert({
       content,
       news_sources: JSON.stringify(news.map((n) => ({ title: n.title, url: n.url, source: n.source }))),
@@ -88,7 +92,9 @@ router.post("/generate-weekly-post", async (_req, res) => {
 router.post("/generate-post", async (_req, res) => {
   try {
     const news = await fetchAllNews();
-    const content = await generateLinkedInDraft(news);
+    const voiceProfile = settingsQueries.get("linkedin_voice_profile");
+    const voiceEnabled = settingsQueries.get("linkedin_voice_enabled") === "true";
+    const content = await generateLinkedInDraft(news, voiceProfile, voiceEnabled);
     const post = postQueries.insert({
       content,
       news_sources: JSON.stringify(news.map((n) => ({ title: n.title, url: n.url }))),
@@ -159,6 +165,13 @@ router.post("/publish-post/:id", async (req, res) => {
 router.patch("/settings/weekly-post", (req, res) => {
   const enabled = req.body.enabled !== false;
   settingsQueries.set("weekly_post_enabled", String(enabled));
+  res.json({ ok: true });
+});
+
+router.delete("/posts/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+  postQueries.delete(id);
   res.json({ ok: true });
 });
 

@@ -389,6 +389,111 @@ export default function OverviewPage() {
           </Link>
         ))}
       </section>
+
+      {/* New Roadmap Sections */}
+      <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+        <h2 className="text-[15px] font-semibold text-foreground mb-4">Quick Actions</h2>
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+          <Link
+            to="/cold-mail"
+            className="flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-3 text-[13px] font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            ✉ New Cold Email
+          </Link>
+          <Link
+            to="/resume-tailor"
+            className="flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-3 text-[13px] font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            📄 Tailor Resume
+          </Link>
+          <Link
+            to="/ats-score"
+            className="flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-3 text-[13px] font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            📊 Check ATS Score
+          </Link>
+          <Link
+            to="/linkedin-posts"
+            className="flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-3 text-[13px] font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            📅 Schedule Post
+          </Link>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-[15px] font-semibold text-foreground">Application Pipeline</h2>
+            <p className="text-[13px] text-muted-foreground">Preview of your active job applications tracker.</p>
+          </div>
+          <Link to="/applications" className="text-[13px] font-medium text-primary hover:underline">
+            View full tracker →
+          </Link>
+        </div>
+        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin">
+          {[
+            { name: "Saved", count: stats?.savedCount ?? 0, bg: "bg-slate-500/10 border-slate-500/20 text-slate-400" },
+            { name: "Applied", count: stats?.appliedCount ?? 0, bg: "bg-blue-500/10 border-blue-500/20 text-blue-400" },
+            { name: "Interview", count: stats?.interviewCount ?? 0, bg: "bg-warning/10 border-warning/20 text-warning" },
+            { name: "Offer", count: stats?.offerCount ?? 0, bg: "bg-success/10 border-success/20 text-success" },
+            { name: "Rejected", count: stats?.rejectedCount ?? 0, bg: "bg-destructive/10 border-destructive/20 text-destructive" },
+          ].map((col) => (
+            <div
+              key={col.name}
+              className={`flex flex-col flex-1 min-w-[120px] items-center justify-between rounded-lg border p-4 ${col.bg}`}
+            >
+              <span className="text-[13px] font-semibold">{col.name}</span>
+              <span className="mt-2 rounded-full bg-current/10 px-2.5 py-0.5 text-[14px] font-bold">{col.count}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-[15px] font-semibold text-foreground">Recent Activity Feed</h2>
+            <p className="text-[13px] text-muted-foreground">Log of recent automation events and actions.</p>
+          </div>
+          <Link to="/logs" className="text-[13px] font-medium text-primary hover:underline">
+            View all logs →
+          </Link>
+        </div>
+        <div className="space-y-2">
+          {(activity ?? []).length === 0 ? (
+            <p className="text-[13px] text-muted-foreground py-4 text-center">No activity recorded yet.</p>
+          ) : (
+            (activity ?? []).slice(0, 5).map((item, idx) => {
+              let Icon = CheckCircle;
+              if (item.type.includes("mail")) Icon = Mail;
+              if (item.type.includes("post") || item.type.includes("tweet")) Icon = FileText;
+              
+              const timeAgo = (() => {
+                const diffMs = Date.now() - new Date(item.created_at).getTime();
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMins / 60);
+                if (diffMins < 1) return "Just now";
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                return new Date(item.created_at).toLocaleDateString();
+              })();
+
+              return (
+                <div key={idx} className="flex items-center justify-between gap-3 border-b border-border/40 pb-2 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-primary">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <span className="text-[13px] font-medium text-foreground">{item.message}</span>
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">{timeAgo}</span>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </section>
     </div>
   );
 }

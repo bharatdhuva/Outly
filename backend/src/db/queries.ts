@@ -235,6 +235,8 @@ export const postQueries = {
     const res = getDb().prepare("SELECT COUNT(*) as count FROM linkedin_posts WHERE status = 'posted'").get() as any;
     return Number(res?.count ?? 0);
   },
+  delete: (id: number) =>
+    getDb().prepare("DELETE FROM linkedin_posts WHERE id = ?").run(id),
 };
 
 export const twitterQueries = {
@@ -259,6 +261,8 @@ export const twitterQueries = {
     const res = getDb().prepare("SELECT COUNT(*) as count FROM twitter_posts WHERE status = 'posted'").get() as any;
     return Number(res?.count ?? 0);
   },
+  delete: (id: number) =>
+    getDb().prepare("DELETE FROM twitter_posts WHERE id = ?").run(id),
 };
 
 export const redditQueries = {
@@ -329,3 +333,85 @@ export const activityQueries = {
   getRecent: (limit: number) =>
     getDb().prepare("SELECT * FROM activity_log ORDER BY created_at DESC LIMIT ?").all(limit) as any[],
 };
+
+export interface Application {
+  id: number;
+  company: string;
+  role: string;
+  jd_url: string | null;
+  stage: 'saved' | 'applied' | 'interview' | 'offer' | 'rejected';
+  resume_version_used: string | null;
+  notes: string | null;
+  email_history: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ResumeVaultItem {
+  id: number;
+  filename: string;
+  label: string;
+  content: string | null;
+  is_default: number;
+  created_at: string;
+}
+
+export const applicationQueries = {
+  getAll: () =>
+    getDb()
+      .prepare("SELECT * FROM applications ORDER BY created_at DESC")
+      .all() as Application[],
+  getById: (id: number) =>
+    getDb().prepare("SELECT * FROM applications WHERE id = ?").get(id) as Application | undefined,
+  insert: (app: Omit<Application, "id" | "created_at" | "updated_at">) => {
+    const stmt = getDb().prepare(`
+      INSERT INTO applications (company, role, jd_url, stage, resume_version_used, notes, email_history)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    return stmt.run(
+      app.company,
+      app.role,
+      app.jd_url ?? null,
+      app.stage ?? 'saved',
+      app.resume_version_used ?? null,
+      app.notes ?? null,
+      app.email_history ?? '[]'
+    );
+  },
+  update: (id: number, app: Partial<Omit<Application, "id" | "created_at">>) => {
+    const updates = { ...app, updated_at: new Date().toISOString() };
+    const keys = Object.keys(updates).filter((k) => k !== "id");
+    const sets = keys.map((k) => `${k} = ?`);
+    const vals = keys.map((k) => (updates as any)[k]);
+    if (sets.length === 0) return { changes: 0 };
+    const query = `UPDATE applications SET ${sets.join(", ")} WHERE id = ?`;
+    return getDb().prepare(query).run(...vals, id);
+  },
+  delete: (id: number) =>
+    getDb().prepare("DELETE FROM applications WHERE id = ?").run(id),
+  countByStage: (stage: string) => {
+    const res = getDb().prepare("SELECT COUNT(*) as count FROM applications WHERE stage = ?").get(stage) as any;
+    return Number(res?.count ?? 0);
+  }
+};
+
+export const resumeVaultQueries = {
+  getAll: () =>
+    getDb().prepare("SELECT * FROM resume_vault ORDER BY created_at DESC").all() as ResumeVaultItem[],
+  getById: (id: number) =>
+    getDb().prepare("SELECT * FROM resume_vault WHERE id = ?").get(id) as ResumeVaultItem | undefined,
+  insert: (item: Omit<ResumeVaultItem, "id" | "created_at">) => {
+    const stmt = getDb().prepare(`
+      INSERT INTO resume_vault (filename, label, content, is_default)
+      VALUES (?, ?, ?, ?)
+    `);
+    return stmt.run(item.filename, item.label, item.content ?? null, item.is_default ?? 0);
+  },
+  setDefault: (id: number) => {
+    getDb().prepare("UPDATE resume_vault SET is_default = 0").run();
+    return getDb().prepare("UPDATE resume_vault SET is_default = 1 WHERE id = ?").run(id);
+  },
+  delete: (id: number) =>
+    getDb().prepare("DELETE FROM resume_vault WHERE id = ?").run(id)
+};
+

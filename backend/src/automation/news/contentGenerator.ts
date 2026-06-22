@@ -46,7 +46,11 @@ async function generateStructuredText(
 /**
  * Generate a daily LinkedIn draft post using v2.3 prompt (student tone, 500-900 chars)
  */
-export async function generateLinkedInDraft(newsItems: NewsItem[]): Promise<string> {
+export async function generateLinkedInDraft(
+  newsItems: NewsItem[],
+  voiceProfile?: string,
+  voiceEnabled?: boolean
+): Promise<string> {
   const newsContext = newsItems
     .slice(0, 10)
     .map((n) => `- ${n.title} (${n.source})${n.summary ? `: ${n.summary.slice(0, 120)}` : ""}`)
@@ -60,6 +64,16 @@ export async function generateLinkedInDraft(newsItems: NewsItem[]): Promise<stri
     "Curious if anyone else feels the same way?",
   ];
   const randomCta = ctaList[Math.floor(Math.random() * ctaList.length)];
+
+  let voicePrompt = "";
+  if (voiceEnabled && voiceProfile) {
+    voicePrompt = `
+Additionally, you MUST write this post in the following voice and style. Here are examples of how the user writes:
+---
+${voiceProfile}
+---
+Match the writing pattern, sentence lengths, tone, vocabulary, and structural layout of these examples precisely. Do not sound like a generic AI assistant.`;
+  }
 
   const prompt = `You are Bharat Dhuva, a 20-year-old 3rd-year Computer Science student from Vadodara, Gujarat.
 You are active in open source and building projects like InterviewOS.
@@ -77,6 +91,7 @@ Rules:
 - Never use phrases like "Thrilled to share", "Excited to announce", "Proud to"
 - Write in first person
 - No markdown asterisks
+${voicePrompt}
 
 Return STRICT JSON only:
 {
@@ -92,11 +107,25 @@ ${newsContext}`;
 /**
  * Generate a weekly tech roundup LinkedIn post (Monday morning style)
  */
-export async function generateWeeklyLinkedInPost(newsItems: NewsItem[]): Promise<string> {
+export async function generateWeeklyLinkedInPost(
+  newsItems: NewsItem[],
+  voiceProfile?: string,
+  voiceEnabled?: boolean
+): Promise<string> {
   const newsSummary = newsItems
     .slice(0, 12)
     .map((n) => `- ${n.title} (${n.source}): ${n.url}`)
     .join("\n");
+
+  let voicePrompt = "";
+  if (voiceEnabled && voiceProfile) {
+    voicePrompt = `
+Additionally, you MUST write this post in the following voice and style. Here are examples of how the user writes:
+---
+${voiceProfile}
+---
+Match the writing pattern, sentence lengths, tone, vocabulary, and structural layout of these examples precisely. Do not sound like a generic AI assistant.`;
+  }
 
   const prompt = `You are Bharat Dhuva, a 20-year-old 3rd-year CSE student from Vadodara, Gujarat.
 Write a weekly tech roundup LinkedIn post about this week's most exciting tech updates.
@@ -115,6 +144,7 @@ Rules:
 - Add 5-7 relevant hashtags at the very end only
 - Target length: 800-1200 characters
 - No markdown asterisks
+${voicePrompt}
 
 Return STRICT JSON only:
 {
@@ -130,7 +160,11 @@ ${newsSummary}`;
 /**
  * Generate a Twitter draft that targets startup founders / hiring managers.
  */
-export async function generateTwitterDraft(newsItems: NewsItem[]): Promise<string> {
+export async function generateTwitterDraft(
+  newsItems: NewsItem[],
+  voiceProfile?: string,
+  voiceEnabled?: boolean
+): Promise<string> {
   const newsContext = newsItems
     .slice(0, 5)
     .map((n) => `- ${n.title}`)
@@ -145,6 +179,16 @@ export async function generateTwitterDraft(newsItems: NewsItem[]): Promise<strin
   ];
   const randomCta = ctaList[Math.floor(Math.random() * ctaList.length)];
 
+  let voicePrompt = "";
+  if (voiceEnabled && voiceProfile) {
+    voicePrompt = `
+Additionally, you MUST write this post in the following voice and style. Here are examples of how the user writes:
+---
+${voiceProfile}
+---
+Match the writing pattern, sentence lengths, tone, vocabulary, and structural layout of these examples precisely. Do not sound like a generic AI assistant.`;
+  }
+
   const prompt = `You are Bharat Dhuva, a 20-year-old 3rd-year CS student from Vadodara.
 
 Write a highly engaging and opinionated Twitter post under 280 characters based on today's tech news.
@@ -156,6 +200,7 @@ Rules:
 - End with this exact line if it fits naturally: "${randomCta}"
 - Keep it plain text only
 - No markdown asterisks
+${voicePrompt}
 
 Return STRICT JSON only:
 {

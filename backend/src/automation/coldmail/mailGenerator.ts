@@ -21,6 +21,8 @@ export interface GeneratedMail {
   subject: string;
   body: string;
   personalization_hook: string;
+  variants?: any;
+  followups?: any;
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -283,13 +285,57 @@ export async function generateMailForCompany(
     ...(scrapedCtx.pageHighlights ?? []),
   ], 8);
 
-  const prompt = `You are writing a highly personalized internship cold email for Bharat Dhuva.
+  const prompt = `You are writing a highly personalized internship cold email for Bharat Dhuva, along with casual/short variants and follow-up emails.
 
 STYLE REFERENCE ONLY:
 ${coldMailGuide || "Keep it short, warm, and company-specific."}
 
-GOAL:
-`;
+RESEARCH CONTEXT FOR THE COMPANY:
+${researchSection}
+
+Target Company: ${companyName}
+Role Applying For: ${roleApplying}
+Key Skills to Highlight: ${skills}
+Sender: ${senderName} based in ${senderLoc}
+Experience Level: ${experience}
+Target Recipient: ${targetName} (${targetRole})
+
+Instructions:
+1. Write 3 variants of the email:
+   - "formal": professional, well-structured.
+   - "casual": warm, conversational, friendly.
+   - "short": brief, direct, under 100 words.
+2. Write 2 follow-ups:
+   - "day4": gentle follow-up referencing the previous outreach.
+   - "day7": final short check-in follow-up.
+3. For each variant/follow-up, provide a main "body" and exactly 3 "subject_options".
+4. The formal variant "body" will be used as the primary "body" and "subject" fields.
+5. Make sure the bodies of all emails start with a greeting (e.g. "Hi ${targetName},") and end with:
+   Best,
+   ${senderName}
+   ${senderLoc}
+   +91 9624828661
+   https://www.linkedin.com/in/bharatdhuva27/
+6. Ensure that the bodies reference attaching a resume ("I’ve attached my resume for your reference.") and a soft CTA ("Would you be open to a quick 10-minute call").
+7. Ensure that the company name "${companyName}" is included in the bodies.
+
+Return a JSON object exactly matches this TypeScript interface:
+interface AIResponse {
+  subject: string; // The primary subject (same as variants.formal.subject_options[0])
+  body: string; // The primary body (same as variants.formal.body)
+  personalization_hook: string; // A one-line hook showing research/relevance
+  variants: {
+    formal: { subject_options: string[]; body: string; };
+    casual: { subject_options: string[]; body: string; };
+    short: { subject_options: string[]; body: string; };
+  };
+  followups: {
+    day4: { subject_options: string[]; body: string; };
+    day7: { subject_options: string[]; body: string; };
+  };
+}
+
+Only return the JSON block, no explanations.`;
 
   try {
     let raw = "";
@@ -335,33 +381,46 @@ GOAL:
       }
     }
 
-    let parsed;
+    let parsed: any;
     try {
-      parsed = validateDraft(extractJson(raw), companyName);
+      const parsedJson = extractJson(raw);
+      parsed = validateDraft(parsedJson, companyName) as any;
+      parsed.variants = parsedJson.variants || null;
+      parsed.followups = parsedJson.followups || null;
     } catch (e) {
       // Fallback: use a default template if AI fails
-      parsed = {
-        subject: `${companyName}, loved your ${hook || 'recent work'}`,
-        body: deduplicateParagraphs(
+      const fallbackBody = deduplicateParagraphs(
 `Hi ${targetName},
 
 i just came across your recent ${hook || 'whitepaper / post / update'} and really liked the insights.
 
-I'm Bharat Dhuva, 3rd Year CSE Student From  Over the past year, I’ve been working with ${skills} on several full-stack projects.
+I'm Bharat Dhuva, 3rd Year CSE Student From MSU Baroda. Over the past year, I’ve been working with ${skills} on several full-stack projects.
 
-i would love to become part of ${companyName} as  ${roleApplying} intern (unpaid). i would love to be a part of team and contribute to real project 
+i would love to become part of ${companyName} as ${roleApplying} intern (unpaid). i would love to be a part of team and contribute to real project.
 
 I’ve attached my resume for your reference. Would you be open to a quick 10-minute call if there’s any possibility?
 
 Thanks for your time!
 
-Bharat Dhuva  
-Vadodara, Gujarat  
+Best,
+Bharat Dhuva
+Vadodara, Gujarat
 +91 9624828661
 https://www.linkedin.com/in/bharatdhuva27/`
-
-        ),
+      );
+      parsed = {
+        subject: `${companyName}, loved your ${hook || 'recent work'}`,
+        body: fallbackBody,
         personalization_hook: hook || '',
+        variants: {
+          formal: { subject_options: [`${companyName}, loved your ${hook || 'recent work'}`, `Outreach: ${roleApplying} at ${companyName}`], body: fallbackBody },
+          casual: { subject_options: [`Hey ${targetName} - quick question`, `Interested in ${companyName}`], body: fallbackBody },
+          short: { subject_options: [`Internship interest - ${companyName}`], body: fallbackBody }
+        },
+        followups: {
+          day4: { subject_options: [`Re: ${companyName}, loved your recent work`], body: `Hi ${targetName},\n\nJust checking if you had a chance to read my previous email. I would love to connect.\n\nBest,\nBharat` },
+          day7: { subject_options: [`Re: ${companyName}, loved your recent work`], body: `Hi ${targetName},\n\nOne last check-in to see if you have any opening for ${roleApplying}.\n\nBest,\nBharat` }
+        }
       };
     }
 
@@ -369,6 +428,7 @@ https://www.linkedin.com/in/bharatdhuva27/`
       generated_subject: parsed.subject,
       generated_mail: parsed.body,
       personalization_hook: parsed.personalization_hook,
+      generated_variants_json: JSON.stringify(parsed),
       error_message: null,
     } as any);
 

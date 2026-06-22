@@ -11,6 +11,11 @@ import {
   Settings,
   Twitter,
   X,
+  LayoutGrid,
+  BarChart,
+  Edit,
+  UserCheck,
+  TrendingUp,
 } from "lucide-react";
 import { api, type Company } from "@/lib/api";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -20,8 +25,12 @@ const navSections = [
     label: "Workspace",
     items: [
       { title: "Overview", url: "/", icon: LayoutDashboard },
-      { title: "Cold Mail", url: "/cold-mail", icon: Mail },
+      { title: "Applications", url: "/applications", icon: LayoutGrid },
+      { title: "ATS Score", url: "/ats-score", icon: BarChart },
+      { title: "Cover Letter", url: "/cover-letter", icon: Edit },
+      { title: "LinkedIn Optimizer", url: "/linkedin-optimizer", icon: UserCheck },
       { title: "Resume Tailor", url: "/resume-tailor", icon: FileText },
+      { title: "Cold Mail", url: "/cold-mail", icon: Mail },
     ],
   },
   {
@@ -36,6 +45,7 @@ const navSections = [
   {
     label: "Admin",
     items: [
+      { title: "Analytics", url: "/analytics", icon: TrendingUp },
       { title: "Settings", url: "/settings", icon: Settings },
       { title: "Logs", url: "/logs", icon: ScrollText },
     ],

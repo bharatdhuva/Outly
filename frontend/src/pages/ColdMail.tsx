@@ -69,6 +69,9 @@ export default function ColdMailPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [activeTab, setActiveTab] = useState<"formal" | "casual" | "short">("formal");
+  const [showFollowUps, setShowFollowUps] = useState(false);
+  const [companySize, setCompanySize] = useState<"startup" | "mid" | "large">("startup");
   const [newCompany, setNewCompany] = useState<Partial<Company>>({
     company_name: "",
     website_url: "",
@@ -641,6 +644,39 @@ export default function ColdMailPage() {
                    </p>
                 </div>
               </div>
+              {/* Who to Email Suggester */}
+              <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
+                    💡 Who to Email Suggester
+                  </span>
+                  <select
+                    value={companySize}
+                    onChange={(e) => setCompanySize(e.target.value as any)}
+                    className="text-[11px] rounded bg-secondary border border-border p-1 outline-none text-foreground font-semibold"
+                  >
+                    <option value="startup">Startup</option>
+                    <option value="mid">Mid-size</option>
+                    <option value="large">Large Enterprise</option>
+                  </select>
+                </div>
+                <div className="bg-secondary/40 rounded-lg p-3 text-[12px] space-y-1 border border-border/40">
+                  <p className="font-bold text-foreground">
+                    Target: <span className="text-primary">{(() => {
+                      if (companySize === "startup") return "Founder or CTO";
+                      if (companySize === "mid") return "Engineering Manager or VP Engineering";
+                      return "Technical Recruiter or HR Business Partner";
+                    })()}</span>
+                  </p>
+                  <p className="text-muted-foreground text-[11px] leading-4">
+                    {(() => {
+                      if (companySize === "startup") return "Startups respond 3x better to founder outreach since decision-making is direct.";
+                      if (companySize === "mid") return "Mid-size companies have dedicated engineering leaders who manage hiring budgets.";
+                      return "Large enterprises have formal recruiting pipelines. Direct recruiter messaging ensures review.";
+                    })()}
+                  </p>
+                </div>
+              </div>
 
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-2 opacity-10">
@@ -665,20 +701,194 @@ export default function ColdMailPage() {
                 </div>
               )}
 
+              {/* AI Draft & Variants */}
               <div className="space-y-4">
                 <div>
-                  <label className="text-[10px] font-bold uppercase text-muted-foreground/60 mb-2 block">
-                    AI Draft Content
-                  </label>
-                  <div className="rounded-xl border border-border bg-muted/30 p-4">
-                    <p className="text-xs font-bold text-foreground mb-3 border-b border-border pb-2">
-                       {selectedCompany.generated_subject || "Subject will appear here"}
-                    </p>
-                    <div className="font-mono text-[11px] leading-relaxed text-secondary-foreground whitespace-pre-wrap">
-                      {selectedCompany.generated_mail ? cleanDraft(selectedCompany.generated_mail) : "No draft generated yet."}
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[10px] font-bold uppercase text-muted-foreground/60 block">
+                      AI Draft Content
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-medium text-muted-foreground">Follow-up Sequence</span>
+                      <input
+                        type="checkbox"
+                        checked={showFollowUps}
+                        onChange={(e) => setShowFollowUps(e.target.checked)}
+                        className="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary"
+                      />
                     </div>
                   </div>
+
+                  {(() => {
+                    let variantsData: any = null;
+                    try {
+                      if (selectedCompany.generated_variants_json) {
+                        variantsData = JSON.parse(selectedCompany.generated_variants_json);
+                      }
+                    } catch (e) {
+                      console.error("Variants parse error:", e);
+                    }
+
+                    const activeDraftBody = variantsData?.variants?.[activeTab]?.body || selectedCompany.generated_mail;
+                    const activeSubjectOptions = variantsData?.variants?.[activeTab]?.subject_options || [
+                      selectedCompany.generated_subject || "Subject will appear here"
+                    ];
+
+                    const handleCopyText = (txt: string) => {
+                      navigator.clipboard.writeText(txt);
+                      toast.success("Copied to clipboard!");
+                    };
+
+                    const handleApplySubject = (subj: string) => {
+                      updateMutation.mutate({
+                        id: selectedCompany.id,
+                        data: { generated_subject: subj }
+                      });
+                    };
+
+                    const handleApplyBody = (body: string) => {
+                      updateMutation.mutate({
+                        id: selectedCompany.id,
+                        data: { generated_mail: body }
+                      });
+                    };
+
+                    return (
+                      <div className="space-y-4">
+                        {/* Tab Switcher */}
+                        {variantsData?.variants && (
+                          <div className="flex border border-border rounded-lg overflow-hidden bg-secondary/50">
+                            {(["formal", "casual", "short"] as const).map((tab) => (
+                              <button
+                                key={tab}
+                                type="button"
+                                className={`flex-1 py-2 text-center text-xs font-semibold uppercase tracking-wider border-r border-border last:border-r-0 ${
+                                  activeTab === tab ? "bg-white text-primary" : "text-muted-foreground hover:bg-secondary"
+                                }`}
+                                onClick={() => setActiveTab(tab)}
+                              >
+                                {tab}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-4">
+                          {/* Subject Options */}
+                          <div className="space-y-2 border-b border-border pb-3">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
+                              Subject Options (Select/Copy)
+                            </span>
+                            <div className="space-y-1.5">
+                              {activeSubjectOptions.map((subj: string, index: number) => (
+                                <div key={index} className="flex items-center justify-between gap-2 rounded bg-white border border-border p-2 text-xs">
+                                  <span className="font-medium text-foreground truncate">{subj}</span>
+                                  <div className="flex gap-1 shrink-0">
+                                    <Button
+                                      size="sm"
+                                      type="button"
+                                      variant="ghost"
+                                      className="h-6 px-2 text-[10px] text-primary"
+                                      onClick={() => handleApplySubject(subj)}
+                                    >
+                                      Apply
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      type="button"
+                                      variant="ghost"
+                                      className="h-6 px-2 text-[10px] text-muted-foreground"
+                                      onClick={() => handleCopyText(subj)}
+                                    >
+                                      Copy
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Email Body */}
+                          <div className="font-mono text-[11px] leading-relaxed text-secondary-foreground whitespace-pre-wrap">
+                            {activeDraftBody ? cleanDraft(activeDraftBody) : "No draft generated yet."}
+                          </div>
+
+                          {variantsData?.variants?.[activeTab] && (
+                            <div className="flex justify-end pt-2">
+                              <Button
+                                size="sm"
+                                type="button"
+                                variant="outline"
+                                className="h-8 text-xs gap-1.5"
+                                onClick={() => handleApplyBody(activeDraftBody)}
+                              >
+                                Apply Variant Body
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Follow up sequence items */}
+                        {showFollowUps && variantsData?.followups && (
+                          <div className="space-y-3 animate-slide-up border-t border-border/60 pt-4">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">
+                              ⏰ Follow-up Sequence
+                            </span>
+
+                            {/* Day 4 */}
+                            <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-2">
+                              <div className="flex justify-between items-center border-b border-border/40 pb-1.5">
+                                <span className="text-[11px] font-semibold text-foreground">Follow-up 1 (Day 4)</span>
+                                <Button
+                                  size="sm"
+                                  type="button"
+                                  variant="ghost"
+                                  className="h-6 px-2 text-[10px] text-muted-foreground"
+                                  onClick={() => handleCopyText(
+                                    `Subject: ${variantsData.followups.day4.subject_options?.[0] || 'Followup 4'}\n\n${variantsData.followups.day4.body}`
+                                  )}
+                                >
+                                  Copy All
+                                </Button>
+                              </div>
+                              <p className="text-[11px] font-semibold text-muted-foreground truncate">
+                                Re: {variantsData.followups.day4.subject_options?.[0]}
+                              </p>
+                              <p className="text-[11px] text-muted-foreground font-mono whitespace-pre-wrap leading-relaxed">
+                                {variantsData.followups.day4.body}
+                              </p>
+                            </div>
+
+                            {/* Day 7 */}
+                            <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-2">
+                              <div className="flex justify-between items-center border-b border-border/40 pb-1.5">
+                                <span className="text-[11px] font-semibold text-foreground">Follow-up 2 (Day 7)</span>
+                                <Button
+                                  size="sm"
+                                  type="button"
+                                  variant="ghost"
+                                  className="h-6 px-2 text-[10px] text-muted-foreground"
+                                  onClick={() => handleCopyText(
+                                    `Subject: ${variantsData.followups.day7.subject_options?.[0] || 'Followup 7'}\n\n${variantsData.followups.day7.body}`
+                                  )}
+                                >
+                                  Copy All
+                                </Button>
+                              </div>
+                              <p className="text-[11px] font-semibold text-muted-foreground truncate">
+                                Re: {variantsData.followups.day7.subject_options?.[0]}
+                              </p>
+                              <p className="text-[11px] text-muted-foreground font-mono whitespace-pre-wrap leading-relaxed">
+                                {variantsData.followups.day7.body}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
+              </div>
 
                 <div className="flex flex-wrap gap-2 pt-2">
                     {["pending", "scraped", "mail_generated", "approved"].includes(selectedCompany.status) && (
@@ -853,7 +1063,6 @@ export default function ColdMailPage() {
                     <SkipForward className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
 
               {/* Advanced info section */}
               <div className="pt-4 border-t border-border mt-4">

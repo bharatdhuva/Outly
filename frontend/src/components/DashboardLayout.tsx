@@ -30,6 +30,8 @@ const pageTitles: Record<string, string> = {
   "/settings": "Settings",
   "/logs": "Logs",
   "/resume-tailor": "Resume Tailor",
+  "/ats-score": "ATS Score",
+  "/applications": "Applications",
 };
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
