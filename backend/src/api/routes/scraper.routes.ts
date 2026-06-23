@@ -5,6 +5,49 @@ import { logger } from "../../lib/logger.js";
 
 const router = Router();
 
+// Helper function to fetch jobs from JSearch with automatic 429 retry
+async function fetchSourceWithRetry(
+  query: string,
+  isRemoteSearch: boolean,
+  retries = 2,
+  delayMs = 1200
+): Promise<any[]> {
+  try {
+    const response = await axios.get("https://jsearch.p.rapidapi.com/search", {
+      params: {
+        query,
+        page: 1,
+        num_pages: 1,
+        date_posted: "all",
+        remote_jobs_only: isRemoteSearch ? "true" : "false",
+      },
+      headers: {
+        "x-rapidapi-host": "jsearch.p.rapidapi.com",
+        "x-rapidapi-key": env.RAPIDAPI_KEY,
+      },
+      timeout: 20000, // 20 seconds timeout to handle crawler delay
+    });
+
+    if (response.data && Array.isArray(response.data.data)) {
+      logger.info(`JSearch fetched ${response.data.data.length} results for query: "${query}" (remote: ${isRemoteSearch})`, { source: "scraper" });
+      return response.data.data;
+    }
+    return [];
+  } catch (err: any) {
+    const status = err.response ? err.response.status : null;
+    logger.warn(`JSearch API call failed for query "${query}": status ${status || err.message}`, { source: "scraper" });
+
+    // Retry on 429 rate limit
+    if (status === 429 && retries > 0) {
+      logger.info(`Rate limit hit for query "${query}". Retrying in ${delayMs}ms...`, { source: "scraper" });
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      return fetchSourceWithRetry(query, isRemoteSearch, retries - 1, delayMs * 1.5);
+    }
+
+    return []; // fail gracefully to keep other parallel requests alive
+  }
+}
+
 // POST /jobs - Search for jobs on welfound, instahyre, and naukri via JSearch
 router.post("/jobs", async (req, res) => {
   const { role, location, experience } = req.body;
@@ -19,10 +62,11 @@ router.post("/jobs", async (req, res) => {
   logger.info(`Starting JSearch job search for role: "${role}", location: "${location || 'Any'}", exp: "${experience || 'Any'}"`, { source: "scraper" });
 
   try {
-    // Run search for each source in parallel
+    const isRemoteSearch = location && location.toLowerCase().trim() === "remote";
+
     const searchPromises = sources.map(async (source) => {
-      // Build location component
-      const locationTerm = location ? ` in ${location}` : "";
+      // Build location component (only if not searching for remote)
+      const locationTerm = (location && !isRemoteSearch) ? ` in ${location}` : "";
       
       // Build experience component
       let expTerm = "";
@@ -36,37 +80,10 @@ router.post("/jobs", async (req, res) => {
 
       // Build target query
       const query = `${expTerm}${role}${locationTerm} via ${source}`;
-
-      try {
-        const response = await axios.get("https://jsearch.p.rapidapi.com/job-search", {
-          params: {
-            query,
-            page: 1,
-            num_pages: 1,
-            date_posted: "all",
-          },
-          headers: {
-            "x-rapidapi-host": "jsearch.p.rapidapi.com",
-            "x-rapidapi-key": env.RAPIDAPI_KEY,
-          },
-          timeout: 8000, // 8 seconds timeout per source call
-        });
-
-        if (response.data && Array.isArray(response.data.data)) {
-          logger.info(`JSearch fetched ${response.data.data.length} results for query: "${query}"`, { source: "scraper" });
-          return response.data.data;
-        }
-
-        return [];
-      } catch (err: any) {
-        logger.error(`JSearch API call failed for query "${query}"`, { error: err.message || String(err), source: "scraper" });
-        return []; // fail gracefully for this source
-      }
+      return fetchSourceWithRetry(query, isRemoteSearch);
     });
 
     const results = await Promise.all(searchPromises);
-    
-    // Flatten all results into a single array
     const allJobs = results.flat();
 
     // Map the JSearch response schema to the format expected by the frontend

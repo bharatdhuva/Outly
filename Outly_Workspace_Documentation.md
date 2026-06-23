@@ -42,7 +42,7 @@ Outly is an AI-powered job application and career outreach automation platform. 
     *   Attach notes, Job Description links, and log interview schedules.
     *   Dropdown selection of which resume version from the Vault was sent.
     *   View status update history and automated emails sent to the company.
-*   **Integrated Job Scraper:** Auto-fetch job postings from platforms (LinkedIn, Naukri, Internshala, Wellfound) using Apify crawler configurations.
+*   **Integrated Job Scraper:** Auto-fetch job postings from target career portals (Naukri, Instahyre, and Wellfound) using JSearch RapidAPI integrations.
 
 ### 4. ATS Resume Score Checker (`/ats-score`)
 *   **Direct Comparison:** Compares resume text (.txt upload or paste) with a pasted Job Description.
@@ -77,8 +77,8 @@ Outly is an AI-powered job application and career outreach automation platform. 
     *   Build a Chrome Extension to let users capture job listings directly from LinkedIn, Indeed, and Wellfound, adding them to the Kanban tracker in one click.
 3.  **Advanced Auto-Send Engine:**
     *   Automate sending approved Gmail drafts directly from the queue at optimal times (using the heatmap analytics), instead of drafting them for manual sending.
-4.  **Live Scraping API Keys:**
-    *   Replace simulated job scraping behaviors on Naukri/Internshala with direct API tokens and live Apify scraping accounts.
+4.  **LinkedIn Auto-Apply Automations:**
+    *   Integrate automated application flows using headless browser tools or direct job application endpoints.
 5.  **Multi-Format Document Parser:**
     *   Expand the ATS score checker to parse `.pdf` and `.docx` files directly (currently only reads `.txt` formats).
 6.  **Resume Vault Integration:**
