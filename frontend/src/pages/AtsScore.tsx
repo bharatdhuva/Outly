@@ -37,16 +37,6 @@ export default function AtsScorePage() {
     queryFn: api.resume.list,
   });
 
-  // Automatically load default resume if present
-  useEffect(() => {
-    if (resumes.length > 0 && !resume && !resumeFile) {
-      const defaultResume = resumes.find(r => r.is_default === 1);
-      if (defaultResume && defaultResume.content) {
-        setResume(defaultResume.content);
-        setSelectedVaultId(String(defaultResume.id));
-      }
-    }
-  }, [resumes]);
 
   const handleVaultSelect = (idStr: string) => {
     setSelectedVaultId(idStr);
@@ -307,9 +297,22 @@ export default function AtsScorePage() {
                       Clear Selection
                     </Button>
                   </div>
-                  <div className="flex-1 max-h-[420px] overflow-y-auto rounded-lg border border-border bg-secondary/30 p-4">
-                    <pre className="whitespace-pre-wrap font-sans text-[13px] leading-6 text-foreground">{resume}</pre>
-                  </div>
+                  {(() => {
+                    const selectedVaultResume = resumes.find(r => String(r.id) === selectedVaultId);
+                    const isPdf = selectedVaultResume?.filename.toLowerCase().endsWith(".pdf");
+                    if (isPdf) {
+                      return (
+                        <div className="flex-1 overflow-hidden rounded-lg border border-border bg-secondary">
+                          <PdfViewer url={api.resume.getFileUrl(selectedVaultResume.id)} />
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="flex-1 max-h-[420px] overflow-y-auto rounded-lg border border-border bg-secondary/30 p-4">
+                        <pre className="whitespace-pre-wrap font-sans text-[13px] leading-6 text-foreground">{resume}</pre>
+                      </div>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-border rounded-lg bg-secondary/10 p-8 min-h-[300px]">
