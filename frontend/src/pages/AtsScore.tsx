@@ -11,7 +11,6 @@ import {
   CheckCircle,
   AlertTriangle,
   RefreshCw,
-  Save,
   Check,
   Info,
   AlertCircle,
@@ -31,9 +30,6 @@ export default function AtsScorePage() {
 
   // Vault integration state
   const [selectedVaultId, setSelectedVaultId] = useState<string>("custom");
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [saveLabel, setSaveLabel] = useState("");
-  const [savingResume, setSavingResume] = useState(false);
 
   // Fetch resumes from the Resume Vault
   const { data: resumes = [], refetch: refetchResumes } = useQuery({
@@ -54,7 +50,7 @@ export default function AtsScorePage() {
 
   const handleVaultSelect = (idStr: string) => {
     setSelectedVaultId(idStr);
-    setResumeFile(null); // Clear file when vault item is selected
+    setResumeFile(null); // Clear uploaded file when vault item is selected
     if (idStr === "custom") {
       setResume("");
     } else {
@@ -102,50 +98,12 @@ export default function AtsScorePage() {
     }
   };
 
-  const saveToVault = async () => {
-    if (!resume.trim()) return;
-    if (!saveLabel.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Label Required",
-        description: "Please provide a descriptive label for this resume selection.",
-      });
-      return;
-    }
-
-    setSavingResume(true);
-    try {
-      const filename = `ats_${saveLabel.toLowerCase().replace(/[^a-z0-9]/g, "_")}.txt`;
-      await api.resume.create({
-        filename,
-        label: saveLabel,
-        content: resume,
-        is_default: false
-      });
-      toast({
-        title: "Saved to Vault",
-        description: `Saved "${saveLabel}" to your Resume Vault.`,
-      });
-      setShowSaveDialog(false);
-      setSaveLabel("");
-      refetchResumes();
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Failed to Save",
-        description: String(err),
-      });
-    } finally {
-      setSavingResume(false);
-    }
-  };
-
   const checkScore = async () => {
     if (!resume.trim()) {
       toast({
         variant: "destructive",
         title: "Resume Required",
-        description: "Please paste your resume text, upload a file, or choose one from the vault.",
+        description: "Please upload a PDF/Word file or select a resume from the vault first.",
       });
       return;
     }
@@ -273,7 +231,7 @@ export default function AtsScorePage() {
                 value={selectedVaultId}
                 onChange={(e) => handleVaultSelect(e.target.value)}
               >
-                <option value="custom">✍️ Custom/Paste Text</option>
+                <option value="custom">📁 Select from Vault...</option>
                 {resumes.map((r) => (
                   <option key={r.id} value={String(r.id)}>
                     💼 {r.label} ({r.filename.split(".").pop()?.toUpperCase()})
@@ -326,54 +284,42 @@ export default function AtsScorePage() {
             </div>
           )}
 
-          {/* Textarea Paste Mode */}
+          {/* Read-Only Preview Mode for Vault Resumes or Empty State */}
           {!resumeFile && !parsingFile && (
-            <div className="flex-1 flex flex-col relative min-h-[300px]">
-              <Textarea
-                className="flex-1 min-h-[300px] resize-y rounded-lg border-border bg-white text-[14px] leading-6 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
-                placeholder="Paste the full text of your resume here, or choose a file above..."
-                value={resume}
-                onChange={(e) => {
-                  setResume(e.target.value);
-                  setSelectedVaultId("custom");
-                }}
-              />
-              {resume.trim() && (
-                <button
-                  type="button"
-                  onClick={() => setShowSaveDialog(true)}
-                  className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-md bg-secondary/80 hover:bg-secondary border border-border px-2.5 py-1 text-[11px] font-semibold text-foreground transition"
-                >
-                  <Save className="h-3.5 w-3.5 text-muted-foreground" />
-                  Save to Vault
-                </button>
+            <div className="flex-1 flex flex-col min-h-[300px]">
+              {resume ? (
+                <div className="flex-1 flex flex-col">
+                  <div className="mb-3 flex items-center justify-between gap-3 border-b border-border/40 pb-2">
+                    <span className="truncate text-[13px] font-semibold text-foreground flex items-center gap-1.5">
+                      <FileText className="h-4 w-4 text-primary" />
+                      {resumes.find(r => String(r.id) === selectedVaultId)?.label || "Vault Resume"}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1 text-muted-foreground h-7 px-2 hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => {
+                        setResume("");
+                        setSelectedVaultId("custom");
+                      }}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                      Clear Selection
+                    </Button>
+                  </div>
+                  <div className="flex-1 max-h-[420px] overflow-y-auto rounded-lg border border-border bg-secondary/30 p-4">
+                    <pre className="whitespace-pre-wrap font-sans text-[13px] leading-6 text-foreground">{resume}</pre>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-border rounded-lg bg-secondary/10 p-8 min-h-[300px]">
+                  <FileText className="h-10 w-10 text-muted-foreground/60 mb-3" />
+                  <p className="text-[14px] font-semibold text-foreground">No Document Loaded</p>
+                  <p className="text-[12px] text-muted-foreground text-center mt-1.5 max-w-xs">
+                    Please upload a PDF/Word resume file using the **Upload Doc** button, or select one from your **Resume Vault** dropdown.
+                  </p>
+                </div>
               )}
-            </div>
-          )}
-
-          {/* Quick Dialog to Save Resume to Vault Inline */}
-          {showSaveDialog && (
-            <div className="rounded-lg border border-border bg-secondary/40 p-3 space-y-2 animate-slide-up">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-bold text-foreground">Save Resume Selection</span>
-                <span className="text-[10px] text-muted-foreground">Will be saved to Resume Vault</span>
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="e.g. SDE-2 Resume (Updated)"
-                  className="flex h-8 w-full rounded-md border border-input bg-background px-3 text-[12px] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                  value={saveLabel}
-                  onChange={(e) => setSaveLabel(e.target.value)}
-                />
-                <Button size="sm" className="h-8 text-[11px]" disabled={savingResume} onClick={saveToVault}>
-                  {savingResume && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
-                  Save
-                </Button>
-                <Button size="sm" variant="ghost" className="h-8 text-[11px]" onClick={() => setShowSaveDialog(false)}>
-                  Cancel
-                </Button>
-              </div>
             </div>
           )}
         </section>
