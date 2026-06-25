@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { api, type AppSettings, type ResumeVaultItem } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
@@ -402,11 +401,14 @@ export default function SettingsPage() {
                   <span className="text-sm text-secondary-foreground">Max Emails / Day</span>
                   <span className="font-mono text-xs text-primary">{form.max_emails_per_day}</span>
                 </div>
-                <Slider
-                  value={[Number(form.max_emails_per_day || 0)]}
-                  onValueChange={(value) => updateField("max_emails_per_day", String(value[0]))}
+                <input
+                  type="range"
+                  value={Number(form.max_emails_per_day || 0)}
+                  onChange={(e) => updateField("max_emails_per_day", e.target.value)}
                   max={50}
+                  min={0}
                   step={1}
+                  className="w-full h-1 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                 />
               </div>
               <div>
@@ -414,11 +416,14 @@ export default function SettingsPage() {
                   <span className="text-sm text-secondary-foreground">Max Applies / Session</span>
                   <span className="font-mono text-xs text-primary">{form.max_applies_per_session}</span>
                 </div>
-                <Slider
-                  value={[Number(form.max_applies_per_session || 0)]}
-                  onValueChange={(value) => updateField("max_applies_per_session", String(value[0]))}
+                <input
+                  type="range"
+                  value={Number(form.max_applies_per_session || 0)}
+                  onChange={(e) => updateField("max_applies_per_session", e.target.value)}
                   max={30}
+                  min={0}
                   step={1}
+                  className="w-full h-1 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                 />
               </div>
             </SettingSection>
