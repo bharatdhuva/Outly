@@ -15,6 +15,7 @@ const pageTitles: Record<string, string> = {
   "/resume-tailor": "Resume Tailor",
   "/ats-score": "ATS Score",
   "/applications": "Applications",
+  "/resume-vault": "Resume Vault",
 };
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {

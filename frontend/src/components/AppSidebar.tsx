@@ -16,6 +16,7 @@ import {
   Edit,
   UserCheck,
   TrendingUp,
+  FolderOpen,
 } from "lucide-react";
 import { api, type Company } from "@/lib/api";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -26,6 +27,7 @@ const navSections = [
     items: [
       { title: "Overview", url: "/", icon: LayoutDashboard },
       { title: "Applications", url: "/applications", icon: LayoutGrid },
+      { title: "Resume Vault", url: "/resume-vault", icon: FolderOpen },
       { title: "ATS Score", url: "/ats-score", icon: BarChart },
       { title: "Cover Letter", url: "/cover-letter", icon: Edit },
       { title: "LinkedIn Optimizer", url: "/linkedin-optimizer", icon: UserCheck },

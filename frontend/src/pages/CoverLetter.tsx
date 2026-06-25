@@ -1,17 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2, UploadCloud, Copy, FileText, Download, RefreshCw } from "lucide-react";
 
 export default function CoverLetterPage() {
   const { toast } = useToast();
   const [resume, setResume] = useState("");
+  const [selectedVaultId, setSelectedVaultId] = useState<string>("custom");
   const [jd, setJd] = useState("");
   const [tone, setTone] = useState("Professional");
   const [loading, setLoading] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
+
+  // Fetch resumes from vault
+  const { data: resumes = [] } = useQuery({
+    queryKey: ["resume", "list"],
+    queryFn: api.resume.list,
+  });
+
+  // Automatically load default resume if present
+  useEffect(() => {
+    if (resumes.length > 0 && !resume) {
+      const defaultResume = resumes.find(r => r.is_default === 1);
+      if (defaultResume && defaultResume.content) {
+        setResume(defaultResume.content);
+        setSelectedVaultId(String(defaultResume.id));
+      }
+    }
+  }, [resumes]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -29,6 +48,7 @@ export default function CoverLetterPage() {
     try {
       const text = await file.text();
       setResume(text);
+      setSelectedVaultId("custom");
       toast({
         title: "Resume Loaded",
         description: "Successfully read text from file.",
@@ -39,6 +59,18 @@ export default function CoverLetterPage() {
         title: "Error Reading File",
         description: String(err),
       });
+    }
+  };
+
+  const handleVaultSelect = (idStr: string) => {
+    setSelectedVaultId(idStr);
+    if (idStr === "custom") {
+      setResume("");
+    } else {
+      const found = resumes.find(r => String(r.id) === idStr);
+      if (found && found.content) {
+        setResume(found.content);
+      }
     }
   };
 

@@ -17,6 +17,7 @@ import Applications from "./pages/Applications";
 import CoverLetter from "./pages/CoverLetter";
 import LinkedInOptimizer from "./pages/LinkedInOptimizer";
 import Analytics from "./pages/Analytics";
+import ResumeVault from "./pages/ResumeVault";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/logs" element={<Logs />} />
             <Route path="/resume-tailor" element={<ResumeTailorPage />} />
+            <Route path="/resume-vault" element={<ResumeVault />} />
             <Route path="/ats-score" element={<AtsScore />} />
             <Route path="/applications" element={<Applications />} />
             <Route path="/cover-letter" element={<CoverLetter />} />

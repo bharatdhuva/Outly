@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type TrackerApplication } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,7 @@ export default function ApplicationsPage() {
   const [newRole, setNewRole] = useState("");
   const [newJdUrl, setNewJdUrl] = useState("");
   const [newStage, setNewStage] = useState<TrackerApplication["stage"]>("saved");
+  const [newResumeUsed, setNewResumeUsed] = useState<string>("");
 
   // Scraper state
   const [scrapeRole, setScrapeRole] = useState("");
@@ -69,6 +70,16 @@ export default function ApplicationsPage() {
     queryFn: api.resume.list,
   });
 
+  // Pre-select default resume
+  useEffect(() => {
+    if (resumes.length > 0 && !newResumeUsed) {
+      const defaultRes = resumes.find(r => r.is_default === 1);
+      if (defaultRes) {
+        setNewResumeUsed(String(defaultRes.id));
+      }
+    }
+  }, [resumes]);
+
   // Mutations
   const createMutation = useMutation({
     mutationFn: api.applications.create,
@@ -80,6 +91,8 @@ export default function ApplicationsPage() {
       setNewRole("");
       setNewJdUrl("");
       setNewStage("saved");
+      const defaultRes = resumes.find(r => r.is_default === 1);
+      setNewResumeUsed(defaultRes ? String(defaultRes.id) : "");
       toast({ title: "Success", description: "Application added successfully." });
     },
   });
@@ -140,7 +153,7 @@ export default function ApplicationsPage() {
       role: newRole,
       jd_url: newJdUrl,
       stage: newStage,
-      resume_version_used: null,
+      resume_version_used: newResumeUsed || null,
       notes: null,
       email_history: "[]",
     });
@@ -276,45 +289,55 @@ export default function ApplicationsPage() {
                     </div>
 
                     <div className="flex-1 flex flex-col gap-2.5">
-                      {stageApps.map((app) => (
-                        <div
-                          key={app.id}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, app.id)}
-                          onClick={() => setSelectedApp(app)}
-                          className="group cursor-grab active:cursor-grabbing rounded-lg border border-border bg-card p-3.5 shadow-sm hover:border-primary/30 transition-all animate-pop-in"
-                        >
-                          <div className="flex justify-between items-start gap-2">
-                            <h4 className="text-[14px] font-semibold text-foreground truncate group-hover:text-primary transition-colors">
-                              {app.company}
-                            </h4>
-                            {app.jd_url && (
-                              <a
-                                href={app.jd_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="text-muted-foreground hover:text-primary transition-colors"
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            )}
-                          </div>
-                          <p className="text-[12px] text-muted-foreground mt-1 truncate">{app.role}</p>
-
-                          <div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {new Date(app.created_at).toLocaleDateString()}
-                            </span>
-                            {app.notes && (
-                              <span className="flex items-center gap-1 rounded bg-secondary px-1 text-foreground/80">
-                                Notes
+                      {stageApps.map((app) => {
+                        const linkedResume = resumes.find(r => String(r.id) === String(app.resume_version_used));
+                        return (
+                          <div
+                            key={app.id}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, app.id)}
+                            onClick={() => setSelectedApp(app)}
+                            className="group cursor-grab active:cursor-grabbing rounded-lg border border-border bg-card p-3.5 shadow-sm hover:border-primary/30 transition-all animate-pop-in"
+                          >
+                            <div className="flex justify-between items-start gap-2">
+                              <h4 className="text-[14px] font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                                {app.company}
+                              </h4>
+                              {app.jd_url && (
+                                <a
+                                  href={app.jd_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              )}
+                            </div>
+                            <p className="text-[12px] text-muted-foreground mt-1 truncate">{app.role}</p>
+  
+                            <div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {new Date(app.created_at).toLocaleDateString()}
                               </span>
-                            )}
+                              <div className="flex items-center gap-1.5">
+                                {linkedResume && (
+                                  <span className="flex items-center gap-0.5 rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[9px] font-semibold max-w-[100px] truncate" title={linkedResume.label}>
+                                    📄 {linkedResume.label}
+                                  </span>
+                                )}
+                                {app.notes && (
+                                  <span className="flex items-center gap-1 rounded bg-secondary px-1 py-0.5 text-foreground/80 text-[10px]">
+                                    Notes
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       {stageApps.length === 0 && (
                         <div className="flex-1 flex items-center justify-center border border-dashed border-border/40 rounded-lg p-6 text-center text-[12px] text-muted-foreground/60">
                           Drag cards here
@@ -655,6 +678,22 @@ export default function ApplicationsPage() {
                   {STAGES.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-semibold text-foreground">Resume Version</label>
+                <select
+                  value={newResumeUsed}
+                  onChange={(e) => setNewResumeUsed(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-white p-2.5 outline-none focus:border-primary text-[13px]"
+                >
+                  <option value="">Select Resume...</option>
+                  {resumes.map((r) => (
+                    <option key={r.id} value={String(r.id)}>
+                      {r.label} {r.is_default === 1 ? "(Default)" : ""}
                     </option>
                   ))}
                 </select>
