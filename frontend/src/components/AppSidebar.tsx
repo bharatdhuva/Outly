@@ -29,8 +29,6 @@ const navSections = [
       { title: "Applications", url: "/applications", icon: LayoutGrid },
       { title: "Resume Vault", url: "/resume-vault", icon: FolderOpen },
       { title: "ATS Score", url: "/ats-score", icon: BarChart },
-      { title: "Cover Letter", url: "/cover-letter", icon: Edit },
-      { title: "LinkedIn Optimizer", url: "/linkedin-optimizer", icon: UserCheck },
       { title: "Resume Tailor", url: "/resume-tailor", icon: FileText },
       { title: "Cold Mail", url: "/cold-mail", icon: Mail },
     ],

@@ -68,22 +68,7 @@ const SEARCH_ITEMS: SearchItem[] = [
     keywords: ["resume", "tailor", "customize", "job", "description", "jd", "cv"],
     category: "workspace",
   },
-  {
-    title: "Cover Letter",
-    description: "Generate AI cover letters",
-    path: "/cover-letter",
-    icon: Edit,
-    keywords: ["cover", "letter", "generate", "ai", "write", "application"],
-    category: "workspace",
-  },
-  {
-    title: "LinkedIn Optimizer",
-    description: "Optimize your LinkedIn profile",
-    path: "/linkedin-optimizer",
-    icon: UserCheck,
-    keywords: ["linkedin", "optimizer", "profile", "headline", "about", "skills"],
-    category: "workspace",
-  },
+
   {
     title: "LinkedIn Posts",
     description: "Create & manage LinkedIn posts",

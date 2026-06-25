@@ -179,25 +179,7 @@ export const api = {
         method: "DELETE",
       }),
   },
-  coverletter: {
-    generate: (resume: string, jd: string, tone: string) =>
-      fetchApi<{ coverLetter: string }>("/coverletter/generate", {
-        method: "POST",
-        body: JSON.stringify({ resume, jd, tone }),
-      }),
-  },
-  optimizer: {
-    linkedin: (jd: string, headline: string, about: string) =>
-      fetchApi<{
-        optimized_headlines: string[];
-        optimized_about: string;
-        skills_to_add: string[];
-        missing_keywords: string[];
-      }>("/optimizer/linkedin", {
-        method: "POST",
-        body: JSON.stringify({ jd, headline, about }),
-      }),
-  },
+
   resume: {
     list: () => fetchApi<ResumeVaultItem[]>("/resume"),
     create: (data: { filename: string; label: string; content?: string; is_default?: boolean }) =>
