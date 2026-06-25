@@ -147,6 +147,19 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ resume, jd }),
       }),
+    tailor: (resume: string, jd: string) =>
+      fetchApi<{
+        tailoredResume: string;
+        matchedKeywords: string[];
+        missingKeywords: string[] | {
+          hard_skills: string[];
+          soft_skills: string[];
+          tools_technologies: string[];
+        };
+      }>("/ats/tailor", {
+        method: "POST",
+        body: JSON.stringify({ resume, jd }),
+      }),
     parseFile: (file: File) => {
       const form = new FormData();
       form.append("file", file);

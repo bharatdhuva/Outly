@@ -25,28 +25,28 @@ const navSections = [
   {
     label: "Workspace",
     items: [
-      { title: "Overview", url: "/", icon: LayoutDashboard },
-      { title: "Applications", url: "/applications", icon: LayoutGrid },
-      { title: "Resume Vault", url: "/resume-vault", icon: FolderOpen },
-      { title: "ATS Score", url: "/ats-score", icon: BarChart },
-      { title: "Resume Tailor", url: "/resume-tailor", icon: FileText },
-      { title: "Cold Mail", url: "/cold-mail", icon: Mail },
+      { title: "Overview", url: "/", icon: LayoutDashboard, hoverClass: "group-hover:scale-110 group-hover:rotate-3" },
+      { title: "Applications", url: "/applications", icon: LayoutGrid, hoverClass: "group-hover:scale-110 group-hover:rotate-6" },
+      { title: "Resume Vault", url: "/resume-vault", icon: FolderOpen, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
+      { title: "ATS Score", url: "/ats-score", icon: BarChart, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
+      { title: "Resume Tailor", url: "/resume-tailor", icon: FileText, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5" },
+      { title: "Cold Mail", url: "/cold-mail", icon: Mail, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
     ],
   },
   {
     label: "Publishing",
     items: [
-      { title: "LinkedIn Posts", url: "/linkedin-posts", icon: FileText },
-      { title: "Twitter / X", url: "/twitter", icon: Twitter },
-      { title: "Telegram", url: "/telegram", icon: Send },
+      { title: "LinkedIn Posts", url: "/linkedin-posts", icon: FileText, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5" },
+      { title: "Twitter / X", url: "/twitter", icon: Twitter, hoverClass: "group-hover:scale-110 group-hover:rotate-12" },
+      { title: "Telegram", url: "/telegram", icon: Send, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" },
     ],
   },
   {
     label: "Admin",
     items: [
-      { title: "Analytics", url: "/analytics", icon: TrendingUp },
-      { title: "Settings", url: "/settings", icon: Settings },
-      { title: "Logs", url: "/logs", icon: ScrollText },
+      { title: "Analytics", url: "/analytics", icon: TrendingUp, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" },
+      { title: "Settings", url: "/settings", icon: Settings, hoverClass: "group-hover:scale-110 group-hover:rotate-45" },
+      { title: "Logs", url: "/logs", icon: ScrollText, hoverClass: "group-hover:scale-110 group-hover:-rotate-3" },
     ],
   },
 ];
@@ -123,14 +123,14 @@ export function AppSidebar({
                       to={item.url}
                       end={item.url === "/"}
                       onClick={onClose}
-                      className={`group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium transition-colors ${
+                      className={`group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium transition-all duration-200 ease-in-out transform hover:translate-x-1 active:scale-[0.97] ${
                         isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
                           : "text-sidebar-foreground hover:bg-secondary hover:text-foreground"
                       }`}
                       activeClassName=""
                     >
-                      <item.icon className={`h-4 w-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                      <item.icon className={`h-4 w-4 shrink-0 transition-transform duration-300 ease-out ${item.hoverClass} ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
                       <span className="flex-1">{item.title}</span>
                       {item.url === "/cold-mail" && pendingColdMail > 0 && (
                         <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
