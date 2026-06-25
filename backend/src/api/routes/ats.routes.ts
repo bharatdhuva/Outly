@@ -572,6 +572,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
   try {
     const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
     let text = "";
+    let responseObj: any = null;
 
     try {
       logger.info("Generating tailored resume via Gemini 2.5 Flash with Google Search grounding", { source: "ats" });
@@ -584,6 +585,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
         generationConfig: { temperature: 0.3 },
       });
       text = result.response.text().trim();
+      responseObj = result.response;
     } catch (gemini25GroundedError) {
       logger.warn("ATS tailoring via Gemini 2.5 Flash with grounding failed, trying without grounding", { error: String(gemini25GroundedError), source: "ats" });
       try {
@@ -595,6 +597,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
           generationConfig: { temperature: 0.3 },
         });
         text = result.response.text().trim();
+        responseObj = result.response;
       } catch (gemini25Error) {
         logger.warn("ATS tailoring via Gemini 2.5 Flash without grounding failed, trying Gemini 1.5 Flash with grounding", { error: String(gemini25Error), source: "ats" });
         try {
@@ -607,6 +610,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
             generationConfig: { temperature: 0.3 },
           });
           text = result.response.text().trim();
+          responseObj = result.response;
         } catch (gemini15GroundedError) {
           logger.warn("ATS tailoring via Gemini 1.5 Flash with grounding failed, trying without grounding", { error: String(gemini15GroundedError), source: "ats" });
           const model = genAI.getGenerativeModel({ 
@@ -617,6 +621,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
             generationConfig: { temperature: 0.3 },
           });
           text = result.response.text().trim();
+          responseObj = result.response;
         }
       }
     }
@@ -629,10 +634,37 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
       parsed = JSON.parse(cleaned);
     }
 
+    // Extract grounding sources
+    const sources: Array<{ title: string; url: string; domain: string }> = [];
+    const groundingMetadata = responseObj?.candidates?.[0]?.groundingMetadata;
+    if (groundingMetadata && groundingMetadata.groundingChunks) {
+      const seenUrls = new Set<string>();
+      for (const chunk of groundingMetadata.groundingChunks) {
+        if (chunk.web && chunk.web.uri) {
+          const url = chunk.web.uri;
+          if (!seenUrls.has(url)) {
+            seenUrls.add(url);
+            let domain = "";
+            try {
+              domain = new URL(url).hostname.replace("www.", "");
+            } catch (e) {
+              domain = url;
+            }
+            sources.push({
+              title: chunk.web.title || domain,
+              url: url,
+              domain: domain
+            });
+          }
+        }
+      }
+    }
+
     res.json({
       tailoredResume: parsed.tailoredResume || "",
       matchedKeywords: parsed.matchedKeywords || [],
-      missingKeywords: parsed.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] }
+      missingKeywords: parsed.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] },
+      sources: sources
     });
   } catch (geminiError) {
     logger.warn("ATS tailoring via Gemini (2.5 & 1.5) failed, checking fallbacks", { error: String(geminiError), source: "ats" });
@@ -644,7 +676,8 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
         return res.json({
           tailoredResume: parsed.tailoredResume || "",
           matchedKeywords: parsed.matchedKeywords || [],
-          missingKeywords: parsed.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] }
+          missingKeywords: parsed.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] },
+          sources: []
         });
       } catch (groqError) {
         logger.warn("ATS tailoring fallback via Groq failed", { error: String(groqError), source: "ats" });
@@ -658,7 +691,8 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
         return res.json({
           tailoredResume: parsed.tailoredResume || "",
           matchedKeywords: parsed.matchedKeywords || [],
-          missingKeywords: parsed.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] }
+          missingKeywords: parsed.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] },
+          sources: []
         });
       } catch (claudeError) {
         logger.warn("ATS tailoring fallback via Claude failed", { error: String(claudeError), source: "ats" });

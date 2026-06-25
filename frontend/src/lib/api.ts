@@ -156,6 +156,7 @@ export const api = {
           soft_skills: string[];
           tools_technologies: string[];
         };
+        sources: Array<{ title: string; url: string; domain: string }>;
       }>("/ats/tailor", {
         method: "POST",
         body: JSON.stringify({ resume, jd }),

@@ -26,6 +26,8 @@ export default function ResumeTailorPage() {
     soft_skills: string[];
     tools_technologies: string[];
   }>({ hard_skills: [], soft_skills: [], tools_technologies: [] });
+  const [sources, setSources] = useState<Array<{ title: string; url: string; domain: string }>>([]);
+  const [showSourcesList, setShowSourcesList] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch resumes from vault
@@ -43,6 +45,8 @@ export default function ResumeTailorPage() {
     setTailoredResult(null);
     setMatchedKeywords([]);
     setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
+    setSources([]);
+    setShowSourcesList(false);
     setActiveTab("original");
 
     try {
@@ -81,6 +85,8 @@ export default function ResumeTailorPage() {
     setTailoredResult(null);
     setMatchedKeywords([]);
     setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
+    setSources([]);
+    setShowSourcesList(false);
     setActiveTab("original");
     if (idStr === "custom") {
       setResumeText(null);
@@ -116,6 +122,8 @@ export default function ResumeTailorPage() {
       setTailoredResult(response.tailoredResume);
       setMatchedKeywords(response.matchedKeywords || []);
       setMissingKeywords(response.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] });
+      setSources(response.sources || []);
+      setShowSourcesList(false);
       setActiveTab("tailored");
       toast({
         title: "Resume Tailored Successfully!",
@@ -343,6 +351,8 @@ export default function ResumeTailorPage() {
                         setTailoredResult(null);
                         setMatchedKeywords([]);
                         setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
+                        setSources([]);
+                        setShowSourcesList(false);
                         setActiveTab("original");
                       }}
                     >
@@ -435,6 +445,56 @@ export default function ResumeTailorPage() {
                   <div className="flex-1 overflow-y-auto max-h-[360px] rounded-lg border border-border bg-secondary p-4">
                     <pre className="whitespace-pre-wrap font-mono text-[12px] leading-5 text-foreground">{tailoredResult}</pre>
                   </div>
+
+                  {/* Grounded Web Search Sources */}
+                  {sources && sources.length > 0 && (
+                    <div className="mt-3.5 flex flex-col gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowSourcesList(!showSourcesList)}
+                        className="inline-flex self-start items-center gap-2 rounded-full border border-border bg-secondary/80 px-3 py-1.5 text-[12.5px] font-semibold text-foreground hover:bg-secondary transition-all active:scale-[0.97] shadow-sm cursor-pointer"
+                      >
+                        <div className="flex -space-x-1.5 overflow-hidden">
+                          {sources.slice(0, 3).map((src, i) => (
+                            <img
+                              key={i}
+                              className="inline-block h-4.5 w-4.5 rounded-full ring-2 ring-background bg-white shrink-0 border border-border/10"
+                              src={`https://www.google.com/s2/favicons?domain=${src.domain}&sz=32`}
+                              alt=""
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = "none";
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <span>{sources.length} sources</span>
+                      </button>
+
+                      {showSourcesList && (
+                        <div className="rounded-lg border border-border bg-background p-3.5 shadow-md max-h-[220px] overflow-y-auto space-y-2.5 animate-slide-up">
+                          {sources.map((src, i) => (
+                            <a
+                              key={i}
+                              href={src.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-start gap-2.5 rounded-md p-2 hover:bg-secondary transition-colors cursor-pointer"
+                            >
+                              <img
+                                className="h-4 w-4 mt-0.5 rounded shrink-0 bg-white border border-border/10"
+                                src={`https://www.google.com/s2/favicons?domain=${src.domain}&sz=32`}
+                                alt=""
+                              />
+                              <div className="min-w-0">
+                                <p className="text-[12.5px] font-semibold text-foreground truncate hover:text-primary transition-colors">{src.title}</p>
+                                <p className="text-[11px] text-muted-foreground truncate">{src.url}</p>
+                              </div>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
