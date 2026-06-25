@@ -33,9 +33,9 @@ Upload a CSV → GPT-4 researches every company → writes hyper-personalized co
 |---------|-------------|
 | 📧 **AI Cold Email Generator** | Upload CSV → GPT-4 researches each company → writes unique personalized email → saved to Gmail Drafts |
 | 📄 **AI Resume-to-JD Matcher(upcoming)** | GPT-4 scores your resume vs any JD, highlights missing ATS keywords, gives exact fixes |
-| 📅 **AI Content Scheduler** | GPT-4 writes LinkedIn + Twitter posts, auto-publishes at your set time via Telegram Bot |
+| 📅 **AI Content Scheduler** | GPT-4 writes LinkedIn + Twitter posts, allowing manual or scheduled publishing |
 | ⚡ **Fault-Tolerant Job Queue** | Bull + Redis with rate-limiting, auto-retry, zero duplicate actions |
-| 🔔 **Real-Time Notifications** | Instant Telegram alerts for every action — email saved, post published, match scored |
+| 🔔 **Real-Time Notifications** | Instant WhatsApp alerts for every action — email saved, post published, match scored |
 | 🔐 **Gmail OAuth Integration** | Securely connects to your Gmail — no password needed, just one-click OAuth |
 
 ---
@@ -48,7 +48,7 @@ Upload a CSV → GPT-4 researches every company → writes hyper-personalized co
 | **Backend** | Node.js + Express.js |
 | **AI** | GPT-4 (OpenAI) |
 | **Queue & Cache** | Bull Queue + Redis |
-| **APIs** | Gmail API, OAuth 2.0, Telegram Bot API |
+| **APIs** | Gmail API, OAuth 2.0 |
 | **Auth** | JWT |
 
 ---
@@ -72,8 +72,6 @@ Upload a CSV → GPT-4 researches every company → writes hyper-personalized co
 **Cold-Mailing Page**
 ![Content Scheduler](https://github.com/user-attachments/assets/5b8a5e0b-8253-41c0-9400-28ceb18ad4d4)
 
-![Telegram Bot](https://github.com/user-attachments/assets/44e64ec1-45f9-4590-80d8-35de33f48da3)
-
 
 ![Queue Monitor](https://github.com/user-attachments/assets/b802e226-2da6-46ac-842d-f437a4263f35)
 
@@ -92,7 +90,6 @@ Upload a CSV → GPT-4 researches every company → writes hyper-personalized co
 - Redis (local or via Docker)
 - OpenAI API key
 - Gmail OAuth credentials
-- Telegram Bot token
 
 ### Installation
 
@@ -139,9 +136,6 @@ GOOGLE_REDIRECT_URI=
 # Redis
 REDIS_URL=
 
-# Telegram
-TELEGRAM_BOT_TOKEN=
-
 # JWT
 JWT_SECRET=
 ```
@@ -155,7 +149,7 @@ Outly/
 ├── backend/
 │   ├── src/
 │   │   ├── routes/        # API endpoints
-│   │   ├── services/      # AI, Gmail, Telegram logic
+│   │   ├── services/      # AI, Gmail, WhatsApp logic
 │   │   ├── jobs/          # Bull queue workers
 │   │   └── index.js       # Entry point
 ├── frontend/
@@ -175,7 +169,7 @@ Outly/
 - [x] AI Cold Email Generation + Gmail Drafts
 - [x] AI Resume-to-JD Matcher
 - [x] LinkedIn & Twitter Content Scheduler
-- [x] Telegram Bot Notifications
+- [x] WhatsApp Notifications
 - [x] Bull + Redis Fault-Tolerant Job Queue
 - [ ] Application Tracker (Kanban Board)
 - [ ] Auto Follow-up Emails (3-day delay)

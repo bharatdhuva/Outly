@@ -8,7 +8,6 @@ import {
 } from "../../db/queries.js";
 import { fetchAllNews } from "../../automation/news/fetcher.js";
 import { generateLinkedInDraft, generateWeeklyLinkedInPost } from "../../automation/news/contentGenerator.js";
-import { requestApproval } from "../../approval/approvalManager.js";
 import { env } from "../../config/env.js";
 
 const router = Router();
@@ -24,7 +23,7 @@ router.get("/posts", (_req, res) => {
 
 /**
  * v2.3: Generate a fresh daily LinkedIn draft
- * Returns the draft content and sends Telegram approval with Copy button
+ * Returns the draft content
  */
 router.post("/generate-draft", async (_req, res) => {
   try {
@@ -40,9 +39,6 @@ router.post("/generate-draft", async (_req, res) => {
       linkedin_post_url: null,
     });
     const id = Number((post as any).lastInsertRowid);
-    
-    // Send Telegram approval with Copy button
-    await requestApproval('linkedin', id, content);
     
     res.json({ 
       id, 
@@ -72,8 +68,6 @@ router.post("/generate-weekly-post", async (_req, res) => {
       linkedin_post_url: null,
     });
     const id = Number((post as any).lastInsertRowid);
-    
-    await requestApproval('linkedin', id, content);
     
     res.json({ 
       id, 

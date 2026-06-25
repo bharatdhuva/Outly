@@ -44,11 +44,6 @@ export const env = {
     process.env.TWILIO_WHATSAPP_FROM ?? "whatsapp:+14155238886",
   YOUR_WHATSAPP_NUMBER: process.env.YOUR_WHATSAPP_NUMBER ?? "",
 
-  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN ?? "",
-  TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID ?? "",
-  TELEGRAM_APPROVAL_TIMEOUT_HOURS: parseInt(process.env.TELEGRAM_APPROVAL_TIMEOUT_HOURS ?? "2", 10),
-  TELEGRAM_BATCH_APPROVALS: process.env.TELEGRAM_BATCH_APPROVALS === "true",
-
   NEWS_API_KEY: process.env.NEWS_API_KEY ?? "",
   RAPIDAPI_KEY: process.env.RAPIDAPI_KEY ?? "1b67c05546msh5be6577efeb69cdp1f9858jsn6c581c858238",
 

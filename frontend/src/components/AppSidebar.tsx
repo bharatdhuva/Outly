@@ -38,7 +38,6 @@ const navSections = [
     items: [
       { title: "LinkedIn Posts", url: "/linkedin-posts", icon: FileText, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5" },
       { title: "Twitter / X", url: "/twitter", icon: Twitter, hoverClass: "group-hover:scale-110 group-hover:rotate-12" },
-      { title: "Telegram", url: "/telegram", icon: Send, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" },
     ],
   },
   {

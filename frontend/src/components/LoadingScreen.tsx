@@ -4,7 +4,6 @@ import logoIcon from "@/assets/lightlogo.png";
 import assistanceGif from "@/assets/logos/assistance.gif";
 import gmailPng from "@/assets/logos/gmail.png";
 import imageCopy3Png from "@/assets/logos/image copy 3.png";
-import telegramPng from "@/assets/logos/telegram.png";
 import twitterPng from "@/assets/logos/twitter.png";
 
 const TYPING_TEXTS = [
@@ -12,7 +11,6 @@ const TYPING_TEXTS = [
   "Connecting Gmail API...",
   "Loading Cold Mail engine...",
   "Syncing LinkedIn posts...",
-  "Starting Telegram bot...",
 ];
 
 const STATUS_CARDS = [
@@ -25,7 +23,6 @@ const FLOATING_ICONS = [
   { name: "Gmail", src: gmailPng, x: -36, y: -172, floatDur: 2.8, floatY: -10, delay: 0.2, blend: "screen" },
   { name: "Profile Card", src: imageCopy3Png, x: -104, y: -82, floatDur: 3.2, floatY: -12, delay: 0.5, blend: "multiply" },
   { name: "Twitter", src: twitterPng, x: 176, y: 46, floatDur: 2.5, floatY: -8, delay: 0.3, blend: "screen" },
-  { name: "Telegram", src: telegramPng, x: 18, y: 178, floatDur: 3.0, floatY: -11, delay: 0.7, blend: "normal" },
   { name: "WhatsApp", src: assistanceGif, x: 152, y: -74, floatDur: 3.4, floatY: -10, delay: 0.6, blend: "multiply" },
 ];
 

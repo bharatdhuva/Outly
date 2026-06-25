@@ -3,19 +3,17 @@ import { env } from "../config/env.js";
 import { fetchAllNews } from "../automation/news/fetcher.js";
 import { generateLinkedInDraft } from "../automation/news/contentGenerator.js";
 import { postQueries, settingsQueries } from "../db/queries.js";
-import { requestApproval } from "../approval/approvalManager.js";
 import { sendWhatsApp } from "../notifications/whatsapp.js";
 import { logger } from "../lib/logger.js";
 
 /**
  * v2.3: Daily LinkedIn Draft Generator
  * Runs every day at 8:00 AM IST (before morning briefing kicks in).
- * Generates a fresh LinkedIn draft using today's tech news, saves to DB,
- * and sends rich Telegram approval message with Copy button.
+ * Generates a fresh LinkedIn draft using today's tech news, saves to DB.
  */
 export function scheduleDailyLinkedInDraft(): void {
   // Run at 8:00 AM IST daily (DAILY_LINKEDIN_DRAFT_CRON or default)
-  const cronExpr = process.env.DAILY_LINKEDIN_DRAFT_CRON ?? "30 7 * * *"; // 7:30 AM so draft is ready before 8 AM briefing
+  const cronExpr = process.env.DAILY_LINKEDIN_DRAFT_CRON ?? "30 7 * * *"; // 7:30 AM so draft is ready before 8 AM
   
   cron.schedule(cronExpr, async () => {
     const enabled = settingsQueries.get("daily_linkedin_draft_enabled");
@@ -41,13 +39,10 @@ export function scheduleDailyLinkedInDraft(): void {
       });
       const postId = Number((post as { lastInsertRowid: number }).lastInsertRowid);
 
-      // Send rich Telegram approval with Copy button
-      await requestApproval("linkedin", postId, content);
-
       // Light WhatsApp notification
-      await sendWhatsApp("🔵 Aaj ka LinkedIn draft ready hai! Telegram check karo 📱");
+      await sendWhatsApp("🔵 Aaj ka LinkedIn draft ready hai! Outly dashboard check karo 📱");
 
-      logger.info("Daily LinkedIn draft generated and sent for approval", { source: "cron" });
+      logger.info("Daily LinkedIn draft generated and saved to DB", { source: "cron", postId });
     } catch (e) {
       logger.error("Daily LinkedIn draft cron failed", { error: String(e), source: "cron" });
     }

@@ -41,7 +41,6 @@ export const api = {
         gmail: boolean;
         linkedin: boolean;
         whatsapp: boolean;
-        telegram: boolean;
         weeklyPostEnabled: boolean;
         dailyLinkedInDraftEnabled: boolean;
         linkedinMode: string;

@@ -14,10 +14,8 @@ import { scheduleSocialDrafts } from "./jobs/socialDrafts.cron.js";
 import { scheduleWeeklyThread } from "./jobs/weeklyThread.cron.js";
 import { scheduleTweetTracker } from "./jobs/tweetTracker.cron.js";
 import { scheduleWeeklyReport } from "./jobs/weeklyReport.cron.js";
-import { scheduleMorningBriefing } from "./jobs/morningBriefing.cron.js";
 import { scheduleDailyLinkedInDraft } from "./jobs/dailyLinkedInDraft.cron.js";
 import "./queue/processors.js";
-import { registerTelegramCallbacks } from "./approval/callbackHandler.js";
 import { logger } from "./lib/logger.js";
 
 async function main() {
@@ -41,8 +39,6 @@ async function main() {
   scheduleTweetTracker();
   scheduleWeeklyReport();
   scheduleDailyLinkedInDraft();
-  scheduleMorningBriefing();
-  registerTelegramCallbacks();
   await startServer();
 
   logger.info("Outly started — all services initialized", { source: "system" });

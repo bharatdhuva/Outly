@@ -251,25 +251,6 @@ export const twitterQueries = {
     getDb().prepare("DELETE FROM twitter_posts WHERE id = ?").run(id),
 };
 
-export const approvalQueries = {
-  getById: (id: number) => getDb().prepare("SELECT * FROM pending_approvals WHERE id = ?").get(id) as any,
-  getAllPending: () => getDb().prepare("SELECT * FROM pending_approvals WHERE status = 'waiting'").all() as any[],
-  insert: (approval: any) => {
-    const stmt = getDb().prepare(`
-      INSERT INTO pending_approvals (platform, post_id, draft_content, status)
-      VALUES (?, ?, ?, 'waiting')
-    `);
-    return stmt.run(approval.platform, approval.post_id, approval.draft_content);
-  },
-  update: (id: number, updates: any) => {
-    const keys = Object.keys(updates).filter((k) => k !== "id");
-    const sets = keys.map((k) => `${k} = ?`);
-    const vals = keys.map((k) => updates[k]);
-    const query = `UPDATE pending_approvals SET ${sets.join(", ")} WHERE id = ?`;
-    return getDb().prepare(query).run(...vals, id);
-  },
-};
-
 export const settingsQueries = {
   get: (key: string) => (getDb().prepare("SELECT value FROM settings WHERE key = ?").get(key) as any)?.value,
   set: (key: string, value: string) => {

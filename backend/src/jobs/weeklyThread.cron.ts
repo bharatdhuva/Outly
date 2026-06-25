@@ -3,7 +3,6 @@ import { env } from "../config/env.js";
 import { logger } from "../lib/logger.js";
 import { generateWeeklyThread } from "../automation/twitter/tweetGenerator.js";
 import { twitterQueries } from "../db/queries.js";
-import { requestApproval } from "../approval/approvalManager.js";
 
 export function scheduleWeeklyThread() {
   cron.schedule(env.WEEKLY_THREAD_CRON || "0 19 * * 3", async () => {
@@ -24,8 +23,7 @@ export function scheduleWeeklyThread() {
         status: "draft",
       } as Omit<import("../db/queries.js").TwitterPost, "id" | "created_at">);
 
-      await requestApproval('twitter', result.lastInsertRowid as number, contentStr);
-      logger.info(`Queued new weekly thread for approval with DB ID ${result.lastInsertRowid}`, { source: "twitter" });
+      logger.info(`Saved new weekly thread draft to DB with ID ${result.lastInsertRowid}`, { source: "twitter" });
 
     } catch (e: any) {
       logger.error("Failed to run weekly thread cron", { error: String(e), source: "twitter" });

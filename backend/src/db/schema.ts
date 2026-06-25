@@ -107,20 +107,4 @@ CREATE INDEX IF NOT EXISTS idx_companies_status ON companies(status);
 CREATE INDEX IF NOT EXISTS idx_twitter_posts_status ON twitter_posts(status);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON activity_log(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_applications_stage ON applications(stage);
-
--- pending_approvals
-CREATE TABLE IF NOT EXISTS pending_approvals (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  platform TEXT NOT NULL,
-  post_id INTEGER NOT NULL,
-  draft_content TEXT NOT NULL,
-  telegram_message_id INTEGER,
-  status TEXT DEFAULT 'waiting' CHECK(status IN ('waiting', 'approved', 'skipped', 'edit_requested', 'edit_approved')),
-  edit_requested_text TEXT,
-  edit_improved_text TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  actioned_at DATETIME
-);
-
-CREATE INDEX IF NOT EXISTS idx_pending_approvals_status ON pending_approvals(status);
 `;

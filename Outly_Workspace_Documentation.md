@@ -10,14 +10,14 @@ Outly is an AI-powered job application and career outreach automation platform. 
 *   **Database:** SQLite (`outly.db` via `better-sqlite3` driver).
 *   **AI Models:** Google Gemini & Grok (via API integration).
 *   **Queuing & Background Jobs:** Bull Queue + Redis for robust, fault-tolerant background scheduling.
-*   **Integrations:** Gmail API (via Google OAuth 2.0), LinkedIn automation, Twilio WhatsApp API, Telegram Bot API.
+*   **Integrations:** Gmail API (via Google OAuth 2.0), LinkedIn automation, Twilio WhatsApp API.
 
 ---
 
 ## 🌟 Currently Implemented Features
 
 ### 1. Unified Dashboard (Overview)
-*   **Status Badges:** Real-time health monitoring of Redis, Gmail, LinkedIn, WhatsApp, and Telegram integrations.
+*   **Status Badges:** Real-time health monitoring of Redis, Gmail, LinkedIn, and WhatsApp integrations.
 *   **Response Rate Tracker:** Displays the percentage of replied outreach emails against total mails sent.
 *   **Social Calendar Indicator:** Shows the time and content of the next scheduled post.
 *   **Quick Actions Bar:** Double-click access to compose cold emails, tailor resumes, check ATS scores, or track applications.

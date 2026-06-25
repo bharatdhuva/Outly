@@ -3,14 +3,12 @@ import { env } from "../config/env.js";
 import { fetchAllNews } from "../automation/news/fetcher.js";
 import { generateWeeklyLinkedInPost } from "../automation/news/contentGenerator.js";
 import { postQueries, settingsQueries } from "../db/queries.js";
-import { requestApproval } from "../approval/approvalManager.js";
 import { sendWhatsApp } from "../notifications/whatsapp.js";
 import { logger } from "../lib/logger.js";
 
 /**
  * Weekly Tech Roundup — Every Monday 9:00 AM IST
  * Generates a longer weekly roundup post using the week's top tech news.
- * v2.3: Uses requestApproval which treats LinkedIn as manual-post only.
  */
 export function scheduleWeeklyPost(): void {
   cron.schedule(env.WEEKLY_POST_CRON, async () => {
@@ -32,12 +30,9 @@ export function scheduleWeeklyPost(): void {
       });
       const postId = (post as { lastInsertRowid: number }).lastInsertRowid;
 
-      // v2.3: This will create LinkedIn manual-post approval (with Copy button)
-      await requestApproval('linkedin', postId, content);
-
-      await sendWhatsApp("📰 Weekly Tech Roundup ready! Check Telegram for preview 📱");
+      await sendWhatsApp("📰 Weekly Tech Roundup ready! Review and post it from your Outly dashboard 📱");
       
-      logger.info("Weekly LinkedIn post generated and sent for approval", { source: "cron" });
+      logger.info("Weekly LinkedIn post generated and saved to DB", { source: "cron", postId });
     } catch (e) {
       logger.error("Weekly post cron failed", { error: String(e), source: "cron" });
     }

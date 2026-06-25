@@ -86,14 +86,6 @@ const SEARCH_ITEMS: SearchItem[] = [
     category: "publishing",
   },
   {
-    title: "Telegram",
-    description: "Telegram bot controls",
-    path: "/telegram",
-    icon: Send,
-    keywords: ["telegram", "bot", "notification", "message"],
-    category: "publishing",
-  },
-  {
     title: "Analytics",
     description: "View email & outreach analytics",
     path: "/analytics",
