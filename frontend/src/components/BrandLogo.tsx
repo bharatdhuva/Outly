@@ -1,4 +1,4 @@
-import logoIcon from "@/assets/lightlogo.png";
+import logoIcon from "@/assets/brand/logo_light.png";
 import { Link } from "react-router-dom";
 
 export function BrandLogo({ className = "", to = "/" }: { className?: string; to?: string }) {

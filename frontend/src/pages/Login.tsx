@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
-import logoTransparent from "../assets/logo_transparent.png";
+import logoTransparent from "../assets/brand/logo_transparent.png";
 
 interface SlideText {
   titleStart: string;

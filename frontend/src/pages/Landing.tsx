@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
-import logoTransparent from "../assets/logo_transparent.png";
+import logoTransparent from "../assets/brand/logo_transparent.png";
 import {
   LineChart,
   Line,

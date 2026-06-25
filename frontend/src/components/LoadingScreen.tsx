@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import logoIcon from "@/assets/lightlogo.png";
-import assistanceGif from "@/assets/logos/assistance.gif";
-import gmailPng from "@/assets/logos/gmail.png";
-import imageCopy3Png from "@/assets/logos/image copy 3.png";
-import twitterPng from "@/assets/logos/twitter.png";
+import logoIcon from "@/assets/brand/logo_light.png";
+import assistanceGif from "@/assets/integrations/whatsapp_icon.gif";
+import gmailPng from "@/assets/integrations/gmail_icon.png";
+import imageCopy3Png from "@/assets/integrations/profile_card_icon.png";
+import twitterPng from "@/assets/integrations/twitter_icon.png";
 
 const TYPING_TEXTS = [
   "Calibrating social drafts...",
