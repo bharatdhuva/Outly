@@ -143,15 +143,24 @@ export const api = {
   },
   ats: {
     score: (resume: string, jd: string) =>
-      fetchApi<{
-        score: number;
-        matched_keywords: string[];
-        missing_keywords: string[];
-        suggestions: string[];
-      }>("/ats/score", {
+      fetchApi<EvaluationResult>("/ats/score", {
         method: "POST",
         body: JSON.stringify({ resume, jd }),
       }),
+    parseFile: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return fetch(`${API_BASE}/ats/parse-file`, {
+        method: "POST",
+        body: form,
+        credentials: "include",
+      }).then((r) => {
+        if (!r.ok) {
+          return r.text().then((text) => { throw new Error(text || r.statusText); });
+        }
+        return r.json() as Promise<{ filename: string; content: string }>;
+      });
+    },
   },
   applications: {
     list: () => fetchApi<TrackerApplication[]>("/applications"),
@@ -360,4 +369,27 @@ export interface TwitterPost {
   error_message: string | null;
   created_at: string;
 }
+
+export interface EvaluationResult {
+  score: number;
+  breakdown?: {
+    skills_match: number;
+    experience_match: number;
+    formatting_readability: number;
+    impact_metrics: number;
+  };
+  matched_keywords: string[];
+  missing_keywords: string[] | {
+    hard_skills: string[];
+    soft_skills: string[];
+    tools_technologies: string[];
+  };
+  experience_analysis?: {
+    seniority_match: "Good" | "Fair" | "Poor";
+    comments: string;
+  };
+  formatting_issues?: string[];
+  suggestions: string[];
+}
+
 

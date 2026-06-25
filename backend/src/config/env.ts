@@ -14,6 +14,8 @@ export const env = {
 
   GEMINI_API_KEY: process.env.GEMINI_API_KEY ?? "",
   GROK_API_KEY: process.env.GROK_API_KEY ?? "",
+  CLAUDE_API_KEY: process.env.CLAUDE_API_KEY ?? "",
+
 
   GMAIL_CLIENT_ID: process.env.GMAIL_CLIENT_ID ?? "",
   GMAIL_CLIENT_SECRET: process.env.GMAIL_CLIENT_SECRET ?? "",

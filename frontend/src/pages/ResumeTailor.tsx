@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, UploadCloud, X } from "lucide-react";
 import PdfViewer from "@/components/PdfViewer";
+import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ResumeTailorPage() {
+  const { toast } = useToast();
   const [jobDesc, setJobDesc] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeText, setResumeText] = useState<string | null>(null);
@@ -16,17 +19,34 @@ export default function ResumeTailorPage() {
     if (!file) return;
     setResumeFile(file);
     setLoading(true);
-    if (file.type === "application/pdf") {
-      setTimeout(() => {
-        setResumeText(null);
-        setLoading(false);
-      }, 900);
-    } else {
-      const text = await file.text();
-      setTimeout(() => {
+
+    try {
+      const parsed = await api.ats.parseFile(file);
+      setResumeText(parsed.content);
+      toast({
+        title: "Resume Loaded",
+        description: `Extracted text from ${file.name} successfully.`,
+      });
+    } catch (err) {
+      // Fallback for TXT files if parser fails
+      try {
+        const text = await file.text();
         setResumeText(text);
-        setLoading(false);
-      }, 1200);
+        toast({
+          title: "Resume Loaded",
+          description: `Read text from ${file.name}.`,
+        });
+      } catch (innerErr) {
+        toast({
+          variant: "destructive",
+          title: "File Reading Error",
+          description: "Could not parse or read this file format. Please upload .txt, .pdf, or .docx.",
+        });
+        setResumeFile(null);
+        setResumeText(null);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
