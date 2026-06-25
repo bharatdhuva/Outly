@@ -14,6 +14,86 @@ const mammoth = require("mammoth");
 const router = Router();
 const upload = multer({ dest: path.join(env.DATA_DIR, "uploads") });
 
+// Helper to extract content wrapped in custom tags
+function extractTagContent(text: string, tag: string): string {
+  const regex = new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, "i");
+  const match = text.match(regex);
+  return match ? match[1].trim() : "";
+}
+
+// Helper to extract a list of items wrapped in custom tags
+function extractTagList(text: string, tag: string): string[] {
+  const content = extractTagContent(text, tag);
+  if (!content) return [];
+  return content
+    .split("\n")
+    .map(line => line.replace(/^[\s\-\*\d\.\)]+/, "").trim())
+    .filter(line => line.length > 0);
+}
+
+// Helper to parse Gemini response trying JSON first and XML-like tags as fallback
+function parseGeminiResponse(text: string, isScore: boolean) {
+  try {
+    const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
+    return JSON.parse(cleaned);
+  } catch (e) {
+    logger.info("JSON parsing failed, falling back to XML tag parsing", { error: String(e), source: "ats" });
+    if (isScore) {
+      const score = parseInt(extractTagContent(text, "score"), 10) || 0;
+      const skills_match = parseInt(extractTagContent(text, "skills_match"), 10) || 0;
+      const experience_match = parseInt(extractTagContent(text, "experience_match"), 10) || 0;
+      const formatting_readability = parseInt(extractTagContent(text, "formatting_readability"), 10) || 0;
+      const impact_metrics = parseInt(extractTagContent(text, "impact_metrics"), 10) || 0;
+      const matched_keywords = extractTagList(text, "matched_keywords");
+      const hard_skills = extractTagList(text, "missing_hard_skills");
+      const soft_skills = extractTagList(text, "missing_soft_skills");
+      const tools_technologies = extractTagList(text, "missing_tools_technologies");
+      const seniority_match = extractTagContent(text, "seniority_match") || "Fair";
+      const seniority_comments = extractTagContent(text, "seniority_comments");
+      const formatting_issues = extractTagList(text, "formatting_issues");
+      const suggestions = extractTagList(text, "suggestions");
+
+      return {
+        score,
+        breakdown: {
+          skills_match,
+          experience_match,
+          formatting_readability,
+          impact_metrics
+        },
+        matched_keywords,
+        missing_keywords: {
+          hard_skills,
+          soft_skills,
+          tools_technologies
+        },
+        experience_analysis: {
+          seniority_match,
+          comments: seniority_comments
+        },
+        formatting_issues,
+        suggestions
+      };
+    } else {
+      const tailoredResume = extractTagContent(text, "tailored_resume");
+      const matchedKeywords = extractTagList(text, "matched_keywords");
+      const hard_skills = extractTagList(text, "missing_hard_skills");
+      const soft_skills = extractTagList(text, "missing_soft_skills");
+      const tools_technologies = extractTagList(text, "missing_tools_technologies");
+
+      return {
+        tailoredResume,
+        matchedKeywords,
+        missingKeywords: {
+          hard_skills,
+          soft_skills,
+          tools_technologies
+        }
+      };
+    }
+  }
+}
+
 // Helper to evaluate resume using Anthropic Claude API
 async function evaluateWithClaude(resume: string, jd: string | undefined, apiKey: string) {
   logger.info("Running ATS resume evaluation fallback via Claude", { source: "ats" });
@@ -254,13 +334,59 @@ router.post("/score", async (req, res) => {
   // Try Gemini first
   try {
     const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-    let prompt = "";
+    let geminiPrompt = "";
+    let fallbackPrompt = "";
+
     if (jd && jd.trim()) {
-      prompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
+      geminiPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
 Analyze the provided resume against the job description below.
 
 CRITICAL: You MUST use Google Search to do an internet search for this role/company on Twitter/X, Reddit, and career-related sites to understand the latest trends, skills, and discussions. Integrate this grounded web search context into your evaluation.
 
+Perform a strict and highly accurate evaluation. You must wrap the sections of your response in the following XML-like tags:
+- Wrap the overall score (0 to 100) in <score>...</score>
+- Wrap the skills match score (0 to 100) in <skills_match>...</skills_match>
+- Wrap the experience match score (0 to 100) in <experience_match>...</experience_match>
+- Wrap the formatting readability score (0-100) in <formatting_readability>...</formatting_readability>
+- Wrap the impact metrics score (0-100) in <impact_metrics>...</impact_metrics>
+- Wrap the list of matched keywords in <matched_keywords>
+- List item 1
+- List item 2
+...
+</matched_keywords>
+- Wrap missing hard skills in <missing_hard_skills>
+- List item 1
+...
+</missing_hard_skills>
+- Wrap missing soft skills in <missing_soft_skills>
+- List item 1
+...
+</missing_soft_skills>
+- Wrap missing tools/technologies in <missing_tools_technologies>
+- List item 1
+...
+</missing_tools_technologies>
+- Wrap the seniority match level ("Good" | "Fair" | "Poor") in <seniority_match>...</seniority_match>
+- Wrap seniority comments in <seniority_comments>...</seniority_comments>
+- Wrap formatting issues in <formatting_issues>
+- List item 1
+...
+</formatting_issues>
+- Wrap suggestions in <suggestions>
+- List item 1
+...
+</suggestions>
+
+Do not return JSON. Use the tags listed above.
+
+Resume:
+${resume}
+
+Job Description:
+${jd}`;
+
+      fallbackPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and recruiter.
+Analyze the provided resume against the job description below.
 Perform a strict and highly accurate evaluation. Return a JSON object with:
 1. "score": Overall score from 0 to 100 based on key metrics.
 2. "breakdown": An object containing:
@@ -287,11 +413,53 @@ ${resume}
 Job Description:
 ${jd}`;
     } else {
-      prompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
+      geminiPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
 Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
 
 CRITICAL: You MUST use Google Search to do an internet search for this candidate's target field/role on Twitter/X, Reddit, and career-related sites to understand the latest trends, skills, and discussions. Integrate this grounded web search context into your evaluation.
 
+Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
+
+You must wrap the sections of your response in the following XML-like tags:
+- Wrap the overall score (0 to 100) in <score>...</score>
+- Wrap the skills match score (0 to 100) in <skills_match>...</skills_match>
+- Wrap the experience match score (0 to 100) in <experience_match>...</experience_match>
+- Wrap the formatting readability score (0-100) in <formatting_readability>...</formatting_readability>
+- Wrap the impact metrics score (0-100) in <impact_metrics>...</impact_metrics>
+- Wrap the list of matched keywords in <matched_keywords>
+- List item 1
+...
+</matched_keywords>
+- Wrap missing hard skills in <missing_hard_skills>
+- List item 1
+...
+</missing_hard_skills>
+- Wrap missing soft skills in <missing_soft_skills>
+- List item 1
+...
+</missing_soft_skills>
+- Wrap missing tools/technologies in <missing_tools_technologies>
+- List item 1
+...
+</missing_tools_technologies>
+- Wrap the seniority match level ("Good" | "Fair" | "Poor") in <seniority_match>...</seniority_match>
+- Wrap seniority comments in <seniority_comments>...</seniority_comments>
+- Wrap formatting issues in <formatting_issues>
+- List item 1
+...
+</formatting_issues>
+- Wrap suggestions in <suggestions>
+- List item 1
+...
+</suggestions>
+
+Do not return JSON. Use the tags listed above.
+
+Resume:
+${resume}`;
+
+      fallbackPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
+Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
 Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
 
 Return a JSON object with:
@@ -327,7 +495,7 @@ ${resume}`;
         tools: [{ googleSearch: {} } as any] 
       });
       const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        contents: [{ role: "user", parts: [{ text: geminiPrompt }] }],
         generationConfig: { temperature: 0.2 },
       });
       text = result.response.text().trim();
@@ -336,7 +504,7 @@ ${resume}`;
       try {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const result = await model.generateContent({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],
           generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
         });
         text = result.response.text().trim();
@@ -348,7 +516,7 @@ ${resume}`;
             tools: [{ googleSearch: {} } as any]
           });
           const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            contents: [{ role: "user", parts: [{ text: geminiPrompt }] }],
             generationConfig: { temperature: 0.2 },
           });
           text = result.response.text().trim();
@@ -356,7 +524,7 @@ ${resume}`;
           logger.warn("Gemini 1.5 Flash with grounding failed for score, trying without grounding", { error: String(gemini15GroundedError), source: "ats" });
           const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
           const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],
             generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
           });
           text = result.response.text().trim();
@@ -364,15 +532,7 @@ ${resume}`;
       }
     }
 
-    let parsed;
-    try {
-      parsed = JSON.parse(text);
-    } catch (e) {
-      // Fallback in case Gemini returns slightly malformed JSON
-      const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-      parsed = JSON.parse(cleaned);
-    }
-
+    const parsed = parseGeminiResponse(text, true);
     res.json(parsed);
   } catch (geminiError) {
     logger.warn("ATS score evaluation via Gemini (2.5 & 1.5) failed, checking fallbacks", { error: String(geminiError), source: "ats" });
@@ -536,7 +696,7 @@ router.post("/tailor", async (req, res) => {
     return res.status(400).json({ error: "Job description is required." });
   }
 
-  const prompt = `You are an expert resume writer, professional editor, and career coach.
+  const geminiPrompt = `You are an expert resume writer, professional editor, and career coach.
 Your task is to tailor the candidate's resume specifically for the target job description provided.
 
 CRITICAL: You MUST use Google Search to do an internet search for this role/company on Twitter/X, Reddit, LinkedIn, and related career sites.
@@ -546,6 +706,43 @@ Specifically, search for:
 3. Industry standards and trends for this role.
 
 Use the insights from your Google Search (especially Twitter/X, Reddit, and career portals) to enrich the tailored resume, updating the candidate's professional summary and experience bullet points to reflect these real-world trends, while keeping original company names, job titles, dates, and locations exactly the same.
+
+Here is the original resume:
+${resume}
+
+Here is the target job description:
+${jd}
+
+Please optimize the resume to maximize ATS match score and professional appeal:
+1. **Align Summary/Headline**: Revise the professional summary or headline to directly highlight the core competencies required for this role.
+2. **Tailor Work Experience**: Rewrite bullet points under work history to emphasize relevant projects, technical skills, and tools mentioned in the job description. Keep dates, job titles, and company names exactly as in the original resume.
+3. **Keyword Integration**: Naturally integrate critical hard skills, soft skills, and tools from the job description. Do not fabricate experience.
+4. **Quantify Achievements**: Ensure achievements use strong action verbs and quantified impact metrics where possible.
+
+You must wrap the sections of your response in the following XML-like tags:
+- Wrap the tailored resume in clean, professionally-structured Markdown format inside <tailored_resume>...</tailored_resume>
+- Wrap the list of matched keywords in <matched_keywords>
+- List item 1
+- List item 2
+...
+</matched_keywords>
+- Wrap recommended missing hard skills to add in <missing_hard_skills>
+- List item 1
+...
+</missing_hard_skills>
+- Wrap recommended missing soft skills to add in <missing_soft_skills>
+- List item 1
+...
+</missing_soft_skills>
+- Wrap recommended missing tools/technologies to add in <missing_tools_technologies>
+- List item 1
+...
+</missing_tools_technologies>
+
+Do not return JSON. Use the tags listed above.`;
+
+  const fallbackPrompt = `You are an expert resume writer, professional editor, and career coach.
+Your task is to tailor the candidate's resume specifically for the target job description provided.
 
 Here is the original resume:
 ${resume}
@@ -581,7 +778,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
         tools: [{ googleSearch: {} } as any] 
       });
       const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        contents: [{ role: "user", parts: [{ text: geminiPrompt }] }],
         generationConfig: { temperature: 0.3 },
       });
       text = result.response.text().trim();
@@ -593,8 +790,8 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
           model: "gemini-2.5-flash"
         });
         const result = await model.generateContent({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3 },
+          contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],
+          generationConfig: { temperature: 0.3, responseMimeType: "application/json" },
         });
         text = result.response.text().trim();
         responseObj = result.response;
@@ -606,7 +803,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
             tools: [{ googleSearch: {} } as any] 
           });
           const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            contents: [{ role: "user", parts: [{ text: geminiPrompt }] }],
             generationConfig: { temperature: 0.3 },
           });
           text = result.response.text().trim();
@@ -617,8 +814,8 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
             model: "gemini-1.5-flash"
           });
           const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.3 },
+            contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],
+            generationConfig: { temperature: 0.3, responseMimeType: "application/json" },
           });
           text = result.response.text().trim();
           responseObj = result.response;
@@ -626,13 +823,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
       }
     }
 
-    let parsed;
-    try {
-      parsed = JSON.parse(text);
-    } catch (e) {
-      const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-      parsed = JSON.parse(cleaned);
-    }
+    const parsed = parseGeminiResponse(text, false);
 
     // Extract grounding sources
     const sources: Array<{ title: string; url: string; domain: string }> = [];
