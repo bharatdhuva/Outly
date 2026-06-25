@@ -25,7 +25,7 @@ const navSections = [
   {
     label: "Workspace",
     items: [
-      { title: "Overview", url: "/", icon: LayoutDashboard, hoverClass: "group-hover:scale-110 group-hover:rotate-3" },
+      { title: "Overview", url: "/dashboard", icon: LayoutDashboard, hoverClass: "group-hover:scale-110 group-hover:rotate-3" },
       { title: "Applications", url: "/applications", icon: LayoutGrid, hoverClass: "group-hover:scale-110 group-hover:rotate-6" },
       { title: "Resume Vault", url: "/resume-vault", icon: FolderOpen, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
       { title: "ATS Score", url: "/ats-score", icon: BarChart, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
@@ -96,7 +96,7 @@ export function AppSidebar({
         }`}
       >
         <div className="flex min-h-[72px] items-center gap-3 border-b border-sidebar-border px-5">
-          <BrandLogo className="min-w-0" />
+          <BrandLogo className="min-w-0" to="/dashboard" />
           <button
             type="button"
             onClick={onClose}
@@ -115,12 +115,12 @@ export function AppSidebar({
               </p>
               <div className="space-y-1">
                 {section.items.map((item) => {
-                  const isActive = item.url === "/" ? location.pathname === "/" : location.pathname.startsWith(item.url);
+                  const isActive = item.url === "/dashboard" ? location.pathname === "/dashboard" : location.pathname.startsWith(item.url);
                   return (
                     <NavLink
                       key={item.url}
                       to={item.url}
-                      end={item.url === "/"}
+                      end={item.url === "/dashboard"}
                       onClick={onClose}
                       className={`group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium transition-all duration-200 ease-in-out transform hover:translate-x-1 active:scale-[0.97] ${
                         isActive

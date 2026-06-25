@@ -1,0 +1,423 @@
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import gsap from "gsap";
+import confetti from "canvas-confetti";
+
+interface SlideText {
+  titleStart: string;
+  italicizedText: string;
+  subtitle: string;
+}
+
+const promoSlides: SlideText[] = [
+  {
+    titleStart: "Your day, ",
+    italicizedText: "already sorted.",
+    subtitle: "Start each morning knowing exactly what needs your attention."
+  },
+  {
+    titleStart: "Your inbox, ",
+    italicizedText: "finally quiet.",
+    subtitle: "AI triage cuts the noise so only what matters reaches you."
+  },
+  {
+    titleStart: "Your focus, ",
+    italicizedText: "finally back.",
+    subtitle: "An assistant that handles the logistics while you do the thinking."
+  },
+  {
+    titleStart: "Your week, ",
+    italicizedText: "fully visible.",
+    subtitle: "One calendar view to plan, schedule, and never double-book."
+  }
+];
+
+export default function Login() {
+  const navigate = useNavigate();
+  const formWrapperRef = useRef<HTMLDivElement>(null);
+  const textWrapperRef = useRef<HTMLDivElement>(null);
+
+  // Auth Mode: 'signin' or 'signup'
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  
+  // Left slide states
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  // Form states
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // ─── 1. Left Panel Slide Loop (Auto-cycles) ───
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const nextIndex = (activeSlide + 1) % promoSlides.length;
+      triggerTextSlide(nextIndex);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [activeSlide]);
+
+  const triggerTextSlide = (nextIndex: number) => {
+    const textEl = textWrapperRef.current;
+    if (!textEl) {
+      setActiveSlide(nextIndex);
+      return;
+    }
+
+    // GSAP text transition: slide down & fade out, then slide up & fade in
+    gsap.to(textEl, {
+      opacity: 0,
+      y: 10,
+      duration: 0.25,
+      ease: "power2.in",
+      onComplete: () => {
+        setActiveSlide(nextIndex);
+        gsap.fromTo(textEl,
+          { opacity: 0, y: -10 },
+          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
+        );
+      }
+    });
+  };
+
+  // ─── 2. Auth Mode Switch Transition (SignIn <-> SignUp) ───
+  const handleToggleAuthMode = (mode: "signin" | "signup") => {
+    if (isLoading || authMode === mode) return;
+
+    const wrapper = formWrapperRef.current;
+    if (!wrapper) {
+      setAuthMode(mode);
+      return;
+    }
+
+    // GSAP form transition: slide out sideways, switch mode, and slide in from opposite side
+    const slideOutX = mode === "signup" ? -30 : 30;
+    const slideInX = mode === "signup" ? 30 : -30;
+
+    gsap.to(wrapper, {
+      opacity: 0,
+      x: slideOutX,
+      duration: 0.2,
+      ease: "power2.in",
+      onComplete: () => {
+        setAuthMode(mode);
+        // Clear fields
+        setName("");
+        setEmail("");
+        setPassword("");
+        setAgreeToTerms(false);
+        setPasswordVisible(false);
+
+        gsap.fromTo(wrapper,
+          { opacity: 0, x: slideInX },
+          { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }
+        );
+      }
+    });
+  };
+
+  // ─── 3. Submit Handlers ───
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (authMode === "signup" && !agreeToTerms) return;
+    if (!email || !password) return;
+
+    setIsLoading(true);
+
+    // Simulate server authentication delay
+    setTimeout(() => {
+      setIsLoading(false);
+      // Fire celebratory confetti
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ["#f23c5d", "#1a1a1a"]
+      });
+      // Redirect to protected dashboard workspace
+      navigate("/dashboard");
+    }, 1200);
+  };
+
+  const currentSlide = promoSlides[activeSlide];
+
+  return (
+    <div className="flex flex-col lg:flex-row min-h-screen bg-white overflow-hidden">
+      
+      {/* LEFT PANEL: Branding & Sliding Promo (Static Bullets at bottom) */}
+      <div className="hidden lg:flex w-1/2 bg-[#fdfaf3] border-r border-[#e8e2d5] p-16 flex-col justify-between relative overflow-hidden select-none">
+        
+        {/* concentric circles vector background lines */}
+        <div className="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/4 pointer-events-none opacity-40">
+          <svg width="600" height="600" viewBox="0 0 600 600" fill="none">
+            <circle cx="300" cy="300" r="280" stroke="#e8e2d5" strokeWidth="1" />
+            <circle cx="300" cy="300" r="220" stroke="#e8e2d5" strokeWidth="1" />
+            <circle cx="300" cy="300" r="160" stroke="#e8e2d5" strokeWidth="1" />
+            <circle cx="300" cy="300" r="100" stroke="#e8e2d5" strokeWidth="1" />
+          </svg>
+        </div>
+
+        {/* Logo Header with subtle hover lift */}
+        <div className="flex items-center gap-2 font-bold text-lg tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigate("/")}>
+          <div className="w-7.5 h-7.5 bg-outly-accent rounded-full flex items-center justify-center">
+            <div className="w-3.5 h-3.5 bg-white rounded-sm rotate-45"></div>
+          </div>
+          Outly
+        </div>
+
+        {/* Sliding Text Container (Only headings/subheadings change) */}
+        <div className="my-auto max-w-[440px] z-10 flex flex-col justify-center min-h-[220px]">
+          <div ref={textWrapperRef} className="will-change-transform">
+            <h2 className="text-[40px] font-medium tracking-tight leading-tight text-outly-dark mb-4 text-balance">
+              {currentSlide.titleStart}
+              <span className="italic-serif text-outly-accent">{currentSlide.italicizedText}</span>
+            </h2>
+            
+            <p className="text-base text-outly-dark/60 leading-relaxed font-medium mb-8">
+              {currentSlide.subtitle}
+            </p>
+          </div>
+
+          {/* Slider Progress Indicator Pills (Spring-Bezier curves for bounce effect) */}
+          <div className="flex items-center gap-2 mb-10">
+            {promoSlides.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`h-2 rounded-full transition-all duration-500 cubic-bezier(0.175, 0.885, 0.32, 1.275) ${
+                  activeSlide === idx ? "bg-outly-accent w-6" : "bg-[#e8e2d5] hover:bg-outly-accent/40 w-2"
+                }`}
+                onClick={() => triggerTextSlide(idx)}
+              />
+            ))}
+          </div>
+
+          {/* Static Bullet Feature List with interactive hover shifts */}
+          <ul className="space-y-4">
+            <li className="group flex items-start gap-3 text-xs font-bold text-outly-dark/70 leading-relaxed hover:translate-x-1.5 transition-transform duration-300">
+              <span className="text-outly-dark/40 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
+              <span>Read, reply and triage Gmail without the noise</span>
+            </li>
+            <li className="group flex items-start gap-3 text-xs font-bold text-outly-dark/70 leading-relaxed hover:translate-x-1.5 transition-transform duration-300">
+              <span className="text-outly-dark/40 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
+              <span>See your week and send invites in two clicks</span>
+            </li>
+            <li className="group flex items-start gap-3 text-xs font-bold text-outly-dark/70 leading-relaxed hover:translate-x-1.5 transition-transform duration-300">
+              <span className="text-outly-dark/40 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
+              <span>Ask the assistant — "book us 30 minutes next Thursday"</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Footer */}
+        <div className="text-[10px] font-bold text-outly-dark/20 uppercase tracking-widest z-10">
+          © 2026 Outly
+        </div>
+      </div>
+
+      {/* RIGHT PANEL: Auth Form (Pure white background) */}
+      <div className="w-full lg:w-1/2 p-8 lg:p-16 flex flex-col justify-center items-center min-h-screen bg-white">
+        <div ref={formWrapperRef} className="w-full max-w-[380px] flex flex-col justify-center will-change-transform">
+          
+          {/* Mobile Logo */}
+          <div className="flex items-center gap-2 font-bold text-lg tracking-tight lg:hidden mb-10 self-start" onClick={() => navigate("/")}>
+            <div className="w-6 h-6 bg-outly-accent rounded-full flex items-center justify-center">
+              <div className="w-3 h-3 bg-white rounded-sm rotate-45"></div>
+            </div>
+            Outly
+          </div>
+
+          {/* Form Header Titles */}
+          <div className="mb-8">
+            <h1 className="text-[32px] font-medium tracking-tight text-outly-dark leading-tight mb-2">
+              {authMode === "signin" ? "Welcome back" : "Create your account"}
+            </h1>
+            <p className="text-xs font-medium text-outly-dark/40">
+              {authMode === "signin" 
+                ? "Sign in to your Outly workspace." 
+                : "A calmer inbox is a minute away. Free to start."}
+            </p>
+          </div>
+
+          {/* Google Sign-In (Smooth hover scale and icon rotation) */}
+          <button
+            type="button"
+            className="group w-full bg-[#faf8f5] border border-outly-border py-3 px-6 rounded-full text-xs font-bold text-outly-dark hover:bg-outly-cream/30 hover:border-outly-accent/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 shadow-sm flex items-center justify-center gap-2.5 select-none mb-6"
+          >
+            <svg className="w-4 h-4 transform transition-transform duration-500 group-hover:rotate-12" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69a5.74 5.74 0 0 1-2.48 3.77v3.12h4.01c2.34-2.16 3.69-5.32 3.69-8.74z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-4.01-3.12c-1.12.75-2.55 1.19-3.92 1.19-3.02 0-5.58-2.04-6.49-4.79H1.31v3.23A11.99 11.99 0 0 0 12 24z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.51 14.37a7.21 7.21 0 0 1 0-2.74V8.4H1.31a11.99 11.99 0 0 0 0 7.2l4.2-3.23z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43A11.95 11.95 0 0 0 12 0 11.99 11.99 0 0 0 1.31 8.4l4.2 3.23c.91-2.75 3.47-4.79 6.49-4.79z"
+              />
+            </svg>
+            Continue with Google
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 mb-6 select-none">
+            <div className="h-px flex-1 bg-[#e8e2d5]"></div>
+            <span className="text-[9px] font-bold uppercase tracking-wider text-outly-dark/30">or with email</span>
+            <div className="h-px flex-1 bg-[#e8e2d5]"></div>
+          </div>
+
+          {/* Credentials Form */}
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            
+            {/* Name Field (Sign-Up Mode Only) */}
+            {authMode === "signup" && (
+              <div className="animate-slide-up">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-outly-dark/50 block mb-2 px-1">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Digital labour"
+                  className="w-full bg-[#faf8f5] border border-outly-border rounded-full py-3 px-5 text-xs font-semibold focus:bg-white focus:ring-1 focus:ring-outly-accent focus:border-outly-accent hover:border-outly-accent/40 outline-none transition-all duration-300 placeholder-outly-dark/20"
+                  disabled={isLoading}
+                />
+              </div>
+            )}
+
+            {/* Email Field */}
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-outly-dark/50 block mb-2 px-1">
+                Email
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="labour@company.com"
+                className="w-full bg-[#faf8f5] border border-outly-border rounded-full py-3 px-5 text-xs font-semibold focus:bg-white focus:ring-1 focus:ring-outly-accent focus:border-outly-accent hover:border-outly-accent/40 outline-none transition-all duration-300 placeholder-outly-dark/20"
+                disabled={isLoading}
+              />
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-outly-dark/50 block mb-2 px-1">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={passwordVisible ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={authMode === "signin" ? "••••••••" : "At least 8 characters"}
+                  className="w-full bg-[#faf8f5] border border-outly-border rounded-full py-3 px-5 text-xs font-semibold focus:bg-white focus:ring-1 focus:ring-outly-accent focus:border-outly-accent hover:border-outly-accent/40 outline-none transition-all duration-300 placeholder-outly-dark/20 pr-12"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-outly-dark/30 hover:text-outly-dark transition-colors"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                  disabled={isLoading}
+                >
+                  {passwordVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Terms Checkbox (Sign-Up Mode Only) */}
+            {authMode === "signup" && (
+              <div className="flex items-start gap-3 px-1 select-none animate-slide-up">
+                <input
+                  id="agree-terms-checkbox"
+                  type="checkbox"
+                  required
+                  checked={agreeToTerms}
+                  onChange={(e) => setAgreeToTerms(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-outly-border text-outly-accent focus:ring-outly-accent cursor-pointer transition-colors"
+                  disabled={isLoading}
+                />
+                <label htmlFor="agree-terms-checkbox" className="text-[10px] font-semibold text-outly-dark/50 leading-relaxed cursor-pointer">
+                  I agree to the <span className="text-outly-accent font-bold hover:underline">Terms of Service</span> and <span className="text-outly-accent font-bold hover:underline">Privacy Policy</span>.
+                </label>
+              </div>
+            )}
+
+            {/* Submit Button (Glows and lifts smoothly) */}
+            <button
+              type="submit"
+              className={`w-full bg-outly-accent text-white py-3.5 rounded-full text-xs font-bold transition-all duration-300 shadow-lg shadow-outly-accent/15 hover:shadow-xl hover:shadow-outly-accent/25 hover:scale-[1.01] active:scale-[0.99] select-none flex items-center justify-center gap-2 ${
+                isLoading ? "opacity-85 pointer-events-none" : ""
+              }`}
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>{authMode === "signin" ? "Signing in..." : "Creating account..."}</span>
+                </>
+              ) : (
+                authMode === "signin" ? "Sign in" : "Create account"
+              )}
+            </button>
+          </form>
+
+          {/* Toggle auth mode links */}
+          {authMode === "signin" ? (
+            <p className="text-center text-xs font-bold text-outly-dark/40 mt-6 select-none">
+              No account yet? &bull;{" "}
+              <button
+                type="button"
+                className="text-outly-accent hover:underline font-bold transition-colors hover:text-outly-accent/80"
+                onClick={() => handleToggleAuthMode("signup")}
+                disabled={isLoading}
+              >
+                Sign up free
+              </button>
+            </p>
+          ) : (
+            <p className="text-center text-xs font-bold text-outly-dark/40 mt-6 select-none">
+              Already have an account? &bull;{" "}
+              <button
+                type="button"
+                className="text-outly-accent hover:underline font-bold transition-colors hover:text-outly-accent/80"
+                onClick={() => handleToggleAuthMode("signin")}
+                disabled={isLoading}
+              >
+                Sign in
+              </button>
+            </p>
+          )}
+
+          {/* Back to home (Smooth slide arrow and underline animation) */}
+          <Link
+            to="/"
+            className="group inline-flex items-center gap-1.5 text-xs font-bold text-outly-dark/40 hover:text-outly-dark transition-all duration-300 mt-8 self-center select-none relative pb-1"
+          >
+            <span className="transform transition-transform duration-300 ease-out group-hover:-translate-x-1">←</span>
+            <span>Back to home</span>
+            <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-outly-dark/40 transition-all duration-300 ease-out group-hover:w-full"></span>
+          </Link>
+
+        </div>
+      </div>
+
+    </div>
+  );
+}

@@ -20,9 +20,17 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
+        serif: ["Playfair Display", "serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
       colors: {
+        outly: {
+          cream: '#fdfaf3',
+          accent: '#f23c5d',
+          dark: '#1a1a1a',
+          muted: '#71717a',
+          border: '#e8e2d5'
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

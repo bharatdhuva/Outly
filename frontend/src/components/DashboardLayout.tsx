@@ -5,7 +5,7 @@ import { Menu, Search } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 const pageTitles: Record<string, string> = {
-  "/": "Overview",
+  "/dashboard": "Overview",
   "/cold-mail": "Cold Mail",
   "/linkedin-posts": "LinkedIn Posts",
   "/twitter": "Twitter / X",
