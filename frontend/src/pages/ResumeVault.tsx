@@ -30,7 +30,7 @@ export default function ResumeVaultPage() {
   const navigate = useNavigate();
 
   const [selectedResumeId, setSelectedResumeId] = useState<number | null>(null);
-  const [activePreviewTab, setActivePreviewTab] = useState<"preview" | "content" | "applications">("preview");
+  const [activePreviewTab, setActivePreviewTab] = useState<"preview" | "applications">("preview");
   
   // Upload and Label modal state
   const [isUploading, setIsUploading] = useState(false);
@@ -382,16 +382,6 @@ export default function ResumeVaultPage() {
                   Document Preview
                 </button>
                 <button
-                  onClick={() => setActivePreviewTab("content")}
-                  className={`pb-2 px-3 border-b-2 transition-all ${
-                    activePreviewTab === "content"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  Parsed Text (ATS Version)
-                </button>
-                <button
                   onClick={() => setActivePreviewTab("applications")}
                   className={`pb-2 px-3 border-b-2 transition-all flex items-center gap-1.5 ${
                     activePreviewTab === "applications"
@@ -421,12 +411,6 @@ export default function ResumeVaultPage() {
                       </pre>
                     </div>
                   )
-                ) : activePreviewTab === "content" ? (
-                  <div className="flex-1 max-h-[460px] overflow-y-auto rounded-lg border border-border bg-secondary/30 p-4 min-h-[300px]">
-                    <pre className="whitespace-pre-wrap font-sans text-[13px] leading-6 text-foreground">
-                      {selectedResume.content || "Empty content / could not parse text."}
-                    </pre>
-                  </div>
                 ) : (
                   <div className="flex-1 space-y-3 max-h-[460px] overflow-y-auto min-h-[300px]">
                     {linkedApps.length === 0 ? (
