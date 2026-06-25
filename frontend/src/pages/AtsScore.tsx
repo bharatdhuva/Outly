@@ -18,6 +18,7 @@ import {
 
 export default function AtsScorePage() {
   const { toast } = useToast();
+  const [mode, setMode] = useState<"general" | "targeted">("targeted");
   const [resume, setResume] = useState("");
   const [jd, setJd] = useState("");
   const [loading, setLoading] = useState(false);
@@ -140,18 +141,19 @@ export default function AtsScorePage() {
       });
       return;
     }
-    if (!jd.trim()) {
+    if (mode === "targeted" && !jd.trim()) {
       toast({
         variant: "destructive",
         title: "Job Description Required",
-        description: "Please paste the job description to match against.",
+        description: "Please paste the job description to match against in Targeted Mode.",
       });
       return;
     }
 
     setLoading(true);
     try {
-      const data = await api.ats.score(resume, jd);
+      // Send empty string for jd in general mode to signal a general audit in backend
+      const data = await api.ats.score(resume, mode === "targeted" ? jd : "");
       setResult(data);
       toast({
         title: "Scan Completed",
@@ -186,18 +188,53 @@ export default function AtsScorePage() {
     return "bg-destructive/15 text-destructive border-destructive/20";
   };
 
+  const isGeneral = mode === "general";
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 animate-fade-in pb-12">
       <div>
-        <p className="text-[13px] font-medium text-primary uppercase tracking-wider">ATS Optimization Suite</p>
+        <p className="text-[13px] font-medium text-primary uppercase tracking-wider font-semibold">ATS Optimization Suite</p>
         <h1 className="mt-1 text-[32px] font-semibold tracking-tight text-foreground">ATS Resume Score Checker</h1>
         <p className="mt-2 max-w-2xl text-[14px] leading-6 text-muted-foreground">
-          Compare your resume against any target Job Description. Our SRE/SDE-calibrated AI highlights missing hard/soft skills, assesses seniority fit, identifies layout parser bottlenecks, and guides you to 80+ matching score.
+          Analyze and optimize your resume. Select **General Audit** to grade overall formatting and technical layout, or **Targeted Job Match** to check alignment against a specific job posting.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left Side: Paste Resume */}
+      {/* Mode switcher tabs */}
+      <div className="flex justify-center py-1">
+        <div className="inline-flex rounded-lg bg-secondary p-1 border border-border">
+          <button
+            onClick={() => {
+              setMode("targeted");
+              setResult(null); // Clear previous result to prevent confusion
+            }}
+            className={`rounded-md px-4 py-1.5 text-[13px] font-semibold transition-all ${
+              mode === "targeted"
+                ? "bg-white text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            🎯 Targeted Job Description Match
+          </button>
+          <button
+            onClick={() => {
+              setMode("general");
+              setResult(null); // Clear previous result
+            }}
+            className={`rounded-md px-4 py-1.5 text-[13px] font-semibold transition-all ${
+              mode === "general"
+                ? "bg-white text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            🔍 General Resume Audit
+          </button>
+        </div>
+      </div>
+
+      {/* Input Workspace Panel */}
+      <div className={mode === "general" ? "w-full" : "grid gap-6 lg:grid-cols-2"}>
+        {/* Left Side (or Full Width): Paste Resume */}
         <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] space-y-4">
           <div className="flex flex-col sm:flex-row justify-between gap-3 items-start sm:items-center">
             <div>
@@ -292,19 +329,21 @@ export default function AtsScorePage() {
           )}
         </section>
 
-        {/* Right Side: Paste Job Description */}
-        <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] space-y-4">
-          <div>
-            <h2 className="text-[16px] font-semibold text-foreground">2. Target Job Description</h2>
-            <p className="text-[13px] text-muted-foreground">Paste requirements, qualifications, and stack specifics.</p>
-          </div>
-          <Textarea
-            className="min-h-[260px] resize-y rounded-lg border-border bg-white text-[14px] leading-6 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
-            placeholder="Paste target job description details here..."
-            value={jd}
-            onChange={(e) => setJd(e.target.value)}
-          />
-        </section>
+        {/* Right Side: Paste Job Description (Targeted Mode only) */}
+        {mode === "targeted" && (
+          <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] space-y-4">
+            <div>
+              <h2 className="text-[16px] font-semibold text-foreground">2. Target Job Description</h2>
+              <p className="text-[13px] text-muted-foreground">Paste requirements, qualifications, and stack specifics.</p>
+            </div>
+            <Textarea
+              className="min-h-[260px] resize-y rounded-lg border-border bg-white text-[14px] leading-6 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+              placeholder="Paste target job description details here..."
+              value={jd}
+              onChange={(e) => setJd(e.target.value)}
+            />
+          </section>
+        )}
       </div>
 
       <div className="flex justify-center pt-2">
@@ -320,7 +359,7 @@ export default function AtsScorePage() {
               Analyzing with SRE AI...
             </>
           ) : (
-            "Check ATS Match Score"
+            isGeneral ? "Check General Resume score" : "Check ATS Match Score"
           )}
         </Button>
       </div>
@@ -359,9 +398,13 @@ export default function AtsScorePage() {
             {/* Score breakdown metrics */}
             <div className="flex-1 space-y-4 w-full">
               <div className="text-center md:text-left space-y-1">
-                <h2 className="text-[20px] font-bold text-foreground">ATS Score Breakdown</h2>
+                <h2 className="text-[20px] font-bold text-foreground">
+                  {isGeneral ? "General Resume ATS Health" : "ATS Score Breakdown"}
+                </h2>
                 <p className="text-[13px] text-muted-foreground">
-                  Your resume score was calculated across four essential Applicant Tracking System dimensions.
+                  {isGeneral 
+                    ? "Your general ATS audit score, calculated based on universal parsing and layout standards." 
+                    : "Your resume score was calculated across four essential Applicant Tracking System dimensions."}
                 </p>
               </div>
 
@@ -369,7 +412,9 @@ export default function AtsScorePage() {
                 <div className="grid gap-x-6 gap-y-3.5 sm:grid-cols-2">
                   <div className="space-y-1">
                     <div className="flex justify-between text-[12px] font-semibold">
-                      <span className="text-muted-foreground">Technical Skills Match</span>
+                      <span className="text-muted-foreground">
+                        {isGeneral ? "Technical Skills Depth" : "Technical Skills Match"}
+                      </span>
                       <span className="text-foreground">{result.breakdown.skills_match}%</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
@@ -382,7 +427,9 @@ export default function AtsScorePage() {
 
                   <div className="space-y-1">
                     <div className="flex justify-between text-[12px] font-semibold">
-                      <span className="text-muted-foreground">Experience Alignment</span>
+                      <span className="text-muted-foreground">
+                        {isGeneral ? "Work History & Experience Layout" : "Experience Alignment"}
+                      </span>
                       <span className="text-foreground">{result.breakdown.experience_match}%</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
@@ -427,7 +474,9 @@ export default function AtsScorePage() {
           {result.experience_analysis && (
             <div className="rounded-lg border border-border/80 bg-secondary/20 p-4 space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-[13px] font-bold text-foreground">Seniority Fit Matcher:</span>
+                <span className="text-[13px] font-bold text-foreground">
+                  {isGeneral ? "Experience & Progression Audit:" : "Seniority Fit Matcher:"}
+                </span>
                 <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold border ${getSeniorityBadgeColor(result.experience_analysis.seniority_match)}`}>
                   {result.experience_analysis.seniority_match} Match
                 </span>
@@ -440,11 +489,11 @@ export default function AtsScorePage() {
 
           {/* Missing Keywords Panels */}
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Missing Keywords Column */}
+            {/* Missing/Recommended Keywords Column */}
             <div className="space-y-4">
               <h3 className="text-[15px] font-semibold text-foreground flex items-center gap-1.5 border-b border-border/40 pb-2">
                 <AlertTriangle className="h-4.5 w-4.5 text-destructive" />
-                Missing Critical Keywords
+                {isGeneral ? "Recommended Keywords to Add" : "Missing Critical Keywords"}
               </h3>
 
               {/* If missing_keywords is structured as an object */}
@@ -492,7 +541,7 @@ export default function AtsScorePage() {
                   {(!result.missing_keywords.hard_skills?.length &&
                     !result.missing_keywords.tools_technologies?.length &&
                     !result.missing_keywords.soft_skills?.length) && (
-                    <span className="text-[13px] text-muted-foreground block">Zero keyword gaps. Your resume contains excellent keyword matching!</span>
+                    <span className="text-[13px] text-muted-foreground block">Zero keyword gaps. Your resume contains excellent keyword coverage!</span>
                   )}
                 </div>
               ) : (
@@ -515,11 +564,15 @@ export default function AtsScorePage() {
             <div className="space-y-4">
               <h3 className="text-[15px] font-semibold text-foreground flex items-center gap-1.5 border-b border-border/40 pb-2">
                 <CheckCircle className="h-4.5 w-4.5 text-success" />
-                Successfully Matched Keywords ({result.matched_keywords.length})
+                {isGeneral ? "Primary Skills Detected" : `Successfully Matched Keywords (${result.matched_keywords.length})`}
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {result.matched_keywords.length === 0 ? (
-                  <span className="text-[13px] text-muted-foreground">No matches found yet. Incorporate target terms from the JD to build matches.</span>
+                  <span className="text-[13px] text-muted-foreground">
+                    {isGeneral 
+                      ? "No prominent technical skills detected. Ensure technologies are listed clearly." 
+                      : "No matches found yet. Incorporate target terms from the JD to build matches."}
+                  </span>
                 ) : (
                   result.matched_keywords.map((kw, i) => (
                     <span key={i} className="rounded-md bg-success/10 border border-success/20 px-2.5 py-1 text-[12px] font-medium text-success flex items-center gap-1">

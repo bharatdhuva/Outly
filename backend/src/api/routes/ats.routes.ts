@@ -15,10 +15,12 @@ const router = Router();
 const upload = multer({ dest: path.join(env.DATA_DIR, "uploads") });
 
 // Helper to evaluate resume using Anthropic Claude API
-async function evaluateWithClaude(resume: string, jd: string, apiKey: string) {
+async function evaluateWithClaude(resume: string, jd: string | undefined, apiKey: string) {
   logger.info("Running ATS resume evaluation fallback via Claude", { source: "ats" });
 
-  const prompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
+  let prompt = "";
+  if (jd && jd.trim()) {
+    prompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
 Analyze the provided resume against the job description below.
 Perform a strict and highly accurate evaluation. Return a JSON object with:
 1. "score": Overall score from 0 to 100 based on key metrics.
@@ -45,6 +47,34 @@ ${resume}
 
 Job Description:
 ${jd}`;
+  } else {
+    prompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
+Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
+Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
+
+Return a JSON object with:
+1. "score": General ATS readiness score from 0 to 100.
+2. "breakdown": An object containing:
+   - "skills_match": Score 0-100 indicating depth and layout of technical skills.
+   - "experience_match": Score 0-100 evaluating the structure, formatting, and relevance of work history.
+   - "formatting_readability": Score 0-100 of structural suitability for ATS scanners (penalize multi-columns, tables, graphics, contact info in headers).
+   - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
+3. "matched_keywords": An array of the primary technical/hard skills, tools, and methodologies detected in the resume.
+4. "missing_keywords": An object containing arrays:
+   - "hard_skills": Crucial industry-standard technologies or skills related to the candidate's target field (inferred from the resume) that are currently missing or could be added.
+   - "soft_skills": Interpersonal or execution-oriented keywords standard for this domain that are missing.
+   - "tools_technologies": Essential tools, platforms, or systems commonly expected in this role that are missing.
+5. "experience_analysis": An object containing:
+   - "seniority_match": A string ("Good" | "Fair" | "Poor") representing the clarity of the candidate's experience progression.
+   - "comments": A brief summary of the experience layout and career progression.
+6. "formatting_issues": An array of strings outlining potential ATS readability bottlenecks found in the resume (e.g., "Found multi-column layout", "Contact details in header/footer", "Non-standard section headers").
+7. "suggestions": An array of 3-5 high-impact, actionable improvements to make the resume beat automated filters.
+
+Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
+
+Resume:
+${resume}`;
+  }
 
   const response = await axios.post(
     "https://api.anthropic.com/v1/messages",
@@ -123,8 +153,8 @@ router.post("/parse-file", upload.single("file"), async (req, res) => {
 router.post("/score", async (req, res) => {
   const { resume, jd } = req.body;
 
-  if (!resume || !jd) {
-    return res.status(400).json({ error: "Both resume and jd are required." });
+  if (!resume) {
+    return res.status(400).json({ error: "Resume is required." });
   }
 
   // Try Gemini first
@@ -132,7 +162,9 @@ router.post("/score", async (req, res) => {
     const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    const prompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
+    let prompt = "";
+    if (jd && jd.trim()) {
+      prompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
 Analyze the provided resume against the job description below.
 Perform a strict and highly accurate evaluation. Return a JSON object with:
 1. "score": Overall score from 0 to 100 based on key metrics.
@@ -159,8 +191,36 @@ ${resume}
 
 Job Description:
 ${jd}`;
+    } else {
+      prompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
+Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
+Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
 
-    logger.info("Running ATS resume evaluation via Gemini", { source: "ats" });
+Return a JSON object with:
+1. "score": General ATS readiness score from 0 to 100.
+2. "breakdown": An object containing:
+   - "skills_match": Score 0-100 indicating depth and layout of technical skills.
+   - "experience_match": Score 0-100 evaluating the structure, formatting, and relevance of work history.
+   - "formatting_readability": Score 0-100 of structural suitability for ATS scanners (penalize multi-columns, tables, graphics, contact info in headers).
+   - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
+3. "matched_keywords": An array of the primary technical/hard skills, tools, and methodologies detected in the resume.
+4. "missing_keywords": An object containing arrays:
+   - "hard_skills": Crucial industry-standard technologies or skills related to the candidate's target field (inferred from the resume) that are currently missing or could be added.
+   - "soft_skills": Interpersonal or execution-oriented keywords standard for this domain that are missing.
+   - "tools_technologies": Essential tools, platforms, or systems commonly expected in this role that are missing.
+5. "experience_analysis": An object containing:
+   - "seniority_match": A string ("Good" | "Fair" | "Poor") representing the clarity of the candidate's experience progression.
+   - "comments": A brief summary of the experience layout and career progression.
+6. "formatting_issues": An array of strings outlining potential ATS readability bottlenecks found in the resume (e.g., "Found multi-column layout", "Contact details in header/footer", "Non-standard section headers").
+7. "suggestions": An array of 3-5 high-impact, actionable improvements to make the resume beat automated filters.
+
+Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
+
+Resume:
+${resume}`;
+    }
+
+    logger.info(`Running ATS resume evaluation via Gemini (${jd ? 'Targeted' : 'General'})`, { source: "ats" });
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
