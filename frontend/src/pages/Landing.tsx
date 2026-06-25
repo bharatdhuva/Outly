@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
+import logoTransparent from "../assets/logo_transparent.png";
 import {
   LineChart,
   Line,
@@ -330,6 +331,8 @@ export default function Landing() {
 
   // ─── SCROLL & LOAD EFFECTS ───
   useEffect(() => {
+    document.title = "Outly - Your Career, Already Sorted";
+    
     // Scroll header styling
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -696,9 +699,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-12">
             <div className="flex items-center gap-2 font-bold text-xl tracking-tight cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-              <div className="w-8 h-8 bg-outly-accent rounded-full flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
-              </div>
+              <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
               Outly <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-outly-accent ml-2">Beta</span>
             </div>
             <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-outly-dark/70">
@@ -1729,9 +1730,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-10 grid md:grid-cols-4 gap-20 pb-20 mb-12">
           <div className="col-span-1">
             <div className="flex items-center gap-2 font-bold text-xl mb-6 tracking-tight">
-              <div className="w-6 h-6 bg-outly-accent rounded-full flex items-center justify-center">
-                <div className="w-3 h-3 bg-white rounded-sm rotate-45"></div>
-              </div>
+              <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
               Outly
             </div>
             <p className="text-xs text-outly-dark/40 leading-relaxed font-medium">

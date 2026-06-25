@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
+import logoTransparent from "../assets/logo_transparent.png";
 
 interface SlideText {
   titleStart: string;
@@ -51,6 +52,10 @@ export default function Login() {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    document.title = "Outly - Sign In";
+  }, []);
 
   // ─── 1. Left Panel Slide Loop (Auto-cycles) ───
   useEffect(() => {
@@ -163,9 +168,7 @@ export default function Login() {
 
         {/* Logo Header with subtle hover lift */}
         <div className="flex items-center gap-2 font-bold text-lg tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigate("/")}>
-          <div className="w-7.5 h-7.5 bg-outly-accent rounded-full flex items-center justify-center">
-            <div className="w-3.5 h-3.5 bg-white rounded-sm rotate-45"></div>
-          </div>
+          <img src={logoTransparent} alt="Outly Logo" className="w-7.5 h-7.5 object-contain" />
           Outly
         </div>
 
@@ -225,9 +228,7 @@ export default function Login() {
           
           {/* Mobile Logo */}
           <div className="flex items-center gap-2 font-bold text-lg tracking-tight lg:hidden mb-10 self-start" onClick={() => navigate("/")}>
-            <div className="w-6 h-6 bg-outly-accent rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-sm rotate-45"></div>
-            </div>
+            <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
             Outly
           </div>
 
