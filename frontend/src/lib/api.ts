@@ -205,6 +205,22 @@ export const api = {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    upload: (file: File, label: string) => {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("label", label);
+      return fetch(`${API_BASE}/resume/upload`, {
+        method: "POST",
+        body: form,
+        credentials: "include",
+      }).then((r) => {
+        if (!r.ok) {
+          return r.text().then((text) => { throw new Error(text || r.statusText); });
+        }
+        return r.json() as Promise<ResumeVaultItem>;
+      });
+    },
+    getFileUrl: (id: number) => `${API_BASE}/resume/${id}/file`,
     setDefault: (id: number) =>
       fetchApi<{ success: boolean }>(`/resume/${id}/default`, {
         method: "POST",

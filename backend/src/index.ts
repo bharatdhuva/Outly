@@ -21,7 +21,12 @@ import { registerTelegramCallbacks } from "./approval/callbackHandler.js";
 import { logger } from "./lib/logger.js";
 
 async function main() {
-  [env.DATA_DIR, env.LOGS_DIR, path.join(env.DATA_DIR, "uploads")].forEach((dir) => {
+  [
+    env.DATA_DIR,
+    env.LOGS_DIR,
+    path.join(env.DATA_DIR, "uploads"),
+    path.join(env.DATA_DIR, "resumes")
+  ].forEach((dir) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
       logger.info(`Created directory: ${dir}`, { source: "system" });

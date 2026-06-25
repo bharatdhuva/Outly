@@ -18,14 +18,14 @@ const loadPdfJs = () => {
   });
 };
 
-export default function PdfViewer({ file }: { file: File }) {
+export default function PdfViewer({ file, url }: { file?: File | null; url?: string | null }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    if (!file) return;
+    if (!file && !url) return;
 
     setLoading(true);
     setError(null);
@@ -33,8 +33,15 @@ export default function PdfViewer({ file }: { file: File }) {
     const renderPdf = async () => {
       try {
         const pdfjsLib = await loadPdfJs();
-        const arrayBuffer = await file.arrayBuffer();
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+        let loadingTask;
+        if (file) {
+          const arrayBuffer = await file.arrayBuffer();
+          loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+        } else if (url) {
+          loadingTask = pdfjsLib.getDocument(url);
+        } else {
+          return;
+        }
         const pdf = await loadingTask.promise;
         
         if (!active) return;
@@ -84,7 +91,7 @@ export default function PdfViewer({ file }: { file: File }) {
     return () => {
       active = false;
     };
-  }, [file]);
+  }, [file, url]);
 
   return (
     <div className="relative flex flex-col items-center bg-secondary/15 rounded-lg p-4 overflow-y-auto max-h-[480px] min-h-[380px] w-full border border-border/50">

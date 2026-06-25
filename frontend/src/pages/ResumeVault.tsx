@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type ResumeVaultItem } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
+import PdfViewer from "@/components/PdfViewer";
 import {
   Plus,
   Trash2,
@@ -29,11 +30,11 @@ export default function ResumeVaultPage() {
   const navigate = useNavigate();
 
   const [selectedResumeId, setSelectedResumeId] = useState<number | null>(null);
-  const [activePreviewTab, setActivePreviewTab] = useState<"content" | "applications">("content");
+  const [activePreviewTab, setActivePreviewTab] = useState<"preview" | "content" | "applications">("preview");
   
   // Upload and Label modal state
   const [isUploading, setIsUploading] = useState(false);
-  const [parsedData, setParsedData] = useState<{ filename: string; content: string } | null>(null);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [resumeLabel, setResumeLabel] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -48,6 +49,14 @@ export default function ResumeVaultPage() {
     queryKey: ["applications"],
     queryFn: api.applications.list,
   });
+
+  // Automatically select the default or first resume on load
+  useEffect(() => {
+    if (resumes.length > 0 && selectedResumeId === null) {
+      const defaultRes = resumes.find(r => r.is_default === 1);
+      setSelectedResumeId(defaultRes ? defaultRes.id : resumes[0].id);
+    }
+  }, [resumes, selectedResumeId]);
 
   // Set default mutation
   const setDefaultMutation = useMutation({
@@ -90,31 +99,7 @@ export default function ResumeVaultPage() {
     }
   });
 
-  // Create/Add resume mutation
-  const createMutation = useMutation({
-    mutationFn: api.resume.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resume", "list"] });
-      setParsedData(null);
-      setResumeLabel("");
-      toast({
-        title: "Resume Saved",
-        description: "New resume version successfully saved to the vault.",
-      });
-    },
-    onError: (err) => {
-      toast({
-        variant: "destructive",
-        title: "Error Saving Resume",
-        description: String(err),
-      });
-    },
-    onSettled: () => {
-      setIsSaving(false);
-    }
-  });
-
-  // File Upload parsing handler
+  // File Upload handler
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -129,30 +114,14 @@ export default function ResumeVaultPage() {
       return;
     }
 
-    setIsUploading(true);
-    try {
-      const data = await api.ats.parseFile(file);
-      setParsedData(data);
-      // Auto-suggest a label from the filename
-      const baseName = file.name.replace(/\.[^/.]+$/, "");
-      setResumeLabel(baseName.split("_").join(" ").split("-").join(" "));
-      toast({
-        title: "Extraction Successful",
-        description: "Extracted structure and text format from file.",
-      });
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Failed to Parse File",
-        description: String(err),
-      });
-    } finally {
-      setIsUploading(false);
-    }
+    setFileToUpload(file);
+    // Auto-suggest a label from the filename
+    const baseName = file.name.replace(/\.[^/.]+$/, "");
+    setResumeLabel(baseName.split("_").join(" ").split("-").join(" "));
   };
 
-  const handleSaveResume = () => {
-    if (!parsedData) return;
+  const handleSaveResume = async () => {
+    if (!fileToUpload) return;
     if (!resumeLabel.trim()) {
       toast({
         variant: "destructive",
@@ -163,12 +132,26 @@ export default function ResumeVaultPage() {
     }
 
     setIsSaving(true);
-    createMutation.mutate({
-      filename: parsedData.filename,
-      label: resumeLabel.trim(),
-      content: parsedData.content,
-      is_default: resumes.length === 0, // make it default if it is the first resume
-    });
+    try {
+      const result = await api.resume.upload(fileToUpload, resumeLabel.trim());
+      queryClient.invalidateQueries({ queryKey: ["resume", "list"] });
+      setFileToUpload(null);
+      setResumeLabel("");
+      setSelectedResumeId(result.id);
+      setActivePreviewTab("preview");
+      toast({
+        title: "Resume Saved",
+        description: `Successfully added "${resumeLabel}" to your vault.`,
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Failed to Save Resume",
+        description: String(err),
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Find selected resume
@@ -204,20 +187,11 @@ export default function ResumeVaultPage() {
         <div>
           <Button
             onClick={() => document.getElementById("vault-upload")?.click()}
-            disabled={isUploading || isSaving}
+            disabled={isSaving}
             className="gap-2 bg-primary text-primary-foreground hover:bg-primary/95 shadow-sm"
           >
-            {isUploading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Parsing File...
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4" />
-                Upload Resume
-              </>
-            )}
+            <Plus className="h-4 w-4" />
+            Upload Resume
           </Button>
           <input
             id="vault-upload"
@@ -269,7 +243,6 @@ export default function ResumeVaultPage() {
                       key={resumeItem.id}
                       onClick={() => {
                         setSelectedResumeId(resumeItem.id);
-                        setActivePreviewTab("content");
                       }}
                       className={`group cursor-pointer rounded-lg border p-3.5 transition-all text-left relative ${
                         isSelected
@@ -377,7 +350,7 @@ export default function ResumeVaultPage() {
                     variant="outline"
                     className="h-8 text-[12px] gap-1.5"
                     onClick={() => {
-                      // Navigate to ATS Checker page with this resume selected
+                      // Navigate to ATS Checker page
                       navigate("/ats-score");
                     }}
                   >
@@ -399,6 +372,16 @@ export default function ResumeVaultPage() {
               {/* Tabs for selected resume detail view */}
               <div className="flex border-b border-border/60 mb-4 text-xs font-semibold">
                 <button
+                  onClick={() => setActivePreviewTab("preview")}
+                  className={`pb-2 px-3 border-b-2 transition-all ${
+                    activePreviewTab === "preview"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Document Preview
+                </button>
+                <button
                   onClick={() => setActivePreviewTab("content")}
                   className={`pb-2 px-3 border-b-2 transition-all ${
                     activePreviewTab === "content"
@@ -406,7 +389,7 @@ export default function ResumeVaultPage() {
                       : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  Parsed Document Text
+                  Parsed Text (ATS Version)
                 </button>
                 <button
                   onClick={() => setActivePreviewTab("applications")}
@@ -422,7 +405,23 @@ export default function ResumeVaultPage() {
 
               {/* Tab Contents */}
               <div className="flex-1 flex flex-col min-h-0">
-                {activePreviewTab === "content" ? (
+                {activePreviewTab === "preview" ? (
+                  selectedResume.filename.toLowerCase().endsWith(".pdf") ? (
+                    <div className="flex-1 overflow-hidden rounded-lg border border-border bg-secondary">
+                      <PdfViewer url={api.resume.getFileUrl(selectedResume.id)} />
+                    </div>
+                  ) : (
+                    <div className="flex-1 max-h-[460px] overflow-y-auto rounded-lg border border-border bg-secondary/35 p-4 min-h-[300px]">
+                      <div className="mb-3 flex items-center gap-2 text-[12px] text-muted-foreground bg-secondary/70 p-2.5 rounded-md border border-border/40">
+                        <Info className="h-4 w-4 text-primary" />
+                        <span>Live PDF rendering is only available for PDF documents. Showing text representation.</span>
+                      </div>
+                      <pre className="whitespace-pre-wrap font-sans text-[13px] leading-6 text-foreground">
+                        {selectedResume.content || "Empty content / could not parse text."}
+                      </pre>
+                    </div>
+                  )
+                ) : activePreviewTab === "content" ? (
                   <div className="flex-1 max-h-[460px] overflow-y-auto rounded-lg border border-border bg-secondary/30 p-4 min-h-[300px]">
                     <pre className="whitespace-pre-wrap font-sans text-[13px] leading-6 text-foreground">
                       {selectedResume.content || "Empty content / could not parse text."}
@@ -499,12 +498,12 @@ export default function ResumeVaultPage() {
       </div>
 
       {/* Upload Label Confirmation Modal */}
-      {parsedData && (
+      {fileToUpload && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/20 backdrop-blur-xs">
           <div className="w-full max-w-md rounded-xl border border-border bg-white p-6 shadow-2xl space-y-4 animate-pop-in">
             <div className="flex items-center justify-between border-b border-border/40 pb-3">
               <h3 className="text-[16px] font-bold text-foreground">Label New Resume Version</h3>
-              <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground" onClick={() => setParsedData(null)}>
+              <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground" onClick={() => setFileToUpload(null)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -513,10 +512,10 @@ export default function ResumeVaultPage() {
               <div className="rounded-lg bg-secondary/30 p-3 space-y-1.5">
                 <div className="flex items-center gap-1.5 font-semibold text-foreground">
                   <FileText className="h-4 w-4 text-primary" />
-                  File parsed successfully
+                  File uploaded
                 </div>
                 <div className="text-[11px] text-muted-foreground font-mono truncate">
-                  Filename: {parsedData.filename}
+                  Filename: {fileToUpload.name}
                 </div>
               </div>
 
@@ -536,15 +535,22 @@ export default function ResumeVaultPage() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-border/40">
-                <Button type="button" variant="ghost" onClick={() => setParsedData(null)}>
+                <Button type="button" variant="ghost" onClick={() => setFileToUpload(null)}>
                   Cancel
                 </Button>
                 <Button
                   onClick={handleSaveResume}
                   disabled={isSaving}
-                  className="bg-primary text-primary-foreground hover:bg-primary/95"
+                  className="bg-primary text-primary-foreground hover:bg-primary/95 font-semibold shadow-sm"
                 >
-                  {isSaving ? "Saving..." : "Save to Vault"}
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                      Parsing & Saving...
+                    </>
+                  ) : (
+                    "Save to Vault"
+                  )}
                 </Button>
               </div>
             </div>
