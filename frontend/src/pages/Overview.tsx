@@ -43,14 +43,6 @@ export default function OverviewPage() {
     queryFn: api.settings.get,
   });
 
-  const statusBadges = [
-    { name: "Redis", ok: systemStatus?.redis },
-    { name: "Gmail", ok: systemStatus?.gmail },
-    { name: "LinkedIn", ok: systemStatus?.linkedin },
-    { name: "WhatsApp", ok: systemStatus?.whatsapp },
-    { name: "Telegram", ok: systemStatus?.telegram }
-  ];
-
   // ─── Streak data computation (91 days = ~13 weeks) ───
   const TOTAL_DAYS = 91;
   const todayKey = new Date().toISOString().slice(0, 10);
@@ -219,15 +211,6 @@ export default function OverviewPage() {
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-accent px-3 py-1 text-[12px] font-medium text-primary w-fit">
                 <Sparkles className="h-3.5 w-3.5" />
                 Outreach Workspace
-              </div>
-              {/* Integration Status Badges */}
-              <div className="flex flex-wrap items-center gap-2">
-                {statusBadges.map((badge) => (
-                  <div key={badge.name} className="flex items-center gap-1.5 rounded-full border border-border bg-secondary px-2.5 py-0.5 text-[11px] font-medium">
-                    <span className={`h-1.5 w-1.5 rounded-full ${badge.ok ? "bg-success" : "bg-warning"}`} />
-                    <span className="text-muted-foreground">{badge.name}</span>
-                  </div>
-                ))}
               </div>
             </div>
             <h1 className="mt-4 text-[24px] font-semibold tracking-tight text-foreground sm:text-[28px]">
