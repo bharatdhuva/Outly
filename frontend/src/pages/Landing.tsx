@@ -243,8 +243,8 @@ export default function Landing() {
   // Rich-text highlight parser for the hero typing brief (Outly career-centric highlights)
   const renderHighlightedText = (text: string) => {
     if (!text) return null;
-    return text.split(/(3 applications|interview stage|interview with Stripe|Notion)/g).map((part, index) => {
-      if (part === "3 applications" || part === "interview stage" || part === "interview with Stripe" || part === "Notion") {
+    return text.split(/(3 active applications|Spotify interview|outreach draft)/g).map((part, index) => {
+      if (part === "3 active applications" || part === "Spotify interview" || part === "outreach draft") {
         return (
           <span key={index} className="bg-outly-accent/10 text-outly-accent px-1.5 py-0.5 rounded font-semibold whitespace-nowrap">
             {part}
@@ -404,23 +404,30 @@ export default function Landing() {
       delay: 0.8
     });
 
-    const targetText = "3 applications active — Spotify is in the interview stage. Your interview with Stripe is scheduled for 2:30pm. I drafted a personalized email for Notion; one tap to send. |";
+    let isCancelled = false;
+    
+    // Clear and reset state on mount to avoid HMR overlaps
+    setHeroTypedText("");
+    
+    const targetText = "3 active applications. Spotify interview scheduled. Recruiter outreach draft ready.";
     let typeIndex = 0;
     let typeTimer: NodeJS.Timeout;
 
     const typeNextChar = () => {
-      if (typeIndex < targetText.length - 1) {
-        setHeroTypedText((prev) => prev + targetText.charAt(typeIndex));
+      if (isCancelled) return;
+      if (typeIndex < targetText.length) {
+        setHeroTypedText(targetText.slice(0, typeIndex + 1));
         typeIndex++;
-        typeTimer = setTimeout(typeNextChar, 35 + Math.random() * 20);
+        typeTimer = setTimeout(typeNextChar, 30 + Math.random() * 15);
       } else {
-        setHeroCursor(true);
+        setHeroCursor(false); // Hide cursor when typing is complete
       }
     };
 
-    const startTypingTimer = setTimeout(typeNextChar, 1800);
+    const startTypingTimer = setTimeout(typeNextChar, 1500);
 
     return () => {
+      isCancelled = true;
       window.removeEventListener("scroll", handleScroll);
       clearTimeout(startTypingTimer);
       clearTimeout(typeTimer);
@@ -709,9 +716,9 @@ export default function Landing() {
           
           {/* Center: Nav links (Hidden on mobile) */}
           <nav className="hidden md:flex items-center justify-center gap-8 text-sm font-semibold text-outly-dark/70">
-            <a className="hover:text-outly-dark transition cursor-pointer" href="#features" onClick={(e) => handleScrollToSection(e, "features")}>Features</a>
-            <a className="hover:text-outly-dark transition cursor-pointer" href="#demo" onClick={(e) => handleScrollToSection(e, "demo")}>How it Works</a>
-            <a className="hover:text-outly-dark transition cursor-pointer" href="#pricing" onClick={(e) => handleScrollToSection(e, "pricing")}>Pricing</a>
+            <a className="hover:text-outly-accent transition cursor-pointer" href="#features" onClick={(e) => handleScrollToSection(e, "features")}>Features</a>
+            <a className="hover:text-outly-accent transition cursor-pointer" href="#demo" onClick={(e) => handleScrollToSection(e, "demo")}>How it Works</a>
+            <a className="hover:text-outly-accent transition cursor-pointer" href="#pricing" onClick={(e) => handleScrollToSection(e, "pricing")}>Pricing</a>
           </nav>
           
           {/* Right: Buttons */}
