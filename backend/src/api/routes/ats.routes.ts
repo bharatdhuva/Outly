@@ -8,7 +8,7 @@ import fs from "fs";
 import axios from "axios";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const pdfParse = require("pdf-parse");
+const { PDFParse } = require("pdf-parse");
 const mammoth = require("mammoth");
 
 const router = Router();
@@ -95,8 +95,10 @@ router.post("/parse-file", upload.single("file"), async (req, res) => {
       text = fs.readFileSync(filePath, "utf-8");
     } else if (ext === ".pdf") {
       const buffer = fs.readFileSync(filePath);
-      const data = await pdfParse(buffer);
+      const parser = new PDFParse({ data: buffer });
+      const data = await parser.getText();
       text = data.text;
+      await parser.destroy().catch(() => {});
     } else if (ext === ".docx") {
       const result = await mammoth.extractRawText({ path: filePath });
       text = result.value;
