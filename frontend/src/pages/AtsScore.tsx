@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { api, EvaluationResult } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
+import PdfViewer from "@/components/PdfViewer";
 import {
   Loader2,
   UploadCloud,
@@ -13,13 +14,16 @@ import {
   Save,
   Check,
   Info,
-  AlertCircle
+  AlertCircle,
+  X,
+  FileText
 } from "lucide-react";
 
 export default function AtsScorePage() {
   const { toast } = useToast();
   const [mode, setMode] = useState<"general" | "targeted">("targeted");
   const [resume, setResume] = useState("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [jd, setJd] = useState("");
   const [loading, setLoading] = useState(false);
   const [parsingFile, setParsingFile] = useState(false);
@@ -39,7 +43,7 @@ export default function AtsScorePage() {
 
   // Automatically load default resume if present
   useEffect(() => {
-    if (resumes.length > 0 && !resume) {
+    if (resumes.length > 0 && !resume && !resumeFile) {
       const defaultResume = resumes.find(r => r.is_default === 1);
       if (defaultResume && defaultResume.content) {
         setResume(defaultResume.content);
@@ -50,6 +54,7 @@ export default function AtsScorePage() {
 
   const handleVaultSelect = (idStr: string) => {
     setSelectedVaultId(idStr);
+    setResumeFile(null); // Clear file when vault item is selected
     if (idStr === "custom") {
       setResume("");
     } else {
@@ -74,14 +79,15 @@ export default function AtsScorePage() {
       return;
     }
 
+    setResumeFile(file);
     setParsingFile(true);
     try {
       const data = await api.ats.parseFile(file);
       setResume(data.content);
       setSelectedVaultId("custom");
       toast({
-        title: "File Read Successfully",
-        description: `Extracted text from ${file.name}.`,
+        title: "Document Loaded",
+        description: `Successfully extracted text from ${file.name}.`,
       });
     } catch (err) {
       toast({
@@ -89,6 +95,8 @@ export default function AtsScorePage() {
         title: "Error Reading File",
         description: String(err),
       });
+      setResumeFile(null);
+      setResume("");
     } finally {
       setParsingFile(false);
     }
@@ -152,7 +160,6 @@ export default function AtsScorePage() {
 
     setLoading(true);
     try {
-      // Send empty string for jd in general mode to signal a general audit in backend
       const data = await api.ats.score(resume, mode === "targeted" ? jd : "");
       setResult(data);
       toast({
@@ -206,7 +213,7 @@ export default function AtsScorePage() {
           <button
             onClick={() => {
               setMode("targeted");
-              setResult(null); // Clear previous result to prevent confusion
+              setResult(null);
             }}
             className={`rounded-md px-4 py-1.5 text-[13px] font-semibold transition-all ${
               mode === "targeted"
@@ -219,7 +226,7 @@ export default function AtsScorePage() {
           <button
             onClick={() => {
               setMode("general");
-              setResult(null); // Clear previous result
+              setResult(null);
             }}
             className={`rounded-md px-4 py-1.5 text-[13px] font-semibold transition-all ${
               mode === "general"
@@ -234,8 +241,8 @@ export default function AtsScorePage() {
 
       {/* Input Workspace Panel */}
       <div className={mode === "general" ? "w-full" : "grid gap-6 lg:grid-cols-2"}>
-        {/* Left Side (or Full Width): Paste Resume */}
-        <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] space-y-4">
+        {/* Left Side (or Full Width): Resume panel */}
+        <section className="flex flex-col rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] space-y-4 min-h-[460px]">
           <div className="flex flex-col sm:flex-row justify-between gap-3 items-start sm:items-center">
             <div>
               <h2 className="text-[16px] font-semibold text-foreground">1. Resume Input Source</h2>
@@ -250,11 +257,7 @@ export default function AtsScorePage() {
                 onClick={() => document.getElementById("resume-upload")?.click()}
                 disabled={parsingFile}
               >
-                {parsingFile ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <UploadCloud className="h-3.5 w-3.5" />
-                )}
+                <UploadCloud className="h-3.5 w-3.5" />
                 Upload Doc
               </Button>
               <input
@@ -280,27 +283,73 @@ export default function AtsScorePage() {
             </div>
           </div>
 
-          <div className="relative">
-            <Textarea
-              className="min-h-[260px] resize-y rounded-lg border-border bg-white text-[14px] leading-6 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
-              placeholder="Paste the full text of your resume here, or choose a file above..."
-              value={resume}
-              onChange={(e) => {
-                setResume(e.target.value);
-                setSelectedVaultId("custom");
-              }}
-            />
-            {resume.trim() && (
-              <button
-                type="button"
-                onClick={() => setShowSaveDialog(true)}
-                className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-md bg-secondary/80 hover:bg-secondary border border-border px-2.5 py-1 text-[11px] font-semibold text-foreground transition"
-              >
-                <Save className="h-3.5 w-3.5 text-muted-foreground" />
-                Save to Vault
-              </button>
-            )}
-          </div>
+          {/* Loader when extracting text */}
+          {parsingFile && (
+            <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-border rounded-lg bg-secondary/30 p-8 min-h-[300px]">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
+              <p className="text-[14px] font-semibold text-foreground">Parsing Document structure...</p>
+              <p className="text-[12px] text-muted-foreground mt-1">Extracting plain text metadata for ATS evaluation...</p>
+            </div>
+          )}
+
+          {/* PDF Preview Mode */}
+          {resumeFile && !parsingFile && (
+            <div className="flex-1 flex flex-col min-h-[300px]">
+              <div className="mb-3 flex items-center justify-between gap-3 border-b border-border/40 pb-2">
+                <span className="truncate text-[13px] font-semibold text-foreground flex items-center gap-1.5">
+                  <FileText className="h-4 w-4 text-primary" />
+                  {resumeFile.name}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="gap-1 text-muted-foreground h-7 px-2 hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => {
+                    setResumeFile(null);
+                    setResume("");
+                  }}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Remove
+                </Button>
+              </div>
+
+              {resumeFile.type === "application/pdf" ? (
+                <div className="flex-1 overflow-hidden rounded-lg border border-border bg-secondary">
+                  <PdfViewer file={resumeFile} />
+                </div>
+              ) : (
+                <div className="flex-1 max-h-[420px] overflow-y-auto rounded-lg border border-border bg-secondary p-4">
+                  <pre className="whitespace-pre-wrap font-mono text-[12px] leading-5 text-foreground">{resume}</pre>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Textarea Paste Mode */}
+          {!resumeFile && !parsingFile && (
+            <div className="flex-1 flex flex-col relative min-h-[300px]">
+              <Textarea
+                className="flex-1 min-h-[300px] resize-y rounded-lg border-border bg-white text-[14px] leading-6 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+                placeholder="Paste the full text of your resume here, or choose a file above..."
+                value={resume}
+                onChange={(e) => {
+                  setResume(e.target.value);
+                  setSelectedVaultId("custom");
+                }}
+              />
+              {resume.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setShowSaveDialog(true)}
+                  className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-md bg-secondary/80 hover:bg-secondary border border-border px-2.5 py-1 text-[11px] font-semibold text-foreground transition"
+                >
+                  <Save className="h-3.5 w-3.5 text-muted-foreground" />
+                  Save to Vault
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Quick Dialog to Save Resume to Vault Inline */}
           {showSaveDialog && (
@@ -331,13 +380,13 @@ export default function AtsScorePage() {
 
         {/* Right Side: Paste Job Description (Targeted Mode only) */}
         {mode === "targeted" && (
-          <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] space-y-4">
+          <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] space-y-4 min-h-[460px] flex flex-col">
             <div>
               <h2 className="text-[16px] font-semibold text-foreground">2. Target Job Description</h2>
               <p className="text-[13px] text-muted-foreground">Paste requirements, qualifications, and stack specifics.</p>
             </div>
             <Textarea
-              className="min-h-[260px] resize-y rounded-lg border-border bg-white text-[14px] leading-6 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+              className="flex-1 min-h-[300px] resize-y rounded-lg border-border bg-white text-[14px] leading-6 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
               placeholder="Paste target job description details here..."
               value={jd}
               onChange={(e) => setJd(e.target.value)}
