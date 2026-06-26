@@ -854,8 +854,8 @@ export default function Landing() {
           
           {/* Left: Logo */}
           <div className="flex justify-start">
-            <div className="flex items-center gap-2 font-bold text-xl tracking-tight cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-              <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
+            <div className="flex items-center gap-3 font-bold text-2xl tracking-tight cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              <img src={logoTransparent} alt="Outly Logo" className="w-10 h-10 object-contain" />
               <span className="text-outly-accent">Outly</span>
             </div>
           </div>
@@ -888,7 +888,7 @@ export default function Landing() {
               </span>
             </div>
             
-            <h1 className="text-6xl md:text-[80px] font-medium tracking-tight mb-8 leading-[0.95] text-left hero-title opacity-0">
+            <h1 className="text-7xl md:text-[96px] font-medium tracking-tight mb-8 leading-[0.95] text-left hero-title opacity-0">
               Your career,<br />already <span className="relative inline-block italic-serif text-outly-accent">
                 sorted.
                 {/* Hand-drawn animated underline SVG */}
@@ -905,7 +905,7 @@ export default function Landing() {
               </span>
             </h1>
             
-            <p className="text-base md:text-lg text-outly-dark/60 mb-10 max-w-lg text-left leading-relaxed font-medium hero-subtitle opacity-0">
+            <p className="text-lg md:text-xl text-outly-dark/60 mb-10 max-w-lg text-left leading-relaxed font-medium hero-subtitle opacity-0">
               Outly automates your job hunt so you don't have to. Personalized outreach, resume tailoring, and interview prep in one place.
             </p>
             

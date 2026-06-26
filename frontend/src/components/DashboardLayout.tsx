@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -48,6 +48,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Hover states for desktop dropdowns
   const [activeDropdown, setActiveDropdown] = useState<"resumes" | "jobs" | "tools" | null>(null);
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
+  const dropdownCloseTimer = useRef<number | null>(null);
 
   // Fetch settings from API to personalize the dashboard profile
   const { data: settings } = useQuery({
@@ -66,6 +67,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     setActiveDropdown(null);
   }, [location.pathname]);
 
+  useEffect(() => {
+    return () => {
+      if (dropdownCloseTimer.current) {
+        window.clearTimeout(dropdownCloseTimer.current);
+      }
+    };
+  }, []);
+
   const fullName = settings?.full_name || "Outly User";
   const initials =
     fullName
@@ -80,66 +89,78 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     navigate("/login");
   };
 
+  const openDropdown = (dropdown: "resumes" | "jobs" | "tools") => {
+    if (dropdownCloseTimer.current) {
+      window.clearTimeout(dropdownCloseTimer.current);
+      dropdownCloseTimer.current = null;
+    }
+    setActiveDropdown(dropdown);
+  };
+
+  const scheduleDropdownClose = () => {
+    if (dropdownCloseTimer.current) {
+      window.clearTimeout(dropdownCloseTimer.current);
+    }
+    dropdownCloseTimer.current = window.setTimeout(() => {
+      setActiveDropdown(null);
+      dropdownCloseTimer.current = null;
+    }, 260);
+  };
+
+  const toggleDropdown = (dropdown: "resumes" | "jobs" | "tools") => {
+    if (dropdownCloseTimer.current) {
+      window.clearTimeout(dropdownCloseTimer.current);
+      dropdownCloseTimer.current = null;
+    }
+    setActiveDropdown((current) => (current === dropdown ? null : dropdown));
+  };
+
   return (
     <div className="min-h-screen bg-[#faf8f5] text-outly-dark flex flex-col font-sans">
       
       {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
       <header className="sticky top-0 z-40 w-full border-b border-[#e8e2d5] bg-white/95 backdrop-blur-md shadow-sm shrink-0 select-none">
-        <div className="mx-auto max-w-7xl h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div className="flex h-16 w-full items-center justify-between px-8 sm:px-10 lg:px-12">
           
           {/* Left: Brand Logo */}
-          <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-tight hover:opacity-90 transition-opacity">
-              <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
-              <span className="text-outly-accent">Outly</span>
+          <div className="flex h-full items-center gap-12">
+            <Link to="/" className="flex h-full -translate-y-px items-center gap-1 font-bold text-xl leading-none tracking-tight hover:opacity-90 transition-opacity">
+              <img src={logoTransparent} alt="Outly Logo" className="h-8 w-8 -translate-y-px object-contain" />
+              <span className="text-outly-accent leading-none">Outly</span>
             </Link>
 
             {/* Middle: Desktop Links & Dropdowns */}
-            <nav className="hidden md:flex items-center gap-6 h-16">
+            <nav className="hidden h-full items-center gap-8 font-['Inter',system-ui,sans-serif] md:flex">
               
               {/* Dropdown 1: RESUMES */}
               <div 
                 className="relative h-full flex items-center"
-                onMouseEnter={() => setActiveDropdown("resumes")}
-                onMouseLeave={() => setActiveDropdown(null)}
+                onMouseEnter={() => openDropdown("resumes")}
+                onMouseLeave={scheduleDropdownClose}
               >
                 <button 
                   type="button"
-                  onClick={() => setActiveDropdown(activeDropdown === "resumes" ? null : "resumes")}
-                  className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider h-full border-b-2 transition-colors duration-200 ${
+                  onClick={() => toggleDropdown("resumes")}
+                  className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
                     location.pathname.startsWith("/resume-") || location.pathname === "/ats-score" || location.pathname === "/resume-vault"
                       ? "border-primary text-primary" 
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                      : "border-transparent text-[#2d3639] hover:text-primary"
                   }`}
                 >
-                  <span>Resumes</span>
-                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${activeDropdown === "resumes" ? "rotate-180 text-primary" : ""}`} />
+                  <span>Resume</span>
+                  <ChevronDown className={`h-4 w-4 translate-y-px transition-transform duration-200 ${activeDropdown === "resumes" ? "rotate-180 text-primary" : ""}`} />
                 </button>
 
                 {activeDropdown === "resumes" && (
-                  <div className="absolute left-0 top-[100%] w-[540px] bg-card border border-border rounded-2xl p-5 shadow-xl mt-1 animate-slide-up grid grid-cols-12 gap-5 z-50 select-none">
+                  <div
+                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-card p-5 shadow-xl animate-slide-up select-none"
+                    onMouseEnter={() => openDropdown("resumes")}
+                    onMouseLeave={scheduleDropdownClose}
+                  >
                     {/* Left: Tools */}
                     <div className="col-span-7 space-y-2.5">
                       <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">Tools</div>
                       <div className="space-y-1">
-                        <Link 
-                          to="/resume-tailor" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
-                            {/* 3D Cube (AI Resume Builder) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-                              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                              <line x1="12" y1="22.08" x2="12" y2="12" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">AI Resume Builder</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Tailor your CV for specific job descriptions.</span>
-                          </div>
-                        </Link>
-                        
                         <Link 
                           to="/ats-score" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
@@ -158,20 +179,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         </Link>
 
                         <Link 
-                          to="/resume-vault" 
+                          to="/resume-tailor" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
                           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
-                            {/* Grid (Resume Templates) */}
+                            {/* 3D Cube (AI Resume Builder) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="3" y="3" width="18" height="18" rx="2" />
-                              <line x1="3" y1="9" x2="21" y2="9" />
-                              <line x1="9" y1="21" x2="9" y2="9" />
+                              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                              <line x1="12" y1="22.08" x2="12" y2="12" />
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Resume Templates</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Free and premium templates.</span>
+                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Tailor Resume</span>
+                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Tailor your CV for specific job descriptions.</span>
                           </div>
                         </Link>
 
@@ -189,8 +210,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Resume Examples</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Explore high-performing resume examples.</span>
+                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Resume Vault</span>
+                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Manage saved resumes and tailored versions.</span>
                           </div>
                         </Link>
                       </div>
@@ -233,24 +254,28 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               {/* Dropdown 2: JOBS */}
               <div 
                 className="relative h-full flex items-center"
-                onMouseEnter={() => setActiveDropdown("jobs")}
-                onMouseLeave={() => setActiveDropdown(null)}
+                onMouseEnter={() => openDropdown("jobs")}
+                onMouseLeave={scheduleDropdownClose}
               >
                 <button 
                   type="button"
-                  onClick={() => setActiveDropdown(activeDropdown === "jobs" ? null : "jobs")}
-                  className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider h-full border-b-2 transition-colors duration-200 ${
+                  onClick={() => toggleDropdown("jobs")}
+                  className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
                     location.pathname === "/applications" || location.pathname === "/analytics"
                       ? "border-primary text-primary" 
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                      : "border-transparent text-[#2d3639] hover:text-primary"
                   }`}
                 >
                   <span>Jobs</span>
-                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${activeDropdown === "jobs" ? "rotate-180 text-primary" : ""}`} />
+                  <ChevronDown className={`h-4 w-4 translate-y-px transition-transform duration-200 ${activeDropdown === "jobs" ? "rotate-180 text-primary" : ""}`} />
                 </button>
 
                 {activeDropdown === "jobs" && (
-                  <div className="absolute left-0 top-[100%] w-[540px] bg-card border border-border rounded-2xl p-5 shadow-xl mt-1 animate-slide-up grid grid-cols-12 gap-5 z-50 select-none">
+                  <div
+                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-card p-5 shadow-xl animate-slide-up select-none"
+                    onMouseEnter={() => openDropdown("jobs")}
+                    onMouseLeave={scheduleDropdownClose}
+                  >
                     {/* Left: Job Search */}
                     <div className="col-span-7 space-y-2.5">
                       <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">Job Search</div>
@@ -371,24 +396,28 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               {/* Dropdown 3: TOOLS */}
               <div 
                 className="relative h-full flex items-center"
-                onMouseEnter={() => setActiveDropdown("tools")}
-                onMouseLeave={() => setActiveDropdown(null)}
+                onMouseEnter={() => openDropdown("tools")}
+                onMouseLeave={scheduleDropdownClose}
               >
                 <button 
                   type="button"
-                  onClick={() => setActiveDropdown(activeDropdown === "tools" ? null : "tools")}
-                  className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider h-full border-b-2 transition-colors duration-200 ${
+                  onClick={() => toggleDropdown("tools")}
+                  className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
                     ["/cold-mail", "/linkedin-posts", "/twitter", "/logs", "/settings"].some(path => location.pathname.startsWith(path))
                       ? "border-primary text-primary" 
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                      : "border-transparent text-[#2d3639] hover:text-primary"
                   }`}
                 >
                   <span>Tools</span>
-                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${activeDropdown === "tools" ? "rotate-180 text-primary" : ""}`} />
+                  <ChevronDown className={`h-4 w-4 translate-y-px transition-transform duration-200 ${activeDropdown === "tools" ? "rotate-180 text-primary" : ""}`} />
                 </button>
 
                 {activeDropdown === "tools" && (
-                  <div className="absolute left-0 top-[100%] w-[540px] bg-card border border-border rounded-2xl p-5 shadow-xl mt-1 animate-slide-up grid grid-cols-12 gap-5 z-50 select-none">
+                  <div
+                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-card p-5 shadow-xl animate-slide-up select-none"
+                    onMouseEnter={() => openDropdown("tools")}
+                    onMouseLeave={scheduleDropdownClose}
+                  >
                     {/* Left: AI Outreach */}
                     <div className="col-span-7 space-y-2.5">
                       <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">AI Outreach</div>
@@ -536,19 +565,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   Resumes
                 </AccordionTrigger>
                 <AccordionContent className="pb-3 pt-1 space-y-2.5">
-                  <Link to="/resume-tailor" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                        <line x1="12" y1="22.08" x2="12" y2="12" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">AI Resume Builder</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Tailor your CV for target jobs</span>
-                    </div>
-                  </Link>
                   <Link to="/ats-score" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
                       <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -561,6 +577,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <span className="block text-[9.5px] text-muted-foreground mt-0.5">Evaluate resume compatibility</span>
                     </div>
                   </Link>
+                  <Link to="/resume-tailor" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                        <line x1="12" y1="22.08" x2="12" y2="12" />
+                      </svg>
+                    </div>
+                    <div>
+                      <span className="block text-[11.5px] font-bold text-foreground">Tailor Resume</span>
+                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Tailor your CV for target jobs</span>
+                    </div>
+                  </Link>
                   <Link to="/resume-vault" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
                       <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -570,8 +599,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       </svg>
                     </div>
                     <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Templates &amp; Examples</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Manage and explore CVs</span>
+                      <span className="block text-[11.5px] font-bold text-foreground">Resume Vault</span>
+                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Manage saved resumes</span>
                     </div>
                   </Link>
                 </AccordionContent>

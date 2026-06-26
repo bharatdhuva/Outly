@@ -246,8 +246,8 @@ export default function Login() {
         </div>
 
         {/* Logo Header with subtle hover lift */}
-        <div className="flex items-center gap-2 font-bold text-xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigate("/")}>
-          <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
+        <div className="flex items-center gap-2 font-bold text-2xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigate("/")}>
+          <img src={logoTransparent} alt="Outly Logo" className="w-10 h-10 object-contain" />
           <span className="text-outly-accent">Outly</span>
         </div>
 
@@ -257,7 +257,7 @@ export default function Login() {
           {/* Fixed-height wrapper to prevent layout shift and jitter */}
           <div className="h-[220px] flex flex-col justify-start select-none">
             <div ref={textWrapperRef} className="will-change-transform">
-              <h2 className="text-[48px] font-medium tracking-tight leading-tight text-outly-dark mb-5 text-balance">
+              <h2 className="text-[56px] font-medium tracking-tight leading-tight text-outly-dark mb-5 text-balance">
                 {currentSlide.titleStart}
                 <span className="italic-serif text-outly-accent">{currentSlide.italicizedText}</span>
               </h2>
@@ -310,7 +310,7 @@ export default function Login() {
         <div ref={formWrapperRef} className="w-full max-w-[450px] flex flex-col justify-center will-change-transform">
           
           {/* Mobile Logo */}
-          <div className="flex items-center gap-2 font-bold text-xl tracking-tight lg:hidden mb-10 self-start cursor-pointer" onClick={() => navigate("/")}>
+          <div className="flex items-center gap-1 font-bold text-xl tracking-tight lg:hidden mb-10 self-start cursor-pointer" onClick={() => navigate("/")}>
             <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
             <span className="text-outly-accent">Outly</span>
           </div>

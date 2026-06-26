@@ -5,15 +5,12 @@ import { useNavigate } from "react-router-dom";
 export default function OverviewPage() {
   const navigate = useNavigate();
 
-  // Load Google Font: Rubik dynamically for this page
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = "https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap";
     document.head.appendChild(link);
-    
-    // Set page title
-    document.title = "Enhancv — Check Your Resume ATS Score";
+    document.title = "Outly - Check Your Resume ATS Score";
 
     return () => {
       document.head.removeChild(link);
@@ -21,91 +18,156 @@ export default function OverviewPage() {
   }, []);
 
   return (
-    <div className="flex-1 w-full min-h-screen font-['Rubik',sans-serif] text-[#0f172a] select-none relative pb-12">
-      
-      {/* Self-contained Keyframe Animations & Glowing Background styles */}
+    <div className="relative flex-1 min-h-screen w-full select-none overflow-hidden pb-12 font-['Rubik',sans-serif] text-[#0f172a]">
       <style>{`
-        @keyframes float-google-react {
-          0%, 100% { transform: translateY(0) rotate(-1deg); }
-          50% { transform: translateY(-8px) rotate(1deg); }
-        }
-        @keyframes float-tesla-react {
-          0%, 100% { transform: translateY(0) rotate(1deg); }
-          50% { transform: translateY(6px) rotate(-1deg); }
-        }
-        @keyframes float-ai-react {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
-        }
-        
-        .animate-google-float {
-          animation: float-google-react 4s ease-in-out infinite;
-        }
-        .animate-tesla-float {
-          animation: float-tesla-react 4.5s ease-in-out infinite;
-        }
-        .animate-ai-float {
-          animation: float-ai-react 5s ease-in-out infinite;
-        }
-
         .glowing-bg-mesh {
-          background: 
+          background:
             radial-gradient(circle at 80% 100%, rgba(25, 204, 149, 0.16), transparent 45%),
             radial-gradient(circle at 40% 100%, rgba(89, 37, 220, 0.12), transparent 50%),
             #faf8f5;
         }
+
+        @keyframes onboard-enter {
+          0% { opacity: 0; transform: translateY(34px) scale(0.96); filter: blur(10px); }
+          100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        @keyframes onboard-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+
+        @keyframes sidebar-reveal {
+          0% { opacity: 0; transform: translateX(-24px); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes content-reveal {
+          0% { opacity: 0; transform: translateX(36px); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes gauge-fill {
+          0% { stroke-dashoffset: 150; }
+          100% { stroke-dashoffset: 54; }
+        }
+
+        @keyframes gauge-needle {
+          0% { transform: rotate(-74deg); }
+          70% { transform: rotate(18deg); }
+          100% { transform: rotate(8deg); }
+        }
+
+        @keyframes line-scan {
+          0% { transform: translateX(-35%); opacity: 0.35; }
+          50% { opacity: 0.9; }
+          100% { transform: translateX(135%); opacity: 0.35; }
+        }
+
+        @keyframes bar-grow {
+          0% { width: 6%; }
+          100% { width: 42%; }
+        }
+
+        @keyframes pin-drop {
+          0% { opacity: 0; transform: translate(-50%, -28px) scale(0.75); }
+          55% { opacity: 1; transform: translate(-50%, 2px) scale(1.08); }
+          100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+        }
+
+        @keyframes checklist-pop {
+          0% { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .onboard-stage {
+          animation: onboard-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both, onboard-float 6s ease-in-out 1.1s infinite;
+        }
+
+        .onboard-sidebar {
+          animation: sidebar-reveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+        }
+
+        .onboard-content {
+          animation: content-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.38s both;
+        }
+
+        .gauge-progress {
+          stroke-dasharray: 150;
+          stroke-dashoffset: 150;
+          animation: gauge-fill 1.25s ease-out 0.95s forwards;
+        }
+
+        .gauge-needle {
+          transform-origin: 50px 62px;
+          animation: gauge-needle 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.92s forwards;
+        }
+
+        .scan-line::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          width: 35%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.72), transparent);
+          animation: line-scan 2.4s ease-in-out infinite;
+        }
+
+        .parse-fill {
+          animation: bar-grow 1.35s cubic-bezier(0.16, 1, 0.3, 1) 1.05s forwards;
+        }
+
+        .pin-drop {
+          animation: pin-drop 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.65s both;
+        }
+
+        .checklist-item {
+          animation: checklist-pop 0.45s ease-out both;
+        }
       `}</style>
 
-      {/* Main Container */}
-      <div className="glowing-bg-mesh min-h-screen w-full absolute inset-0 -z-10" />
+      <div className="glowing-bg-mesh absolute inset-0 -z-10 min-h-screen w-full" />
 
-      <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
-        
-        {/* Left Column: Copy & Actions */}
-        <div className="lg:col-span-6 text-left space-y-8 flex flex-col justify-center">
+      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-12 lg:grid-cols-12 lg:gap-16 lg:py-20">
+        <div className="flex flex-col justify-center space-y-8 text-left lg:col-span-6">
           <div className="space-y-6">
-            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-[#0f172a] leading-[1.12] tracking-tight">
-              Check your resume <span class="text-[#5925dc]">ATS score</span> & land more interviews
+            <h1 className="text-4xl font-extrabold leading-[1.12] tracking-tight text-[#0f172a] sm:text-5xl lg:text-[54px]">
+              Check your resume <span className="text-[#5925dc]">ATS score</span> & land more interviews
             </h1>
-            <p className="text-[#64748b] text-base sm:text-lg leading-relaxed max-w-xl font-medium mt-4">
+            <p className="mt-4 max-w-xl text-base font-medium leading-relaxed text-[#64748b] sm:text-lg">
               ATS Check, AI Writer, and One-Click Job Tailoring make your resume stand out to recruiters.
             </p>
           </div>
 
-          {/* CTA Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 max-w-lg mt-8">
-            <button 
+          <div className="mt-8 flex max-w-lg flex-col items-stretch gap-4 sm:flex-row sm:items-center">
+            <button
               onClick={() => navigate("/resume-tailor")}
-              className="bg-[#19cc95] hover:bg-[#15b383] text-white text-sm font-extrabold tracking-wide px-8 py-4 rounded-lg shadow-md hover:scale-[1.02] active:scale-[0.98] transition duration-200"
+              className="rounded-lg bg-[#19cc95] px-8 py-4 text-sm font-extrabold tracking-wide text-white shadow-md transition duration-200 hover:scale-[1.02] hover:bg-[#15b383] active:scale-[0.98]"
             >
               Build Your Resume
             </button>
-            
-            <button 
+
+            <button
               onClick={() => navigate("/ats-score")}
-              className="bg-white border-2 border-[#0f172a] text-[#0f172a] text-sm font-extrabold tracking-wide px-8 py-4 rounded-lg hover:bg-[#0f172a] hover:text-white transition duration-200"
+              className="rounded-lg border-2 border-[#0f172a] bg-white px-8 py-4 text-sm font-extrabold tracking-wide text-[#0f172a] transition duration-200 hover:bg-[#0f172a] hover:text-white"
             >
               Get Your Resume Score
             </button>
           </div>
 
-          {/* Reviews and Social Proof */}
-          <div className="flex flex-wrap items-center gap-6 mt-10">
-            {/* Stars */}
+          <div className="mt-10 flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-2">
               <div className="flex items-center text-[#19cc95]">
-                <Star className="w-4 h-4 fill-current" />
-                <Star className="w-4 h-4 fill-current" />
-                <Star className="w-4 h-4 fill-current" />
-                <Star className="w-4 h-4 fill-current" />
-                <Star className="w-4 h-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
               </div>
-              <span className="text-xs font-extrabold text-[#64748b] tracking-tight">5,287 Reviews</span>
+              <span className="text-xs font-extrabold tracking-tight text-[#64748b]">5,287 Reviews</span>
             </div>
 
-            {/* Speech Bubble Stats */}
-            <div className="flex items-center gap-2 bg-[#faf8f5]/80 border border-[#e2e8f0] rounded-xl px-4 py-2 shadow-sm">
-              <span className="text-sm">💬</span>
+            <div className="flex items-center gap-2 rounded-xl border border-[#e2e8f0] bg-[#faf8f5]/80 px-4 py-2 shadow-sm">
+              <span className="grid h-4 w-4 place-items-center rounded-full border border-[#ddd6fe] bg-white text-[10px] text-[#5925dc]">•</span>
               <span className="text-xs font-bold text-[#0f172a]/80">
                 <strong className="text-[#0f172a]">28,452 users</strong> landed interviews last month
               </span>
@@ -113,181 +175,111 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Right Column: Overlapping Floating Graphics */}
-        <div className="lg:col-span-6 relative w-full h-[540px] flex items-center justify-center">
-          
-          {/* Card 1: The Under-Card (ATS Check Report) */}
-          <div className="absolute left-[2%] top-[12%] w-[290px] bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-[0_12px_40px_rgba(15,23,42,0.05)] text-left z-10">
-            <div className="flex items-center justify-between mb-4">
-              <span class="text-[10px] font-extrabold text-[#0f172a]/35 uppercase tracking-widest">ATS Check</span>
-              <span class="text-[10px] font-extrabold bg-[#19cc95]/10 text-[#19cc95] px-2 py-0.5 rounded">Scanned</span>
-            </div>
-            
-            {/* Score Circular Progress Bar */}
-            <div className="flex items-center gap-4 border-b border-[#e2e8f0] pb-4 mb-4">
-              <div className="relative w-14 h-14 flex items-center justify-center shrink-0">
-                <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="28" cy="28" r="22" className="stroke-gray-100 fill-none" stroke-width="4.5" />
-                  <circle cx="28" cy="28" r="22" class="stroke-[#19cc95] fill-none" stroke-width="4.5" stroke-dasharray="138" stroke-dashoffset="21" strokeLinecap="round" />
-                </svg>
-                <span className="absolute text-xs font-black text-[#0f172a]">85%</span>
-              </div>
-              <div>
-                <span className="block text-[11px] font-extrabold text-[#0f172a]">Overall Match</span>
-                <span className="block text-[9px] text-[#64748b] mt-0.5">High parser compatibility</span>
-              </div>
-            </div>
+        <div className="relative flex h-[430px] w-full items-center justify-center overflow-hidden sm:h-[500px] lg:col-span-6 lg:h-[560px]">
+          <div className="absolute inset-x-0 bottom-0 h-52 bg-[radial-gradient(ellipse_at_28%_82%,rgba(89,37,220,0.22),transparent_62%),radial-gradient(ellipse_at_0%_92%,rgba(25,204,149,0.16),transparent_58%)]" />
 
-            {/* Job Description Label */}
-            <div className="space-y-1.5 mb-4">
-              <span className="text-[9px] font-extrabold text-[#64748b] uppercase tracking-wider block">Job Description</span>
-              <span className="inline-block text-[10px] font-bold border border-[#e2e8f0] bg-[#faf8f5] px-2.5 py-1 rounded-md text-[#0f172a]/75">
-                Strategic Accounts Manager
-              </span>
-            </div>
+          <div className="onboard-stage relative h-[455px] w-[720px] max-w-[112vw] overflow-hidden rounded-[28px] border border-white/70 bg-white/80 shadow-[0_34px_90px_rgba(89,37,220,0.16)] backdrop-blur sm:h-[500px]">
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(245,248,255,0.66))]" />
 
-            {/* Resume Tailoring lists */}
-            <div className="space-y-3 pt-2 border-t border-[#e2e8f0]">
-              <span className="text-[9px] font-extrabold text-[#64748b] uppercase tracking-widest block">Resume Tailoring</span>
-              
-              {/* Hard Skills list */}
-              <div className="space-y-1.5">
-                <span className="text-[9px] font-black text-[#5925dc] uppercase tracking-wider block">• Hard Skills</span>
-                <div className="space-y-1 text-[9px] font-semibold text-[#0f172a]/70">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[#10b981] font-bold">✓</span>
-                    <span>Facilitated enterprise growth</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[#ef4444] font-bold">
-                    <span>✗</span>
-                    <span>User engagement metrics</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[#ef4444] font-bold">
-                    <span>✗</span>
-                    <span>Reporting & pipeline dashboards</span>
+            <div className="relative z-10 flex h-full gap-4 p-5 sm:p-7">
+              <aside className="onboard-sidebar w-[150px] shrink-0 rounded-2xl border border-[#e3e9f5] bg-white p-5 text-left shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:w-[178px]">
+                <div className="mb-8 flex items-center gap-2">
+                  <img src="/favicon.png" alt="Outly" className="h-5 w-5 object-contain" />
+                  <span className="text-[11px] font-bold text-[#19cc95]">Outly</span>
+                </div>
+
+                <div className="mb-6 rounded-2xl border border-[#e3e9f5] bg-white p-4">
+                  <div className="mb-3 text-center text-[13px] font-semibold text-[#2d3639]">Resume Score</div>
+                  <div className="relative mx-auto h-[72px] w-[110px]">
+                    <svg viewBox="0 0 100 70" className="h-full w-full">
+                      <path d="M18 56a32 32 0 0 1 64 0" fill="none" stroke="#e7ecf7" strokeLinecap="round" strokeWidth="9" />
+                      <path className="gauge-progress" d="M18 56a32 32 0 0 1 64 0" fill="none" stroke="url(#scoreGradient)" strokeLinecap="round" strokeWidth="9" />
+                      <defs>
+                        <linearGradient id="scoreGradient" x1="18" y1="0" x2="82" y2="0">
+                          <stop stopColor="#fc2474" />
+                          <stop offset="0.55" stopColor="#ffbd58" />
+                          <stop offset="1" stopColor="#19cc95" />
+                        </linearGradient>
+                      </defs>
+                      <line className="gauge-needle" x1="50" y1="62" x2="50" y2="31" stroke="#47445a" strokeLinecap="round" strokeWidth="1.8" />
+                      <circle cx="50" cy="62" r="2.2" fill="#47445a" />
+                    </svg>
                   </div>
                 </div>
-              </div>
-              
-              {/* Soft Skills list */}
-              <div className="space-y-1.5">
-                <span className="text-[9px] font-black text-[#19cc95] uppercase tracking-wider block">• Soft Skills</span>
-                <div className="space-y-1 text-[9px] font-semibold text-[#0f172a]/70">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[#10b981] font-bold">✓</span>
-                    <span>Collaborative leadership</span>
+
+                <div className="mb-5 h-px bg-[#e3e9f5]" />
+
+                <div className="space-y-4 text-[8px] font-bold uppercase tracking-[0.08em] text-[#6b7280]">
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span>Content</span>
+                      <span>^</span>
+                    </div>
+                    <div className="space-y-2 text-[10px] font-medium normal-case tracking-normal text-[#384347]">
+                      {["ATS Parse Rate", "Quantifying Impact"].map((item, index) => (
+                        <div key={item} className="checklist-item flex items-center gap-2" style={{ animationDelay: `${1.25 + index * 0.14}s` }}>
+                          <span className="text-[#19cc95]">✓</span>
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                      {["Repetition", "Spelling & Grammar", "Summarize Resume"].map((item, index) => (
+                        <div key={item} className="checklist-item flex items-center gap-2" style={{ animationDelay: `${1.55 + index * 0.14}s` }}>
+                          <span className={index === 0 ? "text-[#fc2474]" : "text-[#6b7280]"}>{index === 0 ? "x" : "■"}</span>
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {["Format & Brevity", "Style", "Sections", "Skills"].map((item, index) => (
+                    <div key={item} className="checklist-item flex items-center justify-between" style={{ animationDelay: `${1.95 + index * 0.12}s` }}>
+                      <span>{item}</span>
+                      <span>⌄</span>
+                    </div>
+                  ))}
+                </div>
+              </aside>
+
+              <section className="onboard-content min-w-0 flex-1 overflow-hidden rounded-tl-2xl bg-[#dfe6f4] text-left">
+                <div className="flex items-center gap-2 px-6 py-6 text-[13px] font-extrabold uppercase tracking-[0.08em] text-[#47445a]">
+                  <span className="grid h-5 w-5 place-items-center rounded-md bg-[#6d5be8] text-[10px] text-white">≡</span>
+                  Content
+                </div>
+
+                <div className="mx-5 rounded-t-xl bg-white p-5 shadow-[0_16px_55px_rgba(71,68,90,0.08)] sm:mx-7 sm:p-6">
+                  <div className="mb-3 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wide text-[#47445a]">
+                    <span className="h-3 w-1 rounded-full border border-[#9cb2dc]" />
+                    ATS Parse Rate
+                  </div>
+                  <div className="space-y-3">
+                    {[96, 68, 66, 60].map((width, index) => (
+                      <div key={index} className="scan-line relative h-2 overflow-hidden rounded-full bg-[#dadbdd]" style={{ width: `${width}%` }} />
+                    ))}
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Card 2: The Top-Card (Ethan Smith Premium Resume Sheet) */}
-          <div className="absolute right-[2%] top-[4%] w-[350px] bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-[0_25px_60px_rgba(15,23,42,0.08)] text-left z-20 overflow-visible pt-8">
-            
-            {/* Center-Aligned Avatar overlapping top edge */}
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full overflow-hidden border-2 border-white bg-[#fcfbf7] shadow-md flex items-center justify-center">
-              <svg viewBox="0 0 100 100" className="w-9 h-9 text-[#0f172a]/70">
-                <circle cx="50" cy="35" r="20" fill="currentColor"/>
-                <path d="M15 85c0-15 15-25 35-25s35 10 35 25v5H15v-5Z" fill="currentColor"/>
-                <circle cx="41" cy="35" r="9" fill="#faf8f5"/>
-                <circle cx="59" cy="35" r="9" fill="#faf8f5"/>
-                <rect x="33" y="32" width="34" height="6" rx="2" fill="currentColor"/>
-              </svg>
-            </div>
-            
-            {/* Center-Aligned Profile Header */}
-            <div className="text-center mt-2 border-b border-[#e2e8f0] pb-3 mb-3">
-              <h4 className="text-sm font-extrabold text-[#0f172a] uppercase tracking-wide">Ethan Smith</h4>
-              <span className="block text-[8px] font-bold text-[#64748b] leading-tight mt-1">
-                Chief Experience Officer | Customer-Centric Strategies | Digital Transformation
-              </span>
-            </div>
+                <div className="relative mx-5 mt-4 rounded-xl border border-[#e3e9f5] bg-[#fafbfd] p-5 shadow-sm sm:mx-7 sm:p-7">
+                  <div className="relative mx-auto mt-3 h-4 max-w-[360px] rounded-full border border-[#9cb2dc] bg-[#f5f7fc] shadow-inner">
+                    <div className="parse-fill absolute left-0 top-0 h-full w-[6%] rounded-full bg-gradient-to-r from-[#fc2474] to-[#ffbd58]" />
+                    <div className="pin-drop absolute left-[42%] -top-8 text-[#fc2474] drop-shadow-md">
+                      <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor">
+                        <path d="M12 2.5a6.7 6.7 0 0 0-6.7 6.7c0 4.8 6.7 12.3 6.7 12.3s6.7-7.5 6.7-12.3A6.7 6.7 0 0 0 12 2.5Zm0 9.1a2.4 2.4 0 1 1 0-4.8 2.4 2.4 0 0 1 0 4.8Z" />
+                      </svg>
+                    </div>
+                  </div>
 
-            {/* Resume Summary */}
-            <div className="space-y-1 mb-3">
-              <span className="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Summary</span>
-              <p className="text-[7.5px] font-medium text-[#64748b] leading-normal">
-                Over 10 years in customer experience management, leading cross-functional teams to build outreach tunnels. Proven track record of improving NPS by 35% through design-led execution.
-              </p>
-            </div>
-
-            {/* Resume Experience */}
-            <div className="space-y-2 mb-3">
-              <span className="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Experience</span>
-              <div className="space-y-1">
-                <div className="flex justify-between text-[7px] font-bold text-[#0f172a]">
-                  <span>Chief Experience Officer</span>
-                  <span className="text-[#64748b]">2022 - Present</span>
+                  <div className="mt-8 space-y-3">
+                    {[70, 76, 64, 58].map((width, index) => (
+                      <div key={index} className="scan-line relative h-2 overflow-hidden rounded-full bg-[#d8d9db]" style={{ width: `${width}%` }} />
+                    ))}
+                  </div>
                 </div>
-                <span className="block text-[6.5px] font-semibold text-[#64748b] mt-[-2px]">TechWorld Solutions • Indianapolis</span>
-                <p className="text-[7px] text-[#0f172a]/70 leading-normal mt-1">
-                  • Spearheaded customer journey mappings, increasing conversions by 25%.
-                </p>
-                <p className="text-[7px] text-[#0f172a]/70 leading-normal">
-                  • Conducted data analysis, reducing customer churn rates by 15%.
-                </p>
-              </div>
+
+                <div className="mx-5 mt-4 h-28 rounded-xl border border-[#e3e9f5] bg-[#fafbfd] sm:mx-7" />
+              </section>
             </div>
-
-            {/* Resume Languages & Education */}
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#e2e8f0]">
-              <div>
-                <span className="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Languages</span>
-                <span className="block text-[7px] font-bold text-[#0f172a] mt-1">English <span className="text-[#64748b] font-medium">(Native)</span></span>
-                <span className="block text-[7px] font-bold text-[#0f172a] mt-0.5">Spanish <span class="text-[#64748b] font-medium">(Fluent)</span></span>
-              </div>
-              <div>
-                <span className="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Education</span>
-                <span class="block text-[7px] font-bold text-[#0f172a] mt-1 leading-tight">Master of Business Admin</span>
-                <span className="block text-[6.5px] text-[#64748b]">Indiana University</span>
-              </div>
-            </div>
-
-            {/* FLOATING AI ASSISTANT WIDGET (Purple Card) */}
-            <div className="absolute -right-8 bottom-[16%] w-[180px] bg-[#5925dc] rounded-xl p-3 shadow-2xl text-left border border-white/20 animate-ai-float z-30 text-white">
-              <div className="flex items-center gap-1 mb-2 border-b border-white/10 pb-1.5">
-                <span className="text-[8px] font-black uppercase tracking-widest text-indigo-200 flex items-center gap-1">
-                  <span className="text-[10px]">✦</span> AI Assistant
-                </span>
-              </div>
-              <div className="space-y-1.5 text-[7.5px] font-bold">
-                <button 
-                  onClick={() => navigate("/resume-tailor")}
-                  className="w-full text-left bg-white/10 hover:bg-white/15 rounded px-2.5 py-1.5 transition flex items-center justify-between"
-                >
-                  <span>Generate Skills from Job</span>
-                  <span className="opacity-65">→</span>
-                </button>
-                <button 
-                  onClick={() => navigate("/resume-tailor")}
-                  className="w-full text-left bg-white/10 hover:bg-white/15 rounded px-2.5 py-1.5 transition flex items-center justify-between"
-                >
-                  <span>Inspire Me</span>
-                  <span className="opacity-65">→</span>
-                </button>
-              </div>
-              <div className="mt-2.5 bg-white/10 border border-white/10 rounded px-2 py-1 text-[7px] text-white/50">
-                Enter a custom request...
-              </div>
-            </div>
-
           </div>
-
-          {/* Google Badge (Purple) - Floats outer right */}
-          <div className="absolute -right-4 top-[4%] bg-[#5925dc] text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-30 border border-white/20 animate-google-float">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-            <span>Application at Google</span>
-          </div>
-
-          {/* Tesla Badge (Dark) - Floats bottom left */}
-          <div className="absolute left-[20%] bottom-[8%] bg-slate-900 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-30 border border-white/10 animate-tesla-float">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#19cc95]"></span>
-            <span>Application at Tesla</span>
-          </div>
-
         </div>
-
       </div>
     </div>
   );
