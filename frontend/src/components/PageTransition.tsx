@@ -75,3 +75,63 @@ export function usePageTransition() {
 
   return navigateTo;
 }
+
+/**
+ * GlobalPageTransitionInterceptor — intercepts all clicks on internal links
+ * and plays a smooth GSAP exit transition before routing to the new page.
+ */
+export function GlobalPageTransitionInterceptor() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      // Find the closest anchor tag
+      const anchor = (e.target as HTMLElement).closest("a");
+      if (!anchor) return;
+
+      const href = anchor.getAttribute("href");
+      const target = anchor.getAttribute("target");
+
+      // Check if it is a valid internal route transition
+      if (
+        href &&
+        href.startsWith("/") &&
+        !href.startsWith("//") &&
+        (!target || target === "_self") &&
+        !e.metaKey &&
+        !e.ctrlKey &&
+        !e.shiftKey &&
+        !e.altKey
+      ) {
+        // Prevent immediate React Router navigation
+        e.preventDefault();
+        e.stopPropagation();
+
+        const el = document.getElementById(TRANSITION_WRAPPER_ID);
+        if (!el) {
+          navigate(href);
+          return;
+        }
+
+        // Play smooth GSAP exit animation (fade out + slide up)
+        gsap.to(el, {
+          opacity: 0,
+          y: -20,
+          duration: 0.3,
+          ease: "power2.in",
+          onComplete: () => {
+            navigate(href);
+          },
+        });
+      }
+    };
+
+    // Capture clicks at the document level before standard React Router event handlers execute
+    document.addEventListener("click", handleGlobalClick, { capture: true });
+    return () => {
+      document.removeEventListener("click", handleGlobalClick, { capture: true });
+    };
+  }, [navigate]);
+
+  return null;
+}

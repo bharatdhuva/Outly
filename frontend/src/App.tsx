@@ -18,7 +18,7 @@ import ResumeVault from "./pages/ResumeVault";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Pricing from "./pages/Pricing";
-import { PageTransition } from "./components/PageTransition";
+import { PageTransition, GlobalPageTransitionInterceptor } from "./components/PageTransition";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +27,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <BrowserRouter>
+        <GlobalPageTransitionInterceptor />
         <Routes>
           {/* Public Landing Page */}
           <Route path="/" element={<PageTransition><Landing /></PageTransition>} />
@@ -40,19 +41,19 @@ const App = () => (
             element={
               <DashboardLayout>
                 <Routes>
-                  <Route path="/onboarding" element={<Overview />} />
-                  <Route path="/cold-mail" element={<ColdMail />} />
-                  <Route path="/linkedin-posts" element={<LinkedInPosts />} />
-                  <Route path="/twitter" element={<Twitter />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/logs" element={<Logs />} />
-                  <Route path="/resume-tailor" element={<ResumeTailorPage />} />
-                  <Route path="/resume-vault" element={<ResumeVault />} />
-                  <Route path="/ats-score" element={<AtsScore />} />
-                  <Route path="/applications" element={<Applications />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="/onboarding" element={<PageTransition><Overview /></PageTransition>} />
+                  <Route path="/cold-mail" element={<PageTransition><ColdMail /></PageTransition>} />
+                  <Route path="/linkedin-posts" element={<PageTransition><LinkedInPosts /></PageTransition>} />
+                  <Route path="/twitter" element={<PageTransition><Twitter /></PageTransition>} />
+                  <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
+                  <Route path="/logs" element={<PageTransition><Logs /></PageTransition>} />
+                  <Route path="/resume-tailor" element={<PageTransition><ResumeTailorPage /></PageTransition>} />
+                  <Route path="/resume-vault" element={<PageTransition><ResumeVault /></PageTransition>} />
+                  <Route path="/ats-score" element={<PageTransition><AtsScore /></PageTransition>} />
+                  <Route path="/applications" element={<PageTransition><Applications /></PageTransition>} />
+                  <Route path="/analytics" element={<PageTransition><Analytics /></PageTransition>} />
+                  <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
+                  <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
                 </Routes>
               </DashboardLayout>
             }

@@ -332,101 +332,39 @@ export default function Pricing() {
       </div>
 
       {/* Payment Trust & Security Footer (Centered Single-Column Stack) */}
-      <div className="mt-10 w-full max-w-4xl border-t border-border/60 pt-6 flex flex-col items-center gap-4 select-none text-muted-foreground">
+      <div className="mt-10 w-full max-w-4xl border-t border-border/60 pt-6 flex flex-col items-center justify-center gap-4 select-none">
         
-        {/* Row 1: Powered by Razorpay (Centered) */}
-        <div className="flex items-center justify-center gap-2 text-[11px] font-bold tracking-wider uppercase text-muted-foreground/60">
-          <span>Powered by</span>
-          <svg className="h-5 w-24 text-[#0029FF] shrink-0" viewBox="0 0 100 24" fill="currentColor">
-            <path d="M 4 20 L 12 4 L 18 4 L 10 20 Z" fill="#0029FF" />
-            <path d="M 12 20 L 20 4 L 26 4 L 18 20 Z" fill="#00D2FF" opacity="0.8" />
-            <text x="32" y="17" fill="#0b132b" fontSize="13" fontWeight="bold" fontFamily="sans-serif" letterSpacing="-0.2">Razorpay</text>
-          </svg>
-        </div>
-
-        {/* Row 2: Payment Logos (Single Row, Centered, using Official Brand SVG logos via Wikimedia CDN) */}
-        <div className="flex items-center justify-center gap-5.5 bg-white border border-border/50 py-3 px-6 rounded-2xl shadow-sm flex-wrap max-w-full">
-          {/* UPI Logo */}
-          <div className="flex items-center justify-center h-5 pr-3.5 border-r border-border/60 shrink-0">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" 
-              alt="UPI" 
-              className="h-4 w-auto object-contain shrink-0" 
-            />
-          </div>
-
-          {/* GPay */}
-          <div className="flex items-center justify-center h-5 shrink-0">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" 
-              alt="Google Pay" 
-              className="h-4 w-auto object-contain shrink-0" 
-            />
-          </div>
-
-          {/* PhonePe */}
-          <div className="flex items-center justify-center h-5 shrink-0">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/e/e1/PhonePe_Logo.svg" 
-              alt="PhonePe" 
-              className="h-4 w-auto object-contain shrink-0" 
-            />
-          </div>
-
-          {/* Paytm */}
-          <div className="flex items-center justify-center h-5 shrink-0">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo.svg" 
-              alt="Paytm" 
-              className="h-3 w-auto object-contain shrink-0" 
-            />
-          </div>
-
-          {/* Divider */}
-          <div className="h-4 w-px bg-border/60 mx-1 shrink-0"></div>
-
-          {/* Visa */}
-          <div className="flex items-center justify-center h-5 shrink-0">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" 
-              alt="Visa" 
-              className="h-2.5 w-auto object-contain shrink-0 opacity-85 hover:opacity-100 transition" 
-            />
-          </div>
-
-          {/* Mastercard */}
-          <div className="flex items-center justify-center h-5 shrink-0">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" 
-              alt="Mastercard" 
-              className="h-4 w-auto object-contain shrink-0 opacity-85 hover:opacity-100 transition" 
-            />
-          </div>
-
-          {/* Maestro */}
-          <div className="flex items-center justify-center h-5 shrink-0">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Maestro_logo.svg" 
-              alt="Maestro" 
-              className="h-4.5 w-auto object-contain shrink-0 opacity-85 hover:opacity-100 transition" 
-            />
-          </div>
-
-          {/* Amex */}
-          <div className="flex items-center justify-center h-5 shrink-0">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg" 
-              alt="American Express" 
-              className="h-4.5 w-auto object-contain shrink-0 opacity-85 hover:opacity-100 transition" 
-            />
-          </div>
-
-          {/* PayPal */}
-          <div className="flex items-center justify-center w-8 h-5 shrink-0">
-            <svg className="w-7 h-4.5 shrink-0 opacity-85 hover:opacity-100 transition" viewBox="0 0 24 24">
-              <path d="M20.007 6.425C19.78 8.666 18.23 10.375 16 10.375H12.75L11.5 19H7.5L9.625 4.75h6.125c2.23 0 3.78 1.709 4.257 1.675z" fill="#003087" />
-              <path d="M17.507 8.925C17.28 11.166 15.73 12.875 13.5 12.875H10.25L9 21.5H5L7.125 7.25h6.125c2.23 0 3.78 1.709 4.257 1.675z" fill="#0079C1" opacity="0.85" />
-            </svg>
+        {/* We are accepting: with small logos */}
+        <div className="flex items-center justify-center gap-4 text-[13px] font-medium text-muted-foreground/80 flex-wrap">
+          <span>We are accepting:</span>
+          <div className="flex items-center gap-4">
+            {/* UPI */}
+            <div className="flex items-center justify-center shrink-0">
+              <img 
+                src="/logos/UPI-Color.png" 
+                alt="UPI" 
+                style={{ height: "17px" }} 
+                className="w-auto object-contain shrink-0 opacity-90 hover:opacity-100 transition-opacity duration-200" 
+              />
+            </div>
+            {/* Visa */}
+            <div className="flex items-center justify-center shrink-0">
+              <img 
+                src="/logos/svgviewer-output.svg" 
+                alt="Visa" 
+                style={{ height: "17px" }} 
+                className="w-auto object-contain shrink-0 opacity-90 hover:opacity-100 transition-opacity duration-200" 
+              />
+            </div>
+            {/* Mastercard */}
+            <div className="flex items-center justify-center shrink-0">
+              <img 
+                src="/logos/mastercard-svgrepo-com.svg" 
+                alt="Mastercard" 
+                style={{ height: "17px" }} 
+                className="w-auto object-contain shrink-0 opacity-90 hover:opacity-100 transition-opacity duration-200" 
+              />
+            </div>
           </div>
         </div>
 
