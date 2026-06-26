@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhancv — Check Your Resume ATS Score</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- GSAP Animation Library CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  
+  <!-- Google Fonts: Rubik for premium geometric typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind Configuration to match Enhancv Theme -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Rubik', 'sans-serif'],
+          },
+          colors: {
+            enhancv: {
+              green: '#19cc95',
+              purple: '#5925dc',
+              dark: '#0f172a',
+              muted: '#64748b',
+              border: '#e2e8f0',
+              cream: '#fcfbf7',
+              success: '#10b981',
+              warning: '#f59e0b',
+              destructive: '#ef4444'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Rubik', sans-serif;
+      background-color: #faf8f5;
+      overflow-x: hidden;
+    }
+
+    /* Soft glowing mesh gradient background matching Enhancv precisely */
+    .glowing-bg {
+      background: 
+        radial-gradient(circle at 80% 100%, rgba(25, 204, 149, 0.16), transparent 45%),
+        radial-gradient(circle at 40% 100%, rgba(89, 37, 220, 0.12), transparent 50%),
+        #faf8f5;
+    }
+
+    /* Dotted upload box border */
+    .dotted-border {
+      background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%2319cc95' stroke-width='2' stroke-dasharray='6%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+    
+    .dotted-border.dragover {
+      background-color: rgba(25, 204, 149, 0.06);
+      background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%235925dc' stroke-width='2' stroke-dasharray='8%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+      transform: scale(1.01);
+    }
+
+    /* Floating keyframe animations for premium dashboard graphic */
+    @keyframes float-google {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-8px) rotate(1deg); }
+    }
+    @keyframes float-tesla {
+      0%, 100% { transform: translateY(0) rotate(1deg); }
+      50% { transform: translateY(6px) rotate(-1deg); }
+    }
+    @keyframes float-ai {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    
+    .animate-float-google {
+      animation: float-google 4s ease-in-out infinite;
+    }
+    .animate-float-tesla {
+      animation: float-tesla 4.5s ease-in-out infinite;
+    }
+    .animate-float-ai {
+      animation: float-ai 5s ease-in-out infinite;
+    }
+
+    /* Page transitions */
+    .page-view {
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .page-view.hidden-view {
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="glowing-bg min-h-screen flex flex-col text-enhancv-dark antialiased selection:bg-enhancv-purple/10 selection:text-enhancv-purple">
+
+  <!-- ─── TOP NAVIGATION HEADER (ENHANCV ALIGNED MULTI-COLUMN MENUS) ─── -->
+  <header class="w-full bg-white border-b border-enhancv-border sticky top-0 z-50 shadow-sm select-none">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      
+      <!-- Left side: Brand logo & Hover Dropdown Menus -->
+      <div class="flex items-center gap-10">
+        <!-- Enhancv Brand Logo -->
+        <div class="flex items-center gap-2.5 font-bold text-lg tracking-tight cursor-pointer" onclick="switchView('dashboard')">
+          <svg class="w-8 h-8 text-[#19cc95]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 1 0 0-8c-2 0-4 1.33-6 4Z"/>
+          </svg>
+          <span class="text-[20px] font-extrabold text-[#0f172a] tracking-tight">Enhancv</span>
+        </div>
+
+        <!-- Navigation items -->
+        <nav class="hidden md:flex items-center gap-7 text-xs font-bold uppercase tracking-widest text-enhancv-dark/75">
+          
+          <!-- Overview Link -->
+          <button id="nav-dashboard" class="hover:text-[#19cc95] transition-colors py-5 border-b-2 border-[#19cc95] text-[#19cc95]" onclick="switchView('dashboard')">
+            OVERVIEW
+          </button>
+
+          <!-- RESUME Dropdown -->
+          <div class="relative group cursor-pointer py-5">
+            <button class="flex items-center gap-1 hover:text-[#19cc95] transition-colors">
+              <span>RESUME</span>
+              <svg class="w-3.5 h-3.5 opacity-60 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+            </button>
+            <div class="absolute left-0 top-[100%] pt-1 w-[460px] hidden group-hover:block animate-slide-up">
+              <div class="bg-white border border-enhancv-border rounded-2xl shadow-xl p-4 grid grid-cols-12 gap-5 text-left normal-case tracking-normal">
+                <!-- Left: Tools Column (7/12 width) -->
+                <div class="col-span-7 space-y-2">
+                  <div class="text-[9px] font-extrabold text-[#0f172a]/30 uppercase tracking-widest mb-1.5 px-1">Tools</div>
+                  <div class="space-y-0.5">
+                    <a href="#" class="flex items-center gap-3 rounded-xl px-2.5 py-2 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">🛠️</span>
+                      <div>
+                        <span class="block text-[11px] font-bold text-enhancv-dark">AI Resume Builder</span>
+                        <span class="block text-[9px] text-[#64748b] mt-0.5">Helps you to land interviews</span>
+                      </div>
+                    </a>
+                    <button class="w-full flex items-center gap-3 rounded-xl px-2.5 py-2 hover:bg-enhancv-cream transition text-left" onclick="switchView('ats-checker')">
+                      <span class="text-base shrink-0">📊</span>
+                      <div>
+                        <span class="block text-[11px] font-bold text-enhancv-dark">Resume Checker</span>
+                        <span class="block text-[9px] text-[#64748b] mt-0.5">Is your resume good enough?</span>
+                      </div>
+                    </button>
+                    <a href="#" class="flex items-center gap-3 rounded-xl px-2.5 py-2 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">📁</span>
+                      <div>
+                        <span class="block text-[11px] font-bold text-enhancv-dark">Resume Templates</span>
+                        <span class="block text-[9px] text-[#64748b] mt-0.5">Free and premium templates</span>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 rounded-xl px-2.5 py-2 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">💼</span>
+                      <div>
+                        <span class="block text-[11px] font-bold text-enhancv-dark">Resume Examples</span>
+                        <span class="block text-[9px] text-[#64748b] mt-0.5">Generate or explore</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <!-- Right: Learning Column (5/12 width) -->
+                <div class="col-span-5 border-l border-enhancv-border pl-4 space-y-2">
+                  <div class="text-[9px] font-extrabold text-[#0f172a]/30 uppercase tracking-widest mb-2">Learning</div>
+                  <div class="space-y-3.5 pt-1">
+                    <a href="#" class="block text-[11px] font-semibold text-enhancv-dark hover:text-[#19cc95] transition">How to write a resume</a>
+                    <a href="#" class="block text-[11px] font-semibold text-enhancv-dark hover:text-[#19cc95] transition">Choosing a resume format</a>
+                    <a href="#" class="block text-[11px] font-semibold text-enhancv-dark hover:text-[#19cc95] transition">Writing a resume summary</a>
+                    <a href="#" class="block text-[11px] font-semibold text-enhancv-dark hover:text-[#19cc95] transition">Fit your experience on one page</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TOOLS Dropdown -->
+          <div class="relative group cursor-pointer py-5">
+            <button class="flex items-center gap-1 hover:text-[#19cc95] transition-colors">
+              <span>TOOLS</span>
+              <svg class="w-3.5 h-3.5 opacity-60 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+            </button>
+            <div class="absolute left-[-80px] top-[100%] pt-1 w-[620px] hidden group-hover:block animate-slide-up">
+              <div class="bg-white border border-enhancv-border rounded-2xl shadow-xl p-4 grid grid-cols-3 gap-5 text-left normal-case tracking-normal">
+                <!-- Column 1: Job Search -->
+                <div class="space-y-2">
+                  <div class="text-[9px] font-extrabold text-[#0f172a]/30 uppercase tracking-widest mb-1.5 px-1">Job Search</div>
+                  <div class="space-y-0.5">
+                    <a href="#" class="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">💬</span>
+                      <div>
+                        <span class="block text-[10.5px] font-bold text-enhancv-dark leading-tight">Interview Help</span>
+                        <span class="block text-[8.5px] text-[#64748b] mt-0.5">Practice with AI mock interviews</span>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">🎯</span>
+                      <div>
+                        <span class="block text-[10.5px] font-bold text-enhancv-dark leading-tight">Job Tracker</span>
+                        <span class="block text-[8.5px] text-[#64748b] mt-0.5">Organize your applications</span>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">🏢</span>
+                      <div>
+                        <span class="block text-[10.5px] font-bold text-enhancv-dark leading-tight">Job Board</span>
+                        <span class="block text-[8.5px] text-[#64748b] mt-0.5">Find roles that match you</span>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">🔌</span>
+                      <div>
+                        <span class="block text-[10.5px] font-bold text-enhancv-dark leading-tight">Chrome Extension</span>
+                        <span class="block text-[8.5px] text-[#64748b] mt-0.5">Apply faster from any job site</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <!-- Column 2: Cover Letter -->
+                <div class="space-y-2 border-l border-enhancv-border pl-4">
+                  <div class="text-[9px] font-extrabold text-[#0f172a]/30 uppercase tracking-widest mb-1.5 px-1">Cover Letter</div>
+                  <div class="space-y-0.5">
+                    <a href="#" class="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">✍️</span>
+                      <div>
+                        <span class="block text-[10.5px] font-bold text-enhancv-dark leading-tight">Cover Letter Generator</span>
+                        <span class="block text-[8.5px] text-[#64748b] mt-0.5">Writing a cover letter</span>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">📝</span>
+                      <div>
+                        <span class="block text-[10.5px] font-bold text-enhancv-dark leading-tight">Cover Letter Builder</span>
+                        <span class="block text-[8.5px] text-[#64748b] mt-0.5">Build it section by section</span>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-enhancv-cream transition">
+                      <span class="text-base shrink-0">🗂️</span>
+                      <div>
+                        <span class="block text-[10.5px] font-bold text-enhancv-dark leading-tight">Cover Letter Templates</span>
+                        <span class="block text-[8.5px] text-[#64748b] mt-0.5">Professionally designed</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <!-- Column 3: Learning -->
+                <div class="space-y-2 border-l border-enhancv-border pl-4">
+                  <div class="text-[9px] font-extrabold text-[#0f172a]/30 uppercase tracking-widest mb-2 px-1">Learning</div>
+                  <div class="space-y-3 pt-1 px-1">
+                    <a href="#" class="block text-[10.5px] font-semibold text-enhancv-dark hover:text-[#19cc95] transition">Cover Letter Examples</a>
+                    <a href="#" class="block text-[10.5px] font-semibold text-enhancv-dark hover:text-[#19cc95] transition">Job Interview Guides</a>
+                    <a href="#" class="block text-[10.5px] font-semibold text-enhancv-dark hover:text-[#19cc95] transition">Career Resources</a>
+                    <a href="#" class="block text-[10.5px] font-semibold text-[#19cc95] hover:text-[#19cc95] transition">Cover Letter Help</a>
+                    <a href="#" class="block text-[10.5px] font-semibold text-enhancv-dark hover:text-[#19cc95] transition">Job Interview Questions</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <a href="#" class="hover:text-[#19cc95] transition-colors py-5">Organizations</a>
+          <a href="#" class="hover:text-[#19cc95] transition-colors py-5">Pricing</a>
+        </nav>
+      </div>
+
+      <!-- Right side: Actions -->
+      <div class="flex items-center gap-5 select-none">
+        <a href="#" class="text-[14px] font-bold text-enhancv-dark hover:text-[#19cc95] transition">Sign In</a>
+        <a href="#" class="text-[14px] font-bold bg-[#19cc95] hover:bg-[#15b383] text-white px-5 py-2.5 rounded-lg shadow-sm transition hover:scale-[1.02] active:scale-[0.98]">Get Started</a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ─── SPA VIEW 1: PREMIER LANDING HERO ─── -->
+  <main id="view-dashboard" class="page-view flex-1 max-w-7xl w-full mx-auto px-6 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+    
+    <!-- Left Column: Hero Copy & Reviews -->
+    <div class="lg:col-span-6 text-left space-y-8 flex flex-col justify-center">
+      <div class="space-y-6">
+        <h1 class="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-[#0f172a] leading-[1.12] tracking-tight">
+          Check your resume <span class="text-[#5925dc]">ATS score</span> & land more interviews
+        </h1>
+        <p class="text-[#64748b] text-base sm:text-lg leading-relaxed max-w-xl font-medium mt-4">
+          ATS Check, AI Writer, and One-Click Job Tailoring make your resume stand out to recruiters.
+        </p>
+      </div>
+
+      <!-- CTA Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 max-w-lg mt-8">
+        <button class="bg-[#19cc95] hover:bg-[#15b383] text-white text-sm font-extrabold tracking-wide px-8 py-4 rounded-lg shadow-md hover:scale-[1.02] active:scale-[0.98] transition duration-200" onclick="switchView('ats-checker')">
+          Build Your Resume
+        </button>
+        
+        <button class="bg-white border-2 border-[#0f172a] text-[#0f172a] text-sm font-extrabold tracking-wide px-8 py-4 rounded-lg hover:bg-[#0f172a] hover:text-white transition duration-200" onclick="switchView('ats-checker')">
+          Get Your Resume Score
+        </button>
+      </div>
+
+      <!-- Reviews and Candidate Stats Social Proof -->
+      <div class="flex flex-wrap items-center gap-6 mt-10 select-none">
+        <!-- Review Stars -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center text-[#19cc95] text-base">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <span class="text-xs font-extrabold text-[#64748b] tracking-tight">5,287 Reviews</span>
+        </div>
+
+        <!-- Speech Bubble Statistic -->
+        <div class="flex items-center gap-2 bg-[#faf8f5] border border-enhancv-border rounded-xl px-4 py-2 shadow-sm">
+          <span class="text-sm">💬</span>
+          <span class="text-xs font-bold text-enhancv-dark/80"><strong class="text-enhancv-dark">28,452 users</strong> landed interviews last month</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Overlapping Resume Graphics -->
+    <div class="lg:col-span-6 relative w-full h-[540px] flex items-center justify-center">
+      
+      <!-- Card 1: The Under-Card (ATS Check Report) -->
+      <div class="absolute left-[2%] top-[12%] w-[290px] bg-white border border-enhancv-border rounded-2xl p-5 shadow-[0_12px_40px_rgba(15,23,42,0.05)] text-left select-none z-10">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-[10px] font-extrabold text-enhancv-dark/35 uppercase tracking-widest">ATS Check</span>
+          <span class="text-[10px] font-extrabold bg-[#19cc95]/10 text-[#19cc95] px-2 py-0.5 rounded">Scanned</span>
+        </div>
+        
+        <!-- Score Circular Progress Bar -->
+        <div class="flex items-center gap-4 border-b border-enhancv-border pb-4 mb-4">
+          <div class="relative w-14 h-14 flex items-center justify-center shrink-0">
+            <svg class="w-full h-full transform -rotate-90">
+              <circle cx="28" cy="28" r="22" class="stroke-gray-100 fill-none" stroke-width="4.5" />
+              <circle cx="28" cy="28" r="22" class="stroke-[#19cc95] fill-none" stroke-width="4.5" stroke-dasharray="138" stroke-dashoffset="21" stroke-linecap="round" />
+            </svg>
+            <span class="absolute text-xs font-black text-enhancv-dark">85%</span>
+          </div>
+          <div>
+            <span class="block text-[11px] font-extrabold text-enhancv-dark">Overall Match</span>
+            <span class="block text-[9px] text-[#64748b] mt-0.5">High parser compatibility</span>
+          </div>
+        </div>
+
+        <!-- Job Description Label -->
+        <div class="space-y-1.5 mb-4">
+          <span class="text-[9px] font-extrabold text-[#64748b] uppercase tracking-wider block">Job Description</span>
+          <span class="inline-block text-[10px] font-bold border border-enhancv-border bg-[#faf8f5] px-2.5 py-1 rounded-md text-enhancv-dark/75">
+            Strategic Accounts Manager
+          </span>
+        </div>
+
+        <!-- Resume Tailoring lists -->
+        <div class="space-y-3 pt-2 border-t border-enhancv-border">
+          <span class="text-[9px] font-extrabold text-[#64748b] uppercase tracking-widest block">Resume Tailoring</span>
+          
+          <!-- Hard Skills list -->
+          <div class="space-y-1.5">
+            <span class="text-[9px] font-black text-[#5925dc] uppercase tracking-wider block">• Hard Skills</span>
+            <div class="space-y-1 text-[9px] font-semibold text-enhancv-dark/70">
+              <div class="flex items-center gap-1.5">
+                <span class="text-enhancv-success">✓</span>
+                <span>Facilitated enterprise growth</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-enhancv-destructive">
+                <span>✗</span>
+                <span>User engagement metrics</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-enhancv-destructive">
+                <span>✗</span>
+                <span>Reporting & pipeline dashboards</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Soft Skills list -->
+          <div class="space-y-1.5">
+            <span class="text-[9px] font-black text-[#19cc95] uppercase tracking-wider block">• Soft Skills</span>
+            <div class="space-y-1 text-[9px] font-semibold text-enhancv-dark/70">
+              <div class="flex items-center gap-1.5">
+                <span class="text-enhancv-success">✓</span>
+                <span>Collaborative leadership</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Card 2: The Top-Card (Ethan Smith Premium Resume Sheet) -->
+      <div class="absolute right-[2%] top-[4%] w-[350px] bg-white border border-enhancv-border rounded-2xl p-5 shadow-[0_25px_60px_rgba(15,23,42,0.08)] text-left select-none z-20 overflow-visible pt-8">
+        
+        <!-- Center-Aligned Avatar overlapping top edge -->
+        <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full overflow-hidden border-2 border-white bg-[#fcfbf7] shadow-md flex items-center justify-center">
+          <svg viewBox="0 0 100 100" class="w-9 h-9 text-[#0f172a]/70">
+            <circle cx="50" cy="35" r="20" fill="currentColor"/>
+            <path d="M15 85c0-15 15-25 35-25s35 10 35 25v5H15v-5Z" fill="currentColor"/>
+            <circle cx="41" cy="35" r="9" fill="#faf8f5"/>
+            <circle cx="59" cy="35" r="9" fill="#faf8f5"/>
+            <rect x="33" y="32" width="34" height="6" rx="2" fill="currentColor"/>
+          </svg>
+        </div>
+        
+        <!-- Center-Aligned Profile Header -->
+        <div class="text-center mt-2 border-b border-enhancv-border pb-3 mb-3">
+          <h4 class="text-sm font-extrabold text-[#0f172a] uppercase tracking-wide">Ethan Smith</h4>
+          <span class="block text-[8px] font-bold text-[#64748b] leading-tight mt-1">
+            Chief Experience Officer | Customer-Centric Strategies | Digital Transformation
+          </span>
+        </div>
+
+        <!-- Resume Summary -->
+        <div class="space-y-1 mb-3">
+          <span class="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Summary</span>
+          <p class="text-[7.5px] font-medium text-[#64748b] leading-normal">
+            Over 10 years in customer experience management, leading cross-functional teams to build outreach tunnels. Proven track record of improving NPS by 35% through design-led execution.
+          </p>
+        </div>
+
+        <!-- Resume Experience -->
+        <div class="space-y-2 mb-3">
+          <span class="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Experience</span>
+          <div class="space-y-1">
+            <div class="flex justify-between text-[7px] font-bold text-enhancv-dark">
+              <span>Chief Experience Officer</span>
+              <span class="text-[#64748b]">2022 - Present</span>
+            </div>
+            <span class="block text-[6.5px] font-semibold text-[#64748b] mt-[-2px]">TechWorld Solutions • Indianapolis</span>
+            <p class="text-[7px] text-[#0f172a]/70 leading-normal mt-1">
+              • Spearheaded customer journey mappings, increasing conversions by 25%.
+            </p>
+            <p class="text-[7px] text-[#0f172a]/70 leading-normal">
+              • Conducted data analysis, reducing customer churn rates by 15%.
+            </p>
+          </div>
+        </div>
+
+        <!-- Resume Languages & Education -->
+        <div class="grid grid-cols-2 gap-3 pt-2 border-t border-enhancv-border">
+          <div>
+            <span class="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Languages</span>
+            <span class="block text-[7px] font-bold text-enhancv-dark mt-1">English <span class="text-[#64748b] font-medium">(Native)</span></span>
+            <span class="block text-[7px] font-bold text-enhancv-dark mt-0.5">Spanish <span class="text-[#64748b] font-medium">(Fluent)</span></span>
+          </div>
+          <div>
+            <span class="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Education</span>
+            <span class="block text-[7px] font-bold text-enhancv-dark mt-1 leading-tight">Master of Business Admin</span>
+            <span class="block text-[6.5px] text-[#64748b]">Indiana University</span>
+          </div>
+        </div>
+
+        <!-- FLOATING AI ASSISTANT WIDGET (Purple Card) -->
+        <div class="absolute -right-8 bottom-[16%] w-[180px] bg-[#5925dc] rounded-xl p-3 shadow-2xl text-left border border-white/20 select-none animate-float-ai z-30 text-white">
+          <div class="flex items-center gap-1 mb-2 border-b border-white/10 pb-1.5">
+            <span class="text-[8px] font-black uppercase tracking-widest text-indigo-200 flex items-center gap-1">
+              <span class="text-[10px]">✦</span> AI Assistant
+            </span>
+          </div>
+          <div class="space-y-1.5 text-[7.5px] font-bold">
+            <button class="w-full text-left bg-white/10 hover:bg-white/15 rounded px-2.5 py-1.5 transition flex items-center justify-between">
+              <span>Generate Skills from Job</span>
+              <span class="opacity-65">→</span>
+            </button>
+            <button class="w-full text-left bg-white/10 hover:bg-white/15 rounded px-2.5 py-1.5 transition flex items-center justify-between">
+              <span>Inspire Me</span>
+              <span class="opacity-65">→</span>
+            </button>
+          </div>
+          <div class="mt-2.5 bg-white/10 border border-white/10 rounded px-2 py-1 text-[7px] text-white/50">
+            Enter a custom request...
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Google Badge (Purple) - Floats outer right -->
+      <div class="absolute -right-4 top-[4%] bg-[#5925dc] text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-30 border border-white/20 animate-float-google">
+        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+        <span>Application at Google</span>
+      </div>
+
+      <!-- Tesla Badge (Dark) - Floats bottom left -->
+      <div class="absolute left-[20%] bottom-[8%] bg-slate-900 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-30 border border-white/10 animate-float-tesla">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#19cc95]"></span>
+        <span>Application at Tesla</span>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ─── SPA VIEW 2: ATS RESUME SCORE CHECKER ─── -->
+  <main id="view-ats" class="page-view flex-1 glowing-bg hidden-view max-w-7xl w-full mx-auto px-6 py-12 lg:py-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+    
+    <!-- LEFT PANEL: Hero descriptions & Dotted upload box -->
+    <div class="lg:col-span-6 space-y-8 flex flex-col justify-center text-left">
+      
+      <div class="space-y-3">
+        <span class="text-xs font-extrabold tracking-[0.2em] text-[#5925dc] uppercase bg-[#5925dc]/5 px-3 py-1.5 rounded-full inline-block">
+          RESUME CHECKER
+        </span>
+        <h1 class="text-4xl sm:text-5xl lg:text-[52px] font-extrabold text-[#0f172a] leading-[1.1] tracking-tight">
+          Is your resume good enough?
+        </h1>
+        <p class="text-[#64748b] text-[15px] leading-relaxed max-w-xl font-medium">
+          A free and fast AI resume checker doing 27 crucial checks to ensure your resume's content, layout and design is technically compatible with applicant tracking systems.
+        </p>
+      </div>
+
+      <!-- Live Mock / Vault Setup -->
+      <div class="bg-white/95 border border-enhancv-border p-4 rounded-xl shadow-sm max-w-md space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-[#64748b] uppercase tracking-wider">⚡ Demo Options</span>
+          <span class="text-[10px] font-bold bg-[#5925dc]/10 text-[#5925dc] px-2 py-0.5 rounded-full">Interactive</span>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Mode Switcher -->
+          <div class="space-y-1">
+            <label class="text-[10px] font-extrabold uppercase text-[#64748b] block">Audit Mode</label>
+            <div class="flex rounded-lg bg-gray-100 p-0.5 border border-enhancv-border/40 text-xs">
+              <button id="mode-general" class="flex-1 py-1 rounded-md bg-white font-bold shadow-sm transition" onclick="setMode('general')">General</button>
+              <button id="mode-targeted" class="flex-1 py-1 rounded-md text-[#64748b] font-semibold transition" onclick="setMode('targeted')">Targeted</button>
+            </div>
+          </div>
+
+          <!-- Vault Dropdown -->
+          <div class="space-y-1">
+            <label class="text-[10px] font-extrabold uppercase text-[#64748b] block">Resume Vault</label>
+            <select id="vault-select" class="w-full bg-gray-50 border border-enhancv-border text-xs rounded-lg py-1 px-2 font-semibold text-enhancv-dark/85 focus:outline-none focus:ring-1 focus:ring-[#19cc95]" onchange="loadVaultResume(this.value)">
+              <option value="none">📁 Pick from Vault...</option>
+              <option value="bharat">💼 Software Engineer (Bharat)</option>
+              <option value="jane">💼 Product Designer (Jane)</option>
+              <option value="sarah">💼 Marketing Lead (Sarah)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Targeted Job Description Box -->
+        <div id="jd-box" class="hidden space-y-1.5 animate-slide-up pt-1">
+          <label class="text-[10px] font-extrabold uppercase text-[#64748b] block">Target Job Description</label>
+          <textarea id="jd-textarea" class="w-full h-20 text-xs p-2 rounded-lg border border-enhancv-border bg-white placeholder:text-enhancv-dark/30 focus:outline-none focus:ring-1 focus:ring-[#19cc95]" placeholder="Paste job requirements here (e.g., 'Looking for a TypeScript developer with Redis experience...')"></textarea>
+        </div>
+      </div>
+
+      <!-- Custom Dotted Upload Box -->
+      <div id="dropzone" class="dotted-border bg-white/35 hover:bg-white/65 p-8 sm:p-10 text-center cursor-pointer max-w-md select-none">
+        <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.txt" onchange="handleFileSelect(event)">
+        
+        <div class="space-y-4">
+          <div class="space-y-1.5">
+            <p class="text-[15px] font-bold text-enhancv-dark/85">
+              Drop your resume here or choose a file.
+            </p>
+            <p class="text-xs text-[#64748b] font-medium">
+              PDF & DOCX only. Max 2MB file size.
+            </p>
+          </div>
+
+          <button class="bg-[#19cc95] hover:bg-[#15b383] text-white text-[13px] font-bold tracking-wider px-6 py-3 rounded-lg shadow-sm transition active:scale-[0.98] uppercase" onclick="triggerFileUpload()">
+            Upload Your Resume
+          </button>
+
+          <!-- Privacy Guarantee -->
+          <div class="text-[#64748b] text-[11px] font-semibold flex items-center justify-center gap-1.5 pt-1">
+            <svg class="w-3.5 h-3.5 text-[#64748b] shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span>Your resume is completely safe.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL: Dashboard browser mockup -->
+    <div class="lg:col-span-6 relative flex items-center justify-center">
+      
+      <!-- Background shadow glow -->
+      <div class="absolute inset-0 bg-[#5925dc]/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>
+      
+      <!-- Browser Mockup Window -->
+      <div class="relative bg-white border border-enhancv-border rounded-2xl shadow-[0_22px_70px_rgba(15,23,42,0.08)] w-full max-w-2xl overflow-hidden flex flex-col z-10">
+        
+        <!-- Browser Top Bar -->
+        <div class="bg-[#faf8f5] border-b border-enhancv-border px-4 py-3 flex items-center justify-between select-none">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-[#ef4444]/85"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-[#f59e0b]/85"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-[#10b981]/85"></div>
+          </div>
+          <div class="bg-white/90 border border-enhancv-border rounded-md text-[10px] font-bold text-enhancv-dark/45 px-6 py-0.5 tracking-tight flex items-center gap-1">
+            <svg class="w-2.5 h-2.5 text-enhancv-success" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
+            <span>ats.enhancv.com/checker/live</span>
+          </div>
+          <div class="w-10"></div>
+        </div>
+
+        <!-- Dashboard Content Grid -->
+        <div class="grid grid-cols-12 min-h-[440px]">
+          
+          <!-- LEFT PANEL: Score and Categories -->
+          <div class="col-span-5 border-r border-enhancv-border p-4 bg-[#faf8f5]/30 flex flex-col justify-between">
+            
+            <div class="space-y-4">
+              <span class="text-[11px] font-bold text-[#64748b] tracking-tight block">Resume Score</span>
+              
+              <!-- Circular Arc Gauge -->
+              <div class="relative flex flex-col items-center justify-center py-2">
+                <svg class="w-32 h-32 transform -rotate-90">
+                  <circle cx="64" cy="64" r="50" class="stroke-gray-100 fill-none" stroke-width="9" stroke-linecap="round" />
+                  <circle id="score-arc" cx="64" cy="64" r="50" class="stroke-[#19cc95] fill-none" stroke-width="9" stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round" style="transition: stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1);" />
+                </svg>
+                <div class="absolute text-center flex flex-col items-center justify-center">
+                  <span id="score-text" class="text-3xl font-extrabold text-[#0f172a]">0</span>
+                  <span class="text-[9px] font-extrabold text-[#64748b] uppercase tracking-wider mt-[-2px]">/ 100</span>
+                </div>
+              </div>
+
+              <!-- Issues Count Badge -->
+              <div class="text-center">
+                <span id="issues-badge" class="inline-block text-[9px] font-extrabold bg-[#5925dc]/10 text-[#5925dc] px-3 py-1 rounded-full uppercase tracking-wider">
+                  0 Issues Found
+                </span>
+              </div>
+            </div>
+
+            <!-- Categories Checklist -->
+            <div class="space-y-1.5 pt-4 border-t border-enhancv-border">
+              
+              <!-- Category: Content -->
+              <button id="cat-content" class="w-full flex items-center justify-between p-2 rounded-lg bg-white border border-enhancv-border shadow-sm text-left group transition duration-200" onclick="switchCategory('content')">
+                <span class="text-[11px] font-bold text-enhancv-dark/85 group-hover:text-enhancv-dark">Content</span>
+                <span id="badge-content" class="text-[9px] font-extrabold bg-[#10b981]/15 text-[#10b981] px-1.5 py-0.5 rounded-md transition-colors">80%</span>
+              </button>
+
+              <!-- Category: Format & Density -->
+              <button id="cat-format" class="w-full flex items-center justify-between p-2 rounded-lg hover:bg-white/60 border border-transparent text-left group transition duration-200" onclick="switchCategory('format')">
+                <span class="text-[11px] font-bold text-[#64748b] group-hover:text-enhancv-dark">Format & Density</span>
+                <span id="badge-format" class="text-[9px] font-extrabold bg-[#ef4444]/10 text-[#ef4444] px-1.5 py-0.5 rounded-md">34%</span>
+              </button>
+
+              <!-- Category: Style -->
+              <button id="cat-style" class="w-full flex items-center justify-between p-2 rounded-lg hover:bg-white/60 border border-transparent text-left group transition duration-200" onclick="switchCategory('style')">
+                <span class="text-[11px] font-bold text-[#64748b] group-hover:text-enhancv-dark">Style</span>
+                <span id="badge-style" class="text-[9px] font-extrabold bg-[#ef4444]/10 text-[#ef4444] px-1.5 py-0.5 rounded-md">40%</span>
+              </button>
+
+              <!-- Category: Sections -->
+              <button id="cat-sections" class="w-full flex items-center justify-between p-2 rounded-lg hover:bg-white/60 border border-transparent text-left group transition duration-200" onclick="switchCategory('sections')">
+                <span class="text-[11px] font-bold text-[#64748b] group-hover:text-enhancv-dark">Sections</span>
+                <span id="badge-sections" class="text-[9px] font-extrabold bg-[#f59e0b]/10 text-[#f59e0b] px-1.5 py-0.5 rounded-md">60%</span>
+              </button>
+
+              <!-- Category: Roles -->
+              <button id="cat-roles" class="w-full flex items-center justify-between p-2 rounded-lg hover:bg-white/60 border border-transparent text-left group transition duration-200" onclick="switchCategory('roles')">
+                <span class="text-[11px] font-bold text-[#64748b] group-hover:text-enhancv-dark">Roles</span>
+                <span id="badge-roles" class="text-[9px] font-extrabold bg-[#f59e0b]/10 text-[#f59e0b] px-1.5 py-0.5 rounded-md">65%</span>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- RIGHT PANEL: Detailed Category Cards -->
+          <div class="col-span-7 p-5 bg-white overflow-y-auto max-h-[440px] flex flex-col justify-between text-left">
+            
+            <!-- Category details active container -->
+            <div id="details-container" class="space-y-4">
+              <!-- Content loaded dynamically here via JS -->
+            </div>
+
+            <!-- Dashboard Re-scan / Action tray -->
+            <div class="border-t border-enhancv-border pt-4 mt-6 flex items-center justify-between text-xs text-[#64748b] font-medium select-none">
+              <span>Updated live by AI</span>
+              <button class="flex items-center gap-1 font-bold text-[#5925dc] hover:underline transition" onclick="triggerScan()">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                <span>Rescan Resume</span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Lock Demo Overlay -->
+        <div id="lock-overlay" class="absolute inset-0 bg-white/70 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-6 text-center select-none transition-all duration-300">
+          <div class="w-12 h-12 rounded-full bg-[#10b981]/10 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-[#10b981] animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-[#0f172a] mb-1">Upload to Unlock Complete Report</h3>
+          <p class="text-xs text-[#64748b] max-w-xs leading-relaxed mb-4">
+            Upload your resume or pick a sample from our Vault to unlock the comprehensive 27-point ATS scoring report.
+          </p>
+          <div class="flex items-center gap-3">
+            <button class="bg-[#19cc95] hover:bg-[#15b383] text-white text-xs font-bold px-5 py-2 rounded-lg shadow-sm transition" onclick="triggerFileUpload()">
+              Upload Resume
+            </button>
+            <button class="bg-slate-100 hover:bg-slate-200 text-enhancv-dark text-xs font-bold px-4 py-2 rounded-lg transition" onclick="document.getElementById('vault-select').focus()">
+              Choose Sample
+            </button>
+          </div>
+        </div>
+
+        <!-- Scanning Loader Overlay -->
+        <div id="scan-overlay" class="absolute inset-0 bg-white/95 z-40 hidden flex-col items-center justify-center p-6 text-center select-none">
+          <div class="space-y-4 w-full max-w-xs">
+            <!-- Spinner -->
+            <div class="relative w-16 h-16 mx-auto">
+              <div class="absolute inset-0 border-4 border-[#10b981]/10 rounded-full"></div>
+              <div class="absolute inset-0 border-4 border-t-[#10b981] rounded-full animate-spin"></div>
+            </div>
+            
+            <div class="space-y-1">
+              <h3 class="text-sm font-extrabold text-enhancv-dark uppercase tracking-wider">AI Score Engine</h3>
+              <p id="scan-status" class="text-xs text-[#64748b]">Parsing document structures...</p>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div id="scan-progress" class="h-full bg-[#10b981]" style="width: 0%; transition: width 0.1s linear;"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ─── JAVASCRIPT DEMO LOGIC ─── -->
+  <script>
+    // ─── STATE MANAGEMENT ───
+    let currentMode = 'general';
+    let currentCategory = 'content';
+    let isScanned = false;
+    
+    // Resume Scan Results Matrix
+    const mockData = {
+      default: {
+        score: 72,
+        issuesCount: 18,
+        categories: { content: 65, format: 45, style: 55, sections: 80, roles: 60 }
+      },
+      bharat: {
+        score: 94,
+        issuesCount: 4,
+        categories: { content: 96, format: 90, style: 95, sections: 100, roles: 90 }
+      },
+      jane: {
+        score: 86,
+        issuesCount: 9,
+        categories: { content: 88, format: 85, style: 90, sections: 80, roles: 85 }
+      },
+      sarah: {
+        score: 68,
+        issuesCount: 22,
+        categories: { content: 60, format: 70, style: 65, sections: 80, roles: 62 }
+      },
+      uploaded: {
+        score: 82,
+        issuesCount: 11,
+        categories: { content: 84, format: 78, style: 85, sections: 80, roles: 80 }
+      }
+    };
+    
+    let activeResult = mockData.default;
+
+    // ─── SPA VIEW SWITCHER ───
+    function switchView(viewName) {
+      const dashboardView = document.getElementById('view-dashboard');
+      const atsView = document.getElementById('view-ats');
+      
+      const navDashboard = document.getElementById('nav-dashboard');
+
+      // Fade out both first
+      dashboardView.classList.add('hidden-view');
+      atsView.classList.add('hidden-view');
+      
+      navDashboard.className = 'hover:text-[#19cc95] transition-colors py-5';
+
+      // Activate target view
+      if (viewName === 'dashboard') {
+        dashboardView.classList.remove('hidden-view');
+        navDashboard.className = 'hover:text-[#19cc95] transition-colors py-5 border-b-2 border-[#19cc95] text-[#19cc95]';
+        
+        gsap.fromTo(dashboardView, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' });
+      } else if (viewName === 'ats-checker') {
+        atsView.classList.remove('hidden-view');
+        
+        gsap.fromTo(atsView, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' });
+      }
+    }
+
+    // ─── ATS RESUME CHECKER CONTROLLERS ───
+    
+    // Page load setup
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCategoryDetails('content', mockData.default);
+      
+      // Drag and Drop triggers
+      const dropzone = document.getElementById('dropzone');
+      
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropzone.classList.add('dragover');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropzone.classList.remove('dragover');
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if(files.length) {
+          processMockFile(files[0]);
+        }
+      });
+    });
+
+    // Switch mode between general and targeted
+    function setMode(mode) {
+      currentMode = mode;
+      
+      const generalBtn = document.getElementById('mode-general');
+      const targetedBtn = document.getElementById('mode-targeted');
+      const jdBox = document.getElementById('jd-box');
+      
+      if (mode === 'general') {
+        generalBtn.className = 'flex-1 py-1 rounded-md bg-white font-bold shadow-sm transition';
+        targetedBtn.className = 'flex-1 py-1 rounded-md text-[#64748b] font-semibold transition';
+        jdBox.classList.add('hidden');
+      } else {
+        targetedBtn.className = 'flex-1 py-1 rounded-md bg-white font-bold shadow-sm transition';
+        generalBtn.className = 'flex-1 py-1 rounded-md text-[#64748b] font-semibold transition';
+        jdBox.classList.remove('hidden');
+      }
+      
+      if (isScanned) {
+        triggerScan();
+      }
+    }
+
+    // Trigger Native File Dialog
+    function triggerFileUpload() {
+      document.getElementById('file-input').click();
+    }
+
+    // Handle File Selector Select
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        processMockFile(file);
+      }
+    }
+
+    // Load resume from vault dropdown selector
+    function loadVaultResume(val) {
+      if (val === 'none') return;
+      activeResult = mockData[val];
+      triggerScan();
+    }
+
+    // Mock parsing and scan animation
+    function processMockFile(file) {
+      const randomScore = Math.floor(Math.random() * 20) + 75; // 75 to 95
+      const randomIssues = Math.floor(Math.random() * 8) + 3; // 3 to 10
+      mockData.uploaded.score = randomScore;
+      mockData.uploaded.issuesCount = randomIssues;
+      
+      mockData.uploaded.categories = {
+        content: Math.min(100, randomScore + 4),
+        format: Math.min(100, randomScore - 6),
+        style: Math.min(100, randomScore + 2),
+        sections: 100,
+        roles: Math.min(100, randomScore - 2)
+      };
+
+      activeResult = mockData.uploaded;
+      triggerScan();
+    }
+
+    // Run the scan animation (loading progress bars)
+    function triggerScan() {
+      const scanOverlay = document.getElementById('scan-overlay');
+      const scanStatus = document.getElementById('scan-status');
+      const scanProgress = document.getElementById('scan-progress');
+      
+      scanOverlay.classList.remove('hidden');
+      
+      let progress = 0;
+      scanProgress.style.width = '0%';
+      
+      const stages = [
+        { progress: 20, text: 'Extracting plain text metadata...' },
+        { progress: 50, text: 'Running 27 universal ATS validation audits...' },
+        { progress: 80, text: 'Calculating job alignment vector matches...' },
+        { progress: 100, text: 'Formulating actionable layout suggestions...' }
+      ];
+
+      const interval = setInterval(() => {
+        progress += 2;
+        scanProgress.style.width = `${progress}%`;
+        
+        const currentStage = stages.find(s => progress <= s.progress);
+        if (currentStage) {
+          scanStatus.innerText = currentStage.text;
+        }
+
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            scanOverlay.classList.add('hidden');
+            unlockDashboard();
+          }, 400);
+        }
+      }, 35);
+    }
+
+    // Unlock the dashboard and animate the circular gauge
+    function unlockDashboard() {
+      isScanned = true;
+      
+      const lockOverlay = document.getElementById('lock-overlay');
+      lockOverlay.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => lockOverlay.classList.add('hidden'), 300);
+      
+      updateCategoryBadges(activeResult);
+      animateCircularGauge(activeResult.score);
+      
+      const issuesBadge = document.getElementById('issues-badge');
+      issuesBadge.innerText = `${activeResult.issuesCount} Issues Found`;
+      if (activeResult.issuesCount === 0 || activeResult.score >= 90) {
+        issuesBadge.className = 'inline-block text-[9px] font-extrabold bg-[#10b981]/15 text-[#10b981] px-3 py-1 rounded-full uppercase tracking-wider';
+      } else if (activeResult.score >= 70) {
+        issuesBadge.className = 'inline-block text-[9px] font-extrabold bg-[#f59e0b]/15 text-[#f59e0b] px-3 py-1 rounded-full uppercase tracking-wider';
+      } else {
+        issuesBadge.className = 'inline-block text-[9px] font-extrabold bg-[#ef4444]/15 text-[#ef4444] px-3 py-1 rounded-full uppercase tracking-wider';
+      }
+
+      switchCategory(currentCategory);
+    }
+
+    // Animate Circular Dial Gauge
+    function animateCircularGauge(targetScore) {
+      const arc = document.getElementById('score-arc');
+      const text = document.getElementById('score-text');
+      
+      const circumference = 314;
+      const offset = circumference - (circumference * targetScore) / 100;
+      
+      arc.style.strokeDashoffset = offset;
+      
+      gsap.to(text, {
+        innerText: targetScore,
+        duration: 1.2,
+        snap: { innerText: 1 },
+        ease: 'power3.out'
+      });
+    }
+
+    // Update the visual status badges on the categories list
+    function updateCategoryBadges(result) {
+      const badges = ['content', 'format', 'style', 'sections', 'roles'];
+      badges.forEach(b => {
+        const score = result.categories[b];
+        const badge = document.getElementById(`badge-${b}`);
+        badge.innerText = `${score}%`;
+        
+        if (score >= 80) {
+          badge.className = 'text-[9px] font-extrabold bg-[#10b981]/15 text-[#10b981] px-1.5 py-0.5 rounded-md';
+        } else if (score >= 50) {
+          badge.className = 'text-[9px] font-extrabold bg-[#f59e0b]/15 text-[#f59e0b] px-1.5 py-0.5 rounded-md';
+        } else {
+          badge.className = 'text-[9px] font-extrabold bg-[#ef4444]/10 text-[#ef4444] px-1.5 py-0.5 rounded-md';
+        }
+      });
+    }
+
+    // Switch between categories and render detailed checklist cards
+    function switchCategory(cat) {
+      currentCategory = cat;
+      
+      const categories = ['content', 'format', 'style', 'sections', 'roles'];
+      categories.forEach(c => {
+        const btn = document.getElementById(`cat-${c}`);
+        if (c === cat) {
+          btn.className = 'w-full flex items-center justify-between p-2 rounded-lg bg-white border border-enhancv-border shadow-sm text-left group transition duration-200';
+          btn.querySelector('span').className = 'text-[11px] font-bold text-enhancv-dark/95';
+        } else {
+          btn.className = 'w-full flex items-center justify-between p-2 rounded-lg hover:bg-white/60 border border-transparent text-left group transition duration-200';
+          btn.querySelector('span').className = 'text-[11px] font-bold text-[#64748b] group-hover:text-enhancv-dark';
+        }
+      });
+
+      renderCategoryDetails(cat, activeResult);
+    }
+
+    // Render detailed checklists on the right side of the dashboard
+    function renderCategoryDetails(category, result) {
+      const container = document.getElementById('details-container');
+      const score = result.categories[category];
+      
+      let html = '';
+      
+      gsap.fromTo(container, { opacity: 0, x: 8 }, { opacity: 1, x: 0, duration: 0.3, ease: 'power2.out' });
+
+      switch (category) {
+        case 'content':
+          html = `
+            <div class="space-y-4">
+              <div class="flex justify-between items-center border-b border-enhancv-border pb-3">
+                <div>
+                  <h4 class="text-sm font-extrabold text-[#0f172a]">Content</h4>
+                  <p class="text-[10px] text-[#64748b]">Checks the presence of critical keywords and metrics.</p>
+                </div>
+                <span class="text-xs font-bold text-[#10b981]">${score}% Match</span>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-start gap-3 bg-slate-50 p-2.5 rounded-lg border border-enhancv-border">
+                  <span class="text-enhancv-success shrink-0 font-bold text-xs">✓</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-dark">ATS Parse Rate</span>
+                    <span class="block text-[10px] text-[#64748b] mt-0.5">Your resume text structure parsed cleanly with 98% clarity. Universal fonts detected.</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-slate-50 p-2.5 rounded-lg border border-enhancv-border">
+                  <span class="text-enhancv-success shrink-0 font-bold text-xs">✓</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-dark">Quantifying Impact</span>
+                    <span class="block text-[10px] text-[#64748b] mt-0.5">4 bullet points successfully contain metric-driven achievements (e.g., percentages, load rates).</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-[#ef4444]/5 p-2.5 rounded-lg border border-[#ef4444]/10">
+                  <span class="text-enhancv-destructive shrink-0 font-bold text-xs">✗</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-destructive">Keyword Gaps Detected</span>
+                    <span class="block text-[10px] text-enhancv-dark/65 mt-0.5">Your resume is missing 3 critical technologies specified for this domain:</span>
+                    <div class="flex flex-wrap gap-1 mt-2">
+                      <span class="text-[9px] font-extrabold bg-[#ef4444]/10 text-enhancv-destructive px-2 py-0.5 rounded">Redis</span>
+                      <span class="text-[9px] font-extrabold bg-[#ef4444]/10 text-enhancv-destructive px-2 py-0.5 rounded">Docker</span>
+                      <span class="text-[9px] font-extrabold bg-[#ef4444]/10 text-enhancv-destructive px-2 py-0.5 rounded">System Design</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'format':
+          html = `
+            <div class="space-y-4">
+              <div class="flex justify-between items-center border-b border-enhancv-border pb-3">
+                <div>
+                  <h4 class="text-sm font-extrabold text-[#0f172a]">Format & Density</h4>
+                  <p class="text-[10px] text-[#64748b]">Evaluates margins, fonts, visual spacing, and layout.</p>
+                </div>
+                <span class="text-xs font-bold text-[#ef4444]">${score}% Match</span>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-start gap-3 bg-slate-50 p-2.5 rounded-lg border border-enhancv-border">
+                  <span class="text-enhancv-success shrink-0 font-bold text-xs">✓</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-dark">One-Page Layout Standard</span>
+                    <span class="block text-[10px] text-[#64748b] mt-0.5">Excellent density. The page height is optimal and keeps information highly scannable.</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-[#ef4444]/5 p-2.5 rounded-lg border border-[#ef4444]/10">
+                  <span class="text-enhancv-destructive shrink-0 font-bold text-xs">⚠</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-destructive">Inconsistent Section Spacing</span>
+                    <span class="block text-[10px] text-enhancv-dark/65 mt-0.5">The padding above the "Projects" header is 18px, while "Experience" has 28px. Standardize layout grids.</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-slate-50 p-2.5 rounded-lg border border-enhancv-border">
+                  <span class="text-enhancv-success shrink-0 font-bold text-xs">✓</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-dark">Font Readability</span>
+                    <span class="block text-[10px] text-[#64748b] mt-0.5">No complex multi-column tables, graphics, or custom fonts. Completely safe for ATS parsing.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'style':
+          html = `
+            <div class="space-y-4">
+              <div class="flex justify-between items-center border-b border-enhancv-border pb-3">
+                <div>
+                  <h4 class="text-sm font-extrabold text-[#0f172a]">Style</h4>
+                  <p class="text-[10px] text-[#64748b]">Scans for weak vocabulary, buzzwords, and phrasing.</p>
+                </div>
+                <span class="text-xs font-bold text-[#ef4444]">${score}% Match</span>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-start gap-3 bg-slate-50 p-2.5 rounded-lg border border-enhancv-border">
+                  <span class="text-enhancv-success shrink-0 font-bold text-xs">✓</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-dark">Action Verbs Check</span>
+                    <span class="block text-[10px] text-[#64748b] mt-0.5">14 strong action-oriented verbs detected (e.g., 'Engineered', 'Architected', 'Spearheaded').</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-[#ef4444]/5 p-2.5 rounded-lg border border-[#ef4444]/10">
+                  <span class="text-enhancv-destructive shrink-0 font-bold text-xs">⚠</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-destructive">Buzzwords Warning</span>
+                    <span class="block text-[10px] text-enhancv-dark/65 mt-0.5">Remove generic adjectives like 'highly motivated' and 'results-oriented'. Replace with concrete metrics.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'sections':
+          html = `
+            <div class="space-y-4">
+              <div class="flex justify-between items-center border-b border-enhancv-border pb-3">
+                <div>
+                  <h4 class="text-sm font-extrabold text-[#0f172a]">Sections</h4>
+                  <p class="text-[10px] text-[#64748b]">Verifies presence of standard resume segments.</p>
+                </div>
+                <span class="text-xs font-bold text-[#f59e0b]">${score}% Match</span>
+              </div>
+
+              <div class="space-y-2.5">
+                <div class="flex justify-between items-center text-xs border-b border-enhancv-border pb-2">
+                  <span class="font-bold text-enhancv-dark/75">Work Experience</span>
+                  <span class="text-enhancv-success font-bold">Found</span>
+                </div>
+                <div class="flex justify-between items-center text-xs border-b border-enhancv-border pb-2">
+                  <span class="font-bold text-enhancv-dark/75">Education & Credentials</span>
+                  <span class="text-enhancv-success font-bold">Found</span>
+                </div>
+                <div class="flex justify-between items-center text-xs border-b border-enhancv-border pb-2">
+                  <span class="font-bold text-enhancv-dark/75">Key Projects</span>
+                  <span class="text-enhancv-success font-bold">Found</span>
+                </div>
+                <div class="flex justify-between items-center text-xs border-b border-enhancv-border pb-2">
+                  <span class="font-bold text-enhancv-dark/75">Summary Profile</span>
+                  <span class="text-[#ef4444] font-bold">Missing</span>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'roles':
+          html = `
+            <div class="space-y-4">
+              <div class="flex justify-between items-center border-b border-enhancv-border pb-3">
+                <div>
+                  <h4 class="text-sm font-extrabold text-[#0f172a]">Roles</h4>
+                  <p class="text-[10px] text-[#64748b]">Evaluates alignment of career seniority, title, and scope.</p>
+                </div>
+                <span class="text-xs font-bold text-[#f59e0b]">${score}% Match</span>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-start gap-3 bg-slate-50 p-2.5 rounded-lg border border-enhancv-border">
+                  <span class="text-enhancv-success shrink-0 font-bold text-xs">✓</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-dark">Seniority Level Match</span>
+                    <span class="block text-[10px] text-[#64748b] mt-0.5">Your work progression matches a Mid-Senior level engineering profile excellently.</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-slate-50 p-2.5 rounded-lg border border-enhancv-border">
+                  <span class="text-enhancv-success shrink-0 font-bold text-xs">✓</span>
+                  <div>
+                    <span class="block text-[11px] font-bold text-enhancv-dark">Domain Alignment</span>
+                    <span class="block text-[10px] text-[#64748b] mt-0.5">Your bullet points are rich in systems-level engineering vocabulary appropriate for high-scale backend infrastructures.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+      }
+      
+      container.innerHTML = html;
+    }
+  </script>
+
+</body>
+</html>

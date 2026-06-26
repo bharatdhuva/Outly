@@ -1,446 +1,294 @@
-import { useQuery } from "@tanstack/react-query";
-import {
-  AlertTriangle,
-  ArrowRight,
-  Clock,
-  FileText,
-  Flame,
-  Mail,
-  Sparkles,
-  Target,
-  TrendingUp,
-  Trophy,
-  Zap,
-  Calendar,
-} from "lucide-react";
-import { Link } from "react-router-dom";
-import { api } from "@/lib/api";
-import { useState } from "react";
+import { useEffect } from "react";
+import { Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function OverviewPage() {
-  const {
-    data: stats,
-    isLoading: statsLoading,
-    isError: statsError,
-  } = useQuery({
-    queryKey: ["dashboard", "stats"],
-    queryFn: api.dashboard.stats,
-    refetchInterval: 5000,
-    retry: 1,
-  });
-  const { data: activity } = useQuery({
-    queryKey: ["dashboard", "activity"],
-    queryFn: api.dashboard.activity,
-    refetchInterval: 5000,
-  });
-  const { data: systemStatus } = useQuery({
-    queryKey: ["dashboard", "system"],
-    queryFn: api.dashboard.systemStatus,
-    refetchInterval: 10000,
-  });
-  const { data: settings } = useQuery({
-    queryKey: ["settings"],
-    queryFn: api.settings.get,
-  });
+  const navigate = useNavigate();
 
-  // ─── Streak data computation (91 days = ~13 weeks) ───
-  const TOTAL_DAYS = 91;
-  const todayKey = new Date().toISOString().slice(0, 10);
-  const activityByDay = new Map<string, number>();
+  // Load Google Font: Rubik dynamically for this page
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap";
+    document.head.appendChild(link);
+    
+    // Set page title
+    document.title = "Enhancv — Check Your Resume ATS Score";
 
-  (activity ?? []).forEach((item) => {
-    const isApplyActivity = item.type === "job_applied" || item.type === "mail_sent";
-    if (!isApplyActivity) return;
-    const key = new Date(item.created_at).toISOString().slice(0, 10);
-    activityByDay.set(key, (activityByDay.get(key) ?? 0) + 1);
-  });
-
-  if ((stats?.mailsToday ?? 0) > 0) {
-    activityByDay.set(todayKey, Math.max(activityByDay.get(todayKey) ?? 0, stats?.mailsToday ?? 0));
-  }
-
-  // Build the grid: we need full weeks (columns), starting from the nearest Sunday
-  const today = new Date();
-  const todayDayOfWeek = today.getDay(); // 0=Sun ... 6=Sat
-  // End date is today
-  // Start date: go back TOTAL_DAYS, then align to the previous Sunday
-  const rawStart = new Date(today);
-  rawStart.setDate(rawStart.getDate() - TOTAL_DAYS + 1);
-  const startDayOfWeek = rawStart.getDay();
-  rawStart.setDate(rawStart.getDate() - startDayOfWeek); // align to Sunday
-
-  const gridDays: { key: string; count: number; date: Date; dayOfWeek: number; isToday: boolean; isFuture: boolean }[] = [];
-  const iterDate = new Date(rawStart);
-  while (iterDate <= today || iterDate.getDay() !== 0) {
-    if (iterDate > today && iterDate.getDay() === 0 && gridDays.length > 0) break;
-    const key = iterDate.toISOString().slice(0, 10);
-    const isFuture = iterDate > today;
-    gridDays.push({
-      key,
-      count: isFuture ? -1 : (activityByDay.get(key) ?? 0),
-      date: new Date(iterDate),
-      dayOfWeek: iterDate.getDay(),
-      isToday: key === todayKey,
-      isFuture,
-    });
-    iterDate.setDate(iterDate.getDate() + 1);
-  }
-
-  // Group into weeks (columns)
-  const weeks: typeof gridDays[] = [];
-  for (let i = 0; i < gridDays.length; i += 7) {
-    weeks.push(gridDays.slice(i, i + 7));
-  }
-
-  // Month labels for top row
-  const monthLabels: { label: string; colStart: number; colSpan: number }[] = [];
-  let lastMonth = -1;
-  weeks.forEach((week, wIdx) => {
-    // Use the first non-future day of the week to determine month
-    const refDay = week.find((d) => !d.isFuture) ?? week[0];
-    const m = refDay.date.getMonth();
-    if (m !== lastMonth) {
-      monthLabels.push({
-        label: refDay.date.toLocaleDateString("en-US", { month: "short" }),
-        colStart: wIdx,
-        colSpan: 1,
-      });
-      lastMonth = m;
-    } else if (monthLabels.length > 0) {
-      monthLabels[monthLabels.length - 1].colSpan += 1;
-    }
-  });
-
-  // Streak calculations
-  const validDays = gridDays.filter((d) => !d.isFuture);
-
-  // Current streak (from today backwards)
-  let currentStreak = 0;
-  for (let i = validDays.length - 1; i >= 0; i--) {
-    if (validDays[i].count === 0) break;
-    currentStreak++;
-  }
-
-  // Max streak
-  let maxStreak = 0;
-  let tempStreak = 0;
-  for (const day of validDays) {
-    if (day.count > 0) {
-      tempStreak++;
-      maxStreak = Math.max(maxStreak, tempStreak);
-    } else {
-      tempStreak = 0;
-    }
-  }
-
-  // Total activities & active days
-  let totalActivities = 0;
-  let activeDays = 0;
-  for (const day of validDays) {
-    totalActivities += day.count;
-    if (day.count > 0) activeDays++;
-  }
-
-  const streakCellColor = (count: number) => {
-    if (count === -1) return "streak-cell--empty";
-    if (count >= 8) return "streak-cell--l4";
-    if (count >= 5) return "streak-cell--l3";
-    if (count >= 3) return "streak-cell--l2";
-    if (count >= 1) return "streak-cell--l1";
-    return "streak-cell--l0";
-  };
-
-  // Tooltip state
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
-
-  const handleCellMouseEnter = (e: React.MouseEvent, day: typeof gridDays[0]) => {
-    if (day.isFuture) return;
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    const label = day.date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
-    const text = day.count === 0
-      ? `No activity on ${label}`
-      : `${day.count} ${day.count === 1 ? "activity" : "activities"} on ${label}`;
-    setTooltip({ x: rect.left + rect.width / 2, y: rect.top - 8, text });
-  };
-
-  const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
-
-  if (statsLoading && !stats && !statsError) {
-    return (
-      <div className="grid min-h-[460px] place-items-center">
-        <div className="w-full max-w-xl rounded-md border border-border bg-card p-6">
-          <div className="mb-5 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-md bg-primary/10 shimmer" />
-            <div className="space-y-2">
-              <div className="h-3 w-48 rounded bg-muted shimmer" />
-              <div className="h-3 w-28 rounded bg-muted shimmer" />
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="h-24 rounded-md bg-muted shimmer" />
-            <div className="h-24 rounded-md bg-muted shimmer" />
-            <div className="h-24 rounded-md bg-muted shimmer" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (statsError) {
-    return (
-      <div className="grid min-h-[460px] place-items-center">
-        <div className="w-full max-w-xl rounded-md border border-warning/25 bg-warning/5 p-6 text-center">
-          <AlertTriangle className="mx-auto h-10 w-10 text-warning" />
-          <h1 className="mt-4 text-xl font-semibold text-foreground">Outly cannot reach the backend</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Start the backend and this dashboard will reconnect automatically. The frontend is still available for layout review.
-          </p>
-        </div>
-      </div>
-    );
-  }
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
 
   return (
-    <div className="animate-fade-in space-y-5">
-      {/* 1. Hero Section */}
-      <section className="grid gap-4 md:grid-cols-3">
-        {/* Left Hero Card */}
-        <div className="md:col-span-2 rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] flex flex-col justify-between">
-          <div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-accent px-3 py-1 text-[12px] font-medium text-primary w-fit">
-                <Sparkles className="h-3.5 w-3.5" />
-                Outreach Workspace
-              </div>
-            </div>
-            <h1 className="mt-4 text-[24px] font-semibold tracking-tight text-foreground sm:text-[28px]">
-              {settings?.full_name ? `${settings.full_name}'s launch desk` : "Launch desk for career outreach"}
+    <div className="flex-1 w-full min-h-screen font-['Rubik',sans-serif] text-[#0f172a] select-none relative pb-12">
+      
+      {/* Self-contained Keyframe Animations & Glowing Background styles */}
+      <style>{`
+        @keyframes float-google-react {
+          0%, 100% { transform: translateY(0) rotate(-1deg); }
+          50% { transform: translateY(-8px) rotate(1deg); }
+        }
+        @keyframes float-tesla-react {
+          0%, 100% { transform: translateY(0) rotate(1deg); }
+          50% { transform: translateY(6px) rotate(-1deg); }
+        }
+        @keyframes float-ai-react {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        
+        .animate-google-float {
+          animation: float-google-react 4s ease-in-out infinite;
+        }
+        .animate-tesla-float {
+          animation: float-tesla-react 4.5s ease-in-out infinite;
+        }
+        .animate-ai-float {
+          animation: float-ai-react 5s ease-in-out infinite;
+        }
+
+        .glowing-bg-mesh {
+          background: 
+            radial-gradient(circle at 80% 100%, rgba(25, 204, 149, 0.16), transparent 45%),
+            radial-gradient(circle at 40% 100%, rgba(89, 37, 220, 0.12), transparent 50%),
+            #faf8f5;
+        }
+      `}</style>
+
+      {/* Main Container */}
+      <div className="glowing-bg-mesh min-h-screen w-full absolute inset-0 -z-10" />
+
+      <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
+        
+        {/* Left Column: Copy & Actions */}
+        <div className="lg:col-span-6 text-left space-y-8 flex flex-col justify-center">
+          <div className="space-y-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-[#0f172a] leading-[1.12] tracking-tight">
+              Check your resume <span class="text-[#5925dc]">ATS score</span> & land more interviews
             </h1>
-            <p className="mt-2 text-[13.5px] text-muted-foreground leading-5">
-              Outly keeps cold mail, resume tailoring, social posts, and channel health in one readable workspace.
+            <p className="text-[#64748b] text-base sm:text-lg leading-relaxed max-w-xl font-medium mt-4">
+              ATS Check, AI Writer, and One-Click Job Tailoring make your resume stand out to recruiters.
             </p>
           </div>
-        </div>
 
-        {/* Right side stats cards */}
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-1">
-          {/* Reply Rate Card */}
-          <div className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)] flex flex-col justify-between">
-            <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-[12px] font-medium">Reply Rate</span>
-              <TrendingUp className="h-4 w-4 text-success" />
-            </div>
-            <div className="mt-2">
-              <span className="text-2xl font-bold tracking-tight text-foreground">{stats?.replyRate ?? 0}%</span>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{stats?.replies ?? 0} replies / {stats?.mailsSent ?? 0} mails</p>
-            </div>
-          </div>
-
-          {/* Next Scheduled Post Card */}
-          <div className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)] flex flex-col justify-between">
-            <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-[12px] font-medium">Next Post</span>
-              <Clock className="h-4 w-4 text-primary" />
-            </div>
-            <div className="mt-2">
-              <span className="text-[13px] font-semibold text-foreground block truncate">
-                {systemStatus?.nextWeeklyPostLabel ?? stats?.nextWeeklyPostLabel ?? "Not scheduled"}
-              </span>
-              <Link to="/linkedin-posts" className="text-[11px] text-primary hover:underline inline-flex items-center gap-1 mt-1">
-                Manage calendar <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. Quick Actions Bar */}
-      <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-        <h2 className="text-[15px] font-semibold text-foreground mb-4">Quick Actions</h2>
-        <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
-          <Link
-            to="/cold-mail"
-            className="flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2.5 text-[13px] font-medium text-foreground shadow-sm transition-all hover:border-primary/40 hover:bg-accent hover:text-primary"
-          >
-            <span className="text-base">✉</span> New Cold Email
-          </Link>
-          <Link
-            to="/resume-tailor"
-            className="flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2.5 text-[13px] font-medium text-foreground shadow-sm transition-all hover:border-primary/40 hover:bg-accent hover:text-primary"
-          >
-            <span className="text-base">📄</span> Tailor Resume
-          </Link>
-          <Link
-            to="/ats-score"
-            className="flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2.5 text-[13px] font-medium text-foreground shadow-sm transition-all hover:border-primary/40 hover:bg-accent hover:text-primary"
-          >
-            <span className="text-base">📊</span> Check ATS Score
-          </Link>
-          <Link
-            to="/applications"
-            className="flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2.5 text-[13px] font-medium text-foreground shadow-sm transition-all hover:border-primary/40 hover:bg-accent hover:text-primary"
-          >
-            <span className="text-base">📋</span> Track Application
-          </Link>
-        </div>
-      </section>
-
-      {/* 3. Application Pipeline (Mini Kanban) */}
-      <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-[15px] font-semibold text-foreground">Application Pipeline</h2>
-            <p className="text-[12px] text-muted-foreground">Active tracker status counts</p>
-          </div>
-          <Link to="/applications" className="text-[12px] font-medium text-primary hover:underline flex items-center gap-1">
-            View full tracker <ArrowRight className="h-3 w-3" />
-          </Link>
-        </div>
-        <div className="grid gap-3 grid-cols-2 sm:grid-cols-5">
-          {[
-            { name: "Saved", count: stats?.savedCount ?? 0, bg: "bg-slate-500/5 border-slate-500/15 text-slate-500" },
-            { name: "Applied", count: stats?.appliedCount ?? 0, bg: "bg-blue-500/5 border-blue-500/15 text-blue-500" },
-            { name: "Interview", count: stats?.interviewCount ?? 0, bg: "bg-warning/5 border-warning/15 text-warning" },
-            { name: "Offer", count: stats?.offerCount ?? 0, bg: "bg-success/5 border-success/15 text-success" },
-            { name: "Rejected", count: stats?.rejectedCount ?? 0, bg: "bg-destructive/5 border-destructive/15 text-destructive" },
-          ].map((col) => (
-            <div
-              key={col.name}
-              className={`flex flex-col items-center justify-center rounded-lg border p-3 ${col.bg}`}
+          {/* CTA Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 max-w-lg mt-8">
+            <button 
+              onClick={() => navigate("/resume-tailor")}
+              className="bg-[#19cc95] hover:bg-[#15b383] text-white text-sm font-extrabold tracking-wide px-8 py-4 rounded-lg shadow-md hover:scale-[1.02] active:scale-[0.98] transition duration-200"
             >
-              <span className="text-[12px] font-semibold opacity-95">{col.name}</span>
-              <span className="mt-1 text-lg font-bold">{col.count}</span>
-            </div>
-          ))}
-        </div>
-      </section>
+              Build Your Resume
+            </button>
+            
+            <button 
+              onClick={() => navigate("/ats-score")}
+              className="bg-white border-2 border-[#0f172a] text-[#0f172a] text-sm font-extrabold tracking-wide px-8 py-4 rounded-lg hover:bg-[#0f172a] hover:text-white transition duration-200"
+            >
+              Get Your Resume Score
+            </button>
+          </div>
 
-      {/* 4. Daily Apply Streak — GitHub + LeetCode Style */}
-      <section className="streak-section">
-        <div className="streak-header">
-          <div className="flex items-center gap-2.5">
-            <div className="streak-header-icon">
-              <Calendar className="h-4.5 w-4.5" />
+          {/* Reviews and Social Proof */}
+          <div className="flex flex-wrap items-center gap-6 mt-10">
+            {/* Stars */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center text-[#19cc95]">
+                <Star className="w-4 h-4 fill-current" />
+                <Star className="w-4 h-4 fill-current" />
+                <Star className="w-4 h-4 fill-current" />
+                <Star className="w-4 h-4 fill-current" />
+                <Star className="w-4 h-4 fill-current" />
+              </div>
+              <span className="text-xs font-extrabold text-[#64748b] tracking-tight">5,287 Reviews</span>
             </div>
-            <div>
-              <h2 className="text-[15px] font-semibold text-foreground">Activity Streak</h2>
-              <p className="text-[12px] text-muted-foreground">
-                {totalActivities} activities in the last {TOTAL_DAYS} days
+
+            {/* Speech Bubble Stats */}
+            <div className="flex items-center gap-2 bg-[#faf8f5]/80 border border-[#e2e8f0] rounded-xl px-4 py-2 shadow-sm">
+              <span className="text-sm">💬</span>
+              <span className="text-xs font-bold text-[#0f172a]/80">
+                <strong className="text-[#0f172a]">28,452 users</strong> landed interviews last month
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Overlapping Floating Graphics */}
+        <div className="lg:col-span-6 relative w-full h-[540px] flex items-center justify-center">
+          
+          {/* Card 1: The Under-Card (ATS Check Report) */}
+          <div className="absolute left-[2%] top-[12%] w-[290px] bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-[0_12px_40px_rgba(15,23,42,0.05)] text-left z-10">
+            <div className="flex items-center justify-between mb-4">
+              <span class="text-[10px] font-extrabold text-[#0f172a]/35 uppercase tracking-widest">ATS Check</span>
+              <span class="text-[10px] font-extrabold bg-[#19cc95]/10 text-[#19cc95] px-2 py-0.5 rounded">Scanned</span>
+            </div>
+            
+            {/* Score Circular Progress Bar */}
+            <div className="flex items-center gap-4 border-b border-[#e2e8f0] pb-4 mb-4">
+              <div className="relative w-14 h-14 flex items-center justify-center shrink-0">
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle cx="28" cy="28" r="22" className="stroke-gray-100 fill-none" stroke-width="4.5" />
+                  <circle cx="28" cy="28" r="22" class="stroke-[#19cc95] fill-none" stroke-width="4.5" stroke-dasharray="138" stroke-dashoffset="21" strokeLinecap="round" />
+                </svg>
+                <span className="absolute text-xs font-black text-[#0f172a]">85%</span>
+              </div>
+              <div>
+                <span className="block text-[11px] font-extrabold text-[#0f172a]">Overall Match</span>
+                <span className="block text-[9px] text-[#64748b] mt-0.5">High parser compatibility</span>
+              </div>
+            </div>
+
+            {/* Job Description Label */}
+            <div className="space-y-1.5 mb-4">
+              <span className="text-[9px] font-extrabold text-[#64748b] uppercase tracking-wider block">Job Description</span>
+              <span className="inline-block text-[10px] font-bold border border-[#e2e8f0] bg-[#faf8f5] px-2.5 py-1 rounded-md text-[#0f172a]/75">
+                Strategic Accounts Manager
+              </span>
+            </div>
+
+            {/* Resume Tailoring lists */}
+            <div className="space-y-3 pt-2 border-t border-[#e2e8f0]">
+              <span className="text-[9px] font-extrabold text-[#64748b] uppercase tracking-widest block">Resume Tailoring</span>
+              
+              {/* Hard Skills list */}
+              <div className="space-y-1.5">
+                <span className="text-[9px] font-black text-[#5925dc] uppercase tracking-wider block">• Hard Skills</span>
+                <div className="space-y-1 text-[9px] font-semibold text-[#0f172a]/70">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[#10b981] font-bold">✓</span>
+                    <span>Facilitated enterprise growth</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[#ef4444] font-bold">
+                    <span>✗</span>
+                    <span>User engagement metrics</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[#ef4444] font-bold">
+                    <span>✗</span>
+                    <span>Reporting & pipeline dashboards</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Soft Skills list */}
+              <div className="space-y-1.5">
+                <span className="text-[9px] font-black text-[#19cc95] uppercase tracking-wider block">• Soft Skills</span>
+                <div className="space-y-1 text-[9px] font-semibold text-[#0f172a]/70">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[#10b981] font-bold">✓</span>
+                    <span>Collaborative leadership</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: The Top-Card (Ethan Smith Premium Resume Sheet) */}
+          <div className="absolute right-[2%] top-[4%] w-[350px] bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-[0_25px_60px_rgba(15,23,42,0.08)] text-left z-20 overflow-visible pt-8">
+            
+            {/* Center-Aligned Avatar overlapping top edge */}
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full overflow-hidden border-2 border-white bg-[#fcfbf7] shadow-md flex items-center justify-center">
+              <svg viewBox="0 0 100 100" className="w-9 h-9 text-[#0f172a]/70">
+                <circle cx="50" cy="35" r="20" fill="currentColor"/>
+                <path d="M15 85c0-15 15-25 35-25s35 10 35 25v5H15v-5Z" fill="currentColor"/>
+                <circle cx="41" cy="35" r="9" fill="#faf8f5"/>
+                <circle cx="59" cy="35" r="9" fill="#faf8f5"/>
+                <rect x="33" y="32" width="34" height="6" rx="2" fill="currentColor"/>
+              </svg>
+            </div>
+            
+            {/* Center-Aligned Profile Header */}
+            <div className="text-center mt-2 border-b border-[#e2e8f0] pb-3 mb-3">
+              <h4 className="text-sm font-extrabold text-[#0f172a] uppercase tracking-wide">Ethan Smith</h4>
+              <span className="block text-[8px] font-bold text-[#64748b] leading-tight mt-1">
+                Chief Experience Officer | Customer-Centric Strategies | Digital Transformation
+              </span>
+            </div>
+
+            {/* Resume Summary */}
+            <div className="space-y-1 mb-3">
+              <span className="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Summary</span>
+              <p className="text-[7.5px] font-medium text-[#64748b] leading-normal">
+                Over 10 years in customer experience management, leading cross-functional teams to build outreach tunnels. Proven track record of improving NPS by 35% through design-led execution.
               </p>
             </div>
-          </div>
-        </div>
 
-        {/* LeetCode-style Streak Stats */}
-        <div className="streak-stats">
-          <div className="streak-stat-card streak-stat-card--fire">
-            <div className="streak-stat-icon streak-stat-icon--fire">
-              <Flame className="h-5 w-5" />
-            </div>
-            <div className="streak-stat-content">
-              <span className="streak-stat-value">{currentStreak}</span>
-              <span className="streak-stat-label">Current Streak</span>
-            </div>
-          </div>
-
-          <div className="streak-stat-card streak-stat-card--trophy">
-            <div className="streak-stat-icon streak-stat-icon--trophy">
-              <Trophy className="h-5 w-5" />
-            </div>
-            <div className="streak-stat-content">
-              <span className="streak-stat-value">{maxStreak}</span>
-              <span className="streak-stat-label">Max Streak</span>
-            </div>
-          </div>
-
-          <div className="streak-stat-card streak-stat-card--zap">
-            <div className="streak-stat-icon streak-stat-icon--zap">
-              <Zap className="h-5 w-5" />
-            </div>
-            <div className="streak-stat-content">
-              <span className="streak-stat-value">{totalActivities}</span>
-              <span className="streak-stat-label">Total Activities</span>
-            </div>
-          </div>
-
-          <div className="streak-stat-card streak-stat-card--target">
-            <div className="streak-stat-icon streak-stat-icon--target">
-              <Target className="h-5 w-5" />
-            </div>
-            <div className="streak-stat-content">
-              <span className="streak-stat-value">{activeDays}</span>
-              <span className="streak-stat-label">Active Days</span>
-            </div>
-          </div>
-        </div>
-
-        {/* GitHub-style Contribution Graph */}
-        <div className="streak-graph-wrapper">
-          <div className="streak-graph-scroll">
-            <div className="streak-graph">
-              {/* Day labels (left column) */}
-              <div className="streak-day-labels">
-                <div className="streak-month-spacer" />
-                {DAY_LABELS.map((label, i) => (
-                  <div key={i} className="streak-day-label">{label}</div>
-                ))}
-              </div>
-
-              {/* Grid of weeks */}
-              <div className="streak-weeks">
-                {/* Month labels row */}
-                <div className="streak-month-row">
-                  {monthLabels.map((ml, i) => (
-                    <div
-                      key={i}
-                      className="streak-month-label"
-                      style={{ gridColumn: `${ml.colStart + 1} / span ${ml.colSpan}` }}
-                    >
-                      {ml.label}
-                    </div>
-                  ))}
+            {/* Resume Experience */}
+            <div className="space-y-2 mb-3">
+              <span className="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Experience</span>
+              <div className="space-y-1">
+                <div className="flex justify-between text-[7px] font-bold text-[#0f172a]">
+                  <span>Chief Experience Officer</span>
+                  <span className="text-[#64748b]">2022 - Present</span>
                 </div>
-
-                {/* Week columns with cells */}
-                <div className="streak-grid" style={{ gridTemplateColumns: `repeat(${weeks.length}, 1fr)` }}>
-                  {weeks.map((week, wIdx) =>
-                    week.map((day) => (
-                      <div
-                        key={day.key}
-                        className={`streak-cell ${streakCellColor(day.count)} ${day.isToday ? "streak-cell--today" : ""}`}
-                        onMouseEnter={(e) => handleCellMouseEnter(e, day)}
-                        onMouseLeave={() => setTooltip(null)}
-                        data-count={day.count}
-                      />
-                    ))
-                  )}
-                </div>
+                <span className="block text-[6.5px] font-semibold text-[#64748b] mt-[-2px]">TechWorld Solutions • Indianapolis</span>
+                <p className="text-[7px] text-[#0f172a]/70 leading-normal mt-1">
+                  • Spearheaded customer journey mappings, increasing conversions by 25%.
+                </p>
+                <p className="text-[7px] text-[#0f172a]/70 leading-normal">
+                  • Conducted data analysis, reducing customer churn rates by 15%.
+                </p>
               </div>
             </div>
+
+            {/* Resume Languages & Education */}
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#e2e8f0]">
+              <div>
+                <span className="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Languages</span>
+                <span className="block text-[7px] font-bold text-[#0f172a] mt-1">English <span className="text-[#64748b] font-medium">(Native)</span></span>
+                <span className="block text-[7px] font-bold text-[#0f172a] mt-0.5">Spanish <span class="text-[#64748b] font-medium">(Fluent)</span></span>
+              </div>
+              <div>
+                <span className="text-[7.5px] font-black text-[#19cc95] uppercase tracking-widest block">Education</span>
+                <span class="block text-[7px] font-bold text-[#0f172a] mt-1 leading-tight">Master of Business Admin</span>
+                <span className="block text-[6.5px] text-[#64748b]">Indiana University</span>
+              </div>
+            </div>
+
+            {/* FLOATING AI ASSISTANT WIDGET (Purple Card) */}
+            <div className="absolute -right-8 bottom-[16%] w-[180px] bg-[#5925dc] rounded-xl p-3 shadow-2xl text-left border border-white/20 animate-ai-float z-30 text-white">
+              <div className="flex items-center gap-1 mb-2 border-b border-white/10 pb-1.5">
+                <span className="text-[8px] font-black uppercase tracking-widest text-indigo-200 flex items-center gap-1">
+                  <span className="text-[10px]">✦</span> AI Assistant
+                </span>
+              </div>
+              <div className="space-y-1.5 text-[7.5px] font-bold">
+                <button 
+                  onClick={() => navigate("/resume-tailor")}
+                  className="w-full text-left bg-white/10 hover:bg-white/15 rounded px-2.5 py-1.5 transition flex items-center justify-between"
+                >
+                  <span>Generate Skills from Job</span>
+                  <span className="opacity-65">→</span>
+                </button>
+                <button 
+                  onClick={() => navigate("/resume-tailor")}
+                  className="w-full text-left bg-white/10 hover:bg-white/15 rounded px-2.5 py-1.5 transition flex items-center justify-between"
+                >
+                  <span>Inspire Me</span>
+                  <span className="opacity-65">→</span>
+                </button>
+              </div>
+              <div className="mt-2.5 bg-white/10 border border-white/10 rounded px-2 py-1 text-[7px] text-white/50">
+                Enter a custom request...
+              </div>
+            </div>
+
           </div>
 
-          {/* Legend */}
-          <div className="streak-legend">
-            <span className="streak-legend-text">Less</span>
-            <div className="streak-cell streak-cell--l0 streak-legend-cell" />
-            <div className="streak-cell streak-cell--l1 streak-legend-cell" />
-            <div className="streak-cell streak-cell--l2 streak-legend-cell" />
-            <div className="streak-cell streak-cell--l3 streak-legend-cell" />
-            <div className="streak-cell streak-cell--l4 streak-legend-cell" />
-            <span className="streak-legend-text">More</span>
+          {/* Google Badge (Purple) - Floats outer right */}
+          <div className="absolute -right-4 top-[4%] bg-[#5925dc] text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-30 border border-white/20 animate-google-float">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+            <span>Application at Google</span>
           </div>
+
+          {/* Tesla Badge (Dark) - Floats bottom left */}
+          <div className="absolute left-[20%] bottom-[8%] bg-slate-900 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-30 border border-white/10 animate-tesla-float">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#19cc95]"></span>
+            <span>Application at Tesla</span>
+          </div>
+
         </div>
 
-        {/* Floating tooltip */}
-        {tooltip && (
-          <div
-            className="streak-tooltip"
-            style={{ left: tooltip.x, top: tooltip.y }}
-          >
-            {tooltip.text}
-          </div>
-        )}
-      </section>
+      </div>
     </div>
   );
 }

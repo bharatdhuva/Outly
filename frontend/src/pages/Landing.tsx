@@ -332,6 +332,12 @@ export default function Landing() {
 
   // ─── SCROLL & LOAD EFFECTS ───
   useEffect(() => {
+    // Load Google Font: Rubik dynamically for the landing page
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap";
+    document.head.appendChild(link);
+
     document.title = "Outly - Your Career, Already Sorted";
     
     // Scroll header styling
@@ -431,6 +437,7 @@ export default function Landing() {
       window.removeEventListener("scroll", handleScroll);
       clearTimeout(startTypingTimer);
       clearTimeout(typeTimer);
+      document.head.removeChild(link);
     };
   }, []);
 
@@ -696,7 +703,7 @@ export default function Landing() {
   const priceData = pricingMatrix[currency][billingDuration];
 
   return (
-    <div className="bg-outly-cream text-outly-dark font-sans selection:bg-outly-accent/20 min-h-screen">
+    <div className="bg-outly-cream text-outly-dark font-['Rubik',sans-serif] selection:bg-outly-accent/20 min-h-screen">
       
       {/* HEADER */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -746,7 +753,7 @@ export default function Landing() {
               </span>
             </div>
             
-            <h1 className="text-6xl md:text-[80px] font-serif font-medium tracking-tight mb-8 leading-[0.95] text-left hero-title opacity-0">
+            <h1 className="text-6xl md:text-[80px] font-sans font-medium tracking-tight mb-8 leading-[0.95] text-left hero-title opacity-0">
               Your career,<br />already <span className="relative inline-block italic-serif text-outly-accent">
                 sorted.
                 {/* Hand-drawn animated underline SVG */}
@@ -949,7 +956,7 @@ export default function Landing() {
           <div className="md:w-1/2 z-10">
             <div className="w-12 h-0.5 bg-[#c5a880] mb-10"></div>
             <p className="text-[10px] font-bold tracking-[0.3em] text-[#c5a880] uppercase mb-8">THE DAILY BRIEF</p>
-            <h2 className="text-5xl md:text-6xl text-white font-serif font-medium mb-10 leading-[1.05] tracking-tight">
+            <h2 className="text-5xl md:text-6xl text-white font-sans font-medium mb-10 leading-[1.05] tracking-tight">
               Open Outly.<br />Read one thing.<br /><span className="italic-serif text-[#c5a880] text-6xl md:text-7xl">Know your whole search.</span>
             </h2>
             <p className="text-white/60 text-lg leading-relaxed max-w-md font-medium">
@@ -959,7 +966,7 @@ export default function Landing() {
           <div className="md:w-1/2 w-full z-10">
             <div className="bg-white rounded-[32px] p-10 text-outly-dark shadow-2xl border border-outly-border/45">
               <div className="flex justify-between items-baseline mb-10 border-b border-outly-border/50 pb-6">
-                <h4 className="font-serif italic text-2xl tracking-tight">Wednesday, April 8</h4>
+                <h4 className="font-sans italic text-2xl tracking-tight">Wednesday, April 8</h4>
                 <span className="text-[10px] text-outly-dark/40 font-bold tracking-widest uppercase">7:00 AM BRIEF</span>
               </div>
               <div className="space-y-6">
@@ -1021,7 +1028,7 @@ export default function Landing() {
       {/* FEATURE GRID */}
       <section className="max-w-6xl mx-auto px-6 py-28">
         <div className="mb-20">
-          <h2 className="text-6xl md:text-7xl font-serif font-medium tracking-tight leading-[1] text-outly-dark">
+          <h2 className="text-6xl md:text-7xl font-sans font-medium tracking-tight leading-[1] text-outly-dark">
             Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
           </h2>
         </div>
@@ -1084,7 +1091,7 @@ export default function Landing() {
       {/* INTERACTIVE WORKSPACE SHOWCASE */}
       <section id="demo" className="max-w-6xl mx-auto px-6 py-20 text-center">
         <div className="text-outly-accent font-bold text-[10px] tracking-[0.3em] uppercase mb-8">TRY IT RIGHT HERE</div>
-        <h2 className="text-6xl md:text-7xl font-serif font-medium tracking-tight mb-8 leading-[1]">
+        <h2 className="text-6xl md:text-7xl font-sans font-medium tracking-tight mb-8 leading-[1]">
           Go on, <span className="italic-serif text-outly-accent">click around.</span>
         </h2>
         <p className="text-outly-dark/50 text-xl mb-20 max-w-2xl mx-auto font-medium">
@@ -1576,7 +1583,7 @@ export default function Landing() {
               <div className="h-px w-8 bg-outly-accent"></div>
               <div className="text-outly-accent font-bold text-[10px] tracking-[0.3em] uppercase">PRICING</div>
             </div>
-            <h2 className="text-6xl md:text-8xl font-serif font-medium tracking-tight mb-10 leading-[0.95]">
+            <h2 className="text-6xl md:text-8xl font-sans font-medium tracking-tight mb-10 leading-[0.95]">
               Free <span className="italic-serif text-outly-accent">by nature.</span><br />
               Paid <span className="italic-serif text-outly-accent">for convenience.</span>
             </h2>
@@ -1732,7 +1739,7 @@ export default function Landing() {
           </div>
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-px h-10 bg-outly-accent/20"></div>
         </div>
-        <h2 className="text-7xl md:text-[90px] font-serif font-medium tracking-tight mb-10 leading-[0.9] text-outly-dark">
+        <h2 className="text-7xl md:text-[90px] font-sans font-medium tracking-tight mb-10 leading-[0.9] text-outly-dark">
           Tomorrow morning<br />could feel <span className="italic-serif text-outly-accent">different.</span>
         </h2>
         <p className="text-outly-dark/40 text-lg mb-12 leading-relaxed max-w-xl mx-auto font-medium">
