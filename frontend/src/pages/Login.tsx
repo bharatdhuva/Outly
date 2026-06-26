@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { usePageTransition } from "../components/PageTransition";
 import { Eye, EyeOff } from "lucide-react";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
@@ -36,6 +37,7 @@ const promoSlides: SlideText[] = [
 
 export default function Login() {
   const navigate = useNavigate();
+  const navigateTo = usePageTransition();
   const formWrapperRef = useRef<HTMLDivElement>(null);
   const textWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -246,7 +248,7 @@ export default function Login() {
         </div>
 
         {/* Logo Header with subtle hover lift */}
-        <div className="flex items-center gap-2 font-bold text-2xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigate("/")}>
+        <div className="flex items-center gap-2 font-bold text-2xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigateTo("/")}>
           <img src={logoTransparent} alt="Outly Logo" className="w-10 h-10 object-contain" />
           <span className="text-outly-accent">Outly</span>
         </div>
@@ -480,14 +482,14 @@ export default function Login() {
           )}
 
           {/* Back to home (Smooth slide arrow and underline animation) */}
-          <Link
-            to="/"
-            className="group inline-flex items-center gap-2 text-[14px] font-bold text-outly-dark/40 hover:text-outly-dark transition-all duration-300 mt-8 self-center select-none relative pb-1"
+          <button
+            onClick={() => navigateTo("/")}
+            className="group inline-flex items-center gap-2 text-[14px] font-bold text-outly-dark/40 hover:text-outly-dark transition-all duration-300 mt-8 self-center select-none relative pb-1 cursor-pointer bg-transparent border-none"
           >
             <span className="transform transition-transform duration-300 ease-out group-hover:-translate-x-1">←</span>
             <span>Back to home</span>
             <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-outly-dark/40 transition-all duration-300 ease-out group-hover:w-full"></span>
-          </Link>
+          </button>
 
         </div>
       </div>

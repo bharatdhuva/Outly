@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { usePageTransition } from "../components/PageTransition";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/logo_transparent.png";
@@ -247,6 +248,7 @@ export default function Landing() {
   const cardMeetingRef = useRef<HTMLDivElement>(null);
   const cardNudgeRef = useRef<HTMLDivElement>(null);
   const paperPlaneRef = useRef<SVGSVGElement>(null);
+  const navigateTo = usePageTransition();
 
   // ─── STATE MANAGEMENT ───
   const [scrolled, setScrolled] = useState(false);
@@ -869,7 +871,7 @@ export default function Landing() {
           
           {/* Right: Buttons */}
           <div className="flex items-center justify-end gap-3 sm:gap-4">
-            <Link to="/login" className="border border-outly-border px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-outly-dark hover:bg-outly-border/20 hover:border-outly-dark/40 transition-all duration-300 text-center">Sign in</Link>
+            <button onClick={() => navigateTo("/login")} className="border border-outly-border px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-outly-dark hover:bg-outly-border/20 hover:border-outly-dark/40 transition-all duration-300 text-center cursor-pointer">Sign in</button>
           </div>
           
         </div>
@@ -910,12 +912,12 @@ export default function Landing() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 justify-start hero-buttons opacity-0">
-              <Link to="/login" className="bg-outly-accent text-white px-8 py-4 rounded-full font-bold text-base hover:brightness-105 transition shadow-lg shadow-outly-accent/20">
+              <button onClick={() => navigateTo("/login")} className="bg-outly-accent text-white px-8 py-4 rounded-full font-bold text-base hover:brightness-105 transition shadow-lg shadow-outly-accent/20 cursor-pointer">
                 Get started — it's free
-              </Link>
-              <Link to="/login" className="bg-white border border-outly-border px-8 py-4 rounded-full font-bold text-base hover:bg-outly-border/30 transition">
+              </button>
+              <button onClick={() => navigateTo("/login")} className="bg-white border border-outly-border px-8 py-4 rounded-full font-bold text-base hover:bg-outly-border/30 transition cursor-pointer">
                 Sign in
-              </Link>
+              </button>
             </div>
             
             <p className="text-[11px] font-medium text-outly-dark/40 text-left hero-meta opacity-0">
@@ -1983,7 +1985,7 @@ export default function Landing() {
               <span className="text-[10px] font-bold px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Google Gemini</span>
               <span className="text-[10px] font-bold px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Groq</span>
             </div>
-            <Link to="/login" className="w-full border-2 border-outly-border py-5 rounded-full font-bold text-lg hover:bg-outly-cream transition text-center select-none block">Start free</Link>
+            <button onClick={() => navigateTo("/login")} className="w-full border-2 border-outly-border py-5 rounded-full font-bold text-lg hover:bg-outly-cream transition text-center select-none block cursor-pointer">Start free</button>
           </div>
           
           {/* Outly Cloud Card */}
@@ -2018,7 +2020,7 @@ export default function Landing() {
                 Priority support and early features
               </li>
             </ul>
-            <Link to="/login" className="w-full bg-outly-accent py-5 rounded-full font-bold text-lg hover:brightness-110 transition shadow-2xl shadow-outly-accent/30 text-center select-none block">Get Outly Cloud</Link>
+            <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-5 rounded-full font-bold text-lg hover:brightness-110 transition shadow-2xl shadow-outly-accent/30 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
           </div>
         </div>
         
@@ -2052,12 +2054,12 @@ export default function Landing() {
           Outly is free to start — sign up and get your first morning brief tomorrow.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link to="/login" className="bg-outly-accent text-white px-8 py-4 rounded-full font-bold text-base hover:brightness-105 transition shadow-xl shadow-outly-accent/20">
+          <button onClick={() => navigateTo("/login")} className="bg-outly-accent text-white px-8 py-4 rounded-full font-bold text-base hover:brightness-105 transition shadow-xl shadow-outly-accent/20 cursor-pointer">
             Get started — it's free
-          </Link>
-          <Link to="/login" className="bg-white border border-outly-border px-8 py-4 rounded-full font-bold text-base hover:bg-outly-border/30 transition">
+          </button>
+          <button onClick={() => navigateTo("/login")} className="bg-white border border-outly-border px-8 py-4 rounded-full font-bold text-base hover:bg-outly-border/30 transition cursor-pointer">
             Sign in
-          </Link>
+          </button>
         </div>
       </section>
 

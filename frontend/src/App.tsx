@@ -17,6 +17,7 @@ import Analytics from "./pages/Analytics";
 import ResumeVault from "./pages/ResumeVault";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
+import { PageTransition } from "./components/PageTransition";
 
 const queryClient = new QueryClient();
 
@@ -27,10 +28,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           {/* Public Landing Page */}
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<PageTransition><Landing /></PageTransition>} />
 
           {/* Public Login Page */}
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
 
           {/* Protected/Workspace Dashboard Pages */}
           <Route
