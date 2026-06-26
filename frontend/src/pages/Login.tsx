@@ -185,7 +185,7 @@ export default function Login() {
           origin: { y: 0.6 },
           colors: ["#f23c5d", "#1a1a1a"]
         });
-        navigate("/dashboard");
+        navigate("/onboarding");
       }, 1000);
       return;
     }

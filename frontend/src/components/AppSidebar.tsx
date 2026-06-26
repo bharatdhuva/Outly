@@ -115,12 +115,12 @@ export function AppSidebar({
               </p>
               <div className="space-y-1">
                 {section.items.map((item) => {
-                  const isActive = item.url === "/dashboard" ? location.pathname === "/dashboard" : location.pathname.startsWith(item.url);
+                  const isActive = item.url === "/onboarding" ? location.pathname === "/onboarding" : location.pathname.startsWith(item.url);
                   return (
                     <NavLink
                       key={item.url}
                       to={item.url}
-                      end={item.url === "/dashboard"}
+                      end={item.url === "/onboarding"}
                       onClick={onClose}
                       className={`group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium transition-all duration-200 ease-in-out transform hover:translate-x-1 active:scale-[0.97] ${
                         isActive
