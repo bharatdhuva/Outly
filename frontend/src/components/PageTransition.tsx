@@ -82,6 +82,7 @@ export function usePageTransition() {
  */
 export function GlobalPageTransitionInterceptor() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
@@ -103,6 +104,13 @@ export function GlobalPageTransitionInterceptor() {
         !e.shiftKey &&
         !e.altKey
       ) {
+        // If navigating to the exact same page, do not play the exit transition
+        // to avoid getting stuck in a faded-out (opacity: 0) state.
+        const targetPath = href.split("?")[0].split("#")[0];
+        if (targetPath === location.pathname) {
+          return;
+        }
+
         // Prevent immediate React Router navigation
         e.preventDefault();
         e.stopPropagation();
@@ -131,7 +139,7 @@ export function GlobalPageTransitionInterceptor() {
     return () => {
       document.removeEventListener("click", handleGlobalClick, { capture: true });
     };
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   return null;
 }

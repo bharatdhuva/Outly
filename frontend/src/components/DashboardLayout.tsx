@@ -615,21 +615,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         <stop offset="100%" stopColor="#5b21b6" />
                       </linearGradient>
                     </defs>
-
+ 
                     <g className="premium-small-sparkle-1">
                       <path d="M 80 25 L 80 15 C 80 21 77 25 71 25 Z" fill="url(#nav-grad-top-left)" />
                       <path d="M 80 25 L 89 25 C 83 25 80 21 80 15 Z" fill="url(#nav-grad-top-right)" />
                       <path d="M 80 25 L 80 35 C 80 29 83 25 89 25 Z" fill="url(#nav-grad-bottom-right)" />
                       <path d="M 80 25 L 71 25 C 77 25 80 29 80 35 Z" fill="url(#nav-grad-bottom-left)" />
                     </g>
-
+ 
                     <g className="premium-small-sparkle-2">
                       <path d="M 20 75 L 20 67 C 20 72 17 75 12 75 Z" fill="url(#nav-grad-top-left)" />
                       <path d="M 20 75 L 28 75 C 23 75 20 72 20 67 Z" fill="url(#nav-grad-top-right)" />
                       <path d="M 20 75 L 20 83 C 20 78 23 75 28 75 Z" fill="url(#nav-grad-bottom-right)" />
                       <path d="M 20 75 L 12 75 C 17 75 20 78 20 83 Z" fill="url(#nav-grad-bottom-left)" />
                     </g>
-
+ 
                     <g className="premium-main-sparkle">
                       <path d="M 50 50 L 50 10 C 50 32 32 50 10 50 Z" fill="url(#nav-grad-top-left)" />
                       <path d="M 50 50 L 90 50 C 68 50 50 32 50 10 Z" fill="url(#nav-grad-top-right)" />
