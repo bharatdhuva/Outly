@@ -124,7 +124,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           
           {/* Left: Brand Logo */}
           <div className="flex h-full items-center gap-12">
-            <Link to="/" className="flex h-full -translate-y-px items-center gap-1 font-bold text-xl leading-none tracking-tight hover:opacity-90 transition-opacity">
+            <Link to="/dashboard" className="flex h-full -translate-y-px items-center gap-1 font-bold text-xl leading-none tracking-tight hover:opacity-90 transition-opacity">
               <img src={logoTransparent} alt="Outly Logo" className="h-8 w-8 -translate-y-px object-contain" />
               <span className="text-outly-accent leading-none">Outly</span>
             </Link>
@@ -144,7 +144,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
                     location.pathname.startsWith("/resume-") || location.pathname === "/ats-score" || location.pathname === "/resume-vault"
                       ? "border-primary text-primary" 
-                      : "border-transparent text-[#2d3639] hover:text-primary"
+                      : "border-transparent text-outly-dark/70 hover:text-outly-accent"
                   }`}
                 >
                   <span>Resume</span>
@@ -165,7 +165,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/ats-score" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* Circle Check (ATS Resume Checker) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10" />
@@ -173,7 +173,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">ATS Resume Checker</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">ATS Resume Checker</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Analyze your resume against ATS algorithms.</span>
                           </div>
                         </Link>
@@ -182,7 +182,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/resume-tailor" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* 3D Cube (AI Resume Builder) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
@@ -191,7 +191,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Tailor Resume</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Tailor Resume</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Tailor your CV for specific job descriptions.</span>
                           </div>
                         </Link>
@@ -200,7 +200,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/resume-vault" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* Document List (Resume Examples) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
@@ -210,7 +210,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Resume Vault</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Resume Vault</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Manage saved resumes and tailored versions.</span>
                           </div>
                         </Link>
@@ -223,25 +223,25 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <div className="space-y-3.5 pt-1">
                         <button 
                           onClick={() => setActiveGuide("how-to-write")}
-                          className="block text-[11.5px] font-semibold text-foreground/80 hover:text-primary hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
                         >
                           How to write a resume
                         </button>
                         <button 
                           onClick={() => setActiveGuide("resume-format")}
-                          className="block text-[11.5px] font-semibold text-foreground/80 hover:text-primary hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
                         >
                           Choosing a resume format
                         </button>
                         <button 
                           onClick={() => setActiveGuide("resume-summary")}
-                          className="block text-[11.5px] font-semibold text-foreground/80 hover:text-primary hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
                         >
                           Writing a resume summary
                         </button>
                         <button 
                           onClick={() => setActiveGuide("one-page")}
-                          className="block text-[11.5px] font-semibold text-foreground/80 hover:text-primary hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
                         >
                           Fit experience on one page
                         </button>
@@ -263,7 +263,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
                     location.pathname === "/applications" || location.pathname === "/analytics"
                       ? "border-primary text-primary" 
-                      : "border-transparent text-[#2d3639] hover:text-primary"
+                      : "border-transparent text-outly-dark/70 hover:text-outly-accent"
                   }`}
                 >
                   <span>Jobs</span>
@@ -284,14 +284,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/analytics" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* Speech Bubble (Interview Help) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Interview Help</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Interview Help</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Practice with AI mock interviews and analytics.</span>
                           </div>
                         </Link>
@@ -300,7 +300,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/applications" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* Target/Bullseye (Job Tracker) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10" />
@@ -309,7 +309,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Job Tracker</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Job Tracker</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Organize your applications in a visual board.</span>
                           </div>
                         </Link>
@@ -318,7 +318,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/applications?tab=search" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* Office Building (Job Board) — Enhancv style */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
@@ -332,7 +332,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Job Board</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Job Board</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Find matches and track them instantly.</span>
                           </div>
                         </Link>
@@ -341,7 +341,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/settings" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* Chrome Logo (Chrome Extension) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10" />
@@ -352,7 +352,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Chrome Extension</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Chrome Extension</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Apply faster from any job site.</span>
                           </div>
                         </Link>
@@ -365,25 +365,25 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <div className="space-y-3.5 pt-1">
                         <button 
                           onClick={() => setActiveGuide("interview-prep")}
-                          className="block text-[11.5px] font-semibold text-foreground/80 hover:text-primary hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
                         >
                           Job Interview Guides
                         </button>
                         <button 
                           onClick={() => setActiveGuide("salary-negotiation")}
-                          className="block text-[11.5px] font-semibold text-foreground/80 hover:text-primary hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
                         >
                           Salary negotiation guide
                         </button>
                         <button 
                           onClick={() => setActiveGuide("linkedin-networking")}
-                          className="block text-[11.5px] font-semibold text-foreground/80 hover:text-primary hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
                         >
                           LinkedIn networking tactics
                         </button>
                         <button 
                           onClick={() => setActiveGuide("sprint-strategy")}
-                          className="block text-[11.5px] font-semibold text-foreground/80 hover:text-primary hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
                         >
                           Job search sprint strategy
                         </button>
@@ -405,7 +405,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
                     ["/cold-mail", "/linkedin-posts", "/twitter", "/logs", "/settings"].some(path => location.pathname.startsWith(path))
                       ? "border-primary text-primary" 
-                      : "border-transparent text-[#2d3639] hover:text-primary"
+                      : "border-transparent text-outly-dark/70 hover:text-outly-accent"
                   }`}
                 >
                   <span>Tools</span>
@@ -426,7 +426,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/cold-mail" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* Envelope (Cold Mail) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -434,7 +434,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Cold Mail Automation</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Cold Mail Automation</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Automate personalized emails to recruiters.</span>
                           </div>
                         </Link>
@@ -443,14 +443,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/linkedin-posts" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* LinkedIn Logo (filled) — Enhancv style */}
                             <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">LinkedIn Post Generator</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">LinkedIn Post Generator</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Draft professional content for personal branding.</span>
                           </div>
                         </Link>
@@ -459,14 +459,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/twitter" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-primary transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
                             {/* Twitter / X Logo (filled) — Enhancv style */}
                             <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-foreground group-hover:text-primary transition duration-150">Twitter / X Scheduler</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Twitter / X Scheduler</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Automate and queue tweets and threads.</span>
                           </div>
                         </Link>
@@ -479,23 +479,23 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <div className="space-y-1 pt-1">
                         <Link 
                           to="/logs" 
-                          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/50 transition text-[11.5px] font-semibold text-foreground/80 text-left w-full group"
+                          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/50 transition text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent text-left w-full group"
                         >
-                          <ScrollText className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
+                          <ScrollText className="h-3.5 w-3.5 text-muted-foreground group-hover:text-outly-accent" />
                           <span>System Logs</span>
                         </Link>
                         <Link 
                           to="/settings" 
-                          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/50 transition text-[11.5px] font-semibold text-foreground/80 text-left w-full group"
+                          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/50 transition text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent text-left w-full group"
                         >
-                          <SettingsIcon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
+                          <SettingsIcon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-outly-accent" />
                           <span>Workspace Settings</span>
                         </Link>
                         <Link 
                           to="/settings" 
-                          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/50 transition text-[11.5px] font-semibold text-foreground/80 text-left w-full group"
+                          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/50 transition text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent text-left w-full group"
                         >
-                          <KeyRound className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
+                          <KeyRound className="h-3.5 w-3.5 text-muted-foreground group-hover:text-outly-accent" />
                           <span>API Connections</span>
                         </Link>
                       </div>
