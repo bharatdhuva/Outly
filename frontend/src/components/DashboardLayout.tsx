@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   LogOut,
-  KeyRound
+  KeyRound,
+  Sparkles
 } from "lucide-react";
 import {
   Dialog,
@@ -19,6 +20,8 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog";
+import confetti from "canvas-confetti";
+import { useToast } from "@/hooks/use-toast";
 import {
   Accordion,
   AccordionContent,
@@ -37,7 +40,8 @@ const pageTitles: Record<string, string> = {
   "/ats-score": "ATS Score",
   "/applications": "Applications",
   "/resume-vault": "Resume Vault",
-  "/analytics": "Analytics"
+  "/analytics": "Analytics",
+  "/pricing": "Pricing"
 };
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -49,6 +53,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [activeDropdown, setActiveDropdown] = useState<"resumes" | "jobs" | "tools" | null>(null);
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
   const dropdownCloseTimer = useRef<number | null>(null);
+
+  // Pricing & Razorpay Billing states
+  const [isPremium, setIsPremium] = useState(() => localStorage.getItem("outly_premium_user") === "true");
+
+  useEffect(() => {
+    const checkPremiumStatus = () => {
+      setIsPremium(localStorage.getItem("outly_premium_user") === "true");
+    };
+    window.addEventListener("storage", checkPremiumStatus);
+    window.addEventListener("premium_upgrade", checkPremiumStatus);
+    return () => {
+      window.removeEventListener("storage", checkPremiumStatus);
+      window.removeEventListener("premium_upgrade", checkPremiumStatus);
+    };
+  }, []);
 
   // Fetch settings from API to personalize the dashboard profile
   const { data: settings } = useQuery({
@@ -74,6 +93,53 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       }
     };
   }, []);
+
+  const handleUpgradeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const button = e.currentTarget;
+    const buttonRect = button.getBoundingClientRect();
+    const xCenter = buttonRect.left + buttonRect.width / 2;
+    const yCenter = buttonRect.top + buttonRect.height / 2;
+    const clientX = e.clientX || xCenter;
+    const clientY = e.clientY || yCenter;
+
+    for (let i = 0; i < 15; i++) {
+      createParticle(clientX, clientY);
+    }
+
+    setTimeout(() => {
+      navigate("/pricing");
+    }, 150);
+  };
+
+  const createParticle = (x: number, y: number) => {
+    const particle = document.createElement("div");
+    particle.className = "premium-particle";
+    document.body.appendChild(particle);
+
+    const size = Math.random() * 8 + 4;
+    const colors = ["#8b5cf6", "#a78bfa", "#fc2474", "#c084fc", "#ddd6fe"];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.background = randomColor;
+    particle.style.left = `${x - size / 2}px`;
+    particle.style.top = `${y - size / 2}px`;
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * 80 + 40;
+    const destX = Math.cos(angle) * distance;
+    const destY = Math.sin(angle) * distance;
+
+    particle.style.setProperty("--x", `${destX}px`);
+    particle.style.setProperty("--y", `${destY}px`);
+
+    particle.style.animation = "premiumShoot 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards";
+
+    particle.addEventListener("animationend", () => {
+      particle.remove();
+    });
+  };
 
   const fullName = settings?.full_name || "Outly User";
   const initials =
@@ -504,12 +570,86 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 )}
               </div>
 
+              {/* Standalone Link: PRICING */}
+              <Link 
+                to="/pricing"
+                className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
+                  location.pathname === "/pricing"
+                    ? "border-primary text-primary" 
+                    : "border-transparent text-outly-dark/70 hover:text-outly-accent"
+                }`}
+              >
+                <span>Pricing</span>
+              </Link>
+
             </nav>
           </div>
 
           {/* Right Side: Profile initials & Logout CTA */}
           <div className="flex items-center gap-4">
             
+            {/* Upgrade button (visible if not premium) */}
+            {!isPremium ? (
+              <button
+                onClick={handleUpgradeClick}
+                type="button"
+                className="premium-upgrade-btn h-9 px-3.5 gap-2 text-[#0b132b] flex items-center justify-center rounded-full shrink-0"
+              >
+                <div className="premium-sparkle-group w-5 h-5 shrink-0">
+                  <svg className="premium-sparkle-svg w-full h-full" viewBox="0 0 100 100">
+                    <defs>
+                      <linearGradient id="nav-grad-top-left" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#c084fc" />
+                        <stop offset="100%" stopColor="#8b5cf6" />
+                      </linearGradient>
+                      <linearGradient id="nav-grad-top-right" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#a78bfa" />
+                        <stop offset="100%" stopColor="#7c3aed" />
+                      </linearGradient>
+                      <linearGradient id="nav-grad-bottom-right" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#6d28d9" />
+                        <stop offset="100%" stopColor="#4c1d95" />
+                      </linearGradient>
+                      <linearGradient id="nav-grad-bottom-left" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#7c3aed" />
+                        <stop offset="100%" stopColor="#5b21b6" />
+                      </linearGradient>
+                    </defs>
+
+                    <g className="premium-small-sparkle-1">
+                      <path d="M 80 25 L 80 15 C 80 21 77 25 71 25 Z" fill="url(#nav-grad-top-left)" />
+                      <path d="M 80 25 L 89 25 C 83 25 80 21 80 15 Z" fill="url(#nav-grad-top-right)" />
+                      <path d="M 80 25 L 80 35 C 80 29 83 25 89 25 Z" fill="url(#nav-grad-bottom-right)" />
+                      <path d="M 80 25 L 71 25 C 77 25 80 29 80 35 Z" fill="url(#nav-grad-bottom-left)" />
+                    </g>
+
+                    <g className="premium-small-sparkle-2">
+                      <path d="M 20 75 L 20 67 C 20 72 17 75 12 75 Z" fill="url(#nav-grad-top-left)" />
+                      <path d="M 20 75 L 28 75 C 23 75 20 72 20 67 Z" fill="url(#nav-grad-top-right)" />
+                      <path d="M 20 75 L 20 83 C 20 78 23 75 28 75 Z" fill="url(#nav-grad-bottom-right)" />
+                      <path d="M 20 75 L 12 75 C 17 75 20 78 20 83 Z" fill="url(#nav-grad-bottom-left)" />
+                    </g>
+
+                    <g className="premium-main-sparkle">
+                      <path d="M 50 50 L 50 10 C 50 32 32 50 10 50 Z" fill="url(#nav-grad-top-left)" />
+                      <path d="M 50 50 L 90 50 C 68 50 50 32 50 10 Z" fill="url(#nav-grad-top-right)" />
+                      <path d="M 50 50 L 50 90 C 50 68 68 50 90 50 Z" fill="url(#nav-grad-bottom-right)" />
+                      <path d="M 50 50 L 10 50 C 32 50 50 68 50 90 Z" fill="url(#nav-grad-bottom-left)" />
+                    </g>
+                  </svg>
+                </div>
+                <span className="text-[11px] font-bold tracking-wider uppercase text-[#0b132b]">Upgrade</span>
+                <svg className="premium-arrow-icon w-3.5 h-3.5 text-[#0b132b]" viewBox="0 0 24 24">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            ) : (
+              <div className="inline-flex items-center justify-center rounded-xl bg-outly-accent/10 border border-outly-accent/20 text-[10px] font-bold tracking-wider uppercase py-1.5 px-3 text-outly-accent select-none gap-1">
+                <Sparkles className="h-3.5 w-3.5 fill-outly-accent/20" />
+                <span>Cloud Plan</span>
+              </div>
+            )}
+
             {/* Desktop Profile Info */}
             <div className="hidden md:flex items-center gap-2.5 select-none">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground shadow-sm border border-primary/10">

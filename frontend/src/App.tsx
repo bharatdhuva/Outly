@@ -17,6 +17,7 @@ import Analytics from "./pages/Analytics";
 import ResumeVault from "./pages/ResumeVault";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
+import Pricing from "./pages/Pricing";
 import { PageTransition } from "./components/PageTransition";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
                   <Route path="/ats-score" element={<AtsScore />} />
                   <Route path="/applications" element={<Applications />} />
                   <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/pricing" element={<Pricing />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </DashboardLayout>

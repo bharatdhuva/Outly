@@ -1364,3 +1364,115 @@ html {
   stroke-dashoffset: 600;
   animation: drawline 1.1s cubic-bezier(0.6, 0, 0.3, 1) 0.5s forwards;
 }
+
+/* ─── Premium Upgrade Button Styles ─── */
+.premium-upgrade-btn {
+  position: relative;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--primary) / 0.15);
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+  box-shadow: 0 10px 30px hsl(var(--primary) / 0.05), 0 2px 8px hsl(var(--primary) / 0.02), inset 0 1px 0 hsl(var(--card) / 0.8);
+}
+
+.premium-upgrade-btn:hover {
+  border-color: hsl(var(--primary) / 0.35);
+  box-shadow: 0 20px 40px hsl(var(--primary) / 0.12), 0 4px 12px hsl(var(--primary) / 0.04), inset 0 1px 0 hsl(var(--card) / 0.9);
+}
+
+.premium-upgrade-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 8px 20px hsl(var(--primary) / 0.08), inset 0 1px 0 hsl(var(--card) / 0.8);
+}
+
+.premium-sparkle-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.premium-sparkle-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 4px 12px hsl(var(--primary) / 0.2));
+}
+
+.premium-main-sparkle {
+  transform-origin: 50px 50px;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.premium-small-sparkle-1 {
+  transform-origin: 80px 25px;
+  animation: premiumTwinkle 4s infinite ease-in-out;
+}
+
+.premium-small-sparkle-2 {
+  transform-origin: 20px 75px;
+  animation: premiumTwinkle 4s infinite ease-in-out 1.5s;
+}
+
+.premium-arrow-icon {
+  stroke: currentColor;
+  stroke-width: 3.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.premium-upgrade-btn:hover .premium-arrow-icon {
+  transform: translateX(6px);
+}
+
+@keyframes premiumFloatSparkle {
+  0% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.05) rotate(5deg);
+  }
+  100% {
+    transform: translateY(1px) scale(0.98) rotate(-3deg);
+  }
+}
+
+@keyframes premiumTwinkle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(0.6);
+    opacity: 0.3;
+  }
+}
+
+.premium-particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  transform-origin: center;
+  animation: premiumShoot 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  z-index: 9999;
+}
+
+@keyframes premiumShoot {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(0);
+    opacity: 0;
+  }
+}
+

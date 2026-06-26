@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Upgrade Button Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Reset and Center Container */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #fdfaf3; /* Matching Outly's warm cream background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Outfit', sans-serif;
+      overflow: hidden;
+    }
+
+    .demo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .demo-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(15, 23, 42, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 10px;
+    }
+
+    /* ─── PREMIUM UPGRADE BUTTON ─── */
+    .upgrade-btn {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid rgba(138, 92, 246, 0.15); /* Soft lavender border */
+      border-radius: 32px; /* Pill shape */
+      padding: 18px 36px 18px 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 20px;
+      cursor: pointer;
+      outline: none;
+      user-select: none;
+      
+      /* Elegant ambient purple shadow */
+      box-shadow: 
+        0 10px 30px rgba(124, 58, 237, 0.05),
+        0 2px 8px rgba(124, 58, 237, 0.02),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      
+      /* Smooth transitions */
+      transition: 
+        transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        box-shadow 0.4s ease,
+        border-color 0.4s ease;
+    }
+
+    /* Button Hover State */
+    .upgrade-btn:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: rgba(138, 92, 246, 0.35);
+      box-shadow: 
+        0 20px 40px rgba(124, 58, 237, 0.12),
+        0 4px 12px rgba(124, 58, 237, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    /* Button Active Click State */
+    .upgrade-btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 
+        0 8px 20px rgba(124, 58, 237, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    /* ─── 3D SPARKLE GROUP ─── */
+    .sparkle-group {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sparkle-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      filter: drop-shadow(0 4px 12px rgba(124, 58, 237, 0.2));
+    }
+
+    /* Floating Animation on Main Sparkle */
+    .main-sparkle {
+      transform-origin: 50px 50px;
+      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .upgrade-btn:hover .main-sparkle {
+      animation: floatSparkle 3s ease-in-out infinite alternate;
+    }
+
+    /* Twinkling Animation on Small Sparkles */
+    .small-sparkle-1 {
+      transform-origin: 80px 25px;
+      animation: twinkle 4s infinite ease-in-out;
+    }
+
+    .small-sparkle-2 {
+      transform-origin: 20px 75px;
+      animation: twinkle 4s infinite ease-in-out 1.5s;
+    }
+
+    /* ─── BUTTON TEXT ─── */
+    .btn-text {
+      font-size: 26px;
+      font-weight: 600;
+      color: #0b132b; /* Dark navy text */
+      letter-spacing: -0.01em;
+      transition: color 0.3s ease;
+    }
+
+    /* ─── RIGHT CHEVRON ARROW ─── */
+    .arrow-icon {
+      width: 20px;
+      height: 20px;
+      stroke: #0b132b;
+      stroke-width: 3.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .upgrade-btn:hover .arrow-icon {
+      transform: translateX(6px);
+    }
+
+    /* ─── KEYFRAMES FOR ANIMATIONS ─── */
+    @keyframes floatSparkle {
+      0% {
+        transform: translateY(0) scale(1) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-3px) scale(1.05) rotate(5deg);
+      }
+      100% {
+        transform: translateY(1px) scale(0.98) rotate(-3deg);
+      }
+    }
+
+    @keyframes twinkle {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        transform: scale(0.6);
+        opacity: 0.3;
+      }
+    }
+
+    /* ─── PARTICLE EFFECTS (ON CLICK) ─── */
+    .particle {
+      position: absolute;
+      pointer-events: none;
+      border-radius: 50%;
+      transform-origin: center;
+      animation: shoot 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+      z-index: 10;
+    }
+
+    @keyframes shoot {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--x), var(--y)) scale(0);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="demo-container">
+    <div class="demo-title">Interactive Button Demo</div>
+    
+    <!-- Premium Upgrade Button -->
+    <button class="upgrade-btn" id="upgradeBtn">
+      
+      <!-- 3D-Beveled Sparkle Vector Group -->
+      <div class="sparkle-group">
+        <svg class="sparkle-svg" viewBox="0 0 100 100">
+          <defs>
+            <!-- Quadrant Gradients for 3D Bevel Highlight -->
+            <linearGradient id="grad-top-left" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#c084fc" />
+              <stop offset="100%" stop-color="#8b5cf6" />
+            </linearGradient>
+            <linearGradient id="grad-top-right" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#a78bfa" />
+              <stop offset="100%" stop-color="#7c3aed" />
+            </linearGradient>
+            <linearGradient id="grad-bottom-right" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6d28d9" />
+              <stop offset="100%" stop-color="#4c1d95" />
+            </linearGradient>
+            <linearGradient id="grad-bottom-left" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#7c3aed" />
+              <stop offset="100%" stop-color="#5b21b6" />
+            </linearGradient>
+            
+            <!-- Small Sparkle Gradients -->
+            <linearGradient id="grad-small" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ddd6fe" />
+              <stop offset="100%" stop-color="#8b5cf6" />
+            </linearGradient>
+          </defs>
+
+          <!-- Small Top-Right Sparkle -->
+          <g class="small-sparkle-1">
+            <!-- 3D Beveled Small Star -->
+            <path d="M 80 25 L 80 15 C 80 21 77 25 71 25 Z" fill="url(#grad-top-left)" />
+            <path d="M 80 25 L 89 25 C 83 25 80 21 80 15 Z" fill="url(#grad-top-right)" />
+            <path d="M 80 25 L 80 35 C 80 29 83 25 89 25 Z" fill="url(#grad-bottom-right)" />
+            <path d="M 80 25 L 71 25 C 77 25 80 29 80 35 Z" fill="url(#grad-bottom-left)" />
+          </g>
+
+          <!-- Small Bottom-Left Sparkle -->
+          <g class="small-sparkle-2">
+            <!-- 3D Beveled Small Star -->
+            <path d="M 20 75 L 20 67 C 20 72 17 75 12 75 Z" fill="url(#grad-top-left)" />
+            <path d="M 20 75 L 28 75 C 23 75 20 72 20 67 Z" fill="url(#grad-top-right)" />
+            <path d="M 20 75 L 20 83 C 20 78 23 75 28 75 Z" fill="url(#grad-bottom-right)" />
+            <path d="M 20 75 L 12 75 C 17 75 20 78 20 83 Z" fill="url(#grad-bottom-left)" />
+          </g>
+
+          <!-- Main Center 3D Beveled Sparkle -->
+          <g class="main-sparkle">
+            <!-- Top-Left Quadrant (Highlight) -->
+            <path d="M 50 50 L 50 10 C 50 32 32 50 10 50 Z" fill="url(#grad-top-left)" />
+            <!-- Top-Right Quadrant -->
+            <path d="M 50 50 L 90 50 C 68 50 50 32 50 10 Z" fill="url(#grad-top-right)" />
+            <!-- Bottom-Right Quadrant (Shadow) -->
+            <path d="M 50 50 L 50 90 C 50 68 68 50 90 50 Z" fill="url(#grad-bottom-right)" />
+            <!-- Bottom-Left Quadrant -->
+            <path d="M 50 50 L 10 50 C 32 50 50 68 50 90 Z" fill="url(#grad-bottom-left)" />
+          </g>
+        </svg>
+      </div>
+      
+      <!-- Button Text -->
+      <span class="btn-text">Upgrade</span>
+      
+      <!-- Right Chevron Arrow -->
+      <svg class="arrow-icon" viewBox="0 0 24 24">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+      
+    </button>
+  </div>
+
+  <script>
+    const button = document.getElementById('upgradeBtn');
+
+    // ─── PARTICLE EXPLOSION ON CLICK ───
+    button.addEventListener('click', (e) => {
+      const buttonRect = button.getBoundingClientRect();
+      const xCenter = buttonRect.left + buttonRect.width / 2;
+      const yCenter = buttonRect.top + buttonRect.height / 2;
+      
+      // Spawn 15 colorful sparkling particles
+      for (let i = 0; i < 15; i++) {
+        createParticle(e.clientX || xCenter, e.clientY || yCenter);
+      }
+    });
+
+    function createParticle(x, y) {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      document.body.appendChild(particle);
+      
+      // Randomize sizes and colors in the brand's violet/pink palette
+      const size = Math.random() * 8 + 4;
+      const colors = ['#8b5cf6', '#a78bfa', '#fc2474', '#c084fc', '#ddd6fe'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.background = randomColor;
+      particle.style.left = `${x - size / 2}px`;
+      particle.style.top = `${y - size / 2}px`;
+      
+      // Randomize angle and distance for explosion spread
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.random() * 80 + 40;
+      const destX = Math.cos(angle) * distance;
+      const destY = Math.sin(angle) * distance;
+      
+      particle.style.setProperty('--x', `${destX}px`);
+      particle.style.setProperty('--y', `${destY}px`);
+      
+      // Remove particle from DOM after animation completes
+      particle.addEventListener('animationend', () => {
+        particle.remove();
+      });
+    }
+  </script>
+</body>
+</html>

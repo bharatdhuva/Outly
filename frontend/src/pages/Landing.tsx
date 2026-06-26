@@ -146,37 +146,19 @@ const vaultRoles = {
 const pricingMatrix = {
   INR: {
     symbol: "₹",
-    monthly: {
-      free: "₹0",
-      freeMeta: "forever — you only pay your AI provider",
-      pro: "₹999",
-      proSlashed: "₹1,249",
-      proDuration: "per month"
-    },
-    yearly: {
-      free: "₹0",
-      freeMeta: "forever — you only pay your AI provider",
-      pro: "₹749",
-      proSlashed: "₹999",
-      proDuration: "per month, billed annually"
-    }
+    free: "₹0",
+    freeMeta: "forever — you only pay your AI provider",
+    pro: "₹49",
+    proSlashed: "₹299",
+    proDuration: "one-time payment"
   },
   USD: {
     symbol: "$",
-    monthly: {
-      free: "$0",
-      freeMeta: "forever — you only pay your AI provider",
-      pro: "$19",
-      proSlashed: "$25",
-      proDuration: "per month"
-    },
-    yearly: {
-      free: "$0",
-      freeMeta: "forever — you only pay your AI provider",
-      pro: "$15",
-      proSlashed: "$20",
-      proDuration: "per month, billed annually"
-    }
+    free: "$0",
+    freeMeta: "forever — you only pay your AI provider",
+    pro: "$0.99",
+    proSlashed: "$4.99",
+    proDuration: "one-time payment"
   }
 };
 
@@ -360,6 +342,49 @@ export default function Landing() {
   // Pricing state
   const [billingDuration, setBillingDuration] = useState<"monthly" | "yearly">("monthly");
   const [currency, setCurrency] = useState<"INR" | "USD">("INR");
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    // 3 days in milliseconds: 3 * 24 * 60 * 60 * 1000 = 259200000 ms
+    const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+    
+    // Check if target date is already in localStorage
+    let targetTime = localStorage.getItem("outly_launch_offer_target");
+    
+    if (!targetTime) {
+      const newTarget = Date.now() + THREE_DAYS_MS;
+      localStorage.setItem("outly_launch_offer_target", newTarget.toString());
+      targetTime = newTarget.toString();
+    }
+
+    const targetDate = parseInt(targetTime, 10);
+
+    const updateTimer = () => {
+      const now = Date.now();
+      const difference = targetDate - now;
+
+      if (difference <= 0) {
+        // If expired, restart to keep the offer active in the demo
+        const newTarget = Date.now() + THREE_DAYS_MS;
+        localStorage.setItem("outly_launch_offer_target", newTarget.toString());
+        setTimeLeft("3d 00h 00m 00s");
+        return;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      const pad = (num: number) => String(num).padStart(2, "0");
+
+      setTimeLeft(`${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const togglePricingDuration = () => {
     setBillingDuration(prev => prev === "monthly" ? "yearly" : "monthly");
@@ -841,7 +866,7 @@ export default function Landing() {
   };
 
   // Pricing: display data calculations
-  const priceData = pricingMatrix[currency][billingDuration];
+  const priceData = pricingMatrix[currency];
 
   return (
     <div className="bg-outly-cream text-outly-dark font-['Rubik',sans-serif] selection:bg-outly-accent/20 min-h-screen">
@@ -1903,24 +1928,6 @@ export default function Landing() {
           {/* Pricing Switcher Controls */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 bg-white border border-outly-border p-4 rounded-3xl shadow-soft shrink-0">
             
-            {/* Term toggle */}
-            <div className="flex items-center gap-3 select-none">
-              <span className={`text-xs font-bold transition-colors ${billingDuration === "monthly" ? "text-outly-dark" : "text-outly-dark/40"}`}>Monthly</span>
-              <div className="w-12 h-6 bg-outly-border rounded-full p-0.5 cursor-pointer relative" onClick={togglePricingDuration}>
-                <div className={`w-5 h-5 bg-outly-accent rounded-full shadow-md transform transition-transform duration-300 ${
-                  billingDuration === "yearly" ? "translate-x-6" : "translate-x-0"
-                }`}></div>
-              </div>
-              <span className={`text-xs font-medium transition-colors flex items-center gap-1.5 ${billingDuration === "yearly" ? "text-outly-dark font-bold" : "text-outly-dark/40"}`}>
-                Yearly
-                {billingDuration === "yearly" && (
-                  <span className="bg-outly-accent text-white text-[8px] px-1.5 py-0.5 rounded font-bold uppercase">Save 25%</span>
-                )}
-              </span>
-            </div>
-            
-            <div className="hidden sm:block w-px h-6 bg-outly-border"></div>
-            
             {/* Currency switcher */}
             <div className="flex items-center gap-2 select-none">
               <span className="text-xs font-bold text-outly-dark/40">Currency:</span>
@@ -1964,19 +1971,19 @@ export default function Landing() {
                 <svg className="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
-                Every feature — daily brief, summaries, drafts
+                Basic Resume ATS Score checking
               </li>
-              <li className="flex items-center gap-4 text-sm font-bold text-outly-dark/70">
-                <svg className="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+              <li className="flex items-center gap-4 text-sm font-bold text-outly-dark/30 line-through">
+                <svg className="w-5 h-5 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
-                Your ownership, your privacy, your data
+                Unlimited resume tailoring &amp; optimization
               </li>
-              <li className="flex items-center gap-4 text-sm font-bold text-outly-dark/70">
-                <svg className="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+              <li className="flex items-center gap-4 text-sm font-bold text-outly-dark/30 line-through">
+                <svg className="w-5 h-5 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
-                Unlimited accounts and calendars
+                Job search, tracking &amp; AI cold mail writing
               </li>
             </ul>
             <div className="flex flex-wrap gap-2 mb-10 select-none">
@@ -1989,9 +1996,13 @@ export default function Landing() {
           </div>
           
           {/* Outly Cloud Card */}
-          <div className="bg-outly-dark rounded-[48px] p-12 md:p-16 text-white flex flex-col relative overflow-hidden shadow-2xl hover:shadow-outly-accent/5 transition-all duration-500">
-            <div className="mb-10">
-              <span className="bg-outly-accent text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">25% LAUNCH DISCOUNT</span>
+          <div className="bg-foreground rounded-[48px] p-12 md:p-16 text-white flex flex-col relative overflow-hidden shadow-2xl shadow-outly-accent/10 border border-outly-accent/20 hover:shadow-outly-accent/20 transition-all duration-500">
+            <div className="mb-10 flex flex-wrap gap-2 items-center">
+              <span className="bg-outly-accent text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">SPECIAL LAUNCH OFFER</span>
+              <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold px-3.5 py-1.5 rounded-full tracking-wider font-mono flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                <span>{timeLeft || "3d 00h 00m 00s"} LEFT</span>
+              </span>
             </div>
             <h3 className="text-4xl font-medium mb-6 tracking-tight">Outly Cloud</h3>
             <p className="text-[13px] text-white/40 font-medium mb-12">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
@@ -2005,19 +2016,31 @@ export default function Landing() {
                 <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
-                Everything in Free, zero configuration
+                Unlimited Resume Tailoring &amp; ATS Score Checking
               </li>
               <li className="flex items-center gap-4 text-sm font-bold text-white/90">
                 <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
-                AI usage included — no token math, no surprise bills
+                AI Job Search &amp; Visual Job Tracker
               </li>
               <li className="flex items-center gap-4 text-sm font-bold text-white/90">
                 <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
-                Priority support and early features
+                LinkedIn &amp; Twitter Post Schedulers
+              </li>
+              <li className="flex items-center gap-4 text-sm font-bold text-white/90">
+                <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                AI Cold Mail Writer &amp; Automations
+              </li>
+              <li className="flex items-center gap-4 text-sm font-bold text-white/90">
+                <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                Get hired faster with AI — only ₹49
               </li>
             </ul>
             <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-5 rounded-full font-bold text-lg hover:brightness-110 transition shadow-2xl shadow-outly-accent/30 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
