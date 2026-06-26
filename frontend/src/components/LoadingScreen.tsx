@@ -156,7 +156,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                 <div className="flex items-center gap-2">
                   <img src={logoIcon} alt="Outly logo" className="h-8 w-8 shrink-0 object-contain" />
                   <div className="flex items-end gap-1">
-                    <span className="brand-wordmark text-[2rem] leading-none text-white">Outly</span>
+                    <span className="brand-wordmark text-[2rem] leading-none text-outly-accent">Outly</span>
                     <span className="mb-0.5 h-3 w-3 rounded-full bg-primary shadow-[0_0_18px_hsl(24_95%_53%/0.7)]" />
                   </div>
                 </div>

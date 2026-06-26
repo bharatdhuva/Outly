@@ -179,6 +179,66 @@ const pricingMatrix = {
   }
 };
 
+interface SearchJob {
+  id: string;
+  company: string;
+  title: string;
+  score: number;
+  location: string;
+  description: string;
+}
+
+const MOCK_SEARCH_JOBS: SearchJob[] = [
+  {
+    id: "netflix",
+    company: "Netflix",
+    title: "Senior UI Engineer",
+    score: 95,
+    location: "Los Gatos / Remote",
+    description: "Design modular design systems, focus on performance, dynamic layouts, and web interfaces."
+  },
+  {
+    id: "airbnb",
+    company: "Airbnb",
+    title: "Staff Product Designer",
+    score: 92,
+    location: "San Francisco / Remote",
+    description: "Lead user experience design for host platform, design system architecture, and prototyping."
+  },
+  {
+    id: "vercel",
+    company: "Vercel",
+    title: "Developer Relations Engineer",
+    score: 91,
+    location: "Remote",
+    description: "Empower developers with beautiful web development patterns, write guides, and speak to community."
+  },
+  {
+    id: "linear",
+    company: "Linear",
+    title: "Software Engineer",
+    score: 94,
+    location: "Remote",
+    description: "Build the future of software development tracking tools. Heavy focus on performance and keyboard shortcuts."
+  },
+  {
+    id: "google",
+    company: "Google",
+    title: "Frontend Engineer",
+    score: 88,
+    location: "Mountain View",
+    description: "Develop and maintain accessible user-facing dashboard systems and next-generation cloud panels."
+  },
+  {
+    id: "uber",
+    company: "Uber",
+    title: "Product Engineer",
+    score: 87,
+    location: "Seattle",
+    description: "Design real-time driver dispatcher interfaces and web systems to optimize dispatcher workflow."
+  }
+];
+
 export default function Landing() {
   // ─── REFS FOR ANIMATIONS ───
   const cardBriefRef = useRef<HTMLDivElement>(null);
@@ -267,17 +327,22 @@ export default function Landing() {
   const [inboxBadgeCount, setInboxBadgeCount] = useState(3);
   const [totalMailsSent, setTotalMailsSent] = useState(48);
 
-  // Scheduler state
-  const [activeCalendarDay, setActiveCalendarDay] = useState<string>("wed");
-  const [calendarComposerText, setCalendarComposerText] = useState(weeklyPosts.wed);
-  const [calendarStatuses, setCalendarStatuses] = useState<Record<string, "SENT" | "DRAFT" | "IDLE">>({
-    mon: "SENT",
-    tue: "SENT",
-    wed: "DRAFT",
-    thu: "IDLE",
-    fri: "IDLE",
-    sat: "IDLE",
-    sun: "IDLE"
+  // Job Tracker state
+  const [selectedTrackerJob, setSelectedTrackerJob] = useState<string>("spotify");
+  const [jobsSubTab, setJobsSubTab] = useState<"tracker" | "search">("tracker");
+  const [jobSearchQuery, setJobSearchQuery] = useState("");
+  const [jobTrackerData, setJobTrackerData] = useState<Record<string, Array<{ id: string, company: string, title: string, score: number, location: string }>>>({
+    applied: [
+      { id: "notion", company: "Notion", title: "Brand Lead", score: 72, location: "San Francisco" },
+      { id: "figma", company: "Figma", title: "Product Designer", score: 91, location: "Remote" }
+    ],
+    interviewing: [
+      { id: "spotify", company: "Spotify", title: "Product Designer", score: 98, location: "Stockholm" },
+      { id: "stripe", company: "Stripe", title: "Systems Engineer", score: 85, location: "Dublin" }
+    ],
+    offer: [
+      { id: "openai", company: "OpenAI", title: "Product Lead", score: 96, location: "San Francisco" }
+    ]
   });
 
   // Vault/ATS state
@@ -601,44 +666,118 @@ export default function Landing() {
     }
   };
 
-  // Calendar: select day
-  const handleSelectCalendarDay = (day: string) => {
-    setActiveCalendarDay(day);
-    setCalendarComposerText(weeklyPosts[day]);
-    
-    // Check if we should mark it as draft
-    setCalendarStatuses((prev) => {
-      const updated = { ...prev };
-      if (updated[day] === "IDLE") {
-        updated[day] = "DRAFT";
-      }
-      return updated;
+  // Job Tracker: Move a job application card to the next stage
+  const handleMoveJobStage = (jobId: string, currentStage: "applied" | "interviewing" | "offer") => {
+    const jobList = jobTrackerData[currentStage];
+    const job = jobList.find(j => j.id === jobId);
+    if (!job) return;
+
+    let nextStage: "applied" | "interviewing" | "offer" | null = null;
+    if (currentStage === "applied") nextStage = "interviewing";
+    else if (currentStage === "interviewing") nextStage = "offer";
+
+    if (!nextStage) return;
+
+    setJobTrackerData(prev => {
+      const updatedCurrent = prev[currentStage].filter(j => j.id !== jobId);
+      const updatedNext = [...prev[nextStage], job];
+      return {
+        ...prev,
+        [currentStage]: updatedCurrent,
+        [nextStage]: updatedNext
+      };
     });
+
+    if (nextStage === "offer") {
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.7 },
+        colors: ["#19cc95", "#5925dc"]
+      });
+    }
   };
 
-  // Calendar: publish post
-  const handlePublishPost = () => {
-    confetti({
-      particleCount: 40,
-      spread: 40,
-      origin: { x: 0.8, y: 0.6 },
-      colors: ["#f23c5d", "#1a1a1a"]
-    });
+  // Job Search: Add a job to the tracker under Applied column
+  const handleAddJobToTracker = (job: SearchJob) => {
+    // Check if already exists to avoid duplicates
+    const allJobs = [
+      ...jobTrackerData.applied,
+      ...jobTrackerData.interviewing,
+      ...jobTrackerData.offer
+    ];
+    if (allJobs.some(j => j.id === job.id)) {
+      setJobsSubTab("tracker");
+      setSelectedTrackerJob(job.id);
+      return;
+    }
 
-    setCalendarStatuses((prev) => ({
+    setJobTrackerData(prev => ({
       ...prev,
-      [activeCalendarDay]: "SENT"
+      applied: [
+        ...prev.applied,
+        {
+          id: job.id,
+          company: job.company,
+          title: job.title,
+          score: job.score,
+          location: job.location.split(" / ")[0]
+        }
+      ]
     }));
+
+    setSelectedTrackerJob(job.id);
+    setJobsSubTab("tracker");
+
+    // Burst confetti for delight!
+    confetti({
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.7 },
+      colors: ["#19cc95", "#5925dc"]
+    });
   };
 
-  // Calendar: regenerate draft
-  const handleRegeneratePostDraft = () => {
-    const originalText = calendarComposerText;
-    setCalendarComposerText("Regenerating draft using ZenScale AI...");
+  // Kanban Drag and Drop Event Handlers
+  const handleDragStartKanban = (e: React.DragEvent, jobId: string, sourceStage: "applied" | "interviewing" | "offer") => {
+    e.dataTransfer.setData("jobId", jobId);
+    e.dataTransfer.setData("sourceStage", sourceStage);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDropKanban = (e: React.DragEvent, targetStage: "applied" | "interviewing" | "offer") => {
+    e.preventDefault();
+    const jobId = e.dataTransfer.getData("jobId");
+    const sourceStage = e.dataTransfer.getData("sourceStage") as "applied" | "interviewing" | "offer";
     
-    setTimeout(() => {
-      setCalendarComposerText(originalText + " (Optimized for higher reach by adding #tech trends)");
-    }, 600);
+    if (!jobId || !sourceStage || sourceStage === targetStage) return;
+
+    // Find the job in the source stage
+    const job = jobTrackerData[sourceStage].find(j => j.id === jobId);
+    if (!job) return;
+
+    // Move the job state
+    setJobTrackerData(prev => {
+      const updatedSource = prev[sourceStage].filter(j => j.id !== jobId);
+      const updatedTarget = [...prev[targetStage], job];
+      return {
+        ...prev,
+        [sourceStage]: updatedSource,
+        [targetStage]: updatedTarget
+      };
+    });
+
+    setSelectedTrackerJob(jobId);
+
+    // Burst confetti if moved to Offers stage
+    if (targetStage === "offer") {
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.7 },
+        colors: ["#19cc95", "#5925dc"]
+      });
+    }
   };
 
   // Vault: change role
@@ -717,7 +856,7 @@ export default function Landing() {
           <div className="flex justify-start">
             <div className="flex items-center gap-2 font-bold text-xl tracking-tight cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
               <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
-              Outly <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-outly-accent ml-2">Beta</span>
+              <span className="text-outly-accent">Outly</span>
             </div>
           </div>
           
@@ -731,7 +870,6 @@ export default function Landing() {
           {/* Right: Buttons */}
           <div className="flex items-center justify-end gap-3 sm:gap-4">
             <Link to="/login" className="border border-outly-border px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-outly-dark hover:bg-outly-border/20 hover:border-outly-dark/40 transition-all duration-300 text-center">Sign in</Link>
-            <Link to="/login" className="bg-outly-dark text-white px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold hover:bg-black hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 text-center">Get started</Link>
           </div>
           
         </div>
@@ -748,12 +886,9 @@ export default function Landing() {
                 <span className="w-6 h-0.5 bg-outly-accent"></span>
                 Careers + Automation + AI
               </span>
-              <span className="text-outly-dark/45 bg-outly-dark/5 px-2.5 py-1 rounded-full text-[9px] font-bold tracking-normal">
-                Now in Beta
-              </span>
             </div>
             
-            <h1 className="text-6xl md:text-[80px] font-sans font-medium tracking-tight mb-8 leading-[0.95] text-left hero-title opacity-0">
+            <h1 className="text-6xl md:text-[80px] font-medium tracking-tight mb-8 leading-[0.95] text-left hero-title opacity-0">
               Your career,<br />already <span className="relative inline-block italic-serif text-outly-accent">
                 sorted.
                 {/* Hand-drawn animated underline SVG */}
@@ -784,7 +919,7 @@ export default function Landing() {
             </div>
             
             <p className="text-[11px] font-medium text-outly-dark/40 text-left hero-meta opacity-0">
-              ✓ Now in open beta — free with your own API keys. No card needed.
+              ✓ Free, because your data is our key. No card needed.
             </p>
           </div>
 
@@ -956,7 +1091,7 @@ export default function Landing() {
           <div className="md:w-1/2 z-10">
             <div className="w-12 h-0.5 bg-[#c5a880] mb-10"></div>
             <p className="text-[10px] font-bold tracking-[0.3em] text-[#c5a880] uppercase mb-8">THE DAILY BRIEF</p>
-            <h2 className="text-5xl md:text-6xl text-white font-sans font-medium mb-10 leading-[1.05] tracking-tight">
+            <h2 className="text-5xl md:text-6xl text-white font-medium mb-10 leading-[1.05] tracking-tight">
               Open Outly.<br />Read one thing.<br /><span className="italic-serif text-[#c5a880] text-6xl md:text-7xl">Know your whole search.</span>
             </h2>
             <p className="text-white/60 text-lg leading-relaxed max-w-md font-medium">
@@ -966,7 +1101,7 @@ export default function Landing() {
           <div className="md:w-1/2 w-full z-10">
             <div className="bg-white rounded-[32px] p-10 text-outly-dark shadow-2xl border border-outly-border/45">
               <div className="flex justify-between items-baseline mb-10 border-b border-outly-border/50 pb-6">
-                <h4 className="font-sans italic text-2xl tracking-tight">Wednesday, April 8</h4>
+                <h4 className="italic text-2xl tracking-tight">Wednesday, April 8</h4>
                 <span className="text-[10px] text-outly-dark/40 font-bold tracking-widest uppercase">7:00 AM BRIEF</span>
               </div>
               <div className="space-y-6">
@@ -1028,7 +1163,7 @@ export default function Landing() {
       {/* FEATURE GRID */}
       <section className="max-w-6xl mx-auto px-6 py-28">
         <div className="mb-20">
-          <h2 className="text-6xl md:text-7xl font-sans font-medium tracking-tight leading-[1] text-outly-dark">
+          <h2 className="text-6xl md:text-7xl font-medium tracking-tight leading-[1] text-outly-dark">
             Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
           </h2>
         </div>
@@ -1054,7 +1189,7 @@ export default function Landing() {
               </div>
             </div>
             <h4 className="text-xl font-bold mb-4 tracking-tight group-hover:text-outly-accent transition-colors">Smart Outreach</h4>
-            <p class="text-outly-dark/50 leading-relaxed text-sm font-medium">Outly identifies the best recruiters and drafts personalized messages that sound exactly like you.</p>
+            <p className="text-outly-dark/50 leading-relaxed text-sm font-medium">Outly identifies the best recruiters and drafts personalized messages that sound exactly like you.</p>
           </div>
 
           {/* Card 2 */}
@@ -1091,7 +1226,7 @@ export default function Landing() {
       {/* INTERACTIVE WORKSPACE SHOWCASE */}
       <section id="demo" className="max-w-6xl mx-auto px-6 py-20 text-center">
         <div className="text-outly-accent font-bold text-[10px] tracking-[0.3em] uppercase mb-8">TRY IT RIGHT HERE</div>
-        <h2 className="text-6xl md:text-7xl font-sans font-medium tracking-tight mb-8 leading-[1]">
+        <h2 className="text-6xl md:text-7xl font-medium tracking-tight mb-8 leading-[1]">
           Go on, <span className="italic-serif text-outly-accent">click around.</span>
         </h2>
         <p className="text-outly-dark/50 text-xl mb-20 max-w-2xl mx-auto font-medium">
@@ -1109,7 +1244,7 @@ export default function Landing() {
               <div className="w-2.5 h-2.5 rounded-full bg-outly-dark/10"></div>
             </div>
             <div className="bg-white border border-outly-border rounded-lg px-4 py-1 text-[10px] font-bold text-outly-dark/30 mx-auto select-none">
-              outly.com/<span>{activeTab === "brief" ? "dashboard" : activeTab}</span>
+              outly.com/<span>{activeTab === "brief" ? "dashboard" : (activeTab === "calendar" ? "jobs" : activeTab)}</span>
             </div>
             <div className="text-[10px] font-bold text-outly-accent flex items-center gap-1.5 select-none">
               <div className="w-1.5 h-1.5 rounded-full bg-outly-accent animate-pulse"></div>
@@ -1142,7 +1277,7 @@ export default function Landing() {
                     <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
-                    Inbox
+                    Recruiter Outreach
                   </div>
                   {inboxBadgeCount > 0 && (
                     <span className="bg-outly-accent text-white text-[9px] px-1.5 rounded transition-all duration-300">{inboxBadgeCount}</span>
@@ -1154,9 +1289,9 @@ export default function Landing() {
                   activeTab === "calendar" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
                 }`} onClick={() => handleTabSwitch("calendar")}>
                   <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M9 4.5v15m6-15v15m-9-15h12a1.5 1.5 0 011.5 1.5v12a1.5 1.5 0 01-1.5 1.5H6a1.5 1.5 0 01-1.5-1.5V6a1.5 1.5 0 011.5-1.5z" stroke-linecap="round" stroke-linejoin="round"></path>
                   </svg>
-                  Calendar
+                  Job Tracker
                 </div>
 
                 {/* Vault Tab Button */}
@@ -1184,7 +1319,7 @@ export default function Landing() {
                 <div className="h-full p-6 md:p-8 flex flex-col overflow-y-auto custom-scrollbar">
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>
-                      <h3 class="font-bold text-2xl tracking-tight">Morning Analytics</h3>
+                      <h3 className="font-bold text-2xl tracking-tight">Morning Analytics</h3>
                       <p className="text-xs text-outly-dark/40 font-medium">Outreach metrics and match rate summaries.</p>
                     </div>
                     <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-outly-border shadow-sm">
@@ -1205,7 +1340,7 @@ export default function Landing() {
                       <span className="text-[8px] sm:text-[9px] text-outly-accent font-bold">+4.2%</span>
                     </div>
                     <div className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-outly-border shadow-soft">
-                      <span className="text-[7px] sm:text-[8px] font-bold uppercase tracking-wider text-outly-dark/30 block mb-1 font-sans">ATS Score</span>
+                      <span className="text-[7px] sm:text-[8px] font-bold uppercase tracking-wider text-outly-dark/30 block mb-1">ATS Score</span>
                       <div className="text-base sm:text-2xl font-semibold tracking-tight text-outly-dark">94.2%</div>
                       <span className="text-[8px] sm:text-[9px] text-green-600 font-bold">✓ Excellent</span>
                     </div>
@@ -1376,80 +1511,251 @@ export default function Landing() {
               )}
               
               {/* TAB 3: CALENDAR */}
+              {/* TAB 3: JOB TRACKER */}
               {activeTab === "calendar" && (
-                <div className="h-full p-4 md:p-8 flex flex-col overflow-y-auto custom-scrollbar">
-                  <div className="flex justify-between items-center mb-6">
+                <div className="h-full p-4 md:p-8 flex flex-col overflow-y-auto custom-scrollbar bg-[#fdfaf5]/10">
+                  
+                  {/* Tab Title & Header */}
+                  <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="font-bold text-2xl tracking-tight">Social Post Scheduler</h3>
-                      <p className="text-xs text-outly-dark/40 font-medium">Keep your professional brand active on autopilot.</p>
-                    </div>
-                    <div className="text-[10px] font-bold text-outly-accent bg-outly-accent/10 px-3 py-1.5 rounded-full select-none uppercase">
-                      QUEUED FOR {activeCalendarDay.toUpperCase()}DAY
+                      <h3 className="font-bold text-2xl tracking-tight">
+                        {jobsSubTab === "tracker" ? "Job Application Tracker" : "Tailored Job Search"}
+                      </h3>
+                      <p className="text-xs text-outly-dark/40 font-medium">
+                        {jobsSubTab === "tracker" 
+                          ? "Drag, track, and manage your tailored applications in real-time." 
+                          : "Discover target roles matching your resume and track them instantly."}
+                      </p>
                     </div>
                   </div>
-                  
-                  <div className="flex flex-col md:flex-row gap-6 h-full overflow-hidden">
-                    {/* Calendar grid */}
-                    <div className="flex-1">
-                      <div className="grid grid-cols-7 gap-3 mb-4 text-center select-none">
-                        <div className="text-[10px] font-bold text-outly-dark/30 uppercase">Mon</div>
-                        <div className="text-[10px] font-bold text-outly-dark/30 uppercase">Tue</div>
-                        <div className="text-[10px] font-bold text-outly-dark/30 uppercase">Wed</div>
-                        <div className="text-[10px] font-bold text-outly-dark/30 uppercase">Thu</div>
-                        <div className="text-[10px] font-bold text-outly-dark/30 uppercase">Fri</div>
-                        <div className="text-[10px] font-bold text-outly-dark/30 uppercase">Sat</div>
-                        <div className="text-[10px] font-bold text-outly-dark/30 uppercase">Sun</div>
-                      </div>
-                      
-                      <div className="grid grid-cols-7 gap-3">
-                        {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day, idx) => {
-                          const status = calendarStatuses[day];
-                          const isActive = activeCalendarDay === day;
-                          
-                          let statusStyle = "text-outly-dark/20";
-                          if (status === "SENT") statusStyle = "text-green-500";
-                          if (status === "DRAFT") statusStyle = "text-outly-accent";
-                          
-                          return (
-                            <div
-                              key={day}
-                              className={`aspect-square rounded-2xl flex flex-col justify-between p-3 cursor-pointer transition-all duration-300 ${
-                                isActive
-                                  ? "bg-outly-accent/5 border-2 border-outly-accent"
-                                  : "bg-white border border-outly-border hover:border-outly-accent"
-                              }`}
-                              onClick={() => handleSelectCalendarDay(day)}
-                            >
-                              <span className={`text-xs font-bold ${isActive ? "text-outly-accent" : "text-outly-dark/30"}`}>{idx + 6}</span>
-                              <span className={`text-[9px] font-bold select-none ${statusStyle}`}>{status}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
+
+                  {/* Sub-Tab Selector */}
+                  <div className="flex items-center gap-4 mb-6 pb-2 border-b border-outly-border/30">
+                    <div className="flex bg-outly-cream/50 p-1 rounded-xl border border-outly-border/40 select-none">
+                      <button
+                        onClick={() => setJobsSubTab("tracker")}
+                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                          jobsSubTab === "tracker"
+                            ? "bg-white text-outly-accent shadow-sm border border-outly-border/30"
+                            : "text-outly-dark/40 hover:text-outly-dark/70"
+                        }`}
+                      >
+                        Job Tracker
+                      </button>
+                      <button
+                        onClick={() => setJobsSubTab("search")}
+                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                          jobsSubTab === "search"
+                            ? "bg-white text-outly-accent shadow-sm border border-outly-border/30"
+                            : "text-outly-dark/40 hover:text-outly-dark/70"
+                        }`}
+                      >
+                        Job Search
+                      </button>
                     </div>
-                    
-                    {/* Post composer panel */}
-                    <div className="w-full md:w-80 bg-outly-cream/20 border border-outly-border rounded-3xl p-6 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[9px] font-bold text-outly-dark/40 uppercase tracking-widest block mb-4">Post Draft Preview</span>
-                        <textarea
-                          value={calendarComposerText}
-                          onChange={(e) => setCalendarComposerText(e.target.value)}
-                          className="w-full h-32 bg-white border border-outly-border rounded-2xl p-4 text-xs font-medium focus:ring-1 focus:ring-outly-accent focus:border-outly-accent outline-none resize-none custom-scrollbar leading-relaxed"
-                          placeholder="Write post..."
-                        />
-                        <div className="flex justify-between items-center mt-2 text-[9px] font-bold text-outly-dark/30 px-1">
-                          <span>Target: LinkedIn & Twitter</span>
-                          <span>{calendarComposerText.length} characters</span>
+                    <div className="ml-auto text-[10px] font-bold text-outly-accent bg-outly-accent/10 px-3 py-1.5 rounded-full select-none uppercase">
+                      {jobsSubTab === "tracker" ? "Active pipeline" : "AI match active"}
+                    </div>
+                  </div>
+
+                  {jobsSubTab === "tracker" ? (
+                    /* Kanban columns layout - takes 100% width (no detail panel) and scrollable on mobile */
+                    <div className="w-full flex flex-row md:grid md:grid-cols-3 gap-4 overflow-x-auto md:overflow-x-visible md:overflow-y-auto pr-1 pb-4 select-none snap-x snap-mandatory no-scrollbar">
+                      
+                      {/* Column 1: Applied */}
+                      <div 
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDropKanban(e, "applied")}
+                        className="bg-[#faf8f5]/50 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
+                      >
+                        <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
+                          <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider">Applied ({jobTrackerData.applied.length})</span>
+                        </div>
+                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-0.5">
+                          {jobTrackerData.applied.map(job => (
+                            <div 
+                              key={job.id}
+                              draggable={true}
+                              onDragStart={(e) => handleDragStartKanban(e, job.id, "applied")}
+                              className={`p-3 bg-white border rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm hover:shadow-md hover:border-outly-accent/35 hover:scale-[1.01] relative group ${
+                                selectedTrackerJob === job.id ? "ring-2 ring-outly-accent/20 border-outly-accent" : "border-outly-border"
+                              }`}
+                              onClick={() => setSelectedTrackerJob(job.id)}
+                            >
+                              <div className="flex justify-between items-start mb-1.5">
+                                <h5 className="font-bold text-xs text-outly-dark truncate w-3/4">{job.company}</h5>
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${
+                                  job.score >= 90 ? "bg-green-500/10 text-green-600" : "bg-[#c5a880]/10 text-[#c5a880]"
+                                }`}>{job.score}% Match</span>
+                              </div>
+                              <p className="text-[10px] font-semibold text-outly-dark/60 truncate">{job.title}</p>
+                              <p className="text-[8px] text-outly-dark/30 mt-1">{job.location}</p>
+                              
+                              {/* Quick Move Trigger button */}
+                              <button 
+                                className="absolute right-2 bottom-2 w-5 h-5 rounded-full bg-outly-cream border border-outly-border text-outly-dark hover:bg-outly-accent hover:text-white hover:border-outly-accent flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMoveJobStage(job.id, "applied");
+                                }}
+                                title="Move to Interviewing"
+                              >
+                                →
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      
-                      <div className="space-y-3 mt-6">
-                        <button className="w-full bg-outly-accent text-white py-3 rounded-xl text-xs font-bold hover:brightness-105 transition shadow-md select-none" onClick={handlePublishPost}>Publish Post Now</button>
-                        <button className="w-full bg-white border border-outly-border text-outly-dark py-3 rounded-xl text-xs font-bold hover:bg-outly-cream/50 transition select-none" onClick={handleRegeneratePostDraft}>Regenerate Draft</button>
+
+                      {/* Column 2: Interviewing */}
+                      <div 
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDropKanban(e, "interviewing")}
+                        className="bg-[#faf8f5]/50 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
+                      >
+                        <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
+                          <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider">Interviewing ({jobTrackerData.interviewing.length})</span>
+                        </div>
+                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-0.5">
+                          {jobTrackerData.interviewing.map(job => (
+                            <div 
+                              key={job.id}
+                              draggable={true}
+                              onDragStart={(e) => handleDragStartKanban(e, job.id, "interviewing")}
+                              className={`p-3 bg-white border rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm hover:shadow-md hover:border-outly-accent/35 hover:scale-[1.01] relative group ${
+                                selectedTrackerJob === job.id ? "ring-2 ring-outly-accent/20 border-outly-accent" : "border-outly-border"
+                              }`}
+                              onClick={() => setSelectedTrackerJob(job.id)}
+                            >
+                              <div className="flex justify-between items-start mb-1.5">
+                                <h5 className="font-bold text-xs text-outly-dark truncate w-3/4">{job.company}</h5>
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${
+                                  job.score >= 90 ? "bg-green-500/10 text-green-600" : "bg-[#c5a880]/10 text-[#c5a880]"
+                                }`}>{job.score}% Match</span>
+                              </div>
+                              <p className="text-[10px] font-semibold text-outly-dark/60 truncate">{job.title}</p>
+                              <p className="text-[8px] text-outly-dark/30 mt-1">{job.location}</p>
+                              
+                              {/* Quick Move Trigger button */}
+                              <button 
+                                className="absolute right-2 bottom-2 w-5 h-5 rounded-full bg-outly-cream border border-outly-border text-outly-dark hover:bg-outly-accent hover:text-white hover:border-outly-accent flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMoveJobStage(job.id, "interviewing");
+                                }}
+                                title="Move to Offers"
+                              >
+                                →
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Column 3: Offers */}
+                      <div 
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDropKanban(e, "offer")}
+                        className="bg-[#faf8f5]/50 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
+                      >
+                        <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
+                          <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider text-green-600">Offers ({jobTrackerData.offer.length}) 🎉</span>
+                        </div>
+                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-0.5">
+                          {jobTrackerData.offer.map(job => (
+                            <div 
+                              key={job.id}
+                              draggable={true}
+                              onDragStart={(e) => handleDragStartKanban(e, job.id, "offer")}
+                              className={`p-3 bg-white border rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm hover:shadow-md hover:border-outly-accent/35 hover:scale-[1.01] relative group ${
+                                selectedTrackerJob === job.id ? "ring-2 ring-outly-accent/20 border-outly-accent" : "border-outly-border"
+                              }`}
+                              onClick={() => setSelectedTrackerJob(job.id)}
+                            >
+                              <div className="flex justify-between items-start mb-1.5">
+                                <h5 className="font-bold text-xs text-outly-dark truncate w-3/4">{job.company}</h5>
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded bg-green-500/10 text-green-600`}>{job.score}% Match</span>
+                              </div>
+                              <p className="text-[10px] font-semibold text-outly-dark/60 truncate">{job.title}</p>
+                              <p className="text-[8px] text-outly-dark/30 mt-1">{job.location}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                    </div>
+                  ) : (
+                    /* Job Search view - takes 100% width */
+                    <div className="w-full flex flex-col h-full overflow-hidden pb-4">
+                      <div className="relative mb-6 select-none">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-outly-dark/30">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round"></path>
+                          </svg>
+                        </span>
+                        <input
+                          type="text"
+                          placeholder="Search roles or companies (e.g. Netflix, Vercel, Designer)..."
+                          value={jobSearchQuery}
+                          onChange={(e) => setJobSearchQuery(e.target.value)}
+                          className="w-full bg-white border border-outly-border rounded-xl pl-10 pr-4 py-3 text-xs font-semibold focus:ring-1 focus:ring-outly-accent focus:border-outly-accent outline-none transition duration-200"
+                        />
+                      </div>
+
+                      <div className="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-1 max-h-[350px]">
+                        {(() => {
+                          const filtered = MOCK_SEARCH_JOBS.filter(
+                            job => 
+                              job.company.toLowerCase().includes(jobSearchQuery.toLowerCase()) ||
+                              job.title.toLowerCase().includes(jobSearchQuery.toLowerCase()) ||
+                              job.description.toLowerCase().includes(jobSearchQuery.toLowerCase()) ||
+                              job.location.toLowerCase().includes(jobSearchQuery.toLowerCase())
+                          );
+
+                          if (filtered.length > 0) {
+                            return filtered.map(job => (
+                              <div 
+                                key={job.id}
+                                className="p-4 bg-white border border-outly-border rounded-2xl shadow-sm hover:shadow-md hover:border-outly-accent/35 transition-all duration-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                              >
+                                <div className="space-y-1.5 flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <div className="w-6 h-6 rounded-lg bg-outly-accent/5 border border-outly-accent/10 flex items-center justify-center font-black text-[10px] text-outly-accent select-none shrink-0 uppercase">
+                                      {job.company.substring(0, 2)}
+                                    </div>
+                                    <h4 className="font-bold text-xs text-outly-dark truncate">{job.company}</h4>
+                                    <span className="text-[9px] text-outly-dark/40">•</span>
+                                    <span className="text-[9px] font-semibold text-outly-dark/50">{job.location}</span>
+                                  </div>
+                                  <h3 className="font-bold text-sm text-outly-dark">{job.title}</h3>
+                                  <p className="text-[10px] text-outly-dark/60 leading-relaxed max-w-xl">{job.description}</p>
+                                </div>
+                                
+                                <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
+                                  <span className="text-[9px] font-black bg-green-500/10 text-green-600 px-2 py-1 rounded-lg select-none">
+                                    {job.score}% Match
+                                  </span>
+                                  <button
+                                    onClick={() => handleAddJobToTracker(job)}
+                                    className="bg-outly-accent text-white hover:brightness-105 transition text-[10px] font-bold px-4 py-2 rounded-xl flex items-center gap-1 shadow-sm select-none"
+                                  >
+                                    <span>Tailor &amp; Track</span>
+                                    <span className="text-[8px]">✦</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ));
+                          }
+
+                          return (
+                            <div className="text-center py-12 bg-outly-cream/10 border border-dashed border-outly-border rounded-2xl select-none">
+                              <p className="text-xs text-outly-dark/40 font-semibold">No matching jobs found. Try adjusting your search query.</p>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
               
@@ -1491,7 +1797,7 @@ export default function Landing() {
                         {/* Circular Score Dial */}
                         <div className="relative w-20 h-20 shrink-0">
                           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path class="text-outly-cream" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path className="text-outly-cream" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                             <path
                               className="text-outly-accent transition-all duration-1000 ease-out"
                               strokeDasharray={`${atsMatchScore}, 100`}
@@ -1583,12 +1889,12 @@ export default function Landing() {
               <div className="h-px w-8 bg-outly-accent"></div>
               <div className="text-outly-accent font-bold text-[10px] tracking-[0.3em] uppercase">PRICING</div>
             </div>
-            <h2 className="text-6xl md:text-8xl font-sans font-medium tracking-tight mb-10 leading-[0.95]">
+            <h2 className="text-6xl md:text-8xl font-medium tracking-tight mb-10 leading-[0.95]">
               Free <span className="italic-serif text-outly-accent">by nature.</span><br />
               Paid <span className="italic-serif text-outly-accent">for convenience.</span>
             </h2>
             <p className="text-outly-dark/50 text-xl max-w-2xl leading-relaxed font-medium">
-              Outly is built around a simple idea: the tool is free. Bring your own AI keys and pay nothing — or let us handle the AI and pay one calm price.
+              Outly is built around a simple idea: the tool is free. Your data is our key, so it always stays private and secure — or let us handle the cloud setup and pay one calm price.
             </p>
           </div>
           
@@ -1643,10 +1949,10 @@ export default function Landing() {
           {/* Outly Free Card */}
           <div className="bg-white rounded-[48px] p-12 md:p-16 shadow-soft border border-outly-border flex flex-col hover:border-outly-accent/20 transition-all duration-500">
             <div className="mb-10">
-              <span class="bg-outly-dark/5 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest text-outly-dark/50">BRING YOUR OWN KEYS</span>
+              <span className="bg-outly-dark/5 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest text-outly-dark/50">YOUR DATA IS OUR KEY</span>
             </div>
             <h3 className="text-4xl font-medium mb-6 tracking-tight">Outly Free</h3>
-            <p className="text-[13px] text-outly-dark/40 font-medium mb-12">Plug in your own API keys. The whole app, no meter running.</p>
+            <p className="text-[13px] text-outly-dark/40 font-medium mb-12">Complete privacy. Your data stays yours, and is never sold.</p>
             <div className="flex items-baseline gap-3 mb-12">
               <span className="text-7xl font-medium">{priceData.free}</span>
               <span className="text-outly-dark/30 text-xs font-medium">{priceData.freeMeta}</span>
@@ -1662,7 +1968,7 @@ export default function Landing() {
                 <svg className="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
-                Your keys, your models, your data
+                Your ownership, your privacy, your data
               </li>
               <li className="flex items-center gap-4 text-sm font-bold text-outly-dark/70">
                 <svg className="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
@@ -1683,10 +1989,10 @@ export default function Landing() {
           {/* Outly Cloud Card */}
           <div className="bg-outly-dark rounded-[48px] p-12 md:p-16 text-white flex flex-col relative overflow-hidden shadow-2xl hover:shadow-outly-accent/5 transition-all duration-500">
             <div className="mb-10">
-              <span className="bg-outly-accent text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">25% OFF IN BETA</span>
+              <span className="bg-outly-accent text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">25% LAUNCH DISCOUNT</span>
             </div>
             <h3 className="text-4xl font-medium mb-6 tracking-tight">Outly Cloud</h3>
-            <p className="text-[13px] text-white/40 font-medium mb-12">No keys, no setup. Our models, tuned for email — it just works.</p>
+            <p className="text-[13px] text-white/40 font-medium mb-12">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
             <div className="flex items-baseline gap-3 mb-12">
               <span className="text-7xl font-medium">{priceData.pro}</span>
               <span className="text-white/20 text-xl font-medium line-through leading-none">{priceData.proSlashed}</span>
@@ -1724,8 +2030,8 @@ export default function Landing() {
             </svg>
           </div>
           <div>
-            <h5 className="text-sm font-bold text-outly-dark mb-1">Your API keys are encrypted and stay yours</h5>
-            <p className="text-xs text-outly-dark/40 leading-relaxed font-medium">Bring your own keys with total peace of mind. Your key is <span className="text-outly-dark font-bold">encrypted with AES-256 before it's stored</span>, and never written to logs or shown back to you.</p>
+            <h5 className="text-sm font-bold text-outly-dark mb-1">Your data is our key and stays yours</h5>
+            <p className="text-xs text-outly-dark/40 leading-relaxed font-medium">Maintain complete control over your private information. Your data is <span className="text-outly-dark font-bold">fully encrypted and localized before it's stored</span>, and never written to logs or trained on external models.</p>
           </div>
         </div>
         <p className="text-center mt-12 text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest">Either way, your email never trains anyone's models. That's a promise, not a setting.</p>
@@ -1739,11 +2045,11 @@ export default function Landing() {
           </div>
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-px h-10 bg-outly-accent/20"></div>
         </div>
-        <h2 className="text-7xl md:text-[90px] font-sans font-medium tracking-tight mb-10 leading-[0.9] text-outly-dark">
+        <h2 className="text-7xl md:text-[90px] font-medium tracking-tight mb-10 leading-[0.9] text-outly-dark">
           Tomorrow morning<br />could feel <span className="italic-serif text-outly-accent">different.</span>
         </h2>
         <p className="text-outly-dark/40 text-lg mb-12 leading-relaxed max-w-xl mx-auto font-medium">
-          Outly is in open beta and free to start — sign up and get your first morning brief tomorrow.
+          Outly is free to start — sign up and get your first morning brief tomorrow.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link to="/login" className="bg-outly-accent text-white px-8 py-4 rounded-full font-bold text-base hover:brightness-105 transition shadow-xl shadow-outly-accent/20">
@@ -1761,7 +2067,7 @@ export default function Landing() {
           <div className="col-span-1">
             <div className="flex items-center gap-2 font-bold text-xl mb-6 tracking-tight">
               <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
-              Outly
+              <span className="text-outly-accent">Outly</span>
             </div>
             <p className="text-xs text-outly-dark/40 leading-relaxed font-medium">
               Email and calendar, gathered into one calm morning brief. Built for people who'd rather be working.

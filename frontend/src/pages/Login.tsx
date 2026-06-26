@@ -13,24 +13,24 @@ interface SlideText {
 
 const promoSlides: SlideText[] = [
   {
-    titleStart: "Your day, ",
+    titleStart: "Your resume, ",
+    italicizedText: "perfectly matched.",
+    subtitle: "Instantly score and tailor your resume to hit 95%+ ATS compatibility for every job description."
+  },
+  {
+    titleStart: "Your outreach, ",
+    italicizedText: "on autopilot.",
+    subtitle: "Identify target recruiters and draft personalized cold emails that sound exactly like you."
+  },
+  {
+    titleStart: "Your career, ",
     italicizedText: "already sorted.",
-    subtitle: "Start each morning knowing exactly what needs your attention."
+    subtitle: "One calm morning brief to track your applications, outreach queue, and daily interview prep."
   },
   {
-    titleStart: "Your inbox, ",
-    italicizedText: "finally quiet.",
-    subtitle: "AI triage cuts the noise so only what matters reaches you."
-  },
-  {
-    titleStart: "Your focus, ",
-    italicizedText: "finally back.",
-    subtitle: "An assistant that handles the logistics while you do the thinking."
-  },
-  {
-    titleStart: "Your week, ",
-    italicizedText: "fully visible.",
-    subtitle: "One calendar view to plan, schedule, and never double-book."
+    titleStart: "Your interviews, ",
+    italicizedText: "fully scheduled.",
+    subtitle: "Coordinate seamlessly with hiring managers and land your dream offer faster."
   }
 ];
 
@@ -63,8 +63,15 @@ export default function Login() {
     script.defer = true;
     document.body.appendChild(script);
 
+    // Load Google Font: Rubik dynamically for the login page
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap";
+    document.head.appendChild(link);
+
     return () => {
       document.body.removeChild(script);
+      document.head.removeChild(link);
     };
   }, []);
 
@@ -223,7 +230,7 @@ export default function Login() {
   const currentSlide = promoSlides[activeSlide];
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-white overflow-hidden">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-white overflow-hidden font-['Rubik',sans-serif]">
       
       {/* LEFT PANEL: Branding & Sliding Promo (Static Bullets at bottom) */}
       <div className="hidden lg:flex w-1/2 bg-[#fdfaf3] border-r border-[#e8e2d5] p-16 flex-col justify-between relative overflow-hidden select-none">
@@ -239,9 +246,9 @@ export default function Login() {
         </div>
 
         {/* Logo Header with subtle hover lift */}
-        <div className="flex items-center gap-2.5 font-bold text-xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigate("/")}>
-          <img src={logoTransparent} alt="Outly Logo" className="w-10 h-10 object-contain" />
-          Outly
+        <div className="flex items-center gap-2 font-bold text-xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigate("/")}>
+          <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
+          <span className="text-outly-accent">Outly</span>
         </div>
 
         {/* Sliding Text Container (Only headings/subheadings change) */}
@@ -250,7 +257,7 @@ export default function Login() {
           {/* Fixed-height wrapper to prevent layout shift and jitter */}
           <div className="h-[220px] flex flex-col justify-start select-none">
             <div ref={textWrapperRef} className="will-change-transform">
-              <h2 className="text-[48px] font-serif font-medium tracking-tight leading-tight text-outly-dark mb-5 text-balance">
+              <h2 className="text-[48px] font-medium tracking-tight leading-tight text-outly-dark mb-5 text-balance">
                 {currentSlide.titleStart}
                 <span className="italic-serif text-outly-accent">{currentSlide.italicizedText}</span>
               </h2>
@@ -279,15 +286,15 @@ export default function Login() {
           <ul className="space-y-4">
             <li className="group flex items-start gap-3 text-[14px] font-bold text-outly-dark/70 leading-relaxed hover:translate-x-1.5 transition-transform duration-300">
               <span className="text-outly-dark/40 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
-              <span>Read, reply and triage Gmail without the noise</span>
+              <span>Instantly check ATS scores and tailor resumes in one click</span>
             </li>
             <li className="group flex items-start gap-3 text-[14px] font-bold text-outly-dark/70 leading-relaxed hover:translate-x-1.5 transition-transform duration-300">
               <span className="text-outly-dark/40 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
-              <span>See your week and send invites in two clicks</span>
+              <span>Automate personalized recruiter outreach and follow-ups</span>
             </li>
             <li className="group flex items-start gap-3 text-[14px] font-bold text-outly-dark/70 leading-relaxed hover:translate-x-1.5 transition-transform duration-300">
               <span className="text-outly-dark/40 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
-              <span>Ask the assistant — "book us 30 minutes next Thursday"</span>
+              <span>Track application pipelines and get daily morning briefs</span>
             </li>
           </ul>
         </div>
@@ -303,14 +310,14 @@ export default function Login() {
         <div ref={formWrapperRef} className="w-full max-w-[450px] flex flex-col justify-center will-change-transform">
           
           {/* Mobile Logo */}
-          <div className="flex items-center gap-2.5 font-bold text-xl tracking-tight lg:hidden mb-10 self-start" onClick={() => navigate("/")}>
+          <div className="flex items-center gap-2 font-bold text-xl tracking-tight lg:hidden mb-10 self-start cursor-pointer" onClick={() => navigate("/")}>
             <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
-            Outly
+            <span className="text-outly-accent">Outly</span>
           </div>
 
           {/* Form Header Titles */}
           <div className="mb-8">
-            <h1 className="text-3xl font-serif font-normal tracking-tight text-outly-dark leading-tight mb-2.5">
+            <h1 className="text-3xl font-normal tracking-tight text-outly-dark leading-tight mb-2.5">
               {authMode === "signin" ? "Welcome back" : "Create your account"}
             </h1>
             <p className="text-[14px] font-medium text-outly-dark/40">
