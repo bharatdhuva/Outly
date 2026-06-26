@@ -18,7 +18,7 @@ export default function OverviewPage() {
   }, []);
 
   return (
-    <div className="relative flex-1 min-h-screen w-full select-none overflow-hidden pb-12 font-['Rubik',sans-serif] text-[#0f172a]">
+    <div className="relative flex-1 min-h-screen w-full select-none overflow-hidden pb-12 font-['Rubik',sans-serif] text-outly-dark">
       <style>{`
         .glowing-bg-mesh {
           background:
@@ -127,13 +127,13 @@ export default function OverviewPage() {
 
       <div className="glowing-bg-mesh absolute inset-0 -z-10 min-h-screen w-full" />
 
-      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-12 lg:grid-cols-12 lg:gap-16 lg:py-20">
+      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-6 py-10 lg:grid-cols-12 lg:gap-16 lg:py-16">
         <div className="flex flex-col justify-center space-y-8 text-left lg:col-span-6">
           <div className="space-y-6">
-            <h1 className="text-4xl font-extrabold leading-[1.12] tracking-tight text-[#0f172a] sm:text-5xl lg:text-[54px]">
-              Check your resume <span className="text-[#5925dc]">ATS score</span> & land more interviews
+            <h1 className="text-4xl font-medium leading-[0.95] tracking-tight text-outly-dark sm:text-5xl lg:text-[54px]">
+              Check your resume <span className="text-outly-accent">ATS score</span> & land more interviews
             </h1>
-            <p className="mt-4 max-w-xl text-base font-medium leading-relaxed text-[#64748b] sm:text-lg">
+            <p className="mt-4 max-w-xl text-base font-medium leading-relaxed text-outly-dark/60 sm:text-lg">
               ATS Check, AI Writer, and One-Click Job Tailoring make your resume stand out to recruiters.
             </p>
           </div>
@@ -141,35 +141,35 @@ export default function OverviewPage() {
           <div className="mt-8 flex max-w-lg flex-col items-stretch gap-4 sm:flex-row sm:items-center">
             <button
               onClick={() => navigate("/resume-tailor")}
-              className="rounded-lg bg-[#19cc95] px-8 py-4 text-sm font-extrabold tracking-wide text-white shadow-md transition duration-200 hover:scale-[1.02] hover:bg-[#15b383] active:scale-[0.98]"
+              className="rounded-full bg-outly-accent px-8 py-4 text-sm font-bold tracking-wide text-white shadow-lg shadow-outly-accent/20 transition duration-200 hover:brightness-105 active:scale-[0.98]"
             >
-              Build Your Resume
+              Tailor Resume
             </button>
 
             <button
               onClick={() => navigate("/ats-score")}
-              className="rounded-lg border-2 border-[#0f172a] bg-white px-8 py-4 text-sm font-extrabold tracking-wide text-[#0f172a] transition duration-200 hover:bg-[#0f172a] hover:text-white"
+              className="rounded-full border border-outly-border bg-white px-8 py-4 text-sm font-bold tracking-wide text-outly-dark transition duration-200 hover:bg-outly-dark hover:text-white"
             >
-              Get Your Resume Score
+              Check ATS Of Resume
             </button>
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="flex items-center text-[#19cc95]">
+              <div className="flex items-center text-outly-accent">
                 <Star className="h-4 w-4 fill-current" />
                 <Star className="h-4 w-4 fill-current" />
                 <Star className="h-4 w-4 fill-current" />
                 <Star className="h-4 w-4 fill-current" />
                 <Star className="h-4 w-4 fill-current" />
               </div>
-              <span className="text-xs font-extrabold tracking-tight text-[#64748b]">5,287 Reviews</span>
+              <span className="text-xs font-bold tracking-tight text-outly-dark/50">5,287 Reviews</span>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-[#e2e8f0] bg-[#faf8f5]/80 px-4 py-2 shadow-sm">
-              <span className="grid h-4 w-4 place-items-center rounded-full border border-[#ddd6fe] bg-white text-[10px] text-[#5925dc]">•</span>
-              <span className="text-xs font-bold text-[#0f172a]/80">
-                <strong className="text-[#0f172a]">28,452 users</strong> landed interviews last month
+            <div className="flex items-center gap-2 rounded-xl border border-outly-border bg-outly-cream/80 px-4 py-2 shadow-sm">
+              <span className="grid h-4 w-4 place-items-center rounded-full border border-outly-accent/20 bg-white text-[10px] text-outly-accent">•</span>
+              <span className="text-xs font-bold text-outly-dark/70">
+                <strong className="text-outly-dark">28,452 users</strong> landed interviews last month
               </span>
             </div>
           </div>
