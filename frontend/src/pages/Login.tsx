@@ -164,8 +164,8 @@ export default function Login() {
         origin: { y: 0.6 },
         colors: ["#f23c5d", "#1a1a1a"]
       });
-      // Redirect to protected dashboard workspace
-      navigate("/dashboard");
+      // Redirect to protected onboarding workspace
+      navigate("/onboarding");
     }, 1200);
   };
 
@@ -207,7 +207,7 @@ export default function Login() {
               origin: { y: 0.6 },
               colors: ["#f23c5d", "#1a1a1a"]
             });
-            navigate("/dashboard");
+            navigate("/onboarding");
           }
         },
       });

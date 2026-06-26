@@ -25,7 +25,7 @@ const navSections = [
   {
     label: "Workspace",
     items: [
-      { title: "Overview", url: "/dashboard", icon: LayoutDashboard, hoverClass: "group-hover:scale-110 group-hover:rotate-3" },
+      { title: "Overview", url: "/onboarding", icon: LayoutDashboard, hoverClass: "group-hover:scale-110 group-hover:rotate-3" },
       { title: "Applications", url: "/applications", icon: LayoutGrid, hoverClass: "group-hover:scale-110 group-hover:rotate-6" },
       { title: "Resume Vault", url: "/resume-vault", icon: FolderOpen, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
       { title: "ATS Score", url: "/ats-score", icon: BarChart, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
@@ -96,7 +96,7 @@ export function AppSidebar({
         }`}
       >
         <div className="flex min-h-[72px] items-center gap-3 border-b border-sidebar-border px-5">
-          <BrandLogo className="min-w-0" to="/dashboard" />
+          <BrandLogo className="min-w-0" to="/onboarding" />
           <button
             type="button"
             onClick={onClose}

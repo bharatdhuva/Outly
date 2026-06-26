@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/accordion";
 
 const pageTitles: Record<string, string> = {
-  "/dashboard": "Overview",
+  "/onboarding": "Overview",
   "/cold-mail": "Cold Mail",
   "/linkedin-posts": "LinkedIn Posts",
   "/twitter": "Twitter / X",
@@ -124,7 +124,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           
           {/* Left: Brand Logo */}
           <div className="flex h-full items-center gap-12">
-            <Link to="/dashboard" className="flex h-full -translate-y-px items-center gap-1 font-bold text-xl leading-none tracking-tight hover:opacity-90 transition-opacity">
+            <Link to="/onboarding" className="flex h-full -translate-y-px items-center gap-1 font-bold text-xl leading-none tracking-tight hover:opacity-90 transition-opacity">
               <img src={logoTransparent} alt="Outly Logo" className="h-8 w-8 -translate-y-px object-contain" />
               <span className="text-outly-accent leading-none">Outly</span>
             </Link>

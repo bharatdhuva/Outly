@@ -39,7 +39,7 @@ const App = () => (
             element={
               <DashboardLayout>
                 <Routes>
-                  <Route path="/dashboard" element={<Overview />} />
+                  <Route path="/onboarding" element={<Overview />} />
                   <Route path="/cold-mail" element={<ColdMail />} />
                   <Route path="/linkedin-posts" element={<LinkedInPosts />} />
                   <Route path="/twitter" element={<Twitter />} />
