@@ -81,7 +81,7 @@ export default function OverviewPage() {
         }
 
         .onboard-stage {
-          animation: onboard-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both, onboard-float 6s ease-in-out 1.1s infinite;
+          animation: onboard-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
         .onboard-sidebar {
@@ -109,7 +109,7 @@ export default function OverviewPage() {
           inset: 0;
           width: 35%;
           background: linear-gradient(90deg, transparent, rgba(255,255,255,0.72), transparent);
-          animation: line-scan 2.4s ease-in-out infinite;
+          animation: line-scan 2.4s ease-in-out forwards;
         }
 
         .parse-fill {
@@ -175,14 +175,14 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        <div className="relative flex h-[430px] w-full items-center justify-center overflow-hidden sm:h-[500px] lg:col-span-6 lg:h-[560px]">
+        <div className="relative flex min-w-0 h-[430px] w-full items-center justify-center overflow-hidden sm:h-[500px] lg:col-span-6 lg:h-[560px]">
           <div className="absolute inset-x-0 bottom-0 h-52 bg-[radial-gradient(ellipse_at_28%_82%,rgba(89,37,220,0.22),transparent_62%),radial-gradient(ellipse_at_0%_92%,rgba(25,204,149,0.16),transparent_58%)]" />
 
-          <div className="onboard-stage relative h-[455px] w-[720px] max-w-[112vw] overflow-hidden rounded-[28px] border border-white/70 bg-white/80 shadow-[0_34px_90px_rgba(89,37,220,0.16)] backdrop-blur sm:h-[500px]">
+          <div className="onboard-stage relative h-[455px] w-full max-w-[720px] overflow-hidden rounded-[28px] border border-white/70 bg-white/80 shadow-[0_34px_90px_rgba(89,37,220,0.16)] backdrop-blur sm:h-[500px]">
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(245,248,255,0.66))]" />
 
             <div className="relative z-10 flex h-full gap-4 p-5 sm:p-7">
-              <aside className="onboard-sidebar w-[150px] shrink-0 rounded-2xl border border-[#e3e9f5] bg-white p-5 text-left shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:w-[178px]">
+              <aside className="onboard-sidebar min-w-0 w-[150px] shrink-0 rounded-2xl border border-[#e3e9f5] bg-white p-5 text-left shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:w-[178px]">
                 <div className="mb-8 flex items-center gap-2">
                   <img src="/favicon.png" alt="Outly" className="h-5 w-5 object-contain" />
                   <span className="text-[11px] font-bold text-[#19cc95]">Outly</span>
@@ -204,6 +204,9 @@ export default function OverviewPage() {
                       <line className="gauge-needle" x1="50" y1="62" x2="50" y2="31" stroke="#47445a" strokeLinecap="round" strokeWidth="1.8" />
                       <circle cx="50" cy="62" r="2.2" fill="#47445a" />
                     </svg>
+                    <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center">
+                      <span className="text-2xl font-black text-outly-dark">89</span>
+                    </div>
                   </div>
                 </div>
 
