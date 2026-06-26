@@ -153,7 +153,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                   padding: "14px 20px",
                 }}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <img src={logoIcon} alt="Outly logo" className="h-8 w-8 shrink-0 object-contain" />
                   <div className="flex items-end gap-1">
                     <span className="brand-wordmark text-[2rem] leading-none text-outly-accent">Outly</span>

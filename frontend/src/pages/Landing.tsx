@@ -856,7 +856,7 @@ export default function Landing() {
           
           {/* Left: Logo */}
           <div className="flex justify-start">
-            <div className="flex items-center gap-3 font-bold text-2xl tracking-tight cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            <div className="flex items-center gap-1 font-bold text-2xl tracking-tight cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
               <img src={logoTransparent} alt="Outly Logo" className="w-10 h-10 object-contain" />
               <span className="text-outly-accent">Outly</span>
             </div>
@@ -2067,7 +2067,7 @@ export default function Landing() {
       <footer className="bg-white pt-24 pb-12 border-t border-outly-border/50">
         <div className="max-w-7xl mx-auto px-10 grid md:grid-cols-4 gap-20 pb-20 mb-12">
           <div className="col-span-1">
-            <div className="flex items-center gap-2 font-bold text-xl mb-6 tracking-tight">
+            <div className="flex items-center gap-1 font-bold text-xl mb-6 tracking-tight">
               <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
               <span className="text-outly-accent">Outly</span>
             </div>

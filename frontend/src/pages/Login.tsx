@@ -248,7 +248,7 @@ export default function Login() {
         </div>
 
         {/* Logo Header with subtle hover lift */}
-        <div className="flex items-center gap-2 font-bold text-2xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigateTo("/")}>
+        <div className="flex items-center gap-1 font-bold text-2xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigateTo("/")}>
           <img src={logoTransparent} alt="Outly Logo" className="w-10 h-10 object-contain" />
           <span className="text-outly-accent">Outly</span>
         </div>
