@@ -15,7 +15,9 @@ const { PDFParse } = require("pdf-parse");
 const mammoth = require("mammoth");
 
 const router = Router();
-const upload = multer({ dest: path.join(env.DATA_DIR, "uploads") });
+const upload = process.env.VERCEL
+  ? multer({ storage: multer.memoryStorage() })
+  : multer({ dest: path.join(env.DATA_DIR, "uploads") });
 
 // Protect all routes with authentication
 router.use(requireAuth);

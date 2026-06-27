@@ -16,7 +16,9 @@ import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkColdMailLimit } from "../../middleware/limits.js";
 
 const router = Router();
-const upload = multer({ dest: path.join(env.DATA_DIR, "uploads") });
+const upload = process.env.VERCEL
+  ? multer({ storage: multer.memoryStorage() })
+  : multer({ dest: path.join(env.DATA_DIR, "uploads") });
 
 // Protect all routes
 router.use(requireAuth);

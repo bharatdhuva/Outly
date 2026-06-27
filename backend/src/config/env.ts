@@ -86,13 +86,12 @@ export const env = {
   FOLLOWUP_DELAY_DAYS: process.env.FOLLOWUP_DELAY_DAYS ?? "5",
   FOLLOWUP_CHECK_CRON: process.env.FOLLOWUP_CHECK_CRON ?? "0 */6 * * *",
 
-  DATA_DIR: path.join(projectRoot, "data"),
-  LOGS_DIR: path.join(projectRoot, "logs"),
-  LINKEDIN_COOKIES_PATH: path.join(
-    projectRoot,
-    "data",
-    "linkedin-cookies.json",
-  ),
+  // Vercel serverless has read-only filesystem; only /tmp is writable
+  DATA_DIR: process.env.VERCEL ? "/tmp/data" : path.join(projectRoot, "data"),
+  LOGS_DIR: process.env.VERCEL ? "/tmp/logs" : path.join(projectRoot, "logs"),
+  LINKEDIN_COOKIES_PATH: process.env.VERCEL
+    ? "/tmp/data/linkedin-cookies.json"
+    : path.join(projectRoot, "data", "linkedin-cookies.json"),
 
   MONGODB_URI: process.env.MONGODB_URI ?? "mongodb://localhost:27017/outly",
   JWT_SECRET: process.env.JWT_SECRET ?? "super-secret-jwt-key-change-in-production",
