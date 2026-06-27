@@ -17,6 +17,9 @@
     "create:test-user": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/create-test-user.ts"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "dependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
@@ -25,11 +28,6 @@
     "@types/node": "^22.19.11",
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^7.0.11",
-    "concurrently": "^9.2.1",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
     "typescript": "^5.9.3",
     "tsx": "^4.21.0",
     "@google/generative-ai": "^0.24.1",

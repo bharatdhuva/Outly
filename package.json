@@ -28,6 +28,12 @@
     "rss-parser": "^3.13.0",
     "twilio": "^5.3.4",
     "twitter-api-v2": "^1.29.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "@types/node": "^22.19.11",
+    "@types/express": "^5.0.6",
+    "@types/cors": "^2.8.19",
+    "@types/bcrypt": "^6.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^1.4.12"
   }
 }
