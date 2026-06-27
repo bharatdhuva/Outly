@@ -161,14 +161,21 @@ export default function AtsScorePage() {
       // Automatically trigger evaluation scan after parsing
       triggerAtsScan(data.content);
     } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Error Reading File",
-        description: String(err),
-      });
-      setResumeFile(null);
-      setResume("");
-      setResult(null);
+      try {
+        const text = await file.text();
+        setResume(text);
+        setSelectedVaultId("custom");
+        triggerAtsScan(text);
+      } catch (innerErr) {
+        toast({
+          variant: "destructive",
+          title: "Error Reading File",
+          description: "Could not parse or read this file format. Please upload .txt, .pdf, or .docx.",
+        });
+        setResumeFile(null);
+        setResume("");
+        setResult(null);
+      }
     } finally {
       setParsingFile(false);
     }

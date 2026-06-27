@@ -8,7 +8,13 @@ import { uploadToCloudinary } from "../../lib/cloudinary.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import CSSMatrix from "dommatrix";
 import { createRequire } from "module";
+
+// Polyfill DOMMatrix globally for pdfjs-dist / pdf-parse in Node.js
+if (!(globalThis as any).DOMMatrix) {
+  (globalThis as any).DOMMatrix = CSSMatrix;
+}
 
 const require = createRequire(import.meta.url);
 // Do not require `pdf-parse` at module-load time — it pulls native canvas bindings

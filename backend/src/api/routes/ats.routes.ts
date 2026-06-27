@@ -9,7 +9,14 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import axios from "axios";
+import CSSMatrix from "dommatrix";
 import { createRequire } from "module";
+
+// Polyfill DOMMatrix globally for pdfjs-dist / pdf-parse in Node.js
+if (!(globalThis as any).DOMMatrix) {
+  (globalThis as any).DOMMatrix = CSSMatrix;
+}
+
 const require = createRequire(import.meta.url);
 let mammoth: any;
 try {
