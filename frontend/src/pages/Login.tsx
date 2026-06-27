@@ -46,7 +46,7 @@ export default function Login() {
 
   // Auth Mode: 'signin' or 'signup'
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
-  
+
   // Left slide states
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -261,12 +261,12 @@ export default function Login() {
   const currentSlide = promoSlides[activeSlide];
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-white overflow-hidden font-['Rubik',sans-serif]">
-      
-      {/* LEFT PANEL: Branding & Sliding Promo (Static Bullets at bottom) */}
-      <div className="hidden lg:flex w-1/2 bg-[#fdfaf3] border-r border-[#e8e2d5] p-16 flex-col justify-between relative overflow-hidden select-none">
-        
-        {/* concentric circles vector background lines */}
+    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#F2EBDD] font-['Rubik',sans-serif]">
+
+      {/* LEFT PANEL: Branding & Sliding Promo (100% identical in both Sign Up and Login) */}
+      <div className="hidden lg:flex w-1/2 bg-[#F2EBDD] p-12 lg:p-16 flex-col justify-between relative overflow-hidden select-none sticky top-0 h-screen shrink-0">
+
+        {/* Concentric circles vector background lines */}
         <div className="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/4 pointer-events-none opacity-40">
           <svg width="600" height="600" viewBox="0 0 600 600" fill="none">
             <circle cx="300" cy="300" r="280" stroke="#e8e2d5" strokeWidth="1" />
@@ -276,94 +276,93 @@ export default function Login() {
           </svg>
         </div>
 
-        {/* Logo Header with subtle hover lift */}
+        {/* Logo Header */}
         <div className="flex items-center gap-1 font-bold text-2xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigateTo("/")}>
           <img src={logoTransparent} alt="Outly Logo" className="w-10 h-10 object-contain" />
           <span className="text-outly-accent">Outly</span>
         </div>
 
-        {/* Sliding Text Container (Only headings/subheadings change) */}
-        <div className="my-auto max-w-[500px] z-10 flex flex-col justify-center">
-          
-          {/* Fixed-height wrapper to prevent layout shift and jitter */}
-          <div className="h-[220px] flex flex-col justify-start select-none">
+        {/* Sliding Text Container */}
+        <div className="my-auto max-w-[480px] z-10 flex flex-col justify-center py-8">
+
+          {/* Fixed-height wrapper to prevent layout shift */}
+          <div className="min-h-[200px] flex flex-col justify-start select-none">
             <div ref={textWrapperRef} className="will-change-transform">
-              <h2 className="text-[56px] font-medium tracking-tight leading-tight text-outly-dark mb-5 text-balance">
+              <h2 className="text-[52px] font-normal tracking-tight leading-[1.15] text-outly-dark mb-4 font-serif">
                 {currentSlide.titleStart}
-                <span className="italic-serif text-outly-accent">{currentSlide.italicizedText}</span>
+                <span className="italic text-outly-accent font-serif">{currentSlide.italicizedText}</span>
               </h2>
-              
-              <p className="text-lg text-outly-dark/60 leading-relaxed font-medium mb-8">
+
+              <p className="text-[16px] text-outly-dark/70 leading-relaxed font-normal mb-8">
                 {currentSlide.subtitle}
               </p>
             </div>
           </div>
 
-          {/* Slider Progress Indicator Pills (Spring-Bezier curves for bounce effect) */}
-          <div className="flex items-center gap-2.5 mb-10">
+          {/* Slider Progress Indicator Pills */}
+          <div className="flex items-center gap-2 mb-10">
             {promoSlides.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
-                className={`h-2.5 rounded-full transition-all duration-500 cubic-bezier(0.175, 0.885, 0.32, 1.275) ${
-                  activeSlide === idx ? "bg-outly-accent w-8" : "bg-[#e8e2d5] hover:bg-outly-accent/40 w-2.5"
-                }`}
+                className={`h-2 rounded-full transition-all duration-300 ${activeSlide === idx ? "bg-outly-accent w-7" : "bg-[#e8e2d5] hover:bg-outly-accent/40 w-2"
+                  }`}
                 onClick={() => triggerTextSlide(idx)}
               />
             ))}
           </div>
 
-          {/* Static Bullet Feature List with interactive hover shifts */}
-          <ul className="space-y-4">
-            <li className="group flex items-start gap-3 text-[14px] font-bold text-outly-dark/70 leading-relaxed hover:translate-x-1.5 transition-transform duration-300">
-              <span className="text-outly-dark/40 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
+          {/* Bullet Feature List */}
+          <ul className="space-y-3.5">
+            <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
+              <span className="text-outly-dark/50 shrink-0 select-none font-bold">✓</span>
               <span>Instantly check ATS scores and tailor resumes in one click</span>
             </li>
-            <li className="group flex items-start gap-3 text-[14px] font-bold text-outly-dark/70 leading-relaxed hover:translate-x-1.5 transition-transform duration-300">
-              <span className="text-outly-dark/40 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
+            <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
+              <span className="text-outly-dark/50 shrink-0 select-none font-bold">✓</span>
               <span>Automate personalized recruiter outreach and follow-ups</span>
             </li>
-            <li className="group flex items-start gap-3 text-[14px] font-bold text-outly-dark/70 leading-relaxed hover:translate-x-1.5 transition-transform duration-300">
-              <span className="text-outly-dark/40 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
+            <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
+              <span className="text-outly-dark/50 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
               <span>Track application pipelines and get daily morning briefs</span>
             </li>
           </ul>
         </div>
 
         {/* Footer */}
-        <div className="text-xs font-bold text-outly-dark/20 uppercase tracking-widest z-10">
+        <div className="absolute bottom-6 left-12 lg:left-16 text-[12px] font-normal text-outly-dark/40 z-10">
           © 2026 Outly
         </div>
       </div>
 
-      {/* RIGHT PANEL: Auth Form (Pure white background) */}
-      <div className="w-full lg:w-1/2 p-8 lg:p-16 flex flex-col justify-center items-center min-h-screen bg-white">
-        <div ref={formWrapperRef} className="w-full max-w-[450px] flex flex-col justify-center will-change-transform">
-          
+      {/* RIGHT PANEL: Auth Form (Matching ZenScail paper tint background) */}
+      <div className="w-full lg:w-1/2 p-6 lg:p-16 flex flex-col justify-center items-center min-h-screen bg-[#FAF6F0]">
+        <div ref={formWrapperRef} className="w-full max-w-[420px] flex flex-col justify-center will-change-transform py-6">
+
           {/* Mobile Logo */}
-          <div className="flex items-center gap-1 font-bold text-xl tracking-tight lg:hidden mb-10 self-start cursor-pointer" onClick={() => navigate("/")}>
+          <div className="flex items-center gap-1 font-bold text-xl tracking-tight lg:hidden mb-8 self-start cursor-pointer" onClick={() => navigate("/")}>
             <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
             <span className="text-outly-accent">Outly</span>
           </div>
 
           {/* Form Header Titles */}
           <div className="mb-8">
-            <h1 className="text-3xl font-normal tracking-tight text-outly-dark leading-tight mb-2.5">
+            <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-outly-dark leading-tight mb-2 font-serif">
               {authMode === "signin" ? "Welcome back" : "Create your account"}
             </h1>
-            <p className="text-[14px] font-medium text-outly-dark/40">
-              {authMode === "signin" 
-                ? "Sign in to your Outly workspace." 
+            <p className="text-[14px] font-normal text-outly-dark/70">
+              {authMode === "signin"
+                ? "Sign in to your Outly workspace."
                 : "A calmer inbox is a minute away. Free to start."}
             </p>
           </div>
 
-          {/* Google Sign-In (Clean outline pill button) */}
+          {/* Google Sign-In */}
           <button
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full bg-white border border-outly-dark/15 hover:border-outly-dark/35 py-3.5 px-7 rounded-full font-sans text-[16px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none mb-6 transition-all duration-200 hover:bg-outly-dark/5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="w-full bg-white border border-[#e8e2d5] hover:border-outly-dark/40 py-3 px-6 rounded-full font-sans text-[15px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none mb-6 transition-all duration-200 hover:bg-white/80 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
           >
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -375,19 +374,19 @@ export default function Login() {
           </button>
 
           {/* Divider */}
-          <div className="flex items-center gap-4 mb-6 select-none">
+          <div className="my-6 flex items-center gap-3 select-none">
             <div className="h-px flex-1 bg-[#e8e2d5]"></div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-outly-dark/30">or with email</span>
+            <span className="text-xs font-normal text-outly-dark/50">or with email</span>
             <div className="h-px flex-1 bg-[#e8e2d5]"></div>
           </div>
 
           {/* Credentials Form */}
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            
+          <form className="space-y-4" onSubmit={handleSubmit}>
+
             {/* Name Field (Sign-Up Mode Only) */}
             {authMode === "signup" && (
               <div className="animate-slide-up">
-                <label className="text-[12px] font-bold uppercase tracking-wider text-outly-dark/50 block mb-2 px-1">
+                <label className="block text-sm font-medium text-outly-dark">
                   Name
                 </label>
                 <input
@@ -396,7 +395,7 @@ export default function Login() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Digital labour"
-                  className="w-full bg-[#faf8f5] border border-outly-border rounded-full py-3.5 px-6 text-[14px] font-semibold focus:bg-white focus:ring-1 focus:ring-outly-accent focus:border-outly-accent hover:border-outly-accent/40 outline-none transition-all duration-300 placeholder-outly-dark/20"
+                  className="mt-1.5 w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-accent focus:outline-none focus:ring-1 focus:ring-outly-accent transition-all shadow-xs"
                   disabled={isLoading}
                 />
               </div>
@@ -404,7 +403,7 @@ export default function Login() {
 
             {/* Email Field */}
             <div>
-              <label className="text-[12px] font-bold uppercase tracking-wider text-outly-dark/50 block mb-2 px-1">
+              <label className="block text-sm font-medium text-outly-dark">
                 Email
               </label>
               <input
@@ -413,33 +412,33 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="labour@company.com"
-                className="w-full bg-[#faf8f5] border border-outly-border rounded-full py-3.5 px-6 text-[14px] font-semibold focus:bg-white focus:ring-1 focus:ring-outly-accent focus:border-outly-accent hover:border-outly-accent/40 outline-none transition-all duration-300 placeholder-outly-dark/20"
+                className="mt-1.5 w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-accent focus:outline-none focus:ring-1 focus:ring-outly-accent transition-all shadow-xs"
                 disabled={isLoading}
               />
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="text-[12px] font-bold uppercase tracking-wider text-outly-dark/50 block mb-2 px-1">
+              <label className="block text-sm font-medium text-outly-dark">
                 Password
               </label>
-              <div className="relative">
+              <div className="relative mt-1.5">
                 <input
                   type={passwordVisible ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={authMode === "signin" ? "••••••••" : "At least 8 characters"}
-                  className="w-full bg-[#faf8f5] border border-outly-border rounded-full py-3.5 px-6 text-[14px] font-semibold focus:bg-white focus:ring-1 focus:ring-outly-accent focus:border-outly-accent hover:border-outly-accent/40 outline-none transition-all duration-300 placeholder-outly-dark/20 pr-12"
+                  className="w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-accent focus:outline-none focus:ring-1 focus:ring-outly-accent transition-all pr-12 shadow-xs"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-outly-dark/30 hover:text-outly-dark transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-outly-dark/40 hover:text-outly-dark transition-colors"
                   onClick={() => setPasswordVisible(!passwordVisible)}
                   disabled={isLoading}
                 >
-                  {passwordVisible ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                  {passwordVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -453,21 +452,20 @@ export default function Login() {
                   required
                   checked={agreeToTerms}
                   onChange={(e) => setAgreeToTerms(e.target.checked)}
-                  className="mt-0.5 h-4.5 w-4.5 rounded border-outly-border text-outly-accent focus:ring-outly-accent cursor-pointer transition-colors"
+                  className="mt-0.5 h-4 w-4 rounded border-outly-border text-outly-accent focus:ring-outly-accent cursor-pointer transition-colors"
                   disabled={isLoading}
                 />
-                <label htmlFor="agree-terms-checkbox" className="text-[12px] font-semibold text-outly-dark/50 leading-relaxed cursor-pointer">
-                  I agree to the <span className="text-outly-accent font-bold hover:underline">Terms of Service</span> and <span className="text-outly-accent font-bold hover:underline">Privacy Policy</span>.
+                <label htmlFor="agree-terms-checkbox" className="text-[12px] font-normal text-outly-dark/70 leading-relaxed cursor-pointer">
+                  I agree to the <span className="text-outly-accent font-medium hover:underline">Terms of Service</span> and <span className="text-outly-accent font-medium hover:underline">Privacy Policy</span>.
                 </label>
               </div>
             )}
 
-            {/* Submit Button (Glows and lifts smoothly) */}
+            {/* Submit Button */}
             <button
               type="submit"
-              className={`w-full bg-outly-accent text-white py-4 rounded-full font-sans text-[16px] font-medium transition-all duration-200 shadow-lg shadow-outly-accent/15 hover:shadow-xl hover:shadow-outly-accent/25 hover:scale-[1.02] active:scale-[0.98] select-none flex items-center justify-center gap-2.5 ${
-                isLoading ? "opacity-85 pointer-events-none" : ""
-              }`}
+              className={`w-full bg-outly-accent text-white py-3.5 rounded-full font-sans text-[15px] font-medium transition-all duration-200 shadow-sm hover:opacity-95 active:scale-[0.98] select-none flex items-center justify-center gap-2.5 cursor-pointer ${isLoading ? "opacity-85 pointer-events-none" : ""
+                }`}
             >
               {isLoading ? (
                 <>
@@ -485,11 +483,11 @@ export default function Login() {
 
           {/* Toggle auth mode links */}
           {authMode === "signin" ? (
-            <p className="text-center text-[14px] font-bold text-outly-dark/40 mt-6 select-none">
-              No account yet? &bull;{" "}
+            <p className="text-center text-[14px] font-normal text-outly-dark/70 mt-6 select-none">
+              No account yet?{" "}
               <button
                 type="button"
-                className="text-outly-accent hover:underline font-sans text-[16px] font-medium transition-colors hover:text-outly-accent/80"
+                className="text-outly-accent hover:underline font-sans text-[14px] font-medium transition-colors cursor-pointer"
                 onClick={() => handleToggleAuthMode("signup")}
                 disabled={isLoading}
               >
@@ -497,11 +495,11 @@ export default function Login() {
               </button>
             </p>
           ) : (
-            <p className="text-center text-[14px] font-bold text-outly-dark/40 mt-6 select-none">
-              Already have an account? &bull;{" "}
+            <p className="text-center text-[14px] font-normal text-outly-dark/70 mt-6 select-none">
+              Already have an account?{" "}
               <button
                 type="button"
-                className="text-outly-accent hover:underline font-sans text-[16px] font-medium transition-colors hover:text-outly-accent/80"
+                className="text-outly-accent hover:underline font-sans text-[14px] font-medium transition-colors cursor-pointer"
                 onClick={() => handleToggleAuthMode("signin")}
                 disabled={isLoading}
               >
@@ -510,14 +508,13 @@ export default function Login() {
             </p>
           )}
 
-          {/* Back to home (Smooth slide arrow and underline animation) */}
+          {/* Back to home */}
           <button
             onClick={() => navigateTo("/")}
-            className="group inline-flex items-center gap-2 text-[14px] font-bold text-outly-dark/40 hover:text-outly-dark transition-all duration-300 mt-8 self-center select-none relative pb-1 cursor-pointer bg-transparent border-none"
+            className="group inline-flex items-center gap-2 text-[13px] font-normal text-outly-dark/50 hover:text-outly-dark transition-all duration-300 mt-6 self-center select-none relative pb-1 cursor-pointer bg-transparent border-none"
           >
             <span className="transform transition-transform duration-300 ease-out group-hover:-translate-x-1">←</span>
             <span>Back to home</span>
-            <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-outly-dark/40 transition-all duration-300 ease-out group-hover:w-full"></span>
           </button>
 
         </div>

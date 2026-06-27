@@ -196,7 +196,7 @@ export default function OverviewPage() {
                       <path className="gauge-progress" d="M18 56a32 32 0 0 1 64 0" fill="none" stroke="url(#scoreGradient)" strokeLinecap="round" strokeWidth="9" />
                       <defs>
                         <linearGradient id="scoreGradient" x1="18" y1="0" x2="82" y2="0">
-                          <stop stopColor="#fc2474" />
+                          <stop stopColor="#2dc08d" />
                           <stop offset="0.55" stopColor="#ffbd58" />
                           <stop offset="1" stopColor="#19cc95" />
                         </linearGradient>
@@ -227,7 +227,7 @@ export default function OverviewPage() {
                       ))}
                       {["Repetition", "Spelling & Grammar", "Summarize Resume"].map((item, index) => (
                         <div key={item} className="checklist-item flex items-center gap-2" style={{ animationDelay: `${1.55 + index * 0.14}s` }}>
-                          <span className={index === 0 ? "text-[#fc2474]" : "text-[#6b7280]"}>{index === 0 ? "x" : "■"}</span>
+                          <span className={index === 0 ? "text-[#2dc08d]" : "text-[#6b7280]"}>{index === 0 ? "x" : "■"}</span>
                           <span>{item}</span>
                         </div>
                       ))}
@@ -263,8 +263,8 @@ export default function OverviewPage() {
 
                 <div className="relative mx-5 mt-4 rounded-xl border border-[#e3e9f5] bg-[#fafbfd] p-5 shadow-sm sm:mx-7 sm:p-7">
                   <div className="relative mx-auto mt-3 h-4 max-w-[360px] rounded-full border border-[#9cb2dc] bg-[#f5f7fc] shadow-inner">
-                    <div className="parse-fill absolute left-0 top-0 h-full w-[6%] rounded-full bg-gradient-to-r from-[#fc2474] to-[#ffbd58]" />
-                    <div className="pin-drop absolute left-[42%] -top-8 text-[#fc2474] drop-shadow-md">
+                    <div className="parse-fill absolute left-0 top-0 h-full w-[6%] rounded-full bg-gradient-to-r from-[#2dc08d] to-[#ffbd58]" />
+                    <div className="pin-drop absolute left-[42%] -top-8 text-[#2dc08d] drop-shadow-md">
                       <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor">
                         <path d="M12 2.5a6.7 6.7 0 0 0-6.7 6.7c0 4.8 6.7 12.3 6.7 12.3s6.7-7.5 6.7-12.3A6.7 6.7 0 0 0 12 2.5Zm0 9.1a2.4 2.4 0 1 1 0-4.8 2.4 2.4 0 0 1 0 4.8Z" />
                       </svg>

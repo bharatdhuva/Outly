@@ -11,7 +11,8 @@ import {
   X,
   LogOut,
   KeyRound,
-  Sparkles
+  Sparkles,
+  Calendar
 } from "lucide-react";
 import {
   Dialog,
@@ -48,6 +49,7 @@ const pageTitles: Record<string, string> = {
   "/ats-score": "ATS Score",
   "/applications": "Job Tracker",
   "/job-search": "Job Search",
+  "/content-scheduler": "Content Post Scheduler",
   "/resume-vault": "Resume Vault",
   "/analytics": "Analytics",
   "/pricing": "Pricing"
@@ -158,7 +160,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     document.body.appendChild(particle);
 
     const size = Math.random() * 8 + 4;
-    const colors = ["#8b5cf6", "#a78bfa", "#fc2474", "#c084fc", "#ddd6fe"];
+    const colors = ["#8b5cf6", "#a78bfa", "#2dc08d", "#c084fc", "#ddd6fe"];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
     particle.style.width = `${size}px`;
@@ -224,7 +226,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] text-outly-dark flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fafafa] text-outly-dark flex flex-col font-sans">
       
       {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
       <header className="sticky top-0 z-40 w-full border-b border-[#e8e2d5] bg-white/95 backdrop-blur-md shadow-sm shrink-0 select-none">
@@ -380,7 +382,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 {activeDropdown === "jobs" && (
                   <div
-                    className="absolute left-1/2 -translate-x-1/3 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-white p-5 shadow-2xl animate-slide-up select-none"
+                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-white p-5 shadow-2xl animate-slide-up select-none"
                     onMouseEnter={() => openDropdown("jobs")}
                     onMouseLeave={scheduleDropdownClose}
                   >
@@ -486,7 +488,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 {activeDropdown === "tools" && (
                   <div
-                    className="absolute right-0 top-full z-50 grid w-[480px] sm:w-[520px] grid-cols-12 gap-5 rounded-2xl border border-border bg-white p-5 shadow-2xl animate-slide-up select-none"
+                    className="absolute left-0 top-full z-50 grid w-[480px] sm:w-[520px] grid-cols-12 gap-5 rounded-2xl border border-border bg-white p-5 shadow-2xl animate-slide-up select-none"
                     onMouseEnter={() => openDropdown("tools")}
                     onMouseLeave={scheduleDropdownClose}
                   >
@@ -830,26 +832,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <span className="block text-[9.5px] text-muted-foreground mt-0.5">Automate email outreach</span>
                     </div>
                   </Link>
-                  <Link to="/linkedin-posts" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
+                  <Link to="/content-scheduler" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                      </svg>
+                      <Calendar className="w-4 h-4 text-outly-accent" />
                     </div>
                     <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">LinkedIn Generator</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Draft professional content</span>
-                    </div>
-                  </Link>
-                  <Link to="/twitter" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Twitter / X Scheduler</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Schedule automated tweets</span>
+                      <span className="block text-[11.5px] font-bold text-foreground">Content Post Scheduler</span>
+                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Automate and queue posts</span>
                     </div>
                   </Link>
                 </AccordionContent>

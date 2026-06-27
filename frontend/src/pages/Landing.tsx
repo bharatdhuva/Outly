@@ -1599,7 +1599,7 @@ export default function Landing() {
                       <div 
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDropKanban(e, "applied")}
-                        className="bg-[#faf8f5]/50 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
+                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
                       >
                         <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
                           <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider">Applied ({jobTrackerData.applied.length})</span>
@@ -1644,7 +1644,7 @@ export default function Landing() {
                       <div 
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDropKanban(e, "interviewing")}
-                        className="bg-[#faf8f5]/50 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
+                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
                       >
                         <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
                           <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider">Interviewing ({jobTrackerData.interviewing.length})</span>
@@ -1689,7 +1689,7 @@ export default function Landing() {
                       <div 
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDropKanban(e, "offer")}
-                        className="bg-[#faf8f5]/50 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
+                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
                       >
                         <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
                           <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider text-green-600">Offers ({jobTrackerData.offer.length}) 🎉</span>

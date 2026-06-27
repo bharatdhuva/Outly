@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500;600&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500;600&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 223 47% 13%;
 
-    --primary: 245 78% 58%;
+    --primary: 159 62% 46%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 216 33% 97%;
@@ -25,8 +25,8 @@
     --muted: 216 33% 96%;
     --muted-foreground: 220 13% 46%;
 
-    --accent: 231 100% 98%;
-    --accent-foreground: 245 78% 42%;
+    --accent: 159 62% 96%;
+    --accent-foreground: 159 62% 35%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -42,22 +42,22 @@
 
     --border: 220 26% 90%;
     --input: 220 26% 90%;
-    --ring: 245 78% 58%;
+    --ring: 159 62% 46%;
 
     --radius: 0.625rem;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 13% 46%;
-    --sidebar-primary: 245 78% 58%;
+    --sidebar-primary: 159 62% 46%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 231 100% 98%;
-    --sidebar-accent-foreground: 245 78% 42%;
+    --sidebar-accent: 159 62% 96%;
+    --sidebar-accent-foreground: 159 62% 35%;
     --sidebar-border: 220 26% 90%;
-    --sidebar-ring: 245 78% 58%;
+    --sidebar-ring: 159 62% 46%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(245 78% 58%), hsl(217 91% 56%));
+    --gradient-primary: linear-gradient(135deg, hsl(159 62% 46%), hsl(165 70% 40%));
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(216 33% 98%));
-    --shadow-glow: 0 10px 35px hsl(245 78% 58% / 0.12);
+    --shadow-glow: 0 10px 35px hsl(159 62% 46% / 0.15);
     --shadow-card: 0 18px 45px hsl(223 47% 13% / 0.08), 0 2px 8px hsl(223 47% 13% / 0.04);
   }
 }
@@ -1340,9 +1340,10 @@
 
 /* ─── Outly Redesign Custom Styles (Enhancv / Playfair pairing) ─── */
 .italic-serif {
-  font-family: 'Playfair Display', Georgia, serif !important;
+  font-family: 'Instrument Serif', 'Playfair Display', Georgia, serif !important;
   font-style: italic !important;
   font-weight: 400 !important;
+  color: #E11D48 !important;
 }
 
 .text-balance {

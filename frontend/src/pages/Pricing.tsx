@@ -122,7 +122,7 @@ export default function Pricing() {
         contact: "9999999999"
       },
       theme: {
-        color: "#fc2474"
+        color: "#2dc08d"
       }
     };
 
@@ -153,7 +153,7 @@ export default function Pricing() {
     document.body.appendChild(particle);
 
     const size = Math.random() * 8 + 4;
-    const colors = ["#8b5cf6", "#a78bfa", "#fc2474", "#c084fc", "#ddd6fe"];
+    const colors = ["#8b5cf6", "#a78bfa", "#2dc08d", "#c084fc", "#ddd6fe"];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
     particle.style.width = `${size}px`;
