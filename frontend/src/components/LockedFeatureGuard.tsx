@@ -245,7 +245,7 @@ export default function LockedFeatureGuard({
             ) : (
               <>
                 <ShieldCheck className="h-4 w-4" />
-                <span>Pay & Unlock via Razorpay (₹49/mo)</span>
+                <span>Pay & Unlock via Razorpay (One-time pay 49/- Now)</span>
               </>
             )}
           </Button>
