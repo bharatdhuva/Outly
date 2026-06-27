@@ -21,7 +21,6 @@ import {
   Target,
   GraduationCap,
   TrendingUp,
-  ArrowRight,
   ShieldCheck,
   Smartphone
 } from "lucide-react";
@@ -475,142 +474,7 @@ export default function ContentScheduler() {
         </div>
       </div>
 
-      {/* 📱 STEP-BY-STEP HOW IT WORKS */}
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">How It Works in 4 Simple Steps</h2>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
-            Zero stress about social media presence. Set your preferences once and let Outly handle your content delivery.
-          </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Step 1 */}
-          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
-              01
-            </div>
-            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-              <Smartphone className="h-4 w-4 text-primary" /> 1-Time WhatsApp Connect
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Connect your WhatsApp number once. You will receive automated post alerts and delivery links right in your chat.
-            </p>
-          </div>
-
-          {/* Step 2 */}
-          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
-              02
-            </div>
-            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-primary" /> Set Schedule & Niches
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Select your industry taste niches (AI, Web Dev, Startups) and pick your daily automated delivery time with our clock.
-            </p>
-          </div>
-
-          {/* Step 3 */}
-          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
-              03
-            </div>
-            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-              <MessageSquare className="h-4 w-4 text-primary" /> Scheduled Post Delivered
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              At your scheduled time, high-engaging posts are delivered straight to your WhatsApp inbox ready to review and publish.
-            </p>
-          </div>
-
-          {/* Step 4 */}
-          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
-              04
-            </div>
-            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-primary" /> Zero-Stress Social Growth
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Maintain a consistent, professional online brand effortlessly without spending hours drafting content daily.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 🌟 BENEFITS & NETWORKING VALUE SECTION */}
-      <div className="rounded-3xl border border-border bg-card p-8 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
-          <div className="space-y-1">
-            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" /> Why Active Social Presence Matters
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Supercharge your career opportunities, networking, and inbound visibility.
-            </p>
-          </div>
-          <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-            High ROI Networking
-          </span>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Benefit 1 */}
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
-              <GraduationCap className="h-6 w-6" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="font-bold text-sm text-foreground">Best for Students & Early Career Techies</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Stand out in the competitive tech market! Connect directly with startup founders, engineering leads, and top recruiters by consistently sharing insightful technical thoughts and project updates.
-              </p>
-            </div>
-          </div>
-
-          {/* Benefit 2 */}
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
-              <Users className="h-6 w-6" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="font-bold text-sm text-foreground">Networking & Inbound Opportunities</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Build an inbound magnet for high-paying job offers, freelance clients, mentorships, and investor funding simply by staying active and visible in your specific industry niche.
-              </p>
-            </div>
-          </div>
-
-          {/* Benefit 3 */}
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
-              <Target className="h-6 w-6" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="font-bold text-sm text-foreground">Personal Branding Without Burnout</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Grow your personal brand across LinkedIn & Twitter on complete autopilot while focusing 100% on your actual coding, core projects, and studies without content stress.
-              </p>
-            </div>
-          </div>
-
-          {/* Benefit 4 */}
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
-              <Share2 className="h-6 w-6" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="font-bold text-sm text-foreground">1-Tap WhatsApp Convenience</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                No complex dashboards required on the go. Review, edit, or copy ready-to-publish posts directly from your phone on WhatsApp anywhere, anytime.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ⚙️ AUTOMATION SETTINGS & TASTE PREFERENCES SETUP */}
+      {/* ⚙️ AUTOMATION SETTINGS & TASTE PREFERENCES SETUP (MOVED TO TOP!) */}
       <div className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex items-center justify-between pb-4 border-b border-border/60">
           <div className="flex items-center gap-2">
@@ -711,7 +575,7 @@ export default function ContentScheduler() {
         </div>
       </div>
 
-      {/* MAIN GRID LAYOUT: QUEUE & PREVIEW */}
+      {/* MAIN GRID LAYOUT: QUEUE & PREVIEW (MOVED TO TOP!) */}
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Scheduled / Draft Posts List */}
         <div className="lg:col-span-2 rounded-3xl border border-border bg-card shadow-sm overflow-hidden flex flex-col">
@@ -872,6 +736,141 @@ export default function ContentScheduler() {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* 📱 STEP-BY-STEP HOW IT WORKS */}
+      <div className="space-y-6 pt-4">
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">How It Works in 4 Simple Steps</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
+            Zero stress about social media presence. Set your preferences once and let Outly handle your content delivery.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Step 1 */}
+          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
+              01
+            </div>
+            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+              <Smartphone className="h-4 w-4 text-primary" /> 1-Time WhatsApp Connect
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Connect your WhatsApp number once. You will receive automated post alerts and delivery links right in your chat.
+            </p>
+          </div>
+
+          {/* Step 2 */}
+          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
+              02
+            </div>
+            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+              <Clock className="h-4 w-4 text-primary" /> Set Schedule & Niches
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Select your industry taste niches (AI, Web Dev, Startups) and pick your daily automated delivery time with our clock.
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
+              03
+            </div>
+            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+              <MessageSquare className="h-4 w-4 text-primary" /> Scheduled Post Delivered
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              At your scheduled time, high-engaging posts are delivered straight to your WhatsApp inbox ready to review and publish.
+            </p>
+          </div>
+
+          {/* Step 4 */}
+          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
+              04
+            </div>
+            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-primary" /> Zero-Stress Social Growth
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Maintain a consistent, professional online brand effortlessly without spending hours drafting content daily.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 🌟 BENEFITS & NETWORKING VALUE SECTION */}
+      <div className="rounded-3xl border border-border bg-card p-8 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" /> Why Active Social Presence Matters
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Supercharge your career opportunities, networking, and inbound visibility.
+            </p>
+          </div>
+          <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+            High ROI Networking
+          </span>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Benefit 1 */}
+          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
+            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
+              <GraduationCap className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-bold text-sm text-foreground">Best for Students & Early Career Techies</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Stand out in the competitive tech market! Connect directly with startup founders, engineering leads, and top recruiters by consistently sharing insightful technical thoughts and project updates.
+              </p>
+            </div>
+          </div>
+
+          {/* Benefit 2 */}
+          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
+            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
+              <Users className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-bold text-sm text-foreground">Networking & Inbound Opportunities</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Build an inbound magnet for high-paying job offers, freelance clients, mentorships, and investor funding simply by staying active and visible in your specific industry niche.
+              </p>
+            </div>
+          </div>
+
+          {/* Benefit 3 */}
+          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
+            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
+              <Target className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-bold text-sm text-foreground">Personal Branding Without Burnout</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Grow your personal brand across LinkedIn & Twitter on complete autopilot while focusing 100% on your actual coding, core projects, and studies without content stress.
+              </p>
+            </div>
+          </div>
+
+          {/* Benefit 4 */}
+          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
+            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
+              <Share2 className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-bold text-sm text-foreground">1-Tap WhatsApp Convenience</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                No complex dashboards required on the go. Review, edit, or copy ready-to-publish posts directly from your phone on WhatsApp anywhere, anytime.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
