@@ -3,10 +3,32 @@ import path from "path";
 import fs from "fs";
 import { env } from "../config/env.js";
 
-const logsDir = env.LOGS_DIR;
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+// Detect serverless environment (Vercel has read-only filesystem)
+const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+
+const transports: winston.transport[] = [];
+
+if (!isServerless) {
+  // File transports only work on writable filesystems (local dev, Render, etc.)
+  const logsDir = env.LOGS_DIR;
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+  transports.push(
+    new winston.transports.File({ filename: path.join(logsDir, "error.log"), level: "error" }),
+    new winston.transports.File({ filename: path.join(logsDir, "combined.log") }),
+  );
 }
+
+// Always add console transport (works everywhere including serverless)
+transports.push(
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple()
+    ),
+  })
+);
 
 export const logger = winston.createLogger({
   level: "info",
@@ -16,22 +38,8 @@ export const logger = winston.createLogger({
     winston.format.json()
   ),
   defaultMeta: { service: "outly" },
-  transports: [
-    new winston.transports.File({ filename: path.join(logsDir, "error.log"), level: "error" }),
-    new winston.transports.File({ filename: path.join(logsDir, "combined.log") }),
-  ],
+  transports,
 });
-
-if (env.NODE_ENV !== "production") {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      ),
-    })
-  );
-}
 
 // Store recent logs in memory for SSE streaming (last 500)
 const recentLogs: Array<{ time: string; level: string; source: string; message: string }> = [];
