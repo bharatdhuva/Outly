@@ -63,7 +63,18 @@ router.post("/signup", async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Signup error:", error);
+    // Log full stack for diagnostics in production logs
+    console.error("Signup error:", error instanceof Error ? error.stack || error.message : error);
+
+    // Mongo duplicate key error (race or unique index violation)
+    // Error code 11000 is returned by MongoDB for duplicate key
+    // Return a friendly 409 Conflict so the client can show appropriate message
+    // Do not leak internal details to the client.
+    const anyErr = error as any;
+    if (anyErr && (anyErr.code === 11000 || (anyErr.name === "MongoError" && anyErr.code === 11000))) {
+      return res.status(409).json({ error: "An account with this email already exists." });
+    }
+
     res.status(500).json({ error: "Failed to create user account." });
   }
 });
