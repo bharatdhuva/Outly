@@ -1,31 +1,41 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "frontend/dist",
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "backend/dist/**"
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["backend/dist/**"]
+      }
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "frontend/dist"
+      }
     }
-  },
-  "rewrites": [
+  ],
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "/api"
+      "src": "/api/(.*)",
+      "dest": "api/index.js"
     },
     {
-      "source": "/auth/:path*",
-      "destination": "/api"
+      "src": "/auth/(.*)",
+      "dest": "api/index.js"
     },
     {
-      "source": "/create-order",
-      "destination": "/api"
+      "src": "/create-order",
+      "dest": "api/index.js"
     },
     {
-      "source": "/verify-payment",
-      "destination": "/api"
+      "src": "/verify-payment",
+      "dest": "api/index.js"
     },
     {
-      "source": "/:path((?!api|auth|create-order|verify-payment).*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
