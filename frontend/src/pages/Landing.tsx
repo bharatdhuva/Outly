@@ -240,6 +240,7 @@ export default function Landing() {
 
   const [scrolled, setScrolled] = useState(false);
   const [visibleCards, setVisibleCards] = useState(false);
+  const featuresGridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -252,8 +253,9 @@ export default function Landing() {
       { threshold: 0.1 }
     );
 
-    const el = document.getElementById("features-grid");
-    if (el) observer.observe(el);
+    if (featuresGridRef.current) {
+      observer.observe(featuresGridRef.current);
+    }
 
     return () => observer.disconnect();
   }, []);
@@ -1225,7 +1227,7 @@ export default function Landing() {
             Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
           </h2>
         </div>
-        <div id="features-grid" className="grid md:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
+        <div ref={featuresGridRef} className="grid md:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
           
           {/* Card 1 */}
           <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-100 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
