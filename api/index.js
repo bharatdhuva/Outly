@@ -18,13 +18,22 @@ async function connectDB() {
     await mongoose.connect(uri);
     isConnected = true;
     console.log("✅ Serverless function connected to MongoDB successfully");
+    return true;
   } catch (err) {
     console.error("❌ Serverless MongoDB connection failed:", err);
+    return false;
   }
 }
 
 export default async function handler(req, res) {
-  await connectDB();
+  const connected = await connectDB();
+  if (!connected) {
+    console.error("Rejecting request because MongoDB connection could not be established.");
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({ error: "Service unavailable: database connection failed" }));
+    return;
+  }
 
   // Vercel rewrites lose the original path. Reconstruct it from the query parameter.
   const url = new URL(req.url, `http://${req.headers.host}`);
