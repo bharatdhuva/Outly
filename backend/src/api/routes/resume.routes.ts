@@ -8,6 +8,7 @@ import { uploadToCloudinary } from "../../lib/cloudinary.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import axios from "axios";
 import CSSMatrix from "dommatrix";
 import { createRequire } from "module";
 
@@ -68,23 +69,30 @@ router.get("/:id/file", async (req: AuthenticatedRequest, res: Response) => {
     const item = await resumeVaultQueries.getById(req.params.id as string, req.user.id);
     if (!item) return res.status(404).json({ error: "Resume not found" });
 
-    // If Cloudinary URL is stored, redirect directly to it
+    const ext = path.extname(item.filename).toLowerCase();
+
+    // Set appropriate content type header for clean browser rendering
+    if (ext === ".pdf") {
+      res.setHeader("Content-Type", "application/pdf");
+    } else if (ext === ".docx") {
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    } else if (ext === ".txt") {
+      res.setHeader("Content-Type", "text/plain");
+    }
+
+    // If Cloudinary URL is stored, proxy stream it to bypass cross-origin / 401 restrictions
     if (item.cloudinaryUrl) {
-      return res.redirect(item.cloudinaryUrl);
+      try {
+        const streamRes = await axios.get(item.cloudinaryUrl, { responseType: "stream" });
+        return streamRes.data.pipe(res);
+      } catch (streamErr) {
+        logger.warn("Failed to stream from Cloudinary, attempting local disk fallback", { error: String(streamErr) });
+      }
     }
 
     // Fallback: local disk
-    const ext = path.extname(item.filename).toLowerCase();
     const filePath = path.join(env.DATA_DIR, "resumes", `resume_${item.id}${ext}`);
-
     if (fs.existsSync(filePath)) {
-      if (ext === ".pdf") {
-        res.setHeader("Content-Type", "application/pdf");
-      } else if (ext === ".docx") {
-        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-      } else if (ext === ".txt") {
-        res.setHeader("Content-Type", "text/plain");
-      }
       res.sendFile(filePath);
     } else {
       res.status(404).json({ error: "Original resume file not found on disk or cloud" });
