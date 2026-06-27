@@ -5,11 +5,10 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import Overview from "./pages/Overview";
 import ColdMail from "./pages/ColdMail";
-import LinkedInPosts from "./pages/LinkedInPosts";
+import ContentScheduler from "./pages/ContentScheduler";
 import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
 import NotFound from "./pages/NotFound";
-import Twitter from "./pages/Twitter";
 import ResumeTailorPage from "./pages/ResumeTailor";
 import AtsScore from "./pages/AtsScore";
 import Applications from "./pages/Applications";
@@ -44,8 +43,9 @@ const App = () => (
                 <Routes>
                   <Route path="/onboarding" element={<PageTransition><Overview /></PageTransition>} />
                   <Route path="/cold-mail" element={<PageTransition><ColdMail /></PageTransition>} />
-                  <Route path="/linkedin-posts" element={<PageTransition><LinkedInPosts /></PageTransition>} />
-                  <Route path="/twitter" element={<PageTransition><Twitter /></PageTransition>} />
+                  <Route path="/content-scheduler" element={<PageTransition><ContentScheduler /></PageTransition>} />
+                  <Route path="/linkedin-posts" element={<PageTransition><ContentScheduler /></PageTransition>} />
+                  <Route path="/twitter" element={<PageTransition><ContentScheduler /></PageTransition>} />
                   <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
                   <Route path="/logs" element={<PageTransition><Logs /></PageTransition>} />
                   <Route path="/resume-tailor" element={<PageTransition><ResumeTailorPage /></PageTransition>} />

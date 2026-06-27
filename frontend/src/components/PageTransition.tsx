@@ -20,19 +20,18 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     // Enter: fade in + gentle slide up
     gsap.fromTo(
       el,
-      { opacity: 0, y: 20 },
+      { opacity: 0, y: 15 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.45,
+        duration: 0.35,
         ease: "power3.out",
-        clearProps: "all",
       }
     );
   }, [location.pathname]);
 
   return (
-    <div ref={wrapperRef} id={TRANSITION_WRAPPER_ID} style={{ opacity: 0 }}>
+    <div ref={wrapperRef} id={TRANSITION_WRAPPER_ID} className="w-full flex-1">
       {children}
     </div>
   );
