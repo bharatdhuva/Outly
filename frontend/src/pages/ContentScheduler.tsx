@@ -410,52 +410,6 @@ export default function ContentScheduler() {
             We are actively integrating official APIs for LinkedIn and Twitter/X auto-posting alongside WhatsApp instant alerts. Configured preferences will lock in early priority access!
           </p>
         </div>
-
-        <div className="shrink-0">
-          <Dialog open={isCreating} onOpenChange={setIsCreating}>
-            <Button
-              onClick={() => setIsCreating(true)}
-              className="gap-2 bg-primary text-primary-foreground hover:brightness-110 shadow-md rounded-full px-6 py-3 font-bold text-xs h-11 cursor-pointer"
-            >
-              <Sparkles className="h-4 w-4" />
-              Generate Sample AI Post
-            </Button>
-            <DialogContent className="sm:max-w-[480px] border-border bg-card rounded-2xl p-6">
-              <DialogHeader className="space-y-1">
-                <DialogTitle className="text-xl font-bold text-foreground">Generate AI Content Post</DialogTitle>
-                <p className="text-xs text-muted-foreground">
-                  Generate a post tailored to your software engineering profile.
-                </p>
-              </DialogHeader>
-              <div className="space-y-4 pt-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground/80">Specific Sub-topic / Hook (Optional)</label>
-                  <Input
-                    placeholder="e.g. System design tips, AI tools, interview hacks..."
-                    value={newTopic}
-                    onChange={(e) => setNewTopic(e.target.value)}
-                    className="h-10 text-xs rounded-xl"
-                  />
-                </div>
-                <DialogFooter className="pt-2">
-                  <Button
-                    type="button"
-                    className="w-full bg-primary text-primary-foreground hover:brightness-110 rounded-full font-semibold h-10 text-sm shadow-md cursor-pointer gap-2"
-                    onClick={() => generateMutation.mutate()}
-                    disabled={generateMutation.isPending}
-                  >
-                    {generateMutation.isPending ? (
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="h-4 w-4" />
-                    )}
-                    {generateMutation.isPending ? "Generating Post..." : "Generate AI Post"}
-                  </Button>
-                </DialogFooter>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
       </div>
 
       {/* MAIN GRID LAYOUT: QUEUE & PREVIEW */}
