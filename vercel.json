@@ -1,13 +1,18 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "backend/dist/**"
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:path*",
       "destination": "/api/index.js"
     },
     {
-      "source": "/auth/(.*)",
+      "source": "/auth/:path*",
       "destination": "/api/index.js"
     },
     {
@@ -19,7 +24,7 @@
       "destination": "/api/index.js"
     },
     {
-      "source": "/((?!api|auth|create-order|verify-payment).*)",
+      "source": "/:path((?!api|auth|create-order|verify-payment).*)",
       "destination": "/index.html"
     }
   ]

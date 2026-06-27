@@ -25,5 +25,10 @@ async function connectDB() {
 
 export default async function handler(req, res) {
   await connectDB();
+
+  if (req.headers["x-forwarded-uri"]) {
+    req.url = req.headers["x-forwarded-uri"];
+  }
+
   return app(req, res);
 }
