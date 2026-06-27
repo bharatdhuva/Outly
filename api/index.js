@@ -5,14 +5,17 @@ import { env } from "../backend/dist/src/config/env.js";
 let isConnected = false;
 
 async function connectDB() {
-  if (isConnected || mongoose.connection.readyState >= 1) {
+  if (isConnected && mongoose.connection.readyState === 1) {
+    return true;
+  }
+  if (mongoose.connection.readyState === 1) {
     isConnected = true;
-    return;
+    return true;
   }
   const uri = process.env.MONGODB_URI || env.MONGODB_URI;
   if (!uri) {
     console.error("MONGODB_URI is missing from environment variables.");
-    return;
+    return false;
   }
   // Basic diagnostics (do NOT log the full URI)
   try {
@@ -22,11 +25,11 @@ async function connectDB() {
     console.log("MONGODB_URI present (could not detect SRV)");
   }
   try {
-    // Use explicit timeouts so failures are fast and logged clearly in production
+    // Use explicit timeouts and bufferCommands: false so failures do not buffer for 10s in serverless
     const connectOptions = {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 30000,
       socketTimeoutMS: 45000,
-      connectTimeoutMS: 10000,
+      bufferCommands: false,
     };
     await mongoose.connect(uri, connectOptions);
     // Attach listeners to capture runtime connection issues
@@ -44,6 +47,7 @@ async function connectDB() {
     return true;
   } catch (err) {
     console.error("❌ Serverless MongoDB connection failed:", err && err.message ? err.message : err);
+    isConnected = false;
     return false;
   }
 }
