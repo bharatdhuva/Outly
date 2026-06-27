@@ -17,22 +17,17 @@ import { scheduleWeeklyReport } from "./jobs/weeklyReport.cron.js";
 import { scheduleDailyLinkedInDraft } from "./jobs/dailyLinkedInDraft.cron.js";
 import "./queue/processors.js";
 import { logger } from "./lib/logger.js";
-import mongoose from "mongoose";
+import { connectDB } from "./db/connection.js";
 
 async function main() {
   // Connect to MongoDB first
   logger.info(`Connecting to MongoDB at ${env.MONGODB_URI}...`, { source: "system" });
-  try {
-    await mongoose.connect(env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 45000,
-      bufferCommands: false,
-    });
-    logger.info("✅ Connected to MongoDB successfully", { source: "system" });
-  } catch (error) {
-    logger.error("❌ Failed to connect to MongoDB", { error: String(error), source: "system" });
-    throw error;
+  const connected = await connectDB();
+  if (!connected) {
+    logger.error("❌ Failed to connect to MongoDB", { source: "system" });
+    process.exit(1);
   }
+  logger.info("✅ Connected to MongoDB successfully", { source: "system" });
 
   [
     env.DATA_DIR,

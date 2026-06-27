@@ -16,10 +16,20 @@ import analyticsRoutes from "./routes/analytics.routes.js";
 import scraperRoutes from "./routes/scraper.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
+import { connectDB } from "../db/connection.js";
 
 const app = express();
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
+
+// Ensure MongoDB connection before handling any API routes
+app.use(async (_req, res, next) => {
+  const connected = await connectDB();
+  if (!connected) {
+    return res.status(503).json({ error: "Service unavailable: database connection failed" });
+  }
+  next();
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/auth", authRoutes); // alias for compatibility with direct auth calls

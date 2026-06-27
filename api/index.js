@@ -1,56 +1,5 @@
-import mongoose from "mongoose";
 import app from "../backend/dist/src/api/server.js";
-import { env } from "../backend/dist/src/config/env.js";
-
-let isConnected = false;
-
-async function connectDB() {
-  if (isConnected && mongoose.connection.readyState === 1) {
-    return true;
-  }
-  if (mongoose.connection.readyState === 1) {
-    isConnected = true;
-    return true;
-  }
-  const uri = process.env.MONGODB_URI || env.MONGODB_URI;
-  if (!uri) {
-    console.error("MONGODB_URI is missing from environment variables.");
-    return false;
-  }
-  // Basic diagnostics (do NOT log the full URI)
-  try {
-    const isSrv = uri.startsWith("mongodb+srv:");
-    console.log(`MONGODB_URI present in environment. SRV=${isSrv}`);
-  } catch (e) {
-    console.log("MONGODB_URI present (could not detect SRV)");
-  }
-  try {
-    // Use explicit timeouts and bufferCommands: false so failures do not buffer for 10s in serverless
-    const connectOptions = {
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 45000,
-      bufferCommands: false,
-    };
-    await mongoose.connect(uri, connectOptions);
-    // Attach listeners to capture runtime connection issues
-    mongoose.connection.on("error", (err) => {
-      console.error("Mongoose connection error:", err && err.message ? err.message : err);
-    });
-    mongoose.connection.on("disconnected", () => {
-      console.warn("Mongoose disconnected");
-      isConnected = false;
-    });
-    isConnected = true;
-    console.log("✅ Serverless function connected to MongoDB successfully", {
-      readyState: mongoose.connection.readyState,
-    });
-    return true;
-  } catch (err) {
-    console.error("❌ Serverless MongoDB connection failed:", err && err.message ? err.message : err);
-    isConnected = false;
-    return false;
-  }
-}
+import { connectDB } from "../backend/dist/src/db/connection.js";
 
 export default async function handler(req, res) {
   const connected = await connectDB();

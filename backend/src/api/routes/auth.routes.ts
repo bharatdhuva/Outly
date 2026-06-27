@@ -6,12 +6,14 @@ import crypto from "crypto";
 import { User } from "../../db/models.js";
 import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
+import { connectDB } from "../../db/connection.js";
 
 const router = Router();
 
 // 1. SIGNUP
 router.post("/signup", async (req, res) => {
   try {
+    await connectDB();
     const { email, password, fullName } = req.body;
 
     if (!email || !password) {
@@ -82,6 +84,7 @@ router.post("/signup", async (req, res) => {
 // 2. LOGIN
 router.post("/google", async (req, res) => {
   try {
+    await connectDB();
     const { access_token: accessToken, credential } = req.body;
     const googleToken = accessToken ?? credential;
 
@@ -157,6 +160,7 @@ router.post("/google", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
+    await connectDB();
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -208,6 +212,7 @@ router.post("/login", async (req, res) => {
 // 3. GET CURRENT USER PROFILE
 router.get("/me", requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    await connectDB();
     if (!req.user) {
       return res.status(401).json({ error: "Unauthorized" });
     }
@@ -236,6 +241,7 @@ router.get("/me", requireAuth, async (req: AuthenticatedRequest, res: Response) 
 // 4. MOCK UPGRADE ROUTE FOR TESTING
 router.post("/upgrade", requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    await connectDB();
     if (!req.user) {
       return res.status(401).json({ error: "Unauthorized" });
     }
