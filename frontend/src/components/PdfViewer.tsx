@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, AlertCircle, FileText, Monitor, Layers, FileCode } from "lucide-react";
+import { Loader2, AlertCircle, FileText, Monitor, Layers, FileCode, Download } from "lucide-react";
 
 const loadPdfJs = () => {
   return new Promise<any>((resolve) => {
@@ -18,7 +18,17 @@ const loadPdfJs = () => {
   });
 };
 
-export default function PdfViewer({ file, url, content }: { file?: File | null; url?: string | null; content?: string | null }) {
+export default function PdfViewer({ 
+  file, 
+  url, 
+  content, 
+  filename 
+}: { 
+  file?: File | null; 
+  url?: string | null; 
+  content?: string | null;
+  filename?: string;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -139,53 +149,102 @@ export default function PdfViewer({ file, url, content }: { file?: File | null; 
     };
   }, [file, url, content]);
 
+  const handleDownload = async () => {
+    try {
+      if (pdfBlobUrl) {
+        const a = document.createElement("a");
+        a.href = pdfBlobUrl;
+        a.download = filename || "Resume.pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else if (url) {
+        const token = localStorage.getItem("outly_token");
+        const headers: Record<string, string> = token ? { "Authorization": `Bearer ${token}` } : {};
+        const res = await fetch(url, { headers });
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = filename || "Resume.pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      } else if (fallbackText) {
+        const blob = new Blob([fallbackText], { type: "text/plain" });
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = filename ? filename.replace(/\.(pdf|docx)$/i, ".txt") : "Resume.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      }
+    } catch (e) {
+      console.error("Download failed", e);
+    }
+  };
+
   return (
     <div className="relative flex flex-col items-center bg-secondary/15 rounded-lg p-3.5 overflow-hidden min-h-[420px] w-full border border-border/50">
       
       {/* View Mode Toggle Bar */}
-      <div className="flex items-center justify-between w-full mb-3 pb-2 border-b border-border/40 text-xs shrink-0">
+      <div className="flex items-center justify-between w-full mb-3 pb-2 border-b border-border/40 text-xs shrink-0 flex-wrap gap-2">
         <span className="font-semibold text-muted-foreground flex items-center gap-1.5">
           <FileText className="h-3.5 w-3.5 text-primary" /> Document Preview
         </span>
         
-        {!loading && !error && (
-          <div className="flex items-center gap-1 bg-background/80 p-0.5 rounded-md border border-border/60 shadow-xs">
-            {fallbackText ? (
-              <button 
-                type="button"
-                onClick={() => setViewMode("text")} 
-                className="px-2.5 py-1 rounded text-[11px] font-medium bg-primary text-primary-foreground shadow-xs font-semibold flex items-center gap-1 cursor-pointer"
-              >
-                <FileCode className="h-3 w-3" /> Text Content View
-              </button>
-            ) : (
-              <>
+        <div className="flex items-center gap-2">
+          {!loading && !error && (
+            <div className="flex items-center gap-1 bg-background/80 p-0.5 rounded-md border border-border/60 shadow-xs">
+              {fallbackText ? (
                 <button 
                   type="button"
-                  onClick={() => setViewMode("canvas")} 
-                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
-                    viewMode === "canvas" 
-                      ? "bg-primary text-primary-foreground shadow-xs font-semibold" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
-                  }`}
+                  onClick={() => setViewMode("text")} 
+                  className="px-2.5 py-1 rounded text-[11px] font-medium bg-primary text-primary-foreground shadow-xs font-semibold flex items-center gap-1 cursor-pointer"
                 >
-                  <Layers className="h-3 w-3" /> Clean View
+                  <FileCode className="h-3 w-3" /> Text Content View
                 </button>
-                <button 
-                  type="button"
-                  onClick={() => setViewMode("native")} 
-                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
-                    viewMode === "native" 
-                      ? "bg-primary text-primary-foreground shadow-xs font-semibold" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
-                  }`}
-                >
-                  <Monitor className="h-3 w-3" /> Default PDF Viewer
-                </button>
-              </>
-            )}
-          </div>
-        )}
+              ) : (
+                <>
+                  <button 
+                    type="button"
+                    onClick={() => setViewMode("canvas")} 
+                    className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                      viewMode === "canvas" 
+                        ? "bg-primary text-primary-foreground shadow-xs font-semibold" 
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                    }`}
+                  >
+                    <Layers className="h-3 w-3" /> Clean View
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setViewMode("native")} 
+                    className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                      viewMode === "native" 
+                        ? "bg-primary text-primary-foreground shadow-xs font-semibold" 
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                    }`}
+                  >
+                    <Monitor className="h-3 w-3" /> Default PDF Viewer
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleDownload}
+            className="px-2.5 py-1 rounded text-[11px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground transition-all flex items-center gap-1 cursor-pointer border border-border/60 shadow-xs active:scale-95"
+            title="Download Original Resume File"
+          >
+            <Download className="h-3 w-3 text-primary" /> Download
+          </button>
+        </div>
       </div>
 
       {loading && (

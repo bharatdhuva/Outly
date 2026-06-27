@@ -461,7 +461,7 @@ export default function ResumeVaultPage() {
                   {activePreviewTab === "preview" ? (
                     selectedResume.filename.toLowerCase().endsWith(".pdf") ? (
                       <div className="flex-1 overflow-hidden rounded-xl border border-border bg-secondary/15">
-                        <PdfViewer url={api.resume.getFileUrl(selectedResume.id)} content={selectedResume.content} />
+                        <PdfViewer url={api.resume.getFileUrl(selectedResume.id)} content={selectedResume.content} filename={selectedResume.filename} />
                       </div>
                     ) : (
                       <div className="flex-1 overflow-y-auto rounded-xl border border-border bg-secondary/20 p-3.5">
