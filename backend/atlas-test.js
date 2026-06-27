@@ -13,7 +13,11 @@ async function main() {
     
     try {
         console.log("Connecting to MongoDB Atlas...");
-        await mongoose.connect(uri);
+        await mongoose.connect(uri, {
+            serverSelectionTimeoutMS: 30000,
+            socketTimeoutMS: 45000,
+            bufferCommands: false,
+        });
         console.log("✅ Connected successfully using mongoose!");
     } catch (err) {
         console.error("❌ Connection failed:", err);

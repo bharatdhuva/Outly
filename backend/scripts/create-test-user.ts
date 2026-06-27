@@ -14,7 +14,11 @@ import { env } from "../src/config/env.js";
 async function createTestUser() {
   console.log("Connecting to MongoDB at", env.MONGODB_URI);
   try {
-    await mongoose.connect(env.MONGODB_URI);
+    await mongoose.connect(env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      bufferCommands: false,
+    });
     console.log("✅ Connected to MongoDB");
 
     const email = "test@example.com";

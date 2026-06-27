@@ -23,7 +23,11 @@ async function main() {
   // Connect to MongoDB first
   logger.info(`Connecting to MongoDB at ${env.MONGODB_URI}...`, { source: "system" });
   try {
-    await mongoose.connect(env.MONGODB_URI);
+    await mongoose.connect(env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      bufferCommands: false,
+    });
     logger.info("✅ Connected to MongoDB successfully", { source: "system" });
   } catch (error) {
     logger.error("❌ Failed to connect to MongoDB", { error: String(error), source: "system" });
