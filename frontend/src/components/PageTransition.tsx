@@ -1,27 +1,122 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import gsap from "gsap";
 
-// ─── Shared transition element ID ───
-const TRANSITION_WRAPPER_ID = "page-transition-wrapper";
+// Global loading state and listeners
+const listeners = new Set<(loading: boolean) => void>();
+let globalLoading = false;
+
+export const setGlobalLoading = (loading: boolean) => {
+  globalLoading = loading;
+  listeners.forEach((l) => l(loading));
+};
 
 /**
- * PageTransition — wraps page content with a smooth fade+slide entrance.
- * Exit animation is triggered by `usePageTransition` hook before navigation.
+ * PageTransition — wraps page content with a smooth fade + slide entrance.
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full flex-1 animate-fade-in">
+    <div className="w-full flex-1 animate-page-enter">
+      <style>{`
+        @keyframes page-enter {
+          0% {
+            opacity: 0;
+            transform: translateY(8px);
+            filter: blur(2px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+          }
+        }
+        .animate-page-enter {
+          animation: page-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
       {children}
     </div>
   );
 }
 
+/**
+ * usePageTransition — Hook to navigate with a smooth loading bar transition.
+ */
 export function usePageTransition() {
   const navigate = useNavigate();
-  return (to: string) => navigate(to);
+  return (to: string) => {
+    setGlobalLoading(true);
+    // Small delay to allow the loading bar to start animating
+    setTimeout(() => {
+      navigate(to);
+    }, 120);
+  };
 }
 
+/**
+ * GlobalPageTransitionInterceptor — Renders the top progress bar.
+ */
 export function GlobalPageTransitionInterceptor() {
-  return null;
+  const [loading, setLoading] = useState(globalLoading);
+  const [progress, setProgress] = useState(0);
+  const location = useLocation();
+
+  useEffect(() => {
+    const handler = (l: boolean) => {
+      setLoading(l);
+      if (l) {
+        setProgress(15);
+      } else {
+        setProgress(100);
+      }
+    };
+    listeners.add(handler);
+    return () => {
+      listeners.delete(handler);
+    };
+  }, []);
+
+  // Complete the progress bar and trigger a quick flash on any route change
+  useEffect(() => {
+    setGlobalLoading(false);
+    setProgress(35);
+    const timer = setTimeout(() => {
+      setProgress(100);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [location]);
+
+  // Simulate progress bar movement while loading
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading) {
+      interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return 90;
+          }
+          return prev + Math.floor(Math.random() * 10) + 5;
+        });
+      }, 80);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
+
+  if (progress === 0) return null;
+
+  return (
+    <div
+      className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-500 z-[9999] transition-all duration-300 ease-out pointer-events-none"
+      style={{
+        width: `${progress}%`,
+        opacity: progress === 100 ? 0 : 1,
+      }}
+      onTransitionEnd={() => {
+        if (progress === 100) {
+          // Reset progress after fade out
+          setTimeout(() => setProgress(0), 300);
+        }
+      }}
+    />
+  );
 }
