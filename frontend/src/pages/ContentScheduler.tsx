@@ -9,20 +9,11 @@ import {
   CheckCircle2,
   FileText,
   MessageSquare,
-  Sliders,
-  Bell,
   Save,
-  Check,
-  Tag,
   Rocket,
   Zap,
-  Share2,
-  Users,
-  Target,
-  GraduationCap,
   TrendingUp,
-  ShieldCheck,
-  Smartphone
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,26 +37,7 @@ interface ContentPost {
   category?: string;
 }
 
-const CATEGORY_OPTIONS = [
-  { id: "tech", label: "Software Engineering", icon: "💻" },
-  { id: "ai", label: "AI & Machine Learning", icon: "🤖" },
-  { id: "frontend", label: "Frontend & React", icon: "⚛️" },
-  { id: "backend", label: "Backend & Systems", icon: "⚙️" },
-  { id: "devops", label: "DevOps & Cloud", icon: "☁️" },
-  { id: "data", label: "Data Science & Big Data", icon: "📊" },
-  { id: "cyber", label: "Cybersecurity & Security", icon: "🛡️" },
-  { id: "mobile", label: "Mobile App Development", icon: "📱" },
-  { id: "sysdesign", label: "System Design & Architecture", icon: "🏗️" },
-  { id: "opensource", label: "Open Source Contributions", icon: "🌐" },
-  { id: "career", label: "Career Growth & Leadership", icon: "📈" },
-  { id: "startup", label: "Product & Startup Building", icon: "🚀" },
-  { id: "branding", label: "Personal Branding", icon: "💡" },
-  { id: "remote", label: "Remote Work & Productivity", icon: "☕" },
-  { id: "freelance", label: "Freelancing & Client Work", icon: "💼" },
-  { id: "interviews", label: "Interview Hacks & Tips", icon: "🎯" },
-];
-
-// ─── INTERACTIVE ANALOG CLOCK TIME PICKER COMPONENT ───
+// ─── ANALOG CLOCK TIME PICKER DIALOG ───
 function AnalogClockModal({
   open,
   onOpenChange,
@@ -125,8 +97,7 @@ function AnalogClockModal({
           <p className="text-xs text-muted-foreground">Pick exact hour & minute for automated post alerts.</p>
         </DialogHeader>
 
-        {/* Digital Header Display */}
-        <div className="flex items-center justify-center gap-3 py-4 my-2 rounded-xl bg-slate-50 border border-slate-100">
+        <div className="flex items-center justify-center gap-3 py-4 my-2 rounded-xl bg-secondary/30 border border-border/45">
           <div className="flex items-center gap-1 text-3xl font-extrabold text-foreground font-mono">
             <button
               type="button"
@@ -171,7 +142,6 @@ function AnalogClockModal({
           </div>
         </div>
 
-        {/* Analog Clock Dial */}
         <div className="relative mx-auto my-3 h-56 w-56 rounded-full bg-slate-50 border-2 border-slate-200/80 shadow-inner flex items-center justify-center select-none">
           <div className="absolute h-3 w-3 rounded-full bg-primary z-20 shadow-xs" />
           <div
@@ -242,21 +212,12 @@ export default function ContentScheduler() {
   const [isCreating, setIsCreating] = useState(false);
   const [newTopic, setNewTopic] = useState("");
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    "Software Engineering",
-    "AI & Machine Learning"
-  ]);
   const [deliveryTime, setDeliveryTime] = useState<string>("09:00");
   const [whatsappNumber, setWhatsappNumber] = useState<string>("+91 98765 43210");
-  const [isWhatsappConnected, setIsWhatsappConnected] = useState<boolean>(true);
-  const [clockOpen, setClockOpen] = useState(false);
-  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
+  const [phoneInput, setPhoneInput] = useState("+91 98765 43210");
 
-  const toggleCategory = (label: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(label) ? prev.filter((c) => c !== label) : [...prev, label]
-    );
-  };
+  const [clockOpen, setClockOpen] = useState(false);
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["content-posts"],
@@ -294,13 +255,13 @@ export default function ContentScheduler() {
     mutationFn: async () => {
       try {
         return await api.contentPosts.generate({
-          topic: newTopic || selectedCategories.join(", "),
+          topic: newTopic || "Software Engineering",
         });
       } catch {
         const fakeId = Date.now();
         return {
           id: fakeId,
-          content: `🤖 Modern SDE Insight on ${selectedCategories[0] || "Tech"}:\nBuilding scalable career leverage starts with automated systems. ${newTopic ? `Focus hook: ${newTopic}.` : "Always build in public and connect with industry leaders consistently!"}\n\n#CareerGrowth #Automation #${(selectedCategories[0] || "Tech").replace(/\s+/g, "")}`,
+          content: `🤖 Modern SDE Insight:\nBuilding scalable career leverage starts with automated systems. ${newTopic ? `Focus hook: ${newTopic}.` : "Always build in public and connect with industry leaders consistently!"}\n\n#CareerGrowth #Automation #SoftwareEngineering`,
           status: "scheduled",
           created_at: new Date().toISOString()
         };
@@ -361,16 +322,13 @@ export default function ContentScheduler() {
     },
   });
 
-  const handleSaveAutomation = () => {
-    setIsSavingSettings(true);
-    setTimeout(() => {
-      setIsSavingSettings(false);
-      setIsWhatsappConnected(true);
-      toast({
-        title: "⚡ Settings & Waitlist Registered!",
-        description: `Preferences saved! Daily WhatsApp alerts set for ${formatDisplayTime(deliveryTime)} to ${whatsappNumber}.`,
-      });
-    }, 600);
+  const handleSavePhone = () => {
+    setWhatsappNumber(phoneInput);
+    setIsPhoneModalOpen(false);
+    toast({
+      title: "WhatsApp Connected",
+      description: `Daily alerts will be sent to ${phoneInput}.`,
+    });
   };
 
   const formatDisplayTime = (tStr: string) => {
@@ -385,13 +343,39 @@ export default function ContentScheduler() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-3 py-6 sm:py-10 space-y-10 animate-fade-in pb-20">
+    <div className="mx-auto w-full max-w-7xl px-3 py-6 sm:py-10 space-y-10 animate-fade-in pb-20 text-left">
       <AnalogClockModal
         open={clockOpen}
         onOpenChange={setClockOpen}
         initialTime={deliveryTime}
         onSelectTime={(newTime) => setDeliveryTime(newTime)}
       />
+
+      {/* WhatsApp Phone Modal */}
+      <Dialog open={isPhoneModalOpen} onOpenChange={setIsPhoneModalOpen}>
+        <DialogContent className="sm:max-w-[400px] border-border bg-card rounded-2xl p-6">
+          <DialogHeader className="space-y-1 text-center sm:text-left">
+            <DialogTitle className="text-lg font-bold text-foreground">Update WhatsApp Number</DialogTitle>
+            <p className="text-xs text-muted-foreground">Receive daily content drafts directly on WhatsApp.</p>
+          </DialogHeader>
+          <div className="space-y-4 pt-3">
+            <Input
+              value={phoneInput}
+              onChange={(e) => setPhoneInput(e.target.value)}
+              placeholder="e.g. +91 98765 43210"
+              className="h-11 text-xs rounded-xl font-mono"
+            />
+            <DialogFooter>
+              <Button
+                onClick={handleSavePhone}
+                className="w-full bg-primary text-primary-foreground hover:brightness-110 rounded-full font-semibold h-10 text-xs shadow-md cursor-pointer"
+              >
+                Save and Lock Number
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* 🚀 HERO SECTION WITH COMING SOON BADGE */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-card to-primary/5 p-8 sm:p-10 border border-border/80 shadow-md">
@@ -408,7 +392,7 @@ export default function ContentScheduler() {
           </h1>
 
           <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-            Build a high-impact personal brand on LinkedIn & Twitter on autopilot. Connect once via WhatsApp, choose your industry taste niches, and receive ready-to-publish scheduled posts automatically on your preferred time!
+            Build a high-impact personal brand on LinkedIn & Twitter on autopilot. Connect once via WhatsApp, receive ready-to-publish scheduled posts automatically on your preferred time!
           </p>
         </div>
       </div>
@@ -423,7 +407,7 @@ export default function ContentScheduler() {
             Coming Soon: Direct 1-Click Publishing to LinkedIn & Twitter/X
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            We are actively integrating official APIs for LinkedIn and Twitter/X auto-posting alongside WhatsApp instant alerts. Configure your schedule & taste preferences below to lock in early priority access!
+            We are actively integrating official APIs for LinkedIn and Twitter/X auto-posting alongside WhatsApp instant alerts. Configured preferences will lock in early priority access!
           </p>
         </div>
 
@@ -440,7 +424,7 @@ export default function ContentScheduler() {
               <DialogHeader className="space-y-1">
                 <DialogTitle className="text-xl font-bold text-foreground">Generate AI Content Post</DialogTitle>
                 <p className="text-xs text-muted-foreground">
-                  Generate posts tailored to your <strong className="text-primary">{selectedCategories.length} selected taste niches</strong>.
+                  Generate a post tailored to your software engineering profile.
                 </p>
               </DialogHeader>
               <div className="space-y-4 pt-3">
@@ -474,120 +458,27 @@ export default function ContentScheduler() {
         </div>
       </div>
 
-      {/* ⚙️ AUTOMATION SETTINGS & TASTE PREFERENCES SETUP (MOVED TO TOP!) */}
-      <div className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex items-center justify-between pb-4 border-b border-border/60">
-          <div className="flex items-center gap-2">
-            <Sliders className="h-5 w-5 text-primary" />
-            <h2 className="text-sm font-extrabold uppercase tracking-wider text-foreground">
-              Configure Your Taste Preferences & WhatsApp Alerts
-            </h2>
-          </div>
-          <span className={`text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5 ${
-            isWhatsappConnected ? "bg-green-500/10 text-green-600 border border-green-500/20" : "bg-amber-500/10 text-amber-600"
-          }`}>
-            <MessageSquare className="h-3.5 w-3.5" />
-            {isWhatsappConnected ? "WhatsApp Delivery Ready" : "Setup Required"}
-          </span>
-        </div>
-
-        {/* Pinterest-Style Multi-Select Content Taste Preference Chips */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-foreground flex items-center gap-2">
-              <Tag className="h-3.5 w-3.5 text-primary" />
-              Select Your Content Taste Preferences (Multi-Selection Active)
-            </label>
-            <span className="text-[11px] font-extrabold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
-              {selectedCategories.length} Niches Selected
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2.5 pt-1">
-            {CATEGORY_OPTIONS.map((cat) => {
-              const isSelected = selectedCategories.includes(cat.label);
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => toggleCategory(cat.label)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer border select-none ${
-                    isSelected
-                      ? "bg-card text-foreground border-primary border-2 shadow-xs scale-[1.02]"
-                      : "bg-secondary/40 text-muted-foreground border-border/60 hover:bg-secondary hover:text-foreground"
-                  }`}
-                >
-                  <span>{cat.icon}</span>
-                  <span>{cat.label}</span>
-                  {isSelected && <Check className="h-3.5 w-3.5 text-primary stroke-[3] ml-0.5" />}
-                </button>
-              );
-            })}
-          </div>
-          <p className="text-[11px] text-muted-foreground">
-            Click multiple chips above to define your unique personal content mix. AI will generate posts blending these selected topics.
-          </p>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-2 pt-4 border-t border-border/60">
-          {/* Daily Delivery Time — Trigger Analog Clock Modal */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground/80 flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-primary" />
-              Scheduler Time of Daily Delivery
-            </label>
-            <button
-              type="button"
-              onClick={() => setClockOpen(true)}
-              className="w-full h-10 px-3 bg-card border border-border rounded-xl text-xs font-bold text-foreground hover:bg-secondary/40 transition-colors flex items-center justify-between cursor-pointer shadow-xs"
-            >
-              <span>{formatDisplayTime(deliveryTime)}</span>
-              <Clock className="h-4 w-4 text-primary" />
-            </button>
-            <p className="text-[11px] text-muted-foreground">Click to open interactive analog clock picker.</p>
-          </div>
-
-          {/* WhatsApp Automation Setup */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground/80 flex items-center gap-1.5">
-              <MessageSquare className="h-3.5 w-3.5 text-primary" />
-              WhatsApp Alert Number
-            </label>
-            <Input
-              value={whatsappNumber}
-              onChange={(e) => setWhatsappNumber(e.target.value)}
-              placeholder="e.g. +91 9876543210"
-              className="h-10 text-xs rounded-xl font-mono"
-            />
-            <p className="text-[11px] text-muted-foreground">Receive preview links & delivery confirmations on WhatsApp.</p>
-          </div>
-        </div>
-
-        <div className="pt-2 flex justify-end">
-          <Button
-            onClick={handleSaveAutomation}
-            disabled={isSavingSettings}
-            className="gap-2 bg-primary text-primary-foreground hover:brightness-110 rounded-full px-6 py-2.5 font-semibold text-xs h-10 cursor-pointer shadow-md"
-          >
-            {isSavingSettings ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-            {isSavingSettings ? "Saving Preferences..." : "Save Automation & Lock Priority Waitlist"}
-          </Button>
-        </div>
-      </div>
-
-      {/* MAIN GRID LAYOUT: QUEUE & PREVIEW (MOVED TO TOP!) */}
+      {/* MAIN GRID LAYOUT: QUEUE & PREVIEW */}
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Scheduled / Draft Posts List */}
         <div className="lg:col-span-2 rounded-3xl border border-border bg-card shadow-sm overflow-hidden flex flex-col">
-          <div className="border-b border-border/60 px-6 py-4 bg-secondary/20 flex items-center justify-between">
+          <div className="border-b border-border/60 px-6 py-4 bg-secondary/25 flex items-center justify-between">
             <div>
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-foreground">
                 Scheduled Queue ({posts.length})
               </h3>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Next run: Today at {formatDisplayTime(deliveryTime)}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                Next run: Today at{" "}
+                <button
+                  onClick={() => setClockOpen(true)}
+                  className="text-primary font-bold hover:underline cursor-pointer"
+                  title="Click to edit time"
+                >
+                  {formatDisplayTime(deliveryTime)} ⚙️
+                </button>
+              </p>
             </div>
-            <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-primary/20">
-              <Bell className="h-3 w-3" />
+            <span className="text-[10px] font-extrabold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
               WhatsApp Sync
             </span>
           </div>
@@ -646,12 +537,19 @@ export default function ContentScheduler() {
                       <FileText className="h-4 w-4 text-primary" />
                       Content Post Preview
                     </h3>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                      {selectedCategories.length} Taste Preferences Active
-                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Delivery scheduled daily at {formatDisplayTime(deliveryTime)} • WhatsApp alerts to {whatsappNumber}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Scheduled at {formatDisplayTime(deliveryTime)} • Alerts to{" "}
+                    <button
+                      onClick={() => {
+                        setPhoneInput(whatsappNumber);
+                        setIsPhoneModalOpen(true);
+                      }}
+                      className="text-primary font-bold hover:underline cursor-pointer"
+                      title="Click to edit number"
+                    >
+                      {whatsappNumber} ⚙️
+                    </button>
                   </p>
                 </div>
 
@@ -739,135 +637,88 @@ export default function ContentScheduler() {
         </div>
       </div>
 
-      {/* 📱 STEP-BY-STEP HOW IT WORKS */}
-      <div className="space-y-6 pt-4">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">How It Works in 4 Simple Steps</h2>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
-            Zero stress about social media presence. Set your preferences once and let Outly handle your content delivery.
+      {/* 🌟 ZEN-SCAIL STYLE PREMIUM CARDS: WHY SCHEDULED POSTS ARE GOOD FOR YOUR CAREER */}
+      <div className="space-y-8 pt-8 border-t border-border/60">
+        <div className="space-y-2 text-center sm:text-left">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-extrabold uppercase tracking-wider">
+            <TrendingUp className="h-3.5 w-3.5" />
+            Career Leverage
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+            Why Scheduled Posts are Good for Your Career
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
+            Building a consistent digital presence is the highest ROI activity for modern software engineers.
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Step 1 */}
-          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
-              01
-            </div>
-            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-              <Smartphone className="h-4 w-4 text-primary" /> 1-Time WhatsApp Connect
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Connect your WhatsApp number once. You will receive automated post alerts and delivery links right in your chat.
-            </p>
-          </div>
-
-          {/* Step 2 */}
-          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
-              02
-            </div>
-            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-primary" /> Set Schedule & Niches
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Select your industry taste niches (AI, Web Dev, Startups) and pick your daily automated delivery time with our clock.
-            </p>
-          </div>
-
-          {/* Step 3 */}
-          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
-              03
-            </div>
-            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-              <MessageSquare className="h-4 w-4 text-primary" /> Scheduled Post Delivered
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              At your scheduled time, high-engaging posts are delivered straight to your WhatsApp inbox ready to review and publish.
-            </p>
-          </div>
-
-          {/* Step 4 */}
-          <div className="rounded-2xl border border-border/70 bg-card p-5 space-y-3 relative shadow-2xs hover:border-primary/40 transition-all">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-extrabold text-sm border border-primary/20">
-              04
-            </div>
-            <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-primary" /> Zero-Stress Social Growth
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Maintain a consistent, professional online brand effortlessly without spending hours drafting content daily.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 🌟 BENEFITS & NETWORKING VALUE SECTION */}
-      <div className="rounded-3xl border border-border bg-card p-8 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
-          <div className="space-y-1">
-            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" /> Why Active Social Presence Matters
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Supercharge your career opportunities, networking, and inbound visibility.
-            </p>
-          </div>
-          <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-            High ROI Networking
-          </span>
-        </div>
-
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Benefit 1 */}
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
-              <GraduationCap className="h-6 w-6" />
+          {/* Card 1: Build in public, effortlessly */}
+          <div className="flex flex-col md:flex-row items-start gap-5 p-6 rounded-3xl border border-border/50 bg-[#fdfcf9] hover:border-primary/30 transition-all duration-300 shadow-xs group">
+            <div className="p-3.5 rounded-2xl bg-[#faf6ef] border border-border/30 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" className="stroke-primary/40" />
+                <path d="M6 8l3 3-3 3M11 12h4" />
+                <circle cx="17" cy="17" r="3" className="fill-primary/10" />
+                <path d="M17 14v3M14 17h3" />
+              </svg>
             </div>
-            <div className="space-y-1">
-              <h4 className="font-bold text-sm text-foreground">Best for Students & Early Career Techies</h4>
+            <div className="space-y-2 text-left">
+              <h4 className="font-bold text-base text-foreground">Build in public, on autopilot</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Stand out in the competitive tech market! Connect directly with startup founders, engineering leads, and top recruiters by consistently sharing insightful technical thoughts and project updates.
+                Turn your daily learnings, git commits, and project milestones into structured posts. Build a high-value engineering portfolio that speaks for itself and establishes your technical depth.
               </p>
             </div>
           </div>
 
-          {/* Benefit 2 */}
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
-              <Users className="h-6 w-6" />
+          {/* Card 2: Consistency without the burnout */}
+          <div className="flex flex-col md:flex-row items-start gap-5 p-6 rounded-3xl border border-border/50 bg-[#fdfcf9] hover:border-primary/30 transition-all duration-300 shadow-xs group">
+            <div className="p-3.5 rounded-2xl bg-[#faf6ef] border border-border/30 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" className="stroke-primary/40" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+                <circle cx="12" cy="16" r="4" className="fill-primary/10" />
+                <path d="M12 14v2l1.5 1" />
+              </svg>
             </div>
-            <div className="space-y-1">
-              <h4 className="font-bold text-sm text-foreground">Networking & Inbound Opportunities</h4>
+            <div className="space-y-2 text-left">
+              <h4 className="font-bold text-base text-foreground">Consistency, solved</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Build an inbound magnet for high-paying job offers, freelance clients, mentorships, and investor funding simply by staying active and visible in your specific industry niche.
+                Staring at a blank screen is exhausting. Spend 15 minutes on Sunday scheduling your weekly insights, and let Outly maintain your presence while you focus on what you do best—writing code.
               </p>
             </div>
           </div>
 
-          {/* Benefit 3 */}
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
-              <Target className="h-6 w-6" />
+          {/* Card 3: An inbound recruiter magnet */}
+          <div className="flex flex-col md:flex-row items-start gap-5 p-6 rounded-3xl border border-border/50 bg-[#fdfcf9] hover:border-primary/30 transition-all duration-300 shadow-xs group">
+            <div className="p-3.5 rounded-2xl bg-[#faf6ef] border border-border/30 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" className="stroke-primary/40" />
+                <path d="M22 6l-10 7L2 6" />
+                <circle cx="12" cy="16" r="3" className="fill-amber-500/10 stroke-amber-500" />
+              </svg>
             </div>
-            <div className="space-y-1">
-              <h4 className="font-bold text-sm text-foreground">Personal Branding Without Burnout</h4>
+            <div className="space-y-2 text-left">
+              <h4 className="font-bold text-base text-foreground">Recruiters come to you</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Grow your personal brand across LinkedIn & Twitter on complete autopilot while focusing 100% on your actual coding, core projects, and studies without content stress.
+                A consistent technical presence acts as an inbound funnel. Bypass the standard resume black hole and have founders and engineering managers reach out directly to your inbox with high-paying roles.
               </p>
             </div>
           </div>
 
-          {/* Benefit 4 */}
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
-              <Share2 className="h-6 w-6" />
+          {/* Card 4: 1-Tap WhatsApp Approval */}
+          <div className="flex flex-col md:flex-row items-start gap-5 p-6 rounded-3xl border border-border/50 bg-[#fdfcf9] hover:border-primary/30 transition-all duration-300 shadow-xs group">
+            <div className="p-3.5 rounded-2xl bg-[#faf6ef] border border-border/30 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" className="stroke-primary/40" />
+                <circle cx="12" cy="19" r="1" />
+                <path d="M9 6h6M9 10h6M9 14h4" />
+              </svg>
             </div>
-            <div className="space-y-1">
-              <h4 className="font-bold text-sm text-foreground">1-Tap WhatsApp Convenience</h4>
+            <div className="space-y-2 text-left">
+              <h4 className="font-bold text-base text-foreground">One chat, not five tabs</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                No complex dashboards required on the go. Review, edit, or copy ready-to-publish posts directly from your phone on WhatsApp anywhere, anytime.
+                No need to open multiple social dashboards on your browser. Outly sends your daily draft straight to your WhatsApp. Review, edit, or publish with a single tap from your phone.
               </p>
             </div>
           </div>
