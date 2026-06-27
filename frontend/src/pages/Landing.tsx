@@ -239,6 +239,25 @@ export default function Landing() {
   }, []);
 
   const [scrolled, setScrolled] = useState(false);
+  const [visibleCards, setVisibleCards] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleCards(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const el = document.getElementById("features-grid");
+    if (el) observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
+
   const [heroTypedText, setHeroTypedText] = useState("");
   const [heroCursor, setHeroCursor] = useState(true);
   const [mobileInboxView, setMobileInboxView] = useState<"list" | "detail">("list");
@@ -1206,10 +1225,10 @@ export default function Landing() {
             Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
           </h2>
         </div>
-        <div className="grid md:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
+        <div id="features-grid" className="grid md:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
           
           {/* Card 1 */}
-          <div className="bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft hover:shadow-lg transition-all duration-500 flex flex-col items-start group cursor-pointer">
+          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-100 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50 overflow-hidden">
               <div className="flex flex-col gap-3 w-2/3">
                 <div className="h-1 w-full bg-outly-accent/10 rounded-full overflow-hidden">
@@ -1232,7 +1251,7 @@ export default function Landing() {
           </div>
 
           {/* Card 2 */}
-          <div className="bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft hover:shadow-lg transition-all duration-500 flex flex-col items-start group cursor-pointer">
+          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-300 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
               <div className="relative">
                 <div className="w-12 h-12 rounded-full border-2 border-outly-accent/20 flex items-center justify-center transition-transform duration-500 group-hover:rotate-180">
@@ -1246,7 +1265,7 @@ export default function Landing() {
           </div>
 
           {/* Card 3 */}
-          <div className="bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft hover:shadow-lg transition-all duration-500 flex flex-col items-start group cursor-pointer">
+          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-500 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
               <div className="w-16 h-20 bg-white border border-outly-border rounded shadow-sm relative p-2 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
                 <div className="h-1 w-full bg-outly-dark/10 rounded mb-1"></div>
