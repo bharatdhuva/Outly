@@ -2118,28 +2118,78 @@ export default function Landing() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-white py-10 border-t border-outly-border/50 font-sans">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-            <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
-            <span className="text-outly-logo">Outly</span>
+      <footer className="bg-white py-12 border-t border-outly-border/50 font-sans">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 flex flex-col md:flex-row justify-between items-center gap-8">
+          
+          {/* Brand Logo & Copyright */}
+          <div className="flex flex-col items-center md:items-start gap-1">
+            <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
+              <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
+              <span className="text-outly-logo">Outly</span>
+            </div>
+            <p className="text-[11px] font-medium text-outly-dark/40 mt-1">
+              © 2026 Outly. All rights reserved.
+            </p>
           </div>
 
-          {/* Support Email and Phone */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-xs font-semibold text-outly-dark/70">
-            <div className="flex items-center gap-2">
-              <span className="text-outly-accent font-bold">✉️ Support Email:</span>
-              <a href="mailto:support@outly.online" className="hover:text-outly-accent transition">support@outly.online</a>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-outly-accent font-bold">📞 Support Phone:</span>
-              <a href="tel:+917041880036" className="hover:text-outly-accent transition">+91 70418 80036</a>
+          {/* Developer & Support Contact Links */}
+          <div className="flex flex-col items-center md:items-end gap-3">
+            <span className="text-[11px] font-extrabold uppercase tracking-widest text-outly-dark/40">
+              Developer Contact
+            </span>
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-semibold text-outly-dark/80">
+              {/* Email */}
+              <a
+                href="mailto:bharatdhuva27@gmail.com"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-outly-dark/5 hover:bg-outly-accent/10 hover:text-outly-accent transition-all group border border-outly-border/40"
+              >
+                <svg className="w-4 h-4 text-outly-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span>bharatdhuva27@gmail.com</span>
+              </a>
+
+              {/* Phone */}
+              <a
+                href="tel:+919624828661"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-outly-dark/5 hover:bg-outly-accent/10 hover:text-outly-accent transition-all group border border-outly-border/40"
+              >
+                <svg className="w-4 h-4 text-outly-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <span>+91 96248 28661</span>
+              </a>
+
+              {/* LinkedIn */}
+              <a
+                href="https://linkedin.com/in/bharatdhuva27/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-outly-dark/5 hover:bg-[#0a66c2]/10 hover:text-[#0a66c2] transition-all group border border-outly-border/40"
+              >
+                <svg className="w-4 h-4 text-[#0a66c2]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                </svg>
+                <span>LinkedIn</span>
+              </a>
+
+              {/* Portfolio */}
+              <a
+                href="https://bharatdhuva.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-outly-dark/5 hover:bg-outly-accent/10 hover:text-outly-accent transition-all group border border-outly-border/40"
+              >
+                <svg className="w-4 h-4 text-outly-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+                </svg>
+                <span>Portfolio</span>
+              </a>
             </div>
           </div>
 
-          <p className="text-[11px] font-medium text-outly-dark/40">
-            © 2026 Outly. All rights reserved.
-          </p>
         </div>
       </footer>
 
