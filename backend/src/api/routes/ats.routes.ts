@@ -11,8 +11,12 @@ import fs from "fs";
 import axios from "axios";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const { PDFParse } = require("pdf-parse");
-const mammoth = require("mammoth");
+let mammoth: any;
+try {
+  mammoth = require("mammoth");
+} catch (e) {
+  mammoth = null;
+}
 
 const router = Router();
 
@@ -306,12 +310,23 @@ router.post("/parse-file", upload.single("file"), async (req: AuthenticatedReque
     if (ext === ".txt") {
       text = fs.readFileSync(filePath, "utf-8");
     } else if (ext === ".pdf") {
+      // Lazy-require pdf parser to avoid native canvas issues in serverless runtime
+      let PDFParse: any = null;
+      try {
+        PDFParse = require("pdf-parse").PDFParse;
+      } catch (e) {
+        logger.warn("pdf-parse not available; PDF parsing disabled", { error: String(e), source: "ats" });
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        return res.status(503).json({ error: "PDF parsing is unavailable in this environment." });
+      }
+
       const buffer = fs.readFileSync(filePath);
       const parser = new PDFParse({ data: buffer });
       const data = await parser.getText();
       text = data.text;
       await parser.destroy().catch(() => {});
     } else if (ext === ".docx") {
+      if (!mammoth) mammoth = require("mammoth");
       const result = await mammoth.extractRawText({ path: filePath });
       text = result.value;
     } else {

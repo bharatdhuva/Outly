@@ -11,8 +11,15 @@ import fs from "fs";
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
-const { PDFParse } = require("pdf-parse");
-const mammoth = require("mammoth");
+// Do not require `pdf-parse` at module-load time — it pulls native canvas bindings
+// that are not available in some serverless environments (causes startup crash).
+// We'll load it lazily inside handlers and fail gracefully if it's not present.
+let mammoth: any;
+try {
+  mammoth = require("mammoth");
+} catch (e) {
+  mammoth = null;
+}
 
 const router = Router();
 const upload = process.env.VERCEL
@@ -107,12 +114,25 @@ router.post("/upload", upload.single("file"), checkResumeLimit, async (req: Auth
     if (ext === ".txt") {
       text = fs.readFileSync(tempFilePath, "utf-8");
     } else if (ext === ".pdf") {
+      // Lazy-load pdf parser because native canvas bindings may be missing in serverless
+      let PDFParse: any = null;
+      try {
+        PDFParse = require("pdf-parse").PDFParse;
+      } catch (e) {
+        logger.warn("pdf-parse not available; PDF parsing disabled", { error: String(e), source: "resume_vault" });
+        if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+        return res.status(503).json({ error: "PDF parsing is unavailable in this environment." });
+      }
+
       const buffer = fs.readFileSync(tempFilePath);
       const parser = new PDFParse({ data: buffer });
       const data = await parser.getText();
       text = data.text;
       await parser.destroy().catch(() => {});
     } else if (ext === ".docx") {
+      if (!mammoth) {
+        mammoth = require("mammoth");
+      }
       const result = await mammoth.extractRawText({ path: tempFilePath });
       text = result.value;
     } else {
