@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import HeroDashboardMockup from "@/components/HeroDashboardMockup";
+import ResumeCarousel from "@/components/ResumeCarousel";
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -106,9 +106,9 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* Right-Side Dashboard Mockup (Hidden on Mobile, Visible on Desktop) */}
-        <div className="hidden md:flex items-center justify-center lg:col-span-6 w-full py-4">
-          <HeroDashboardMockup />
+        {/* Right-Side Animated Resume Carousel */}
+        <div className="flex items-center justify-center lg:col-span-6 w-full py-4">
+          <ResumeCarousel />
         </div>
       </div>
     </div>
