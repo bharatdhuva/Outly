@@ -7,9 +7,14 @@ config({ path: path.resolve(__dirname, "..", ".env") });
 import fs from "fs";
 import { env } from "./config/env.js";
 import { startServer } from "./api/server.js";
+import { scheduleWeeklyPost } from "./jobs/weeklyPost.cron.js";
 import { scheduleDailySummary } from "./jobs/dailySummary.cron.js";
 import { scheduleFollowUpChecker } from "./jobs/followUpChecker.cron.js";
+import { scheduleSocialDrafts } from "./jobs/socialDrafts.cron.js";
+import { scheduleWeeklyThread } from "./jobs/weeklyThread.cron.js";
+import { scheduleTweetTracker } from "./jobs/tweetTracker.cron.js";
 import { scheduleWeeklyReport } from "./jobs/weeklyReport.cron.js";
+import { scheduleDailyLinkedInDraft } from "./jobs/dailyLinkedInDraft.cron.js";
 import "./queue/processors.js";
 import { logger } from "./lib/logger.js";
 import mongoose from "mongoose";
@@ -37,12 +42,17 @@ async function main() {
     }
   });
 
+  scheduleWeeklyPost();
   scheduleDailySummary();
   scheduleFollowUpChecker();
+  scheduleSocialDrafts();
+  scheduleWeeklyThread();
+  scheduleTweetTracker();
   scheduleWeeklyReport();
+  scheduleDailyLinkedInDraft();
   await startServer();
 
-  logger.info("Outly started — core services initialized", { source: "system" });
+  logger.info("Outly started — all services initialized", { source: "system" });
 }
 
 main().catch((e) => {
