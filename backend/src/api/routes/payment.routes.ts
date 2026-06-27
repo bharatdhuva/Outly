@@ -102,7 +102,7 @@ router.post("/verify-payment", async (req: Request, res: Response) => {
             {
               $set: {
                 plan: "pro",
-                planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                planExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
               }
             },
             { new: true }

@@ -95,7 +95,7 @@ export default function Pricing() {
     let orderData;
     try {
       // 1. Create order on backend
-      orderData = await api.payment.createOrder(4900, "INR");
+      orderData = await api.payment.createOrder(1900, "INR");
     } catch (err: any) {
       toast({
         title: "Order Creation Failed",
@@ -313,13 +313,13 @@ export default function Pricing() {
 
           <div className="flex items-baseline gap-2.5 mb-6 select-none">
             <span className="text-5xl md:text-6xl font-bold">
-              ₹49
+              ₹19
             </span>
             <span className="text-white/30 text-base md:text-lg font-medium line-through leading-none">
               ₹299
             </span>
             <span className="text-white/60 text-xs font-medium">
-              one-time payment
+              start 7-day trial
             </span>
           </div>
 
@@ -342,7 +342,7 @@ export default function Pricing() {
             </li>
             <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
               <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
-              Get hired faster with AI — only ₹49
+              Get hired faster with AI — 7-day trial @ ₹19/-
             </li>
           </ul>
 
@@ -356,7 +356,7 @@ export default function Pricing() {
               onClick={handleRazorpayPayment}
               className="w-full bg-outly-accent py-3 rounded-full font-bold text-sm hover:brightness-110 transition shadow-lg shadow-outly-accent/20 text-center select-none cursor-pointer text-white"
             >
-              Pay &amp; Upgrade via Razorpay
+              Start 7-Day Trial @ ₹19/-
             </button>
           )}
         </div>
