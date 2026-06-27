@@ -310,21 +310,28 @@ router.post("/parse-file", upload.single("file"), async (req: AuthenticatedReque
     if (ext === ".txt") {
       text = fs.readFileSync(filePath, "utf-8");
     } else if (ext === ".pdf") {
-      // Lazy-require pdf parser to avoid native canvas issues in serverless runtime
-      let PDFParse: any = null;
       try {
-        PDFParse = require("pdf-parse").PDFParse;
-      } catch (e) {
-        logger.warn("pdf-parse not available; PDF parsing disabled", { error: String(e), source: "ats" });
+        const pdfModule = require("pdf-parse");
+        const buffer = fs.readFileSync(filePath);
+        if (typeof pdfModule === "function") {
+          const data = await pdfModule(buffer);
+          text = data.text;
+        } else if (pdfModule.PDFParse) {
+          const parser = new pdfModule.PDFParse({ data: buffer });
+          const data = await parser.getText();
+          text = data.text;
+          await parser.destroy().catch(() => {});
+        } else if (pdfModule.default && typeof pdfModule.default === "function") {
+          const data = await pdfModule.default(buffer);
+          text = data.text;
+        } else {
+          throw new Error("Unknown pdf-parse export structure");
+        }
+      } catch (e: any) {
+        logger.error("PDF parsing failed in ats route", { error: e?.message || String(e), source: "ats" });
         if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        return res.status(503).json({ error: "PDF parsing is unavailable in this environment." });
+        return res.status(500).json({ error: e?.message || "Failed to parse PDF document." });
       }
-
-      const buffer = fs.readFileSync(filePath);
-      const parser = new PDFParse({ data: buffer });
-      const data = await parser.getText();
-      text = data.text;
-      await parser.destroy().catch(() => {});
     } else if (ext === ".docx") {
       if (!mammoth) mammoth = require("mammoth");
       const result = await mammoth.extractRawText({ path: filePath });

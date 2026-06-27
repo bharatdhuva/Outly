@@ -114,21 +114,28 @@ router.post("/upload", upload.single("file"), checkResumeLimit, async (req: Auth
     if (ext === ".txt") {
       text = fs.readFileSync(tempFilePath, "utf-8");
     } else if (ext === ".pdf") {
-      // Lazy-load pdf parser because native canvas bindings may be missing in serverless
-      let PDFParse: any = null;
       try {
-        PDFParse = require("pdf-parse").PDFParse;
-      } catch (e) {
-        logger.warn("pdf-parse not available; PDF parsing disabled", { error: String(e), source: "resume_vault" });
+        const pdfModule = require("pdf-parse");
+        const buffer = fs.readFileSync(tempFilePath);
+        if (typeof pdfModule === "function") {
+          const data = await pdfModule(buffer);
+          text = data.text;
+        } else if (pdfModule.PDFParse) {
+          const parser = new pdfModule.PDFParse({ data: buffer });
+          const data = await parser.getText();
+          text = data.text;
+          await parser.destroy().catch(() => {});
+        } else if (pdfModule.default && typeof pdfModule.default === "function") {
+          const data = await pdfModule.default(buffer);
+          text = data.text;
+        } else {
+          throw new Error("Unknown pdf-parse export structure");
+        }
+      } catch (e: any) {
+        logger.error("PDF parsing failed in resume route", { error: e?.message || String(e), source: "resume_vault" });
         if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
-        return res.status(503).json({ error: "PDF parsing is unavailable in this environment." });
+        return res.status(500).json({ error: e?.message || "Failed to parse PDF document." });
       }
-
-      const buffer = fs.readFileSync(tempFilePath);
-      const parser = new PDFParse({ data: buffer });
-      const data = await parser.getText();
-      text = data.text;
-      await parser.destroy().catch(() => {});
     } else if (ext === ".docx") {
       if (!mammoth) {
         mammoth = require("mammoth");
