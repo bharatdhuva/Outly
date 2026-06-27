@@ -160,7 +160,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     document.body.appendChild(particle);
 
     const size = Math.random() * 8 + 4;
-    const colors = ["#8b5cf6", "#a78bfa", "#2dc08d", "#c084fc", "#ddd6fe"];
+    const colors = ["#2dc08d", "#19cc95", "#10b981", "#34d399", "#059669"];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
     particle.style.width = `${size}px`;
@@ -588,20 +588,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <svg className="premium-sparkle-svg w-full h-full" viewBox="0 0 100 100">
                     <defs>
                       <linearGradient id="nav-grad-top-left" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#c084fc" />
-                        <stop offset="100%" stopColor="#8b5cf6" />
+                        <stop offset="0%" stopColor="#2dc08d" />
+                        <stop offset="100%" stopColor="#19cc95" />
                       </linearGradient>
                       <linearGradient id="nav-grad-top-right" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#a78bfa" />
-                        <stop offset="100%" stopColor="#7c3aed" />
+                        <stop offset="0%" stopColor="#34d399" />
+                        <stop offset="100%" stopColor="#10b981" />
                       </linearGradient>
                       <linearGradient id="nav-grad-bottom-right" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#6d28d9" />
-                        <stop offset="100%" stopColor="#4c1d95" />
+                        <stop offset="0%" stopColor="#059669" />
+                        <stop offset="100%" stopColor="#047857" />
                       </linearGradient>
                       <linearGradient id="nav-grad-bottom-left" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#7c3aed" />
-                        <stop offset="100%" stopColor="#5b21b6" />
+                        <stop offset="0%" stopColor="#10b981" />
+                        <stop offset="100%" stopColor="#065f46" />
                       </linearGradient>
                     </defs>
  
