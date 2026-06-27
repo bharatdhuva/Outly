@@ -57,6 +57,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   
   // Hover states for desktop dropdowns
   const [activeDropdown, setActiveDropdown] = useState<"resumes" | "jobs" | "tools" | null>(null);
@@ -656,44 +657,56 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             )}
 
             {/* Desktop Profile Info & Logout Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="hidden md:flex items-center gap-2.5 select-none hover:opacity-85 transition focus:outline-none cursor-pointer">
-                  <div className="relative h-8 w-8 overflow-hidden rounded-full border border-primary/10 shadow-sm shrink-0">
-                    {profilePic ? (
-                      <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-primary text-[11px] font-bold text-primary-foreground">
-                        {initials}
-                      </div>
-                    )}
+            <div className="relative hidden md:block">
+              <button 
+                onClick={() => setProfileMenuOpen(prev => !prev)}
+                className="flex items-center gap-2.5 select-none hover:opacity-85 transition focus:outline-none cursor-pointer py-1.5 px-2.5 rounded-xl hover:bg-black/5"
+              >
+                <div className="relative h-8 w-8 overflow-hidden rounded-full border border-primary/10 shadow-sm shrink-0">
+                  {profilePic ? (
+                    <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-primary text-[11px] font-bold text-primary-foreground">
+                      {initials}
+                    </div>
+                  )}
+                </div>
+                <span className="text-[12px] font-bold text-foreground max-w-[120px] truncate">{fullName}</span>
+                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform duration-200 ${profileMenuOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {profileMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setProfileMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-50 py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                    <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
+                      {fullName}
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        navigate("/settings");
+                      }}
+                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
+                    >
+                      <SettingsIcon className="h-3.5 w-3.5" />
+                      Settings
+                    </button>
+                    <div className="h-px bg-[#e8e2d5] my-1" />
+                    <button 
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full text-left text-xs font-semibold text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      Sign Out
+                    </button>
                   </div>
-                  <span className="text-[12px] font-bold text-foreground max-w-[100px] truncate">{fullName}</span>
-                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-[#FAF6EE] border-[#e8e2d5] font-sans">
-                <DropdownMenuLabel className="text-[11.5px] font-bold text-outly-dark/70">
-                  {fullName}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-[#e8e2d5]" />
-                <DropdownMenuItem 
-                  onClick={() => navigate("/settings")}
-                  className="text-xs font-semibold text-outly-dark hover:bg-muted/30 focus:bg-muted/30 cursor-pointer flex items-center gap-2 py-2"
-                >
-                  <SettingsIcon className="h-3.5 w-3.5" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[#e8e2d5]" />
-                <DropdownMenuItem 
-                  onClick={handleLogout}
-                  className="text-xs font-semibold text-destructive hover:bg-destructive/10 focus:bg-destructive/10 cursor-pointer flex items-center gap-2 py-2"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </>
+              )}
+            </div>
 
             {/* Mobile menu button */}
             <button

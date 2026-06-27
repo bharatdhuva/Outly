@@ -107,8 +107,11 @@ export default function ColdMailPage() {
     if (!settings) return;
     setNewCompany((current) => ({
       ...current,
-      sender_name: current.sender_name || settings.full_name || "",
-      sender_location: current.sender_location || settings.target_cities.split(",")[0]?.trim() || "",
+      role: settings.target_role || current.role || "Software Development Engineer",
+      key_skills: settings.skills || current.key_skills || "React, TypeScript, Node.js",
+      experience_level: settings.education || current.experience_level || "3rd year CS student",
+      sender_name: settings.full_name || current.sender_name || "",
+      sender_location: settings.target_cities?.split(",")[0]?.trim() || current.sender_location || "",
     }));
   }, [settings]);
 
@@ -130,13 +133,13 @@ export default function ColdMailPage() {
         company_name: "",
         website_url: "",
         hr_email: "",
-        role: "Software Development Engineer",
+        role: settings?.target_role || "Software Development Engineer",
         target_person_name: "",
         target_person_role: "",
-        key_skills: "React, TypeScript, Node.js",
-        experience_level: "3rd year CS student",
+        key_skills: settings?.skills || "React, TypeScript, Node.js",
+        experience_level: settings?.education || "3rd year CS student",
         sender_name: settings?.full_name || "",
-        sender_location: settings?.target_cities.split(",")[0]?.trim() || "",
+        sender_location: settings?.target_cities?.split(",")[0]?.trim() || "",
         personalization_hook: "",
       });
       toast.success("Lead added successfully");
@@ -287,18 +290,23 @@ export default function ColdMailPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="space-y-6 animate-fade-in">
-        {/* Top Header */}
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Cold Mail Manager
+      <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-8 animate-fade-in pb-16">
+        
+        {/* Hero text header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-3 text-left">
+            <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
+              COLD MAIL MANAGER
+            </span>
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
+              Automate your cold outreach pipeline
             </h1>
-            <p className="text-sm text-muted-foreground">
-              AI-personalized outreach & company application pipeline
+            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl leading-relaxed">
+              Generate personalized cold emails for target hiring managers, manage drafts, and track application responses in real-time.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
             <input
               ref={fileInputRef}
               type="file"
@@ -308,58 +316,39 @@ export default function ColdMailPage() {
             />
             <Dialog open={isAdding} onOpenChange={setIsAdding}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2 border-border shadow-sm">
-                  <Plus className="h-3.5 w-3.5 text-primary" />
+                <Button variant="outline" className="gap-2 border-border shadow-sm rounded-full px-5 py-2.5 font-semibold text-sm h-11">
+                  <Plus className="h-4 w-4 text-outly-accent" />
                   Add Lead Manually
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
-                <DialogHeader>
-                  <DialogTitle>Add New Lead</DialogTitle>
+              <DialogContent className="sm:max-w-[500px] border-border bg-card rounded-2xl p-6">
+                <DialogHeader className="space-y-1">
+                  <DialogTitle className="text-xl font-bold text-foreground">Add New Lead</DialogTitle>
+                  <p className="text-xs text-muted-foreground">
+                    Enter target company & contact details. Sender details are pulled automatically from your profile settings.
+                  </p>
                 </DialogHeader>
-                <form onSubmit={handleCreate} className="space-y-4 py-2">
+                <form onSubmit={handleCreate} className="space-y-4 pt-3">
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>Company Name</Label>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Company Name *</Label>
                       <Input
                         required
                         placeholder="e.g. Resilient Tech"
+                        className="h-10 text-xs rounded-xl"
                         value={newCompany.company_name}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, company_name: e.target.value })
                         }
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Website (optional)</Label>
-                      <Input
-                        type="url"
-                        placeholder="https://..."
-                        value={newCompany.website_url || ""}
-                        onChange={(e) =>
-                          setNewCompany({ ...newCompany, website_url: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>Target Person Name</Label>
-                      <Input
-                        placeholder="Sagar Vora"
-                        value={newCompany.target_person_name || ""}
-                        onChange={(e) =>
-                          setNewCompany({ ...newCompany, target_person_name: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Target Email</Label>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Target Email *</Label>
                       <Input
                         required
                         type="email"
                         placeholder="sagar@resilient.tech"
+                        className="h-10 text-xs rounded-xl"
                         value={newCompany.hr_email}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, hr_email: e.target.value })
@@ -369,32 +358,49 @@ export default function ColdMailPage() {
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>Target Role</Label>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Target Person Name</Label>
                       <Input
-                        placeholder="Managing Partner"
+                        placeholder="e.g. Sagar Vora"
+                        className="h-10 text-xs rounded-xl"
+                        value={newCompany.target_person_name || ""}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, target_person_name: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Target Role</Label>
+                      <Input
+                        placeholder="e.g. Managing Partner / CTO"
+                        className="h-10 text-xs rounded-xl"
                         value={newCompany.target_person_role || ""}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, target_person_role: e.target.value })
                         }
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Role You Are Applying For</Label>
-                      <Input
-                        placeholder="Full Stack Developer"
-                        value={newCompany.role}
-                        onChange={(e) =>
-                          setNewCompany({ ...newCompany, role: e.target.value })
-                        }
-                      />
-                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Personalization Hook (Mental Note)</Label>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-foreground/80">Website URL (optional)</Label>
+                    <Input
+                      type="url"
+                      placeholder="https://company.com"
+                      className="h-10 text-xs rounded-xl"
+                      value={newCompany.website_url || ""}
+                      onChange={(e) =>
+                        setNewCompany({ ...newCompany, website_url: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-foreground/80">Personalization Hook / Note (optional)</Label>
                     <Textarea
-                      placeholder="e.g. They are ERPNext partners and building India Compliance app."
+                      rows={2}
+                      placeholder="e.g. Building open-source ERP tools and scaling dev ops."
+                      className="text-xs rounded-xl resize-none min-h-[70px]"
                       value={newCompany.personalization_hook || ""}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, personalization_hook: e.target.value })
@@ -402,34 +408,14 @@ export default function ColdMailPage() {
                     />
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>My Name</Label>
-                      <Input
-                        value={newCompany.sender_name || ""}
-                        onChange={(e) =>
-                          setNewCompany({ ...newCompany, sender_name: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>My Location</Label>
-                      <Input
-                        value={newCompany.sender_location || ""}
-                        onChange={(e) =>
-                          setNewCompany({ ...newCompany, sender_location: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  <DialogFooter>
+                  <DialogFooter className="pt-2">
                     <Button
                       type="button"
+                      className="w-full bg-outly-accent text-white hover:brightness-110 rounded-full font-semibold h-10 text-sm shadow-md shadow-outly-accent/20 cursor-pointer"
                       onClick={handleCreateClick}
                       disabled={createMutation.isPending}
                     >
-                      {createMutation.isPending ? "Adding..." : "Add Lead"}
+                      {createMutation.isPending ? "Adding Lead..." : "Add Lead"}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -439,14 +425,14 @@ export default function ColdMailPage() {
             {mainMode === "manual" && (
               <Button
                 size="sm"
-                className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+                className="gap-2 bg-outly-accent text-white hover:brightness-110 shadow-md shadow-outly-accent/20 rounded-full px-6 py-2.5 font-semibold text-sm h-11 cursor-pointer"
                 onClick={() => generateMutation.mutate()}
                 disabled={generateMutation.isPending}
               >
                 {generateMutation.isPending ? (
-                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                  <RefreshCw className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <Sparkles className="h-4 w-4" />
                 )}
                 {generateMutation.isPending ? "Generating Mails..." : "Auto-Generate Emails"}
               </Button>
@@ -455,12 +441,12 @@ export default function ColdMailPage() {
         </div>
 
         {/* Mode Switcher Navigation */}
-        <div className="flex border-b border-border">
+        <div className="flex border-b border-border gap-2">
           <button
             onClick={() => setMainMode("manual")}
-            className={`pb-3 px-4 text-sm font-semibold transition-all relative ${
+            className={`pb-3.5 px-4 text-sm font-semibold transition-all relative ${
               mainMode === "manual"
-                ? "text-primary border-b-2 border-primary"
+                ? "text-outly-accent border-b-2 border-outly-accent font-bold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -468,9 +454,9 @@ export default function ColdMailPage() {
           </button>
           <button
             onClick={() => setMainMode("csv")}
-            className={`pb-3 px-4 text-sm font-semibold transition-all flex items-center gap-2 relative ${
+            className={`pb-3.5 px-4 text-sm font-semibold transition-all flex items-center gap-2 relative ${
               mainMode === "csv"
-                ? "text-primary border-b-2 border-primary"
+                ? "text-outly-accent border-b-2 border-outly-accent font-bold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -482,7 +468,7 @@ export default function ColdMailPage() {
         </div>
 
         {mainMode === "csv" ? (
-          <div className="rounded-2xl border border-border bg-card p-12 text-center max-w-xl mx-auto my-8 shadow-sm">
+          <div className="rounded-2xl border border-border bg-white p-12 text-center max-w-xl mx-auto my-8 shadow-sm">
             <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 mb-4 border border-amber-500/20">
               <Upload className="h-8 w-8" />
             </div>
@@ -494,7 +480,7 @@ export default function ColdMailPage() {
             <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed mb-6">
               Automated CSV bulk import and multi-company campaign scheduling is coming soon. Use Manual Outreach to manage and personalize your leads.
             </p>
-            <Button disabled variant="outline" className="gap-2 cursor-not-allowed opacity-60">
+            <Button disabled variant="outline" className="gap-2 cursor-not-allowed opacity-60 rounded-full">
               <Upload className="h-4 w-4" /> Upload CSV (Locked)
             </Button>
           </div>
@@ -502,61 +488,63 @@ export default function ColdMailPage() {
           <>
 
       {/* Stats row */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Pending", count: counts.pending, color: "text-warning" },
-          { label: "Approved", count: counts.approved, color: "text-primary" },
-          { label: "Sent", count: counts.sent, color: "text-success" },
-          { label: "Replied", count: counts.replied, color: "text-info" },
+          { label: "Pending", count: counts.pending, color: "text-warning bg-warning/10 border-warning/20" },
+          { label: "Approved", count: counts.approved, color: "text-outly-accent bg-outly-accent/10 border-outly-accent/20" },
+          { label: "Sent", count: counts.sent, color: "text-success bg-success/10 border-success/20" },
+          { label: "Replied", count: counts.replied, color: "text-info bg-info/10 border-info/20" },
         ].map((s) => (
           <div
             key={s.label}
-            className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2"
+            className="flex items-center justify-between rounded-2xl border border-border bg-white px-5 py-4 shadow-sm"
           >
-            <span className={`font-mono text-lg font-bold ${s.color}`}>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{s.label}</span>
+            <span className={`font-mono text-xl font-bold px-3 py-1 rounded-xl border ${s.color}`}>
               {s.count}
             </span>
-            <span className="text-xs text-muted-foreground">{s.label}</span>
           </div>
         ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-3 rounded-xl border border-border bg-card overflow-hidden">
-          <div className="border-b border-border px-4 py-3 bg-muted/30">
+        <div className="lg:col-span-3 rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col">
+          <div className="border-b border-border px-6 py-4 bg-slate-50/50">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs font-medium text-muted-foreground">Lead Pipeline</p>
+              <div>
+                <h3 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/70">Lead Pipeline</h3>
+              </div>
               <div className="flex flex-wrap gap-2">
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 text-xs"
+                  className="h-8 gap-1.5 text-xs font-semibold rounded-full"
                   onClick={() => approveAllMutation.mutate()}
                   disabled={counts.approved === 0 || approveAllMutation.isPending}
                 >
-                  <Check className="h-3 w-3" /> Approve All
+                  <Check className="h-3.5 w-3.5 text-green-600" /> Approve All
                 </Button>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 text-xs text-primary"
+                  className="h-8 gap-1.5 text-xs font-semibold text-outly-accent border-outly-accent/30 bg-outly-accent/5 hover:bg-outly-accent/10 rounded-full"
                   onClick={() => sendApprovedMutation.mutate()}
                   disabled={
                     counts.approved === 0 || sendApprovedMutation.isPending
                   }
                 >
-                  <Send className="h-3 w-3" /> Send Approved
+                  <Send className="h-3.5 w-3.5" /> Send Approved
                 </Button>
               </div>
             </div>
           </div>
-          <div className="divide-y divide-border max-h-[500px] overflow-auto custom-scrollbar">
+          <div className="divide-y divide-border max-h-[520px] overflow-auto custom-scrollbar flex-1">
             {companies.length === 0 ? (
-              <div className="p-12 text-center text-muted-foreground">
-                <Building2 className="mx-auto mb-3 h-10 w-10 opacity-20" />
-                <p>No leads found</p>
-                <p className="mt-1 text-xs opacity-60">
-                  Upload a CSV or add a company manually to start
+              <div className="p-16 text-center text-muted-foreground">
+                <Building2 className="mx-auto mb-3 h-12 w-12 text-muted-foreground/30" />
+                <p className="font-semibold text-foreground text-base">No leads found</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Add a target company lead manually to start your outreach campaign
                 </p>
               </div>
             ) : (
@@ -568,33 +556,33 @@ export default function ColdMailPage() {
                     onClick={() => {
                       setSelected(company.id);
                     }}
-                    className={`flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left transition-all hover:bg-accent/50 sm:flex-nowrap sm:gap-4 ${
+                    className={`flex w-full flex-wrap items-center gap-3 px-6 py-4 text-left transition-all hover:bg-slate-50 sm:flex-nowrap sm:gap-4 ${
                       selected === company.id
-                        ? "bg-accent border-l-2 border-l-primary"
+                        ? "bg-outly-accent/5 border-l-4 border-l-outly-accent"
                         : ""
                     }`}
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted font-mono text-xs font-bold text-muted-foreground shrink-0 overflow-hidden border border-border">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 font-mono text-xs font-bold text-slate-700 shrink-0 overflow-hidden border border-slate-200">
                       {company.company_name.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-foreground truncate">
+                        <p className="text-sm font-bold text-foreground truncate">
                           {company.company_name}
                         </p>
                         {company.website_url && (
                            <ExternalLink className="h-3 w-3 text-muted-foreground/40" />
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-xs text-muted-foreground truncate font-medium">
                         {company.role}
                       </p>
                     </div>
-                    <div className="order-4 flex items-center gap-0.5 sm:order-none">
+                    <div className="order-4 flex items-center gap-1 sm:order-none">
                       {pipelineOrder.map((_, si) => (
                         <div
                           key={si}
-                          className={`h-1 w-3 rounded-full ${si <= stepIdx ? "bg-primary" : "bg-border"}`}
+                          className={`h-1.5 w-3 rounded-full ${si <= stepIdx ? "bg-outly-accent" : "bg-slate-200"}`}
                         />
                       ))}
                     </div>
@@ -604,13 +592,13 @@ export default function ColdMailPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="order-5 h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive sm:order-none"
+                      className="order-5 h-8 w-8 shrink-0 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-full sm:order-none"
                       onClick={(e) => {
                         e.stopPropagation();
                         setDeleteTarget(company);
                       }}
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </button>
                 );
@@ -621,7 +609,7 @@ export default function ColdMailPage() {
 
         <div className="lg:col-span-2 space-y-4">
           {selectedCompany ? (
-            <div className="space-y-6 rounded-xl border border-border bg-card p-4 animate-slide-in sm:p-5">
+            <div className="space-y-6 rounded-2xl border border-border bg-white p-6 animate-slide-in shadow-sm">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-foreground">
@@ -1094,17 +1082,17 @@ export default function ColdMailPage() {
               </div>
             </div>
           ) : (
-            <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-sm text-muted-foreground sm:h-96">
-              <div className="text-center">
-                <div className="relative mx-auto mb-4">
-                  <Mail className="h-12 w-12 text-muted-foreground/20" />
-                  <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-background flex items-center justify-center border border-border">
-                    <Eye className="h-3 w-3 text-muted-foreground/40" />
+            <div className="flex h-[480px] items-center justify-center rounded-2xl border border-dashed border-border bg-white text-sm text-muted-foreground shadow-sm">
+              <div className="text-center p-6">
+                <div className="relative mx-auto mb-4 inline-flex p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                  <Mail className="h-10 w-10 text-muted-foreground/30" />
+                  <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-white flex items-center justify-center border border-border shadow-xs">
+                    <Eye className="h-3.5 w-3.5 text-outly-accent" />
                   </div>
                 </div>
-                <p className="font-medium">Selection Required</p>
-                <p className="mt-1 text-xs text-muted-foreground/50 max-w-[180px]">
-                  Pick a lead from the list to preview their AI generation
+                <p className="font-bold text-foreground text-base">Selection Required</p>
+                <p className="mt-1.5 text-xs text-muted-foreground max-w-[220px] leading-relaxed">
+                  Pick a target lead from the pipeline list on the left to preview and edit their personalized AI outreach email.
                 </p>
               </div>
             </div>

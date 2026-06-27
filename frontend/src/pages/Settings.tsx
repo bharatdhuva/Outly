@@ -281,199 +281,205 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center text-muted-foreground">
-        Loading settings...
+      <div className="flex min-h-[300px] items-center justify-center text-muted-foreground font-medium">
+        <Loader2 className="h-6 w-6 animate-spin text-outly-accent mr-2" /> Loading settings...
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage your personal configuration parameters and stored resume versions.
-          </p>
-        </div>
+    <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-8 animate-fade-in pb-16">
+      
+      {/* Hero text header */}
+      <div className="space-y-3 text-left">
+        <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
+          SETTINGS
+        </span>
+        <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
+          Account & Profile Preferences
+        </h1>
+        <p className="text-muted-foreground text-sm sm:text-base max-w-2xl leading-relaxed">
+          Manage your career details, target job roles, target locations, and stored resume versions for automated applications.
+        </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-border">
+      <div className="flex border-b border-border gap-2">
         <button
           onClick={() => setActiveTab("config")}
-          className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all ${
+          className={`pb-3.5 px-4 text-sm font-semibold transition-all relative ${
             activeTab === "config"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+              ? "text-outly-accent border-b-2 border-outly-accent font-bold"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Configuration
         </button>
         <button
           onClick={() => setActiveTab("vault")}
-          className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all ${
+          className={`pb-3.5 px-4 text-sm font-semibold transition-all relative ${
             activeTab === "vault"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+              ? "text-outly-accent border-b-2 border-outly-accent font-bold"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          Resume Vault
+          Resume Vault ({resumes.length})
         </button>
       </div>
 
       {activeTab === "config" ? (
-        <>
+        <div className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
-            <SettingSection title="Profile" icon={<User className="h-4 w-4 text-primary" />}>
-              <SettingRow label="Full Name">
-                <Input value={form.full_name} onChange={(e) => updateField("full_name", e.target.value)} />
-              </SettingRow>
-              <SettingRow label="LinkedIn Headline">
-                <Input value={form.linkedin_headline} onChange={(e) => updateField("linkedin_headline", e.target.value)} />
-              </SettingRow>
-              <SettingRow label="Target Roles">
-                <Input value={form.target_roles} onChange={(e) => updateField("target_roles", e.target.value)} />
-              </SettingRow>
-              <SettingRow label="Target Cities">
-                <Input value={form.target_cities} onChange={(e) => updateField("target_cities", e.target.value)} />
-              </SettingRow>
-            </SettingSection>
+            
+            {/* Profile & Target Career Context */}
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-5">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <User className="h-4 w-4 text-outly-accent" />
+                <h2 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/80">
+                  Profile & Career Context
+                </h2>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground/80">Full Name</label>
+                  <Input 
+                    value={form.full_name} 
+                    onChange={(e) => updateField("full_name", e.target.value)} 
+                    placeholder="e.g. Bharat Ahir"
+                    className="h-10 text-xs rounded-xl"
+                  />
+                </div>
 
-            <SettingSection title="Resume Link" icon={<FileText className="h-4 w-4 text-primary" />}>
-              <SettingRow label="Google Drive File ID">
-                <Input
-                  value={form.resume_drive_file_id}
-                  onChange={(e) => updateField("resume_drive_file_id", e.target.value)}
-                  className="font-mono text-xs"
-                />
-              </SettingRow>
-              <div className="flex justify-start sm:justify-end">
-                <Button variant="outline" size="sm" onClick={() => testResumeMutation.mutate()} disabled={testResumeMutation.isPending}>
-                  {testResumeMutation.isPending ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
-                  Test Resume Download
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground/80">Target Roles</label>
+                  <Input 
+                    value={form.target_roles} 
+                    onChange={(e) => updateField("target_roles", e.target.value)} 
+                    placeholder="e.g. Software Development Engineer, Full Stack"
+                    className="h-10 text-xs rounded-xl"
+                  />
+                  <p className="text-[11px] text-muted-foreground">Used by Job Search and Cold Outreach to match relevant positions.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground/80">Target Cities / Locations</label>
+                  <Input 
+                    value={form.target_cities} 
+                    onChange={(e) => updateField("target_cities", e.target.value)} 
+                    placeholder="e.g. Mumbai, Bangalore, Remote"
+                    className="h-10 text-xs rounded-xl"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground/80">LinkedIn Headline / Tagline</label>
+                  <Input 
+                    value={form.linkedin_headline} 
+                    onChange={(e) => updateField("linkedin_headline", e.target.value)} 
+                    placeholder="e.g. Full Stack Engineer | React & Node.js"
+                    className="h-10 text-xs rounded-xl"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Resume & Integration Links */}
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-5 flex flex-col justify-between">
+              <div className="space-y-5">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                  <FileText className="h-4 w-4 text-outly-accent" />
+                  <h2 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/80">
+                    Resume & Integrations
+                  </h2>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground/80">Google Drive Resume File ID</label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={form.resume_drive_file_id}
+                        onChange={(e) => updateField("resume_drive_file_id", e.target.value)}
+                        placeholder="Paste Google Drive File ID"
+                        className="font-mono text-xs h-10 rounded-xl flex-1"
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => testResumeMutation.mutate()} 
+                        disabled={testResumeMutation.isPending}
+                        className="h-10 text-xs rounded-xl font-semibold px-4 shrink-0"
+                      >
+                        {testResumeMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Test Link"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-2">
+                    <label className="text-xs font-semibold text-foreground/80">Connected Sender Email</label>
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MailIcon className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-mono text-xs font-semibold text-foreground">
+                          {form.sender_email || "No email connected"}
+                        </span>
+                      </div>
+                      <StatusIndicator
+                        connected={form.gmailConfigured}
+                        label={form.gmailConfigured ? "Gmail OAuth Ready" : "Not Configured"}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex justify-end">
+                <Button 
+                  onClick={() => saveMutation.mutate(form)} 
+                  disabled={saveMutation.isPending} 
+                  className="gap-2 bg-outly-accent text-white hover:brightness-110 shadow-md shadow-outly-accent/20 rounded-full px-8 py-3 font-semibold h-11 text-sm cursor-pointer w-full sm:w-auto"
+                >
+                  {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  {saveMutation.isPending ? "Saving..." : "Save Settings"}
                 </Button>
               </div>
-            </SettingSection>
+            </div>
 
-            <SettingSection title="Gmail" icon={<MailIcon className="h-4 w-4 text-primary" />}>
-              <StatusIndicator
-                connected={form.gmailConfigured}
-                label={form.gmailConfigured ? "OAuth configured" : "Gmail OAuth not configured"}
-              />
-              <SettingRow label="Sender Email">
-                <Input value={form.sender_email} disabled className="font-mono text-xs" />
-              </SettingRow>
-            </SettingSection>
-
-            <SettingSection title="LinkedIn Settings" icon={<Linkedin className="h-4 w-4 text-primary" />}>
-              <StatusIndicator
-                connected={form.linkedinSessionValid}
-                label={form.linkedinSessionValid ? "Session valid" : "Session setup required"}
-              />
-              <SettingRow label="Weekly Post Day">
-                <Input value={form.weekly_post_day} onChange={(e) => updateField("weekly_post_day", e.target.value)} />
-              </SettingRow>
-              <SettingRow label="Weekly Post Time">
-                <Input value={form.weekly_post_time} onChange={(e) => updateField("weekly_post_time", e.target.value)} />
-              </SettingRow>
-            </SettingSection>
-
-            <SettingSection title="WhatsApp" icon={<MessageSquare className="h-4 w-4 text-primary" />}>
-              <StatusIndicator
-                connected={form.whatsappConfigured}
-                label={form.whatsappConfigured ? "Twilio connected" : "Twilio or number not configured"}
-              />
-              <SettingRow label="Destination Number">
-                <Input value={form.phone} onChange={(e) => updateField("phone", e.target.value)} className="font-mono text-xs" />
-              </SettingRow>
-              <div className="flex justify-start sm:justify-end">
-                <Button variant="outline" size="sm" onClick={() => testWhatsAppMutation.mutate()} disabled={testWhatsAppMutation.isPending}>
-                  {testWhatsAppMutation.isPending ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
-                  Send Test Message
-                </Button>
-              </div>
-            </SettingSection>
-
-            <SettingSection title="Limits" icon={<Sliders className="h-4 w-4 text-primary" />}>
-              <div>
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm text-secondary-foreground">Max Emails / Day</span>
-                  <span className="font-mono text-xs text-primary">{form.max_emails_per_day}</span>
-                </div>
-                <input
-                  type="range"
-                  value={Number(form.max_emails_per_day || 0)}
-                  onChange={(e) => updateField("max_emails_per_day", e.target.value)}
-                  max={50}
-                  min={0}
-                  step={1}
-                  className="w-full h-1 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
-                />
-              </div>
-              <div>
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm text-secondary-foreground">Max Applies / Session</span>
-                  <span className="font-mono text-xs text-primary">{form.max_applies_per_session}</span>
-                </div>
-                <input
-                  type="range"
-                  value={Number(form.max_applies_per_session || 0)}
-                  onChange={(e) => updateField("max_applies_per_session", e.target.value)}
-                  max={30}
-                  min={0}
-                  step={1}
-                  className="w-full h-1 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
-                />
-              </div>
-            </SettingSection>
-
-            <SettingSection title="Schedule" icon={<Clock className="h-4 w-4 text-primary" />}>
-              <SettingRow label="Daily Summary">
-                <Input value={form.daily_summary_time} onChange={(e) => updateField("daily_summary_time", e.target.value)} />
-              </SettingRow>
-            </SettingSection>
           </div>
-
-          <div className="flex justify-start sm:justify-end mt-6">
-            <Button onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending} className="gap-2">
-              {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              {saveMutation.isPending ? "Saving..." : "Save Settings"}
-            </Button>
-          </div>
-        </>
+        </div>
       ) : (
         /* Resume Vault Tab */
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Upload panel */}
           <div className="lg:col-span-1 space-y-4">
-            <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground flex items-center gap-2">
-                <Plus className="h-4.5 w-4.5 text-primary" />
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-4">
+              <h2 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/80 flex items-center gap-2 pb-2 border-b border-slate-100">
+                <Plus className="h-4 w-4 text-outly-accent" />
                 Add Resume Version
               </h2>
 
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-muted-foreground uppercase">Resume Label</label>
+              <div className="space-y-3 pt-1">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground/80">Resume Label</label>
                   <Input
                     placeholder="e.g. SDE-1 Version"
                     value={vaultLabel}
                     onChange={(e) => setVaultLabel(e.target.value)}
-                    className="bg-white border-border text-xs focus-visible:ring-primary"
+                    className="bg-white border-border text-xs h-10 rounded-xl"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-muted-foreground uppercase">File Upload (.txt)</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground/80">File Upload (.txt)</label>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => document.getElementById("vault-upload-input")?.click()}
-                      className="w-full text-xs gap-2"
+                      className="w-full text-xs gap-2 h-10 rounded-xl font-semibold"
                     >
-                      <UploadCloud className="h-4 w-4" />
+                      <UploadCloud className="h-4 w-4 text-outly-accent" />
                       {vaultFilename ? vaultFilename : "Select File"}
                     </Button>
                     <input
@@ -486,25 +492,25 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-muted-foreground uppercase">Resume Raw Text</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground/80">Resume Raw Text</label>
                   <Textarea
                     placeholder="Paste resume experience or text directly..."
                     value={vaultContent}
                     onChange={(e) => setVaultContent(e.target.value)}
-                    className="min-h-[140px] bg-white border-border text-xs leading-relaxed focus-visible:ring-primary"
+                    className="min-h-[140px] bg-white border-border text-xs leading-relaxed rounded-xl resize-none"
                   />
                 </div>
 
-                <div className="flex items-center gap-2 pt-2">
+                <div className="flex items-center gap-2 pt-1">
                   <input
                     type="checkbox"
                     id="vault-default-chk"
                     checked={isVaultDefault}
                     onChange={(e) => setIsVaultDefault(e.target.checked)}
-                    className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary bg-white"
+                    className="h-4 w-4 rounded border-border text-outly-accent focus:ring-outly-accent accent-outly-accent bg-white cursor-pointer"
                   />
-                  <label htmlFor="vault-default-chk" className="text-xs text-secondary-foreground font-medium">
+                  <label htmlFor="vault-default-chk" className="text-xs text-secondary-foreground font-semibold cursor-pointer select-none">
                     Set as default version
                   </label>
                 </div>
@@ -513,7 +519,7 @@ export default function SettingsPage() {
               <Button
                 onClick={() => addResumeMutation.mutate()}
                 disabled={!vaultLabel.trim() || !vaultContent.trim() || addResumeMutation.isPending}
-                className="w-full text-xs"
+                className="w-full bg-outly-accent text-white hover:brightness-110 rounded-full font-semibold h-10 text-xs shadow-md shadow-outly-accent/20 cursor-pointer mt-2"
               >
                 {addResumeMutation.isPending ? "Adding..." : "Add to Vault"}
               </Button>
@@ -522,46 +528,47 @@ export default function SettingsPage() {
 
           {/* List panel */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-4">
+              <h2 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/80 pb-2 border-b border-slate-100">
                 Stored Resumes ({resumes.length})
               </h2>
 
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
                 {resumes.length === 0 ? (
-                  <div className="py-12 border border-dashed border-border rounded-lg text-center text-muted-foreground bg-muted/10">
-                    <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
-                    <p className="text-xs">No stored resumes found.</p>
+                  <div className="py-16 border border-dashed border-border rounded-2xl text-center text-muted-foreground bg-slate-50/50">
+                    <FileText className="h-10 w-10 mx-auto mb-2 text-muted-foreground/30" />
+                    <p className="text-sm font-bold text-foreground">No stored resumes found</p>
+                    <p className="text-xs text-muted-foreground mt-1">Upload or paste a resume version to use across your tailored applications.</p>
                   </div>
                 ) : (
                   resumes.map((item: ResumeVaultItem) => (
                     <div
                       key={item.id}
-                      className={`p-4 rounded-xl border transition-all ${
+                      className={`p-5 rounded-2xl border transition-all ${
                         item.is_default === 1
-                          ? "border-primary bg-primary/5"
-                          : "border-border bg-muted/20 hover:bg-muted/30"
+                          ? "border-outly-accent/40 bg-outly-accent/5 shadow-xs"
+                          : "border-border bg-slate-50/50 hover:bg-slate-50"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold text-foreground text-sm truncate">{item.label}</h3>
+                            <h3 className="font-bold text-foreground text-sm truncate">{item.label}</h3>
                             {item.is_default === 1 ? (
-                              <span className="rounded-full bg-primary/20 border border-primary/30 px-2 py-0.5 text-[9px] font-bold text-primary flex items-center gap-1">
-                                <Check className="h-2.5 w-2.5" />
+                              <span className="rounded-full bg-outly-accent/10 border border-outly-accent/20 px-2.5 py-0.5 text-[10px] font-bold text-outly-accent flex items-center gap-1">
+                                <Check className="h-3 w-3" />
                                 Default
                               </span>
                             ) : (
                               <button
                                 onClick={() => setDefaultResumeMutation.mutate(item.id)}
-                                className="text-[10px] font-medium text-muted-foreground hover:text-primary transition-colors underline"
+                                className="text-[11px] font-semibold text-muted-foreground hover:text-outly-accent transition-colors underline cursor-pointer"
                               >
                                 Set as Default
                               </button>
                             )}
                           </div>
-                          <p className="text-[11px] text-muted-foreground font-mono truncate">
+                          <p className="text-xs text-muted-foreground font-mono truncate">
                             File: {item.filename}
                           </p>
                           <p className="text-[10px] text-muted-foreground/60">
@@ -572,7 +579,7 @@ export default function SettingsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                          className="h-8 w-8 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-full shrink-0"
                           onClick={() => deleteResumeMutation.mutate(item.id)}
                           disabled={deleteResumeMutation.isPending}
                         >
@@ -581,8 +588,8 @@ export default function SettingsPage() {
                       </div>
 
                       {item.content && (
-                        <div className="mt-3 bg-background/50 border border-border/50 rounded-lg p-2.5 max-h-[100px] overflow-y-auto">
-                          <p className="text-[11px] leading-relaxed text-secondary-foreground font-mono whitespace-pre-wrap">
+                        <div className="mt-3 bg-white border border-slate-200 rounded-xl p-3 max-h-[110px] overflow-y-auto">
+                          <p className="text-xs leading-relaxed text-slate-700 font-mono whitespace-pre-wrap">
                             {item.content}
                           </p>
                         </div>
