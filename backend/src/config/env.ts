@@ -10,6 +10,7 @@ const projectRoot = path.resolve(__dirname, "..", "..");
 export const env = {
   PORT: parseInt(process.env.PORT ?? "3001", 10),
   CLIENT_PORT: parseInt(process.env.CLIENT_PORT ?? "3000", 10),
+  CLIENT_ORIGIN: process.env.CLIENT_ORIGIN ?? `http://localhost:${process.env.CLIENT_PORT ?? "3000"}`,
   NODE_ENV: process.env.NODE_ENV ?? "development",
 
   GEMINI_API_KEY: process.env.GEMINI_API_KEY ?? "",

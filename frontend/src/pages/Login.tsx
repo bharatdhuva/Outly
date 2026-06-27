@@ -337,7 +337,7 @@ export default function Login() {
 
       {/* RIGHT PANEL: Auth Form (Matching ZenScail paper tint background) */}
       <div className="w-full lg:w-1/2 p-6 lg:p-16 flex flex-col justify-center items-center min-h-screen bg-[#FAF6F0]">
-        <div ref={formWrapperRef} className="w-full max-w-[420px] flex flex-col justify-center will-change-transform py-6">
+        <div ref={formWrapperRef} className="w-full max-w-[420px] flex flex-col justify-center will-change-transform py-12 lg:py-16 min-h-[620px]">
 
           {/* Mobile Logo */}
           <div className="flex items-center gap-1 font-bold text-xl tracking-tight lg:hidden mb-8 self-start cursor-pointer" onClick={() => navigate("/")}>

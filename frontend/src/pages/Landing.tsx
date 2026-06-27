@@ -921,7 +921,7 @@ export default function Landing() {
               </span>
             </div>
             
-            <h1 className="text-7xl md:text-[96px] font-medium tracking-tight mb-8 leading-[0.95] text-left hero-title opacity-0">
+            <h1 className="text-5xl sm:text-6xl md:text-[96px] font-medium tracking-tight mb-8 leading-[0.95] text-left hero-title opacity-0">
               Your career,<br />already <span className="relative inline-block italic-serif text-outly-accent">
                 sorted.
                 {/* Hand-drawn animated underline SVG */}
@@ -938,7 +938,7 @@ export default function Landing() {
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-outly-dark/60 mb-10 max-w-lg text-left leading-relaxed font-medium hero-subtitle opacity-0">
+            <p className="text-lg md:text-xl text-outly-dark/60 mb-10 max-w-full sm:max-w-lg text-left leading-relaxed font-medium hero-subtitle opacity-0">
               Outly automates your job hunt so you don't have to. Personalized outreach, resume tailoring, and interview prep in one place.
             </p>
             
@@ -1005,7 +1005,7 @@ export default function Landing() {
             >
               <div 
                 ref={cardBriefRef} 
-                className={`w-[360px] sm:w-[380px] bg-white rounded-2xl shadow-xl border border-outly-border p-5 transform -rotate-1 select-none transition-shadow duration-300 ${
+                className={`w-full max-w-[360px] sm:w-[380px] bg-white rounded-2xl shadow-xl border border-outly-border p-5 transform -rotate-1 select-none transition-shadow duration-300 ${
                   draggingCard === 'brief' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
                 }`}
               >

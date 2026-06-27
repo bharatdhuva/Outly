@@ -17,7 +17,7 @@ import scraperRoutes from "./routes/scraper.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
-app.use(cors({ origin: `http://localhost:${env.CLIENT_PORT}`, credentials: true }));
+app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
