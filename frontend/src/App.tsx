@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import Overview from "./pages/Overview";
+import Onboarding from "./pages/Onboarding";
 import ColdMail from "./pages/ColdMail";
 import ContentScheduler from "./pages/ContentScheduler";
 import Settings from "./pages/Settings";
@@ -41,7 +41,7 @@ const App = () => (
             element={
               <DashboardLayout>
                 <Routes>
-                  <Route path="/onboarding" element={<PageTransition><Overview /></PageTransition>} />
+                  <Route path="/onboarding" element={<PageTransition><Onboarding /></PageTransition>} />
                   <Route path="/cold-mail" element={<PageTransition><ColdMail /></PageTransition>} />
                   <Route path="/content-scheduler" element={<PageTransition><ContentScheduler /></PageTransition>} />
                   <Route path="/linkedin-posts" element={<PageTransition><ContentScheduler /></PageTransition>} />
