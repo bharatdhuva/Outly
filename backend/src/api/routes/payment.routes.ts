@@ -50,6 +50,7 @@ router.post("/create-order", async (req: Request, res: Response) => {
 
     const order = await razorpay.orders.create(options);
 
+    const key_id = (process.env.RAZORPAY_KEY_ID || env.RAZORPAY_KEY_ID || "").trim();
     return res.status(200).json({
       order_id: order.id,
       amount: order.amount,
