@@ -21,10 +21,10 @@ export default function ResumeCarousel() {
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center w-full h-[480px] sm:h-[560px] max-w-[460px] mx-auto select-none overflow-visible font-['Rubik',sans-serif]">
+    <div className="relative flex flex-col items-center justify-center w-full h-[490px] sm:h-[570px] max-w-[460px] mx-auto select-none overflow-visible font-['Rubik',sans-serif]">
       
-      {/* Outly Brand Soft Ambient Background Glow (Emerald & Cream) */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(45,192,141,0.15),transparent_70%)] rounded-full blur-3xl -z-10 pointer-events-none" />
+      {/* Outly #2DC08D Vibrant Ambient Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(45,192,141,0.22),transparent_68%)] rounded-full blur-3xl -z-10 pointer-events-none" />
 
       {/* Stacked Cards Deck Container */}
       <div className="relative w-full h-[400px] sm:h-[480px] flex items-center justify-center">
@@ -38,23 +38,23 @@ export default function ResumeCarousel() {
           let filter = "";
 
           if (offset === 0) {
-            // Front / Active Card - Clean Elevated Glow with Brand Colors
+            // Front / Active Card - Glowing #2DC08D Theme & Elevated Drop Shadow
             zIndex = 30;
             transform = "translateY(0px) scale(1) rotate(0deg)";
             opacity = 1;
-            filter = "drop-shadow(0 20px 35px rgba(45,192,141,0.2)) drop-shadow(0 8px 16px rgba(15,23,42,0.04))";
+            filter = "drop-shadow(0 22px 40px rgba(45,192,141,0.38)) drop-shadow(0 8px 16px rgba(15,23,42,0.06))";
           } else if (offset === 1) {
             // Second Card in Deck
             zIndex = 20;
             transform = "translateY(20px) scale(0.92) rotate(3.5deg)";
-            opacity = 0.85;
-            filter = "drop-shadow(0 12px 24px rgba(45,192,141,0.1))";
+            opacity = 0.88;
+            filter = "drop-shadow(0 14px 28px rgba(45,192,141,0.2))";
           } else {
             // Third Card in Deck
             zIndex = 10;
             transform = "translateY(38px) scale(0.85) rotate(-3.5deg)";
-            opacity = 0.6;
-            filter = "drop-shadow(0 6px 12px rgba(45,192,141,0.05))";
+            opacity = 0.65;
+            filter = "drop-shadow(0 8px 16px rgba(45,192,141,0.12))";
           }
 
           return (
@@ -67,22 +67,22 @@ export default function ResumeCarousel() {
                 opacity,
                 filter,
               }}
-              className="absolute w-[86%] sm:w-[90%] max-w-[350px] aspect-[1/1.42] rounded-2xl overflow-hidden border border-[#e8e2d5] bg-white cursor-pointer transition-all duration-700 ease-out hover:scale-[1.015] group shadow-sm"
+              className="absolute w-[86%] sm:w-[90%] max-w-[350px] aspect-[1/1.42] rounded-2xl overflow-hidden border-2 border-[#2DC08D] bg-white cursor-pointer transition-all duration-700 ease-out hover:scale-[1.015] group shadow-md"
             >
-              {/* Outly Window Header Bar - Replaces all dark/black elements */}
-              <div className="h-9 w-full bg-[#faf8f5] border-b border-[#e8e2d5] px-3.5 flex items-center justify-between shrink-0 select-none">
+              {/* Card Header Bar - Full Vibrant #2DC08D Brand Theme */}
+              <div className="h-9 w-full bg-[#2DC08D] px-3.5 flex items-center justify-between shrink-0 select-none text-white shadow-xs">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd58]" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#2dc08d]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/40" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/70" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-white" />
                 </div>
                 
-                <div className="flex items-center gap-1 bg-white px-2.5 py-0.5 rounded-full border border-[#e8e2d5] text-[10px] font-semibold text-outly-dark/60">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2dc08d] animate-pulse" />
-                  <span>outly.online/template</span>
+                <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/30 text-[10px] font-bold text-white tracking-wide">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  <span>outly.online/resume</span>
                 </div>
 
-                <span className="text-[10px] font-bold text-outly-accent px-1.5 py-0.5 rounded bg-outly-accent/10">
+                <span className="text-[10px] font-black bg-white text-[#2DC08D] px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
                   ATS 98%
                 </span>
               </div>
@@ -97,7 +97,7 @@ export default function ResumeCarousel() {
 
                 {/* Light Glass Overlay for inactive cards */}
                 {offset !== 0 && (
-                  <div className="absolute inset-0 bg-white/25 backdrop-blur-[1px] transition-opacity duration-300 group-hover:bg-transparent" />
+                  <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px] transition-opacity duration-300 group-hover:bg-transparent" />
                 )}
               </div>
             </div>
@@ -105,15 +105,15 @@ export default function ResumeCarousel() {
         })}
       </div>
 
-      {/* Active Card Title & Indicator Controls - Outly Brand Styling */}
-      <div className="flex flex-col items-center gap-3.5 mt-5 z-40">
+      {/* Active Card Title & Indicator Controls - #2DC08D Matched Styling */}
+      <div className="flex flex-col items-center gap-3.5 mt-6 z-40">
         
         {/* Template Badge */}
-        <div className="flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#e8e2d5] shadow-xs animate-fade-in">
-          <span className="text-xs font-bold text-outly-dark">
+        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border-2 border-[#2DC08D] shadow-sm animate-fade-in">
+          <span className="text-xs font-extrabold text-[#2d3639]">
             {RESUME_IMAGES[activeIndex].title}
           </span>
-          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#2dc08d]/10 text-[#2dc08d]">
+          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#2DC08D] text-white shadow-xs">
             {RESUME_IMAGES[activeIndex].tag}
           </span>
         </div>
@@ -127,8 +127,8 @@ export default function ResumeCarousel() {
               onClick={() => setActiveIndex(index)}
               className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
                 activeIndex === index
-                  ? "w-8 bg-[#2dc08d] shadow-[0_2px_10px_rgba(45,192,141,0.4)]"
-                  : "w-2.5 bg-[#e8e2d5] hover:bg-[#2dc08d]/50"
+                  ? "w-8 bg-[#2DC08D] shadow-[0_2px_10px_rgba(45,192,141,0.5)]"
+                  : "w-2.5 bg-[#2DC08D]/25 hover:bg-[#2DC08D]/60"
               }`}
               aria-label={`Go to resume template ${index + 1}`}
             />
