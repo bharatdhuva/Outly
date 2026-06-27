@@ -2118,65 +2118,28 @@ export default function Landing() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-white pt-12 sm:pt-24 pb-8 sm:pb-12 border-t border-outly-border/50">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-20 pb-10 sm:pb-20 mb-8 sm:mb-12">
-          <div className="col-span-2 sm:col-span-1">
-            <div className="flex items-center gap-1 font-bold text-xl mb-4 sm:mb-6 tracking-tight">
-              <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
-              <span className="text-outly-logo">Outly</span>
+      <footer className="bg-white py-10 border-t border-outly-border/50 font-sans">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
+            <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
+            <span className="text-outly-logo">Outly</span>
+          </div>
+
+          {/* Support Email and Phone */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-xs font-semibold text-outly-dark/70">
+            <div className="flex items-center gap-2">
+              <span className="text-outly-accent font-bold">✉️ Support Email:</span>
+              <a href="mailto:support@outly.online" className="hover:text-outly-accent transition">support@outly.online</a>
             </div>
-            <p className="text-xs text-outly-dark/40 leading-relaxed font-medium">
-              Email and calendar, gathered into one calm morning brief. Built for people who'd rather be working.
-            </p>
-            <div className="flex gap-4 mt-6 sm:mt-8">
-              <a className="text-outly-dark/20 hover:text-outly-accent transition" href="#">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
-                </svg>
-              </a>
-              <a className="text-outly-dark/20 hover:text-outly-accent transition" href="#">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
-                </svg>
-              </a>
+            <div className="flex items-center gap-2">
+              <span className="text-outly-accent font-bold">📞 Support Phone:</span>
+              <a href="tel:+917041880036" className="hover:text-outly-accent transition">+91 70418 80036</a>
             </div>
           </div>
-          <div>
-            <h6 className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-4 sm:mb-8">Product</h6>
-            <ul className="space-y-3 sm:space-y-4 text-xs font-bold text-outly-dark/60">
-              <li><a className="hover:text-outly-accent transition cursor-pointer" href="#features" onClick={(e) => handleScrollToSection(e, "features")}>Features</a></li>
-              <li><a className="hover:text-outly-accent transition cursor-pointer" href="#demo" onClick={(e) => handleScrollToSection(e, "demo")}>Live demo</a></li>
-              <li><a className="hover:text-outly-accent transition cursor-pointer" href="#pricing" onClick={(e) => handleScrollToSection(e, "pricing")}>Pricing</a></li>
-            </ul>
-          </div>
-          <div>
-            <h6 className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-4 sm:mb-8">Company</h6>
-            <ul className="space-y-3 sm:space-y-4 text-xs font-bold text-outly-dark/60">
-              <li><a className="hover:text-outly-accent transition" href="#">About</a></li>
-              <li><a className="hover:text-outly-accent transition" href="#">Founder</a></li>
-              <li><a className="hover:text-outly-accent transition" href="#">Contact</a></li>
-            </ul>
-          </div>
-          <div>
-            <h6 className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-4 sm:mb-8">Trust</h6>
-            <ul className="space-y-3 sm:space-y-4 text-xs font-bold text-outly-dark/60">
-              <li><a className="hover:text-outly-accent transition" href="#">Privacy</a></li>
-              <li><a className="hover:text-outly-accent transition" href="#">Security</a></li>
-              <li><a className="hover:text-outly-accent transition" href="#">Terms</a></li>
-              <li><a className="hover:text-outly-accent transition" href="#">Cookies</a></li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold text-outly-dark/20 tracking-widest uppercase select-none text-center md:text-left">
-          <p>© 2026 Outly, All rights reserved. • team@outly.com</p>
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mt-6 md:mt-0">
-            <p>Made with care, before 9 AM</p>
-            <div className="flex items-center gap-2 bg-outly-cream px-4 py-2 rounded-full border border-outly-border text-outly-dark/50 shadow-sm">
-              <div className="w-1.5 h-1.5 bg-outly-accent rounded-full animate-pulse"></div>
-              Ask Outly <span className="text-outly-dark/20 ml-1">from your favorite AI</span>
-            </div>
-          </div>
+
+          <p className="text-[11px] font-medium text-outly-dark/40">
+            © 2026 Outly. All rights reserved.
+          </p>
         </div>
       </footer>
 
