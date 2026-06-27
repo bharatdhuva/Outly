@@ -28,6 +28,14 @@ import {
   AccordionItem,
   AccordionTrigger
 } from "@/components/ui/accordion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const pageTitles: Record<string, string> = {
   "/onboarding": "Overview",
@@ -38,7 +46,8 @@ const pageTitles: Record<string, string> = {
   "/logs": "Logs",
   "/resume-tailor": "Resume Tailor",
   "/ats-score": "ATS Score",
-  "/applications": "Applications",
+  "/applications": "Job Tracker",
+  "/job-search": "Job Search",
   "/resume-vault": "Resume Vault",
   "/analytics": "Analytics",
   "/pricing": "Pricing"
@@ -54,8 +63,38 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
   const dropdownCloseTimer = useRef<number | null>(null);
 
+  // 1. Enforce authentication checking
+  const token = localStorage.getItem("outly_token");
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [token, navigate]);
+
+  // 2. Fetch current user session
+  const { data: userData, error, isLoading } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: api.auth.me,
+    enabled: !!token,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (error) {
+      api.auth.logout();
+      navigate("/login");
+    }
+  }, [error, navigate]);
+
   // Pricing & Razorpay Billing states
-  const [isPremium, setIsPremium] = useState(() => localStorage.getItem("outly_premium_user") === "true");
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+    if (userData?.user?.plan) {
+      setIsPremium(userData.user.plan === "pro");
+      localStorage.setItem("outly_premium_user", String(userData.user.plan === "pro"));
+    }
+  }, [userData]);
 
   useEffect(() => {
     const checkPremiumStatus = () => {
@@ -73,6 +112,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: api.settings.get,
+    enabled: !!token,
   });
 
   const pageTitle = pageTitles[location.pathname] ?? "Page Not Found";
@@ -141,7 +181,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const fullName = settings?.full_name || "Outly User";
+  const fullName = userData?.user?.fullName || settings?.full_name || "Outly User";
+  const profilePic = userData?.user?.profilePic;
   const initials =
     fullName
       .split(" ")
@@ -151,7 +192,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       .join("") || "OU";
 
   const handleLogout = () => {
-    // Clear token if stored in cookies/localStorage, then navigate to login
+    api.auth.logout();
     navigate("/login");
   };
 
@@ -347,22 +388,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">Job Search</div>
                       <div className="space-y-1">
                         <Link 
-                          to="/analytics" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
-                            {/* Speech Bubble (Interview Help) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Interview Help</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Practice with AI mock interviews and analytics.</span>
-                          </div>
-                        </Link>
-                        
-                        <Link 
                           to="/applications" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
@@ -381,7 +406,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         </Link>
 
                         <Link 
-                          to="/applications?tab=search" 
+                          to="/job-search" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
                           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
@@ -398,28 +423,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Job Board</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Job Search</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Find matches and track them instantly.</span>
-                          </div>
-                        </Link>
-
-                        <Link 
-                          to="/settings" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
-                            {/* Chrome Logo (Chrome Extension) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10" />
-                              <circle cx="12" cy="12" r="4" />
-                              <line x1="12" y1="8" x2="20.7" y2="8" />
-                              <line x1="8.5" y1="14" x2="4.1" y2="6.4" />
-                              <line x1="15.5" y1="14" x2="11.2" y2="21.5" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Chrome Extension</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Apply faster from any job site.</span>
                           </div>
                         </Link>
                       </div>
@@ -650,24 +655,45 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </div>
             )}
 
-            {/* Desktop Profile Info */}
-            <div className="hidden md:flex items-center gap-2.5 select-none">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground shadow-sm border border-primary/10">
-                {initials}
-              </div>
-              <span className="text-[12px] font-bold text-foreground max-w-[100px] truncate">{fullName}</span>
-            </div>
-
-            {/* Logout button */}
-            <button
-              onClick={handleLogout}
-              type="button"
-              className="hidden md:inline-flex items-center justify-center rounded-xl border border-border bg-card text-[11px] font-bold tracking-widest uppercase py-2 px-4 shadow-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-95 transition duration-200 gap-1.5"
-              title="Sign Out"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Sign Out
-            </button>
+            {/* Desktop Profile Info & Logout Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="hidden md:flex items-center gap-2.5 select-none hover:opacity-85 transition focus:outline-none cursor-pointer">
+                  <div className="relative h-8 w-8 overflow-hidden rounded-full border border-primary/10 shadow-sm shrink-0">
+                    {profilePic ? (
+                      <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-primary text-[11px] font-bold text-primary-foreground">
+                        {initials}
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-[12px] font-bold text-foreground max-w-[100px] truncate">{fullName}</span>
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-[#FAF6EE] border-[#e8e2d5] font-sans">
+                <DropdownMenuLabel className="text-[11.5px] font-bold text-outly-dark/70">
+                  {fullName}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-[#e8e2d5]" />
+                <DropdownMenuItem 
+                  onClick={() => navigate("/settings")}
+                  className="text-xs font-semibold text-outly-dark hover:bg-muted/30 focus:bg-muted/30 cursor-pointer flex items-center gap-2 py-2"
+                >
+                  <SettingsIcon className="h-3.5 w-3.5" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-[#e8e2d5]" />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="text-xs font-semibold text-destructive hover:bg-destructive/10 focus:bg-destructive/10 cursor-pointer flex items-center gap-2 py-2"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Mobile menu button */}
             <button
@@ -687,8 +713,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <div className="md:hidden border-t border-border bg-card px-4 py-5 space-y-5 animate-slide-up shadow-inner select-none max-h-[85vh] overflow-y-auto">
             
             <div className="flex items-center gap-3 border-b border-border pb-4 select-none">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                {initials}
+              <div className="relative flex h-10 w-10 overflow-hidden rounded-full border border-border/40 bg-primary text-xs font-bold text-primary-foreground">
+                {profilePic ? (
+                  <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    {initials}
+                  </div>
+                )}
               </div>
               <div>
                 <p className="font-bold text-sm text-foreground leading-none">{fullName}</p>
@@ -752,17 +784,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   Jobs
                 </AccordionTrigger>
                 <AccordionContent className="pb-3 pt-1 space-y-2.5">
-                  <Link to="/analytics" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Interview Help</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Practice with AI mock interviews</span>
-                    </div>
-                  </Link>
                   <Link to="/applications" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
                       <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -776,7 +797,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <span className="block text-[9.5px] text-muted-foreground mt-0.5">Visual Kanban pipeline</span>
                     </div>
                   </Link>
-                  <Link to="/applications?tab=search" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
+                  <Link to="/job-search" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
                       <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
@@ -790,23 +811,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       </svg>
                     </div>
                     <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Job Board</span>
+                      <span className="block text-[11.5px] font-bold text-foreground">Job Search</span>
                       <span className="block text-[9.5px] text-muted-foreground mt-0.5">Find matches and track</span>
-                    </div>
-                  </Link>
-                  <Link to="/settings" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <circle cx="12" cy="12" r="4" />
-                        <line x1="12" y1="8" x2="20.7" y2="8" />
-                        <line x1="8.5" y1="14" x2="4.1" y2="6.4" />
-                        <line x1="15.5" y1="14" x2="11.2" y2="21.5" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Chrome Extension</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Apply faster from any job site</span>
                     </div>
                   </Link>
                 </AccordionContent>

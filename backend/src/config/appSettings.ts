@@ -19,34 +19,38 @@ export const editableSettingDefaults = {
 
 export type EditableSettingKey = keyof typeof editableSettingDefaults;
 
-export function getEditableSetting(key: EditableSettingKey): string {
-  return settingsQueries.get(key) ?? editableSettingDefaults[key];
+export async function getEditableSetting(userId: string, key: EditableSettingKey): Promise<string> {
+  const val = await settingsQueries.get(userId, key);
+  return val ?? editableSettingDefaults[key];
 }
 
-export function getEditableSettings(): Record<EditableSettingKey, string> {
-  return Object.keys(editableSettingDefaults).reduce((acc, currentKey) => {
+export async function getEditableSettings(userId: string): Promise<Record<EditableSettingKey, string>> {
+  const acc = {} as Record<EditableSettingKey, string>;
+  for (const currentKey of Object.keys(editableSettingDefaults)) {
     const key = currentKey as EditableSettingKey;
-    acc[key] = getEditableSetting(key);
-    return acc;
-  }, {} as Record<EditableSettingKey, string>);
+    acc[key] = await getEditableSetting(userId, key);
+  }
+  return acc;
 }
 
-export function getSenderName(): string {
-  return getEditableSetting("full_name") || "Outly User";
+export async function getSenderName(userId: string): Promise<string> {
+  return (await getEditableSetting(userId, "full_name")) || "Outly User";
 }
 
 export function getSenderEmail(): string {
   return env.GMAIL_USER;
 }
 
-export function getWhatsAppNumber(): string {
-  return getEditableSetting("phone");
+export async function getWhatsAppNumber(userId: string): Promise<string> {
+  return await getEditableSetting(userId, "phone");
 }
 
-export function getResumeDriveFileId(): string {
-  return getEditableSetting("resume_drive_file_id");
+export async function getResumeDriveFileId(userId: string): Promise<string> {
+  return await getEditableSetting(userId, "resume_drive_file_id");
 }
 
-export function getWeeklyPostLabel(): string {
-  return `${getEditableSetting("weekly_post_day")} ${getEditableSetting("weekly_post_time")}`.trim();
+export async function getWeeklyPostLabel(userId: string): Promise<string> {
+  const day = await getEditableSetting(userId, "weekly_post_day");
+  const time = await getEditableSetting(userId, "weekly_post_time");
+  return `${day} ${time}`.trim();
 }

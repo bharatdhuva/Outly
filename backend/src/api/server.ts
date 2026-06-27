@@ -14,11 +14,14 @@ import applicationsRoutes from "./routes/applications.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 import scraperRoutes from "./routes/scraper.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 app.use(cors({ origin: `http://localhost:${env.CLIENT_PORT}`, credentials: true }));
 app.use(express.json());
 
+app.use("/api/auth", authRoutes);
+app.use("/auth", authRoutes); // alias for compatibility with direct auth calls
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/coldmail", coldmailRoutes);
 app.use("/api/linkedin", linkedinRoutes);

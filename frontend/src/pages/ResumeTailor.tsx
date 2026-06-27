@@ -1,14 +1,40 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, UploadCloud, X, FileText, Copy, Download, Save, Check, AlertTriangle, CheckCircle } from "lucide-react";
-import PdfViewer from "@/components/PdfViewer";
-import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import PdfViewer from "@/components/PdfViewer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { 
+  Loader2, 
+  UploadCloud, 
+  X, 
+  FileText, 
+  Copy, 
+  Download, 
+  Save, 
+  Check, 
+  AlertTriangle, 
+  CheckCircle,
+  Lock,
+  RefreshCw,
+  Info,
+  ExternalLink,
+  Sparkles
+} from "lucide-react";
 
 export default function ResumeTailorPage() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [jobDesc, setJobDesc] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -17,7 +43,6 @@ export default function ResumeTailorPage() {
   const [loading, setLoading] = useState(false);
   const [tailoredResult, setTailoredResult] = useState<string | null>(null);
   const [tailoring, setTailoring] = useState(false);
-  const [activeTab, setActiveTab] = useState<"original" | "tailored">("original");
   const [copied, setCopied] = useState(false);
   const [savingToVault, setSavingToVault] = useState(false);
   const [matchedKeywords, setMatchedKeywords] = useState<string[]>([]);
@@ -27,7 +52,9 @@ export default function ResumeTailorPage() {
     tools_technologies: string[];
   }>({ hard_skills: [], soft_skills: [], tools_technologies: [] });
   const [sources, setSources] = useState<Array<{ title: string; url: string; domain: string }>>([]);
-  const [showSourcesList, setShowSourcesList] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isLimitExceeded, setIsLimitExceeded] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch resumes from vault
@@ -36,9 +63,60 @@ export default function ResumeTailorPage() {
     queryFn: api.resume.list,
   });
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Fetch current user session to get user specific details
+  const { data: userData } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: api.auth.me,
+    enabled: !!localStorage.getItem("outly_token"),
+  });
+
+  // Load user-specific daily limit status from localStorage
+  useEffect(() => {
+    const userPrefix = userData?.user?.email || "anonymous";
+    const storageKey = `ats_limit_reached_${userPrefix}`;
+    const isPro = userData?.user?.plan === "pro" || localStorage.getItem("outly_premium_user") === "true";
+
+    if (isPro) {
+      setIsLimitExceeded(false);
+    } else {
+      const isLocked = localStorage.getItem(storageKey) === "true";
+      setIsLimitExceeded(isLocked);
+    }
+  }, [userData]);
+
+  // Drag and Drop event handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!isLimitExceeded) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (isLimitExceeded) return;
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processResumeFile(file);
+    }
+  };
+
+  const processResumeFile = async (file: File) => {
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (ext !== "txt" && ext !== "pdf" && ext !== "docx") {
+      toast({
+        variant: "destructive",
+        title: "Unsupported File",
+        description: "Please upload a .txt, .pdf, or .docx file.",
+      });
+      return;
+    }
+
     setResumeFile(file);
     setSelectedVaultId("custom");
     setLoading(true);
@@ -46,25 +124,14 @@ export default function ResumeTailorPage() {
     setMatchedKeywords([]);
     setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
     setSources([]);
-    setShowSourcesList(false);
-    setActiveTab("original");
 
     try {
       const parsed = await api.ats.parseFile(file);
       setResumeText(parsed.content);
-      toast({
-        title: "Resume Loaded",
-        description: `Extracted text from ${file.name} successfully.`,
-      });
     } catch (err) {
-      // Fallback for TXT files if parser fails
       try {
         const text = await file.text();
         setResumeText(text);
-        toast({
-          title: "Resume Loaded",
-          description: `Read text from ${file.name}.`,
-        });
       } catch (innerErr) {
         toast({
           variant: "destructive",
@@ -79,6 +146,13 @@ export default function ResumeTailorPage() {
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processResumeFile(file);
+    }
+  };
+
   const handleVaultSelect = (idStr: string) => {
     setSelectedVaultId(idStr);
     setResumeFile(null);
@@ -86,8 +160,6 @@ export default function ResumeTailorPage() {
     setMatchedKeywords([]);
     setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
     setSources([]);
-    setShowSourcesList(false);
-    setActiveTab("original");
     if (idStr === "custom") {
       setResumeText(null);
     } else {
@@ -123,18 +195,26 @@ export default function ResumeTailorPage() {
       setMatchedKeywords(response.matchedKeywords || []);
       setMissingKeywords(response.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] });
       setSources(response.sources || []);
-      setShowSourcesList(false);
-      setActiveTab("tailored");
       toast({
         title: "Resume Tailored Successfully!",
         description: "The AI optimized version and keyword insights are ready.",
       });
     } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Tailoring Failed",
-        description: String(err),
-      });
+      const errStr = String(err);
+      const isLimitError = errStr.includes("LIMIT_ATS_EXCEEDED") || errStr.toLowerCase().includes("limit reached");
+      
+      if (isLimitError) {
+        setIsLimitExceeded(true);
+        setShowLimitModal(true);
+        const userPrefix = userData?.user?.email || "anonymous";
+        localStorage.setItem(`ats_limit_reached_${userPrefix}`, "true");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Tailoring Failed",
+          description: errStr,
+        });
+      }
     } finally {
       setTailoring(false);
     }
@@ -208,420 +288,175 @@ export default function ResumeTailorPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
-      <div>
-        <p className="text-[13px] font-medium text-primary">Resume Tailor</p>
-        <h1 className="mt-1 text-[28px] font-semibold tracking-tight text-foreground">Prepare a role-specific application</h1>
-        <p className="mt-2 max-w-2xl text-[14px] leading-6 text-muted-foreground">
-          Paste the role context, upload your resume, and review the source material before generating a tailored version.
+    <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-8 animate-fade-in pb-16">
+      
+      {/* Hero text header */}
+      <div className="space-y-3 text-left">
+        <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
+          RESUME TAILOR
+        </span>
+        <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
+          Tailor your resume for any role
+        </h1>
+        <p className="text-muted-foreground text-[13px] sm:text-[14px] leading-relaxed max-w-3xl">
+          Paste the target job description and upload your resume. Our AI automatically aligns your experience and skills to match hiring criteria.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-          <div className="mb-4">
-            <h2 className="text-[15px] font-semibold text-foreground">Job description</h2>
-            <p className="mt-1 text-[13px] text-muted-foreground">Include responsibilities, requirements, and any company-specific context.</p>
+      {/* INPUT WORKSPACE (Side by Side columns) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+        
+        {/* Left Input: Job Description */}
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[380px] text-left space-y-4">
+          <div className="flex justify-between items-center border-b border-border/40 pb-3">
+            <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <FileText className="h-4.5 w-4.5 text-outly-accent" />
+              Job Description
+            </h2>
+            <span className="text-[10px] font-extrabold text-muted-foreground uppercase">Target Context</span>
           </div>
           <Textarea
-            className="min-h-[320px] resize-y rounded-lg border-border bg-white text-[14px] leading-6 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+            className="flex-1 resize-none rounded-xl border-border bg-white text-[13px] leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-success p-3.5"
             placeholder="Paste the job description here..."
             value={jobDesc}
             onChange={(e) => setJobDesc(e.target.value)}
           />
-        </section>
+        </div>
 
-        <section className="flex min-h-[420px] flex-col rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-          {/* Resume Header with Vault Selection Dropdown or Tabs */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 border-b border-border/40 pb-3">
-            <div>
-              <h2 className="text-[15px] font-semibold text-foreground">
-                {tailoredResult ? (
-                  <div className="flex rounded-md bg-secondary p-0.5 text-muted-foreground text-[12px] font-medium">
-                    <button
-                      type="button"
-                      className={`rounded-md px-2.5 py-1 transition-all ${
-                        activeTab === "original"
-                          ? "bg-white text-foreground shadow-sm font-semibold"
-                          : "hover:text-foreground"
-                      }`}
-                      onClick={() => setActiveTab("original")}
-                    >
-                      Original
-                    </button>
-                    <button
-                      type="button"
-                      className={`rounded-md px-2.5 py-1 transition-all ${
-                        activeTab === "tailored"
-                          ? "bg-white text-foreground shadow-sm font-semibold"
-                          : "hover:text-foreground"
-                      }`}
-                      onClick={() => setActiveTab("tailored")}
-                    >
-                      Tailored Version ✨
-                    </button>
-                  </div>
-                ) : (
-                  "Resume source"
-                )}
-              </h2>
-              {!tailoredResult && <p className="mt-1 text-[13px] text-muted-foreground">Upload a PDF/Word file or select from vault.</p>}
-            </div>
-            
-            {resumes.length > 0 && activeTab === "original" && (
-              <select
-                className="flex h-8.5 w-full sm:w-[170px] rounded-md border border-input bg-background px-2.5 py-1 text-[13px] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary text-foreground"
-                value={selectedVaultId}
-                onChange={(e) => handleVaultSelect(e.target.value)}
-              >
-                <option value="custom">📁 Select from Vault...</option>
-                {resumes.map((r) => (
-                  <option key={r.id} value={String(r.id)}>
-                    💼 {r.label}
-                  </option>
-                ))}
-              </select>
-            )}
+        {/* Right Input: Resume Source */}
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[380px] text-left">
+          
+          <div className="flex justify-between items-center border-b border-border/40 pb-3 mb-4">
+            <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <FileText className="h-4.5 w-4.5 text-success" />
+              Resume Source
+            </h2>
+            <span className="text-[10px] font-extrabold text-muted-foreground uppercase">Candidate Input</span>
           </div>
 
-          {/* Upload Placeholder State */}
-          {!resumeFile && selectedVaultId === "custom" && !loading && !tailoring && (
-            <div className="grid flex-1 place-items-center rounded-xl border border-dashed border-border bg-secondary/10 p-8 text-center min-h-[300px]">
-              <div className="flex max-w-sm flex-col items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-primary">
-                  <UploadCloud className="h-5 w-5" />
+          {loading ? (
+            <div className="flex-1 border border-border bg-secondary/15 rounded-xl flex flex-col items-center justify-center p-6 text-center">
+              <Loader2 className="h-7 w-7 animate-spin text-success" />
+              <span className="text-[12px] font-semibold text-muted-foreground mt-2">Loading resume...</span>
+            </div>
+          ) : !resumeFile && selectedVaultId === "custom" ? (
+            isLimitExceeded ? (
+              <div className="flex-1 border-2 border-dashed border-border bg-secondary/35 rounded-xl flex flex-col items-center justify-center p-6 text-center select-none cursor-not-allowed">
+                <div className="space-y-4">
+                  <Lock className="w-8 h-8 text-amber-600 mx-auto" />
+                  <div className="space-y-1">
+                    <p className="text-[14px] font-bold text-foreground">Daily Limit Reached (3/3)</p>
+                    <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">Please upgrade to Pro for unlimited tailoring.</p>
+                  </div>
+                  <Button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/pricing");
+                    }}
+                    className="bg-outly-accent hover:brightness-110 text-white text-xs font-bold tracking-wider px-6 py-2.5 rounded-full active:scale-[0.98] transition h-10 uppercase"
+                  >
+                    Upgrade to Pro
+                  </Button>
                 </div>
-                <p className="text-[14px] font-medium text-foreground">Upload your resume</p>
-                <p className="text-[13px] leading-5 text-muted-foreground">Choose a document to preview before tailoring.</p>
-                <Button className="mt-1" onClick={() => fileInputRef.current?.click()}>
-                  Select file
-                </Button>
+              </div>
+            ) : (
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`flex-1 border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none transition-all duration-200 ${
+                  isDragging 
+                    ? "border-success bg-[#fdfaf3]/80 scale-[1.01]" 
+                    : "border-success/35 hover:border-success bg-[#fdfaf3]/35 hover:bg-[#fdfaf3]/65"
+                }`}
+              >
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.doc,.docx,.txt"
+                  accept=".txt,.pdf,.docx"
                   className="hidden"
-                  onChange={handleFileChange}
+                  onChange={handleFileUpload}
                 />
-              </div>
-            </div>
-          )}
+                <div className="space-y-4">
+                  <UploadCloud className="h-8 w-8 text-success/70 mx-auto animate-bounce" />
+                  <div>
+                    <p className="text-[13px] font-bold text-foreground">Drag & drop your resume, or click to choose</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">PDF, DOCX, TXT. Max 2MB.</p>
+                  </div>
 
-          {/* Loading Indicator */}
-          {loading && (
-            <div className="grid flex-1 place-items-center rounded-xl border border-border bg-secondary/10 min-h-[300px]">
-              <div className="flex flex-col items-center gap-2">
-                <Loader2 className="h-7 w-7 animate-spin text-primary" />
-                <span className="text-[13px] font-medium text-muted-foreground">Loading your resume...</span>
+                  {resumes.length > 0 && (
+                    <div className="flex flex-col items-center gap-1.5 pt-1.5 max-w-xs mx-auto" onClick={(e) => e.stopPropagation()}>
+                      <select
+                        className="bg-white border border-border h-8 text-[11px] rounded-lg px-2.5 font-bold text-foreground/70 focus:outline-none focus:ring-1 focus:ring-success shadow-sm w-full cursor-pointer hover:border-success/50 transition"
+                        value={selectedVaultId}
+                        onChange={(e) => handleVaultSelect(e.target.value)}
+                      >
+                        <option value="custom">Or select from Vault...</option>
+                        {resumes.map((r) => (
+                          <option key={r.id} value={String(r.id)}>
+                            {r.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Tailoring Loader State */}
-          {tailoring && (
-            <div className="grid flex-1 place-items-center rounded-xl border border-border bg-secondary/10 min-h-[300px]">
-              <div className="flex flex-col items-center gap-3 text-center p-6">
-                <Loader2 className="h-9 w-9 animate-spin text-primary" />
-                <span className="text-[14px] font-semibold text-foreground">AI Tailoring in Progress...</span>
-                <span className="text-[13px] text-muted-foreground max-w-xs">
-                  We are analyzing the job description and rewriting your resume summary and work achievements to highlight the best matches.
+            )
+          ) : (
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="mb-3 flex items-center justify-between border-b border-border/40 pb-2">
+                <span className="truncate text-[12px] font-bold text-foreground flex items-center gap-1.5">
+                  <FileText className="h-4 w-4 text-success" />
+                  {resumeFile ? resumeFile.name : (resumes.find(r => String(r.id) === selectedVaultId)?.label || "Vault Resume")}
                 </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="gap-1 text-muted-foreground h-7 px-2 hover:bg-destructive/10 hover:text-destructive text-[11px] font-bold"
+                  onClick={() => {
+                    setResumeFile(null);
+                    setResumeText(null);
+                    setSelectedVaultId("custom");
+                    setTailoredResult(null);
+                    setMatchedKeywords([]);
+                    setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
+                    setSources([]);
+                  }}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Remove
+                </Button>
               </div>
-            </div>
-          )}
 
-          {/* Document Preview Pane (Original or Tailored) */}
-          {(resumeFile || selectedVaultId !== "custom") && !loading && !tailoring && (
-            <div className="min-h-0 flex-1 flex flex-col min-h-[300px]">
-              {activeTab === "original" ? (
-                <>
-                  <div className="mb-3 flex items-center justify-between gap-3 border-b border-border/40 pb-2">
-                    <span className="truncate text-[13px] font-semibold text-foreground flex items-center gap-1.5">
-                      <FileText className="h-4 w-4 text-primary" />
-                      {resumeFile ? resumeFile.name : (resumes.find(r => String(r.id) === selectedVaultId)?.label || "Vault Resume")}
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="gap-1 text-muted-foreground h-7 px-2 hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => {
-                        setResumeFile(null);
-                        setResumeText(null);
-                        setSelectedVaultId("custom");
-                        setTailoredResult(null);
-                        setMatchedKeywords([]);
-                        setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
-                        setSources([]);
-                        setShowSourcesList(false);
-                        setActiveTab("original");
-                      }}
-                    >
-                      <X className="h-3.5 w-3.5" />
-                      Remove
-                    </Button>
+              <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
+                {resumeFile && resumeFile.type === "application/pdf" ? (
+                  <div className="flex-1">
+                    <PdfViewer file={resumeFile} />
                   </div>
-
-                  {(() => {
-                    if (resumeFile) {
-                      return resumeFile.type === "application/pdf" ? (
-                        <div className="flex-1 overflow-hidden rounded-lg border border-border bg-secondary">
-                          <PdfViewer file={resumeFile} />
-                        </div>
-                      ) : resumeText ? (
-                        <div className="flex-1 max-h-[360px] overflow-y-auto rounded-lg border border-border bg-secondary p-4">
-                          <pre className="whitespace-pre-wrap font-mono text-[12px] leading-5 text-foreground">{resumeText}</pre>
-                        </div>
-                      ) : null;
-                    } else {
-                      const selectedVaultResume = resumes.find(r => String(r.id) === selectedVaultId);
-                      const isPdf = selectedVaultResume?.filename.toLowerCase().endsWith(".pdf");
-                      if (isPdf) {
-                        return (
-                          <div className="flex-1 overflow-hidden rounded-lg border border-border bg-secondary">
-                            <PdfViewer url={api.resume.getFileUrl(selectedVaultResume.id)} />
-                          </div>
-                        );
-                      }
-                      return resumeText ? (
-                        <div className="flex-1 max-h-[360px] overflow-y-auto rounded-lg border border-border bg-secondary p-4">
-                          <pre className="whitespace-pre-wrap font-mono text-[12px] leading-5 text-foreground">{resumeText}</pre>
-                        </div>
-                      ) : null;
-                    }
-                  })()}
-                </>
-              ) : (
-                // Tailored tab content
-                <div className="flex-1 flex flex-col min-h-[300px]">
-                  <div className="mb-3 flex items-center justify-between gap-3 border-b border-border/40 pb-2">
-                    <span className="text-[13px] font-semibold text-foreground flex items-center gap-1.5">
-                      ✨ Tailored Resume Preview (Markdown)
-                    </span>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-1.5 h-7 px-2.5 text-[12px] border-border text-foreground hover:bg-secondary"
-                        onClick={handleCopy}
-                      >
-                        {copied ? (
-                          <>
-                            <Check className="h-3.5 w-3.5 text-success" />
-                            Copied
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-3.5 w-3.5" />
-                            Copy
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-1.5 h-7 px-2.5 text-[12px] border-border text-foreground hover:bg-secondary"
-                        onClick={handleDownload}
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                        Download
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="gap-1.5 h-7 px-2.5 text-[12px] bg-primary text-primary-foreground hover:bg-primary/90"
-                        onClick={handleSaveToVault}
-                        disabled={savingToVault}
-                      >
-                        {savingToVault ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Save className="h-3.5 w-3.5" />
-                        )}
-                        Save to Vault
-                      </Button>
-                    </div>
+                ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
+                  <div className="flex-1">
+                    <PdfViewer url={api.resume.getFileUrl(Number(selectedVaultId))} />
                   </div>
-
-                  <div className="flex-1 overflow-y-auto max-h-[360px] rounded-lg border border-border bg-secondary p-4">
-                    <pre className="whitespace-pre-wrap font-mono text-[12px] leading-5 text-foreground">{tailoredResult}</pre>
-                  </div>
-
-                  {/* Grounded Web Search Sources */}
-                  {sources && sources.length > 0 && (
-                    <div className="mt-3.5 flex flex-col gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowSourcesList(!showSourcesList)}
-                        className="inline-flex self-start items-center gap-2 rounded-full border border-border bg-secondary/80 px-3 py-1.5 text-[12.5px] font-semibold text-foreground hover:bg-secondary transition-all active:scale-[0.97] shadow-sm cursor-pointer"
-                      >
-                        <div className="flex -space-x-1.5 overflow-hidden">
-                          {sources.slice(0, 3).map((src, i) => (
-                            <img
-                              key={i}
-                              className="inline-block h-4.5 w-4.5 rounded-full ring-2 ring-background bg-white shrink-0 border border-border/10"
-                              src={`https://www.google.com/s2/favicons?domain=${src.domain}&sz=32`}
-                              alt=""
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.display = "none";
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <span>{sources.length} sources</span>
-                      </button>
-
-                      {showSourcesList && (
-                        <div className="rounded-lg border border-border bg-background p-3.5 shadow-md max-h-[220px] overflow-y-auto space-y-2.5 animate-slide-up">
-                          {sources.map((src, i) => (
-                            <a
-                              key={i}
-                              href={src.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-start gap-2.5 rounded-md p-2 hover:bg-secondary transition-colors cursor-pointer"
-                            >
-                              <img
-                                className="h-4 w-4 mt-0.5 rounded shrink-0 bg-white border border-border/10"
-                                src={`https://www.google.com/s2/favicons?domain=${src.domain}&sz=32`}
-                                alt=""
-                              />
-                              <div className="min-w-0">
-                                <p className="text-[12.5px] font-semibold text-foreground truncate hover:text-primary transition-colors">{src.title}</p>
-                                <p className="text-[11px] text-muted-foreground truncate">{src.url}</p>
-                              </div>
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-      </div>
-
-      {/* Keywords Analysis Card */}
-      {tailoredResult && (matchedKeywords.length > 0 || 
-        (typeof missingKeywords === "object" && !Array.isArray(missingKeywords) && 
-         ((missingKeywords.hard_skills?.length || 0) > 0 || 
-          (missingKeywords.tools_technologies?.length || 0) > 0 || 
-          (missingKeywords.soft_skills?.length || 0) > 0)) ||
-        (Array.isArray(missingKeywords) && missingKeywords.length > 0)) && (
-        <section className="rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-card)] space-y-6 animate-slide-up">
-          <div className="border-b border-border/40 pb-3 flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <CheckCircle className="h-4 w-4" />
-            </span>
-            <div>
-              <h3 className="text-[15px] font-bold text-foreground">AI Tailoring Keyword Insights</h3>
-              <p className="text-[12.5px] text-muted-foreground mt-0.5">
-                These keywords were analyzed during the tailoring process to optimize your resume for the job description.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Recommended Keywords Column */}
-            <div className="space-y-4">
-              <h4 className="text-[14px] font-semibold text-foreground flex items-center gap-1.5 border-b border-border/40 pb-2">
-                <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
-                Recommended Keywords to Add
-              </h4>
-
-              {typeof missingKeywords === "object" && !Array.isArray(missingKeywords) ? (
-                <div className="space-y-3.5">
-                  {(missingKeywords.hard_skills?.length || 0) > 0 && (
-                    <div className="space-y-1.5">
-                      <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">Hard Skills / Domain</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {missingKeywords.hard_skills.map((kw, i) => (
-                          <span key={i} className="rounded-md bg-destructive/10 border border-destructive/20 px-2.5 py-1 text-[12px] font-medium text-destructive">
-                            {kw}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {(missingKeywords.tools_technologies?.length || 0) > 0 && (
-                    <div className="space-y-1.5">
-                      <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">Tools / Technologies</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {missingKeywords.tools_technologies.map((kw, i) => (
-                          <span key={i} className="rounded-md bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-[12px] font-medium text-amber-600 dark:text-amber-500">
-                            {kw}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {(missingKeywords.soft_skills?.length || 0) > 0 && (
-                    <div className="space-y-1.5">
-                      <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">Soft Skills / Execution</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {missingKeywords.soft_skills.map((kw, i) => (
-                          <span key={i} className="rounded-md bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 text-[12px] font-medium text-blue-600 dark:text-blue-500">
-                            {kw}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {(!missingKeywords.hard_skills?.length &&
-                    !missingKeywords.tools_technologies?.length &&
-                    !missingKeywords.soft_skills?.length) && (
-                    <span className="text-[13px] text-muted-foreground block">Zero keyword gaps. Your resume contains excellent keyword coverage!</span>
-                  )}
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-1.5">
-                  {(missingKeywords as string[]).length === 0 ? (
-                    <span className="text-[13px] text-muted-foreground">Zero keyword gaps. Nice match!</span>
-                  ) : (
-                    (missingKeywords as string[]).map((kw, i) => (
-                      <span key={i} className="rounded-md bg-destructive/10 border border-destructive/20 px-2.5 py-1 text-[12px] font-medium text-destructive">
-                        {kw}
-                      </span>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Matched Keywords Column */}
-            <div className="space-y-4">
-              <h4 className="text-[14px] font-semibold text-foreground flex items-center gap-1.5 border-b border-border/40 pb-2">
-                <CheckCircle className="h-4 w-4 text-success shrink-0" />
-                Primary Skills Detected ({matchedKeywords.length})
-              </h4>
-              <div className="flex flex-wrap gap-1.5">
-                {matchedKeywords.length === 0 ? (
-                  <span className="text-[13px] text-muted-foreground">
-                    No matching skills detected during optimization.
-                  </span>
                 ) : (
-                  matchedKeywords.map((kw, i) => (
-                    <span key={i} className="rounded-md bg-success/10 border border-success/20 px-2.5 py-1 text-[12px] font-medium text-success flex items-center gap-1">
-                      <Check className="h-3 w-3" />
-                      {kw}
-                    </span>
-                  ))
+                  <div className="flex-1 overflow-y-auto p-3.5 text-left">
+                    <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-foreground/80">{resumeText}</pre>
+                  </div>
                 )}
               </div>
             </div>
-          </div>
-        </section>
-      )}
+          )}
+        </div>
+      </div>
 
-      {/* Action Submit Area */}
-      <div className="flex justify-end gap-3 rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
+      {/* Action Submit Area (Below inputs) */}
+      <div className="flex justify-between items-center rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
+        <span className="text-[11px] font-bold text-muted-foreground">Tailored live by Outly AI</span>
         <Button
           size="lg"
-          className="px-8 font-semibold shadow-sm gap-2"
+          className="bg-outly-accent hover:bg-outly-accent/95 text-white px-8 font-bold tracking-wider rounded-lg shadow-sm uppercase active:scale-[0.98] transition-all gap-2 h-11"
           onClick={handleTailor}
           disabled={tailoring || !resumeText || !jobDesc.trim()}
         >
@@ -631,10 +466,234 @@ export default function ResumeTailorPage() {
               Tailoring Resume...
             </>
           ) : (
-            "Tailor Resume"
+            <>
+              <RefreshCw className="h-4 w-4" />
+              Tailor Resume
+            </>
           )}
         </Button>
       </div>
+
+      {/* TAILORING ANIMATED PROGRESS LOADER CARD */}
+      {tailoring && (
+        <div className="w-full bg-card border border-border rounded-2xl p-10 text-center shadow-[var(--shadow-card)] space-y-4 animate-pulse">
+          <Loader2 className="h-9 w-9 animate-spin text-outly-accent mx-auto" />
+          <div className="space-y-2 max-w-sm mx-auto">
+            <h3 className="text-base font-bold text-foreground">AI Tailoring in Progress...</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Outly AI is parsing the job description, cross-referencing industry skill sets, and rewriting your resume points. This takes about 10-15 seconds.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* TAILORED DOCK PREVIEW & KEYWORD ANALYSIS SECTION */}
+      {tailoredResult && !tailoring && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6 border-t border-border/40 animate-slide-up">
+          
+          {/* Left Panel: Tailored Resume preview panel (7 cols) */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[600px] text-left">
+              <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-border/40 pb-3">
+                <div>
+                  <h3 className="text-[15px] font-bold text-foreground flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-success" />
+                    Tailored Resume (Markdown)
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Optimized work history and professional profile summary.</p>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 h-8 px-3 text-[11px] border-border text-foreground hover:bg-secondary rounded-lg font-bold"
+                    onClick={handleCopy}
+                  >
+                    {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+                    Copy
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 h-8 px-3 text-[11px] border-border text-foreground hover:bg-secondary rounded-lg font-bold"
+                    onClick={handleDownload}
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Download
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto rounded-xl border border-border bg-secondary/10 p-4 font-mono text-[12px] leading-relaxed text-foreground/80">
+                <pre className="whitespace-pre-wrap">{tailoredResult}</pre>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Panel: Keyword Insights & Search References (5 cols) */}
+          <div className="lg:col-span-5 space-y-6">
+            
+            {/* Keyword Analysis Card */}
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] space-y-4 text-left">
+              <h3 className="text-[14px] font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-3">
+                <Sparkles className="h-4.5 w-4.5 text-outly-accent animate-pulse" />
+                Keyword Improvements
+              </h3>
+              
+              <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1">
+                {/* Matched skills */}
+                {matchedKeywords.length > 0 && (
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-bold text-success uppercase tracking-wider block">Matched Primary Skills</span>
+                    <div className="flex flex-wrap gap-1">
+                      {matchedKeywords.map((kw, i) => (
+                        <span key={i} className="rounded-md bg-success/5 border border-success/15 px-2 py-0.5 text-[10px] font-semibold text-success flex items-center gap-1">
+                          <Check className="h-2.5 w-2.5" />
+                          {kw}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Missing Skills */}
+                {typeof missingKeywords === "object" && !Array.isArray(missingKeywords) ? (
+                  <div className="space-y-3">
+                    {(missingKeywords.hard_skills?.length || 0) > 0 && (
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">Recommended Hard Skills to Add</span>
+                        <div className="flex flex-wrap gap-1">
+                          {missingKeywords.hard_skills.map((kw, i) => (
+                            <span key={i} className="rounded-md bg-amber-500/5 border border-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {(missingKeywords.tools_technologies?.length || 0) > 0 && (
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">Tools / Technologies</span>
+                        <div className="flex flex-wrap gap-1">
+                          {missingKeywords.tools_technologies.map((kw, i) => (
+                            <span key={i} className="rounded-md bg-blue-500/5 border border-blue-500/20 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {(missingKeywords.soft_skills?.length || 0) > 0 && (
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">Soft Skills</span>
+                        <div className="flex flex-wrap gap-1">
+                          {missingKeywords.soft_skills.map((kw, i) => (
+                            <span key={i} className="rounded-md bg-emerald-500/5 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">Recommended Skills to Add</span>
+                    <div className="flex flex-wrap gap-1">
+                      {(missingKeywords as string[]).map((kw, i) => (
+                        <span key={i} className="rounded-md bg-amber-500/5 border border-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                          {kw}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Grounded References Card */}
+            {sources.length > 0 && (
+              <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] space-y-4 text-left flex flex-col h-[270px]">
+                <div className="flex justify-between items-center border-b border-border/40 pb-3">
+                  <div>
+                    <h3 className="text-[14px] font-bold text-foreground flex items-center gap-2">
+                      <Info className="h-4.5 w-4.5 text-primary" />
+                      Grounded Search Sources
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Role requirements verified from external benchmark profiles.</p>
+                  </div>
+                  <span className="text-[10px] font-extrabold bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-full">{sources.length}</span>
+                </div>
+
+                <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                  {sources.map((src, i) => (
+                    <a
+                      key={i}
+                      href={src.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-border bg-white hover:bg-secondary/40 transition duration-200 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <img
+                          className="h-4 w-4 rounded shrink-0 bg-white border border-border/10"
+                          src={`https://www.google.com/s2/favicons?domain=${src.domain}&sz=32`}
+                          alt=""
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
+                        />
+                        <div className="min-w-0">
+                          <p className="text-[12px] font-bold text-foreground truncate">{src.title}</p>
+                          <p className="text-[10px] text-muted-foreground truncate font-mono">{src.url}</p>
+                        </div>
+                      </div>
+                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+
+        </div>
+      )}
+
+      {/* Limit Exceeded Dialog Modal */}
+      <Dialog open={showLimitModal} onOpenChange={setShowLimitModal}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-6 font-sans">
+          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+              <Lock className="w-6 h-6 shrink-0" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-foreground">Daily Limit Reached (3/3)</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              Your free tier is limited to 3 ATS resume checks/tailoring checks per day. Upgrade to Outly Pro for unlimited checks, AI resume tailoring, and interview preparation guides.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-6 justify-center">
+            <Button
+              variant="outline"
+              onClick={() => setShowLimitModal(false)}
+              className="w-full sm:w-auto border-border text-xs font-medium h-10 rounded-full hover:bg-secondary active:scale-[0.98] transition"
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                setShowLimitModal(false);
+                navigate("/pricing");
+              }}
+              className="w-full sm:w-auto bg-outly-accent hover:brightness-110 hover:scale-[1.02] text-white text-xs font-medium h-10 rounded-full shadow-lg shadow-outly-accent/20 active:scale-[0.98] transition-all"
+            >
+              Upgrade to Pro
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

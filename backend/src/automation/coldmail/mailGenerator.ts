@@ -252,10 +252,10 @@ function validateDraft(parsed: Partial<GeneratedMail>, companyName: string): Gen
 }
 
 export async function generateMailForCompany(
-  companyId: number,
-  provider: "gemini" | "grok" = "gemini",
+  companyId: string,
+  provider: "gemini" | "grok" = "grok",
 ): Promise<GeneratedMail | null> {
-  const company = companyQueries.getById(companyId);
+  const company = await companyQueries.getById(companyId);
   if (!company) return null;
 
   if (company.status === "pending") {
@@ -263,7 +263,7 @@ export async function generateMailForCompany(
     await scrapeCompany(companyId);
   }
 
-  const c = companyQueries.getById(companyId)!;
+  const c = (await companyQueries.getById(companyId))!;
   const scrapedCtx = c.scraped_context ? (JSON.parse(c.scraped_context) as Record<string, any>) : {};
 
   const senderName = c.sender_name || "Bharat Dhuva";
@@ -424,13 +424,13 @@ https://www.linkedin.com/in/bharatdhuva27/`
       };
     }
 
-    companyQueries.updateStatus(companyId, "mail_generated", {
+    await companyQueries.updateStatus(companyId, "mail_generated", {
       generated_subject: parsed.subject,
       generated_mail: parsed.body,
       personalization_hook: parsed.personalization_hook,
       generated_variants_json: JSON.stringify(parsed),
       error_message: null,
-    } as any);
+    });
 
     logger.info(`Generated mail for ${companyName} via ${provider}`, { source: "coldmail" });
     return parsed;
@@ -439,7 +439,7 @@ https://www.linkedin.com/in/bharatdhuva27/`
       error: String(e),
       source: "coldmail",
     });
-    companyQueries.updateStatus(companyId, "scraped", { error_message: String(e) } as any);
+    await companyQueries.updateStatus(companyId, "scraped", { error_message: String(e) });
     return null;
   }
 }

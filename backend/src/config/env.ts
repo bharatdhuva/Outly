@@ -18,6 +18,7 @@ export const env = {
 
 
   GMAIL_CLIENT_ID: process.env.GMAIL_CLIENT_ID ?? "",
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? process.env.GMAIL_CLIENT_ID ?? "",
   GMAIL_CLIENT_SECRET: process.env.GMAIL_CLIENT_SECRET ?? "",
   GMAIL_REDIRECT_URI:
     process.env.GMAIL_REDIRECT_URI ??
@@ -91,4 +92,10 @@ export const env = {
     "data",
     "linkedin-cookies.json",
   ),
+
+  MONGODB_URI: process.env.MONGODB_URI ?? "mongodb://localhost:27017/outly",
+  JWT_SECRET: process.env.JWT_SECRET ?? "super-secret-jwt-key-change-in-production",
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ?? "",
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ?? "",
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ?? "",
 } as const;

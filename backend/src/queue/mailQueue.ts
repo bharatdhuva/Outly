@@ -1,15 +1,14 @@
-import Bull from "bull";
-import { env } from "../config/env.js";
-
-export const mailQueue = new Bull("mail", env.REDIS_URL, {
-  defaultJobOptions: {
-    attempts: 3,
-    backoff: { type: "exponential", delay: 60000 },
-    removeOnComplete: 100,
+export const mailQueue = {
+  add: async (data: any) => {
+    console.log("[MOCK QUEUE] Mail job added:", data);
+    return { id: "mock-mail-job-id" };
   },
-});
-
-mailQueue.on("error", (err) => {
-  console.error("Mail queue error:", err.message);
-});
-
+  getWaitingCount: async () => 0,
+  getActiveCount: async () => 0,
+  process: (fn: any) => {
+    console.log("[MOCK QUEUE] Mail processor registered");
+  },
+  on: (event: string, fn: any) => {
+    // no-op
+  }
+} as any;

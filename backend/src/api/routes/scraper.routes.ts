@@ -1,9 +1,13 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import axios from "axios";
 import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
+import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 
 const router = Router();
+
+// Protect job search route
+router.use(requireAuth);
 
 // Helper function to fetch jobs from JSearch with automatic 429 retry
 async function fetchSourceWithRetry(
@@ -49,7 +53,9 @@ async function fetchSourceWithRetry(
 }
 
 // POST /jobs - Search for jobs on welfound, instahyre, and naukri via JSearch
-router.post("/jobs", async (req, res) => {
+router.post("/jobs", async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+  
   const { role, location, experience } = req.body;
 
   if (!role) {
@@ -59,7 +65,7 @@ router.post("/jobs", async (req, res) => {
   // Define target career sites/publishers
   const sources = ["naukri", "instahyre", "wellfound"];
 
-  logger.info(`Starting JSearch job search for role: "${role}", location: "${location || 'Any'}", exp: "${experience || 'Any'}"`, { source: "scraper" });
+  logger.info(`Starting JSearch job search for role: "${role}", location: "${location || 'Any'}", exp: "${experience || 'Any'}"`, { source: "scraper", userId: req.user.id });
 
   try {
     const isRemoteSearch = location && location.toLowerCase().trim() === "remote";
@@ -151,7 +157,7 @@ router.post("/jobs", async (req, res) => {
       jobs: uniqueJobs,
     });
   } catch (error: any) {
-    logger.error("Scraper handler encountered a fatal error", { error: String(error), source: "scraper" });
+    logger.error("Scraper handler encountered a fatal error", { error: String(error), userId: req.user.id, source: "scraper" });
     res.status(500).json({ error: "Failed to scrape jobs from career portals." });
   }
 });

@@ -5,6 +5,8 @@ import { Eye, EyeOff } from "lucide-react";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/logo_transparent.png";
+import { api } from "../lib/api";
+import { useToast } from "../hooks/use-toast";
 
 interface SlideText {
   titleStart: string;
@@ -38,6 +40,7 @@ const promoSlides: SlideText[] = [
 export default function Login() {
   const navigate = useNavigate();
   const navigateTo = usePageTransition();
+  const { toast } = useToast();
   const formWrapperRef = useRef<HTMLDivElement>(null);
   const textWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -56,14 +59,13 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    document.title = "Outly - Sign In";
+    const token = localStorage.getItem("outly_token");
+    if (token) {
+      navigate("/onboarding");
+      return;
+    }
 
-    // Load Google Identity Services script dynamically
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
+    document.title = "Outly - Sign In";
 
     // Load Google Font: Rubik dynamically for the login page
     const link = document.createElement("link");
@@ -72,7 +74,6 @@ export default function Login() {
     document.head.appendChild(link);
 
     return () => {
-      document.body.removeChild(script);
       document.head.removeChild(link);
     };
   }, []);
@@ -147,16 +148,26 @@ export default function Login() {
   };
 
   // ─── 3. Submit Handlers ───
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (authMode === "signup" && !agreeToTerms) return;
     if (!email || !password) return;
 
     setIsLoading(true);
 
-    // Simulate server authentication delay
-    setTimeout(() => {
+    try {
+      let res;
+      if (authMode === "signin") {
+        res = await api.auth.login(email, password);
+      } else {
+        res = await api.auth.signup(email, password, name);
+      }
+
+      localStorage.setItem("outly_token", res.token);
+      localStorage.setItem("outly_premium_user", String(res.user.plan === "pro"));
+
       setIsLoading(false);
+
       // Fire celebratory confetti
       confetti({
         particleCount: 80,
@@ -164,9 +175,17 @@ export default function Login() {
         origin: { y: 0.6 },
         colors: ["#f23c5d", "#1a1a1a"]
       });
+
       // Redirect to protected onboarding workspace
       navigate("/onboarding");
-    }, 1200);
+    } catch (error: any) {
+      setIsLoading(false);
+      toast({
+        title: authMode === "signin" ? "Login Failed" : "Signup Failed",
+        description: error.message || "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleGoogleSignIn = () => {
@@ -174,19 +193,10 @@ export default function Login() {
 
     const google = (window as any).google;
     if (typeof google === "undefined" || !google.accounts) {
-      console.warn("Google Identity Services not loaded yet. Falling back to simulated login.");
-      // Fallback if script not loaded yet
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        confetti({
-          particleCount: 80,
-          spread: 60,
-          origin: { y: 0.6 },
-          colors: ["#f23c5d", "#1a1a1a"]
-        });
-        navigate("/onboarding");
-      }, 1000);
+      toast({
+        title: "Google Sign-In Loading",
+        description: "Google Identity Services are initializing. Please try again in a few seconds.",
+      });
       return;
     }
 
@@ -194,20 +204,39 @@ export default function Login() {
       const client = google.accounts.oauth2.initTokenClient({
         client_id: "137235712014-et2q796j1m13efh3qacdlkdbom3o11b4.apps.googleusercontent.com",
         scope: "email profile openid",
-        callback: (response: any) => {
+        callback: async (response: any) => {
           if (response.error) {
             console.error("Google sign-in error:", response.error);
+            toast({
+              title: "Google sign-in failed",
+              description: "Unable to authenticate with Google. Please try again.",
+              variant: "destructive"
+            });
+            setIsLoading(false);
             return;
           }
           if (response.access_token) {
             setIsLoading(true);
-            confetti({
-              particleCount: 80,
-              spread: 60,
-              origin: { y: 0.6 },
-              colors: ["#f23c5d", "#1a1a1a"]
-            });
-            navigate("/onboarding");
+            try {
+              const res = await api.auth.googleLogin(response.access_token);
+              localStorage.setItem("outly_token", res.token);
+              localStorage.setItem("outly_premium_user", String(res.user.plan === "pro"));
+              confetti({
+                particleCount: 80,
+                spread: 60,
+                origin: { y: 0.6 },
+                colors: ["#f23c5d", "#1a1a1a"]
+              });
+              navigate("/onboarding");
+            } catch (err: any) {
+              console.error("Google login backend error:", err);
+              toast({
+                title: "Google sign-in failed",
+                description: err.message || "Unable to sign in with Google.",
+                variant: "destructive"
+              });
+              setIsLoading(false);
+            }
           }
         },
       });
@@ -334,7 +363,7 @@ export default function Login() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full bg-white border border-outly-dark/15 hover:border-outly-dark/35 py-3.5 px-7 rounded-full text-[14px] font-semibold text-outly-dark flex items-center justify-center gap-3 select-none mb-6 transition-all duration-200 hover:bg-outly-cream/15 active:bg-outly-cream/30 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="w-full bg-white border border-outly-dark/15 hover:border-outly-dark/35 py-3.5 px-7 rounded-full font-sans text-[16px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none mb-6 transition-all duration-200 hover:bg-outly-dark/5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -436,7 +465,7 @@ export default function Login() {
             {/* Submit Button (Glows and lifts smoothly) */}
             <button
               type="submit"
-              className={`w-full bg-outly-accent text-white py-4 rounded-full text-[14px] font-bold transition-all duration-300 shadow-lg shadow-outly-accent/15 hover:shadow-xl hover:shadow-outly-accent/25 hover:scale-[1.01] active:scale-[0.99] select-none flex items-center justify-center gap-2.5 ${
+              className={`w-full bg-outly-accent text-white py-4 rounded-full font-sans text-[16px] font-medium transition-all duration-200 shadow-lg shadow-outly-accent/15 hover:shadow-xl hover:shadow-outly-accent/25 hover:scale-[1.02] active:scale-[0.98] select-none flex items-center justify-center gap-2.5 ${
                 isLoading ? "opacity-85 pointer-events-none" : ""
               }`}
             >
@@ -460,7 +489,7 @@ export default function Login() {
               No account yet? &bull;{" "}
               <button
                 type="button"
-                className="text-outly-accent hover:underline font-bold transition-colors hover:text-outly-accent/80"
+                className="text-outly-accent hover:underline font-sans text-[16px] font-medium transition-colors hover:text-outly-accent/80"
                 onClick={() => handleToggleAuthMode("signup")}
                 disabled={isLoading}
               >
@@ -472,7 +501,7 @@ export default function Login() {
               Already have an account? &bull;{" "}
               <button
                 type="button"
-                className="text-outly-accent hover:underline font-bold transition-colors hover:text-outly-accent/80"
+                className="text-outly-accent hover:underline font-sans text-[16px] font-medium transition-colors hover:text-outly-accent/80"
                 onClick={() => handleToggleAuthMode("signin")}
                 disabled={isLoading}
               >

@@ -1,10 +1,19 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { api, EvaluationResult } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import PdfViewer from "@/components/PdfViewer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
 import {
   Loader2,
   UploadCloud,
@@ -22,7 +31,8 @@ import {
 
 export default function AtsScorePage() {
   const { toast } = useToast();
-  const [mode, setMode] = useState<"general" | "targeted">("targeted");
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<"general" | "targeted">("general");
   const [resume, setResume] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [jd, setJd] = useState("");
@@ -30,6 +40,9 @@ export default function AtsScorePage() {
   const [parsingFile, setParsingFile] = useState(false);
   const [result, setResult] = useState<EvaluationResult | null>(null);
   const [selectedVaultId, setSelectedVaultId] = useState<string>("custom");
+  const [isDragging, setIsDragging] = useState(false);
+  const [isLimitExceeded, setIsLimitExceeded] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   // Interactive dashboard states
   const [activeCategory, setActiveCategory] = useState<"content" | "format" | "style" | "sections" | "roles">("content");
@@ -88,11 +101,47 @@ export default function AtsScorePage() {
     }
   };
 
-  // Handle file upload
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Fetch current user session to get user specific details
+  const { data: userData } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: api.auth.me,
+    enabled: !!localStorage.getItem("outly_token"),
+  });
 
+  // Load user-specific daily limit status from localStorage
+  useEffect(() => {
+    const userPrefix = userData?.user?.email || "anonymous";
+    const storageKey = `ats_limit_reached_${userPrefix}`;
+    const isPro = userData?.user?.plan === "pro" || localStorage.getItem("outly_premium_user") === "true";
+
+    if (isPro) {
+      setIsLimitExceeded(false);
+    } else {
+      const isLocked = localStorage.getItem(storageKey) === "true";
+      setIsLimitExceeded(isLocked);
+    }
+  }, [userData]);
+
+  // Handle file upload
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processResumeFile(file);
+    }
+  };
+
+  const processResumeFile = async (file: File) => {
     const ext = file.name.split(".").pop()?.toLowerCase();
     if (ext !== "txt" && ext !== "pdf" && ext !== "docx") {
       toast({
@@ -109,10 +158,6 @@ export default function AtsScorePage() {
       const data = await api.ats.parseFile(file);
       setResume(data.content);
       setSelectedVaultId("custom");
-      toast({
-        title: "Document Loaded",
-        description: `Successfully extracted text from ${file.name}.`,
-      });
       // Automatically trigger evaluation scan after parsing
       triggerAtsScan(data.content);
     } catch (err) {
@@ -129,6 +174,13 @@ export default function AtsScorePage() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processResumeFile(file);
+    }
+  };
+
   // Trigger evaluation scan with loader simulation
   const triggerAtsScan = async (resumeText: string) => {
     if (!resumeText.trim()) return;
@@ -141,39 +193,50 @@ export default function AtsScorePage() {
       return;
     }
 
-    setShowScanLoader(true);
-    setScanProgress(0);
-    setScanStatus("Extracting plain text structures...");
-
-    // Progress bar animation triggers
-    let progress = 0;
-    const stages = [
-      { max: 25, text: "Extracting plain text metadata..." },
-      { max: 55, text: "Running 27 universal ATS validation audits..." },
-      { max: 80, text: "Calculating job alignment vector matches..." },
-      { max: 100, text: "Formulating actionable layout suggestions..." }
+    const loadingStatuses = [
+      "Extracting text profile & layout structure...",
+      "Analyzing semantic density and content quality...",
+      "Running 27 universal ATS compatibility checks...",
+      "Scanning experience timeline for quantified metrics...",
+      "Verifying font, spacing, and section margins...",
+      "Comparing keyword match vectors with hiring systems...",
+      "Synthesizing actionable formatting recommendations..."
     ];
 
-    const timer = setInterval(() => {
-      progress += 4;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(timer);
+    setShowScanLoader(true);
+    setScanProgress(0);
+    
+    let statusIndex = 0;
+    setScanStatus(loadingStatuses[0]);
+
+    // Interval to cycle through statuses continuously
+    const statusTimer = setInterval(() => {
+      statusIndex = (statusIndex + 1) % loadingStatuses.length;
+      setScanStatus(loadingStatuses[statusIndex]);
+    }, 1200);
+
+    // Progress bar animation triggers (gradually increment and hold at 98)
+    let progress = 0;
+    const progressTimer = setInterval(() => {
+      progress += Math.floor(Math.random() * 5) + 2; // increment by 2-6%
+      if (progress >= 98) {
+        progress = 98;
       }
       setScanProgress(progress);
-      
-      const currentStage = stages.find(s => progress <= s.max);
-      if (currentStage) {
-        setScanStatus(currentStage.text);
-      }
-    }, 45);
+    }, 150);
 
     setLoading(true);
     try {
       const data = await api.ats.score(resumeText, mode === "targeted" ? jd : "");
       
-      // Wait for progress animation to hit 100
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      // Stop the timers
+      clearInterval(statusTimer);
+      clearInterval(progressTimer);
+
+      // Complete the progress bar cleanly
+      setScanProgress(100);
+      setScanStatus("Finalizing ATS scoring report...");
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       setResult(data);
       toast({
@@ -181,14 +244,26 @@ export default function AtsScorePage() {
         description: `ATS Match Score: ${data.score}/100`,
       });
     } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Evaluation Failed",
-        description: String(err),
-      });
+      clearInterval(statusTimer);
+      clearInterval(progressTimer);
+      
+      const errStr = String(err);
+      const isLimitError = errStr.includes("LIMIT_ATS_EXCEEDED") || errStr.toLowerCase().includes("limit reached");
+      
+      if (isLimitError) {
+        setIsLimitExceeded(true);
+        setShowLimitModal(true);
+        const userPrefix = userData?.user?.email || "anonymous";
+        localStorage.setItem(`ats_limit_reached_${userPrefix}`, "true");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Evaluation Failed",
+          description: errStr,
+        });
+      }
       setResult(null);
     } finally {
-      clearInterval(timer);
       setShowScanLoader(false);
       setLoading(false);
     }
@@ -260,13 +335,13 @@ export default function AtsScorePage() {
   const getBadgeColorClass = (scoreNum: number) => {
     if (scoreNum >= 75) return "bg-success/10 text-success border-success/15";
     if (scoreNum >= 50) return "bg-warning/10 text-warning border-warning/15";
-    return "bg-destructive/10 text-destructive border-destructive/15";
+    return "bg-amber-500/10 text-amber-700 border-amber-550/15";
   };
 
   const getScoreDialColorClass = (scoreNum: number) => {
     if (scoreNum >= 75) return "stroke-success text-success";
     if (scoreNum >= 50) return "stroke-warning text-warning";
-    return "stroke-destructive text-destructive";
+    return "stroke-amber-500 text-amber-500";
   };
 
   const getMissingKeywordsArray = (kw: any): string[] => {
@@ -303,120 +378,103 @@ export default function AtsScorePage() {
             </div>
           )}
 
-          {/* Controls Card: Mode Toggles & Vault Items */}
-          <div className="bg-card border border-border p-4 sm:p-5 rounded-2xl shadow-[var(--shadow-card)] space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider">⚡ Checker Options</span>
-              <span className="text-[9px] font-extrabold bg-outly-accent/10 text-outly-accent px-2 py-0.5 rounded-full uppercase tracking-wider">AI Powered</span>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Mode Switcher Tabs */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-extrabold uppercase text-muted-foreground">Audit Mode</label>
-                <div className="flex rounded-lg bg-muted p-0.5 border border-border text-xs h-9 items-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode("targeted");
-                      setResult(null);
-                    }}
-                    className={`flex-1 py-1.5 rounded-md text-[11px] font-bold transition ${
-                      mode === "targeted"
-                        ? "bg-white text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    🎯 Targeted Match
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode("general");
-                      setResult(null);
-                    }}
-                    className={`flex-1 py-1.5 rounded-md text-[11px] font-bold transition ${
-                      mode === "general"
-                        ? "bg-white text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    🔍 General Audit
-                  </button>
-                </div>
-              </div>
-
-              {/* Vault Resume Selector */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-extrabold uppercase text-muted-foreground">Resume Vault</label>
-                <select
-                  className="w-full bg-background border border-input h-9 text-xs rounded-lg px-2.5 font-bold text-foreground/80 focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
-                  value={selectedVaultId}
-                  onChange={(e) => handleVaultSelect(e.target.value)}
-                >
-                  <option value="custom">📁 Select from Vault...</option>
-                  {resumes.map((r) => (
-                    <option key={r.id} value={String(r.id)}>
-                      💼 {r.label} ({r.filename.split(".").pop()?.toUpperCase()})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Targeted Job Description Input */}
-            {mode === "targeted" && (
-              <div className="space-y-1.5 animate-slide-up pt-1">
-                <label className="text-[10px] font-extrabold uppercase text-muted-foreground block">Target Job Description</label>
-                <Textarea
-                  className="w-full h-24 text-xs p-3 rounded-lg border border-input bg-background placeholder:text-muted-foreground/50 focus-visible:ring-primary leading-relaxed"
-                  placeholder="Paste target job requirements here to match against (e.g., 'Looking for a TypeScript developer with Redis and Docker experience...')"
-                  value={jd}
-                  onChange={(e) => setJd(e.target.value)}
-                />
-              </div>
-            )}
-          </div>
-
           {/* Dynamic Left Box: Shows Dotted Dropzone BEFORE scan, and Resume Viewer AFTER scan */}
           {!result ? (
-            /* Upload Dropzone Box with Dotted Border */
-            <div 
-              onClick={() => document.getElementById("resume-upload-input")?.click()}
-              className="border-2 border-dashed border-success/35 hover:border-success bg-[#fdfaf3]/35 hover:bg-[#fdfaf3]/65 p-8 sm:p-10 text-center rounded-2xl cursor-pointer select-none transition-all duration-200"
-            >
-              <input
-                id="resume-upload-input"
-                type="file"
-                accept=".txt,.pdf,.docx"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <p className="text-[14px] sm:text-[15px] font-bold text-foreground">
-                    Drop your resume here or choose a file.
-                  </p>
-                  <p className="text-[11px] text-muted-foreground font-medium">
-                    PDF & DOCX only. Max 2MB file size.
-                  </p>
-                </div>
-
-                <Button 
-                  type="button"
-                  className="bg-success hover:bg-success/90 text-white text-xs font-bold tracking-wider px-6 py-4 rounded-lg shadow-sm uppercase active:scale-[0.98] transition h-10 shrink-0"
-                >
-                  Upload Your Resume
-                </Button>
-
-                {/* Privacy terms guarantee (as requested) */}
-                <div className="text-muted-foreground/60 text-[11px] font-semibold flex items-center justify-center gap-1.5 pt-1">
-                  <Lock className="w-3.5 h-3.5 shrink-0 text-muted-foreground/40" />
-                  <span>Your resume and website data is completely safe.</span>
+            isLimitExceeded ? (
+              /* Locked upload zone because limit is reached */
+              <div 
+                className="border-2 border-dashed border-border bg-secondary/30 p-8 sm:p-10 text-center rounded-2xl select-none cursor-not-allowed"
+              >
+                <div className="space-y-4 py-2">
+                  <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
+                    <Lock className="w-6 h-6 shrink-0" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="text-[14px] sm:text-[15px] font-bold text-foreground">
+                      Daily Limit Reached (3/3)
+                    </p>
+                    <p className="text-[11px] text-muted-foreground font-medium max-w-xs mx-auto leading-relaxed">
+                      You have checked 3 resumes today. Upgrade to Outly Pro for unlimited scans and deeper semantic matching.
+                    </p>
+                  </div>
+                  <Button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/pricing");
+                    }}
+                    className="bg-outly-accent hover:brightness-110 hover:scale-[1.02] text-white text-xs font-bold tracking-wider px-6 py-4 rounded-full shadow-lg shadow-outly-accent/20 active:scale-[0.98] transition-all h-10 shrink-0 uppercase"
+                  >
+                    Upgrade to Outly Pro
+                  </Button>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* Upload Dropzone Box with Dotted Border - supporting Drag and Drop */
+              <div 
+                onClick={() => document.getElementById("resume-upload-input")?.click()}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed p-8 sm:p-10 text-center rounded-2xl cursor-pointer select-none transition-all duration-200 ${
+                  isDragging 
+                    ? "border-success bg-[#fdfaf3]/80 scale-[1.01]" 
+                    : "border-success/35 hover:border-success bg-[#fdfaf3]/35 hover:bg-[#fdfaf3]/65"
+                }`}
+              >
+                <input
+                  id="resume-upload-input"
+                  type="file"
+                  accept=".txt,.pdf,.docx"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+                
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <p className="text-[14px] sm:text-[15px] font-bold text-foreground">
+                      Drag & drop your resume here, or click to choose a file.
+                    </p>
+                    <p className="text-[11px] text-muted-foreground font-medium">
+                      PDF & DOCX only. Max 2MB file size.
+                    </p>
+                  </div>
+
+                  <Button 
+                    type="button"
+                    className="bg-success hover:bg-success/90 text-white text-xs font-bold tracking-wider px-6 py-4 rounded-lg shadow-sm uppercase active:scale-[0.98] transition h-10 shrink-0"
+                  >
+                    Upload Your Resume
+                  </Button>
+
+                  {/* Inline Vault Resume Selector */}
+                  {resumes.length > 0 && (
+                    <div className="flex flex-col items-center gap-1.5 pt-2 max-w-xs mx-auto" onClick={(e) => e.stopPropagation()}>
+                      <span className="text-[10px] font-extrabold uppercase text-muted-foreground">Or select from Vault</span>
+                      <select
+                        id="vault-select-trigger"
+                        className="bg-white border border-border h-8 text-[11px] rounded-lg px-2 font-bold text-foreground/70 focus:outline-none focus:ring-1 focus:ring-success shadow-sm w-full cursor-pointer hover:border-success/50 transition"
+                        value={selectedVaultId}
+                        onChange={(e) => handleVaultSelect(e.target.value)}
+                      >
+                        <option value="custom">Select a resume...</option>
+                        {resumes.map((r) => (
+                          <option key={r.id} value={String(r.id)}>
+                            {r.label} ({r.filename.split(".").pop()?.toUpperCase()})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Privacy terms guarantee (as requested) */}
+                  <div className="text-muted-foreground/60 text-[11px] font-semibold flex items-center justify-center gap-1.5 pt-1">
+                    <Lock className="w-3.5 h-3.5 shrink-0 text-muted-foreground/40" />
+                    <span>Your resume and website data is completely safe.</span>
+                  </div>
+                </div>
+              </div>
+            )
           ) : (
             /* Resume Preview Workspace (PDF or text block) after scan completes */
             <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-[var(--shadow-card)] flex-1 flex flex-col min-h-[380px] animate-slide-up">
@@ -483,7 +541,7 @@ export default function AtsScorePage() {
           <div className="absolute inset-0 bg-outly-accent/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>
           
           {/* Browser Frame Mockup Container */}
-          <div className="relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-2xl overflow-hidden flex flex-col z-10 select-none">
+          <div className="relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-2xl overflow-hidden flex flex-col z-10 select-none h-[600px]">
             
             {/* Browser Header Bar */}
             <div className="bg-secondary/40 border-b border-border/60 px-4 py-3 flex items-center justify-between">
@@ -500,10 +558,10 @@ export default function AtsScorePage() {
             </div>
 
             {/* Main Score Dashboard Layout */}
-            <div className="grid grid-cols-12 min-h-[420px]">
+            <div className="grid grid-cols-12 flex-1 h-[calc(100%-44px)]">
               
               {/* Left Panel: Score circular dial & category selector buttons (5/12 cols) */}
-              <div className="col-span-5 border-r border-border/60 p-4 bg-secondary/10 flex flex-col justify-between">
+              <div className="col-span-5 border-r border-border/60 p-4 bg-secondary/10 flex flex-col justify-between h-full overflow-y-auto">
                 
                 <div className="space-y-4">
                   <span className="text-[11px] font-bold text-foreground/80 tracking-tight block">Resume Score</span>
@@ -536,7 +594,7 @@ export default function AtsScorePage() {
                         ? "bg-success/10 text-success border border-success/15" 
                         : activeResult.score >= 50 
                           ? "bg-warning/10 text-warning border border-warning/15" 
-                          : "bg-destructive/10 text-destructive border border-destructive/15"
+                          : "bg-amber-500/10 text-amber-700 border border-amber-500/15"
                     }`}>
                       {issuesCount} Issues Found
                     </span>
@@ -599,7 +657,7 @@ export default function AtsScorePage() {
               </div>
 
               {/* Right Panel: Detailed Checklist items of active category (7/12 cols) */}
-              <div className="col-span-7 p-5 bg-white overflow-y-auto max-h-[420px] flex flex-col justify-between text-left">
+              <div className="col-span-7 p-5 bg-white overflow-y-auto h-full flex flex-col justify-between text-left">
                 
                 <div className="space-y-4">
                   {/* Render content dynamically based on active category */}
@@ -634,14 +692,14 @@ export default function AtsScorePage() {
 
                         {/* Keyword gaps (Live/mock data mapped) */}
                         {getMissingKeywordsArray(activeResult.missing_keywords).length > 0 ? (
-                          <div className="flex items-start gap-2.5 bg-destructive/5 border border-destructive/15 p-2.5 rounded-xl">
-                            <AlertTriangle className="w-3.5 h-3.5 text-destructive shrink-0 mt-0.5" />
+                          <div className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/20 p-2.5 rounded-xl">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                             <div>
-                              <span className="block text-[11px] font-bold text-destructive">Keyword Gaps Detected</span>
+                              <span className="block text-[11px] font-bold text-amber-700">Keyword Gaps Detected</span>
                               <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Your CV lacks these core terms required for this domain:</span>
                               <div className="flex flex-wrap gap-1.5 mt-2">
                                 {getMissingKeywordsArray(activeResult.missing_keywords).map((kw, i) => (
-                                  <span key={i} className="text-[9px] font-bold bg-destructive/10 text-destructive px-2 py-0.5 rounded border border-destructive/15">{kw}</span>
+                                  <span key={i} className="text-[9px] font-bold bg-amber-500/10 text-amber-700 px-2 py-0.5 rounded border border-amber-500/20">{kw}</span>
                                 ))}
                               </div>
                             </div>
@@ -762,7 +820,7 @@ export default function AtsScorePage() {
                           {resume.toLowerCase().includes("summary") || resume.toLowerCase().includes("profile") ? (
                             <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
                           ) : (
-                            <span className="text-destructive font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
+                            <span className="text-amber-600 font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
                           )}
                         </div>
                       </div>
@@ -903,6 +961,40 @@ export default function AtsScorePage() {
           </ol>
         </section>
       )}
+
+      {/* Limit Exceeded Dialog Modal */}
+      <Dialog open={showLimitModal} onOpenChange={setShowLimitModal}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-6 font-sans">
+          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+              <Lock className="w-6 h-6 shrink-0" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-foreground">Daily Limit Reached (3/3)</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              Your free tier is limited to 3 ATS checks per day. Upgrade to Outly Pro for unlimited checks, AI resume tailoring, and interview preparation guides.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-6 justify-center">
+            <Button
+              variant="outline"
+              onClick={() => setShowLimitModal(false)}
+              className="w-full sm:w-auto border-border text-xs font-medium h-10 rounded-full hover:bg-secondary active:scale-[0.98] transition"
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                setShowLimitModal(false);
+                navigate("/pricing");
+              }}
+              className="w-full sm:w-auto bg-outly-accent hover:brightness-110 hover:scale-[1.02] text-white text-xs font-medium h-10 rounded-full shadow-lg shadow-outly-accent/20 active:scale-[0.98] transition-all"
+            >
+              Upgrade to Pro
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

@@ -22,16 +22,16 @@ function recordSend() {
   rateLimitWindow.push(Date.now());
 }
 
-export async function sendWhatsApp(message: string, isCritical = false): Promise<boolean> {
-  const toNumber = getWhatsAppNumber();
+export async function sendWhatsApp(message: string, userId: string, isCritical = false): Promise<boolean> {
+  const toNumber = await getWhatsAppNumber(userId);
   if (!env.TWILIO_ACCOUNT_SID || !env.TWILIO_AUTH_TOKEN || !toNumber) {
-    logger.warn("WhatsApp not configured", { source: "whatsapp" });
+    logger.warn("WhatsApp not configured", { source: "whatsapp", userId });
     return false;
   }
 
   if (!isCritical && !canSend()) {
-    logger.warn("WhatsApp rate limit reached", { source: "whatsapp" });
-    notificationsQueries.insert("rate_limited", message, "skipped");
+    logger.warn("WhatsApp rate limit reached", { source: "whatsapp", userId });
+    await notificationsQueries.insert(userId, "rate_limited", message, "skipped");
     return false;
   }
 
@@ -45,16 +45,17 @@ export async function sendWhatsApp(message: string, isCritical = false): Promise
       body: message,
     });
     recordSend();
-    notificationsQueries.insert("whatsapp", message, "sent");
-    logger.info("WhatsApp sent", { message: message.slice(0, 50), source: "whatsapp" });
+    await notificationsQueries.insert(userId, "whatsapp", message, "sent");
+    logger.info("WhatsApp sent", { message: message.slice(0, 50), source: "whatsapp", userId });
     return true;
   } catch (e) {
-    logger.error("WhatsApp failed", { error: String(e), source: "whatsapp" });
-    notificationsQueries.insert("whatsapp", message, "failed");
+    logger.error("WhatsApp failed", { error: String(e), source: "whatsapp", userId });
+    await notificationsQueries.insert(userId, "whatsapp", message, "failed");
     return false;
   }
 }
 
-export function isWhatsAppConfigured(): boolean {
-  return !!(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && getWhatsAppNumber());
+export async function isWhatsAppConfigured(userId?: string): Promise<boolean> {
+  const toNumber = userId ? await getWhatsAppNumber(userId) : env.YOUR_WHATSAPP_NUMBER;
+  return !!(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && toNumber);
 }

@@ -1,41 +1,55 @@
-import { Router } from "express";
-import { getDb } from "../../db/queries.js";
+import { Router, Response } from "express";
+import { Company as CompanyModel } from "../../db/models.js";
 import { logger } from "../../lib/logger.js";
+import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 
 const router = Router();
 
-router.get("/", (req, res) => {
+// Protect all analytics routes
+router.use(requireAuth);
+
+router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const db = getDb();
+    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    const userId = req.user.id;
 
-    // 1. Core database stats
-    const totalSentRes = db.prepare("SELECT COUNT(*) as count FROM companies WHERE sent_at IS NOT NULL").get() as any;
-    const totalRepliesRes = db.prepare("SELECT COUNT(*) as count FROM companies WHERE status = 'replied'").get() as any;
-    const pendingRes = db.prepare("SELECT COUNT(*) as count FROM companies WHERE status = 'pending'").get() as any;
-    const approvedRes = db.prepare("SELECT COUNT(*) as count FROM companies WHERE status = 'approved'").get() as any;
+    // 1. Core database stats using Mongoose
+    const [totalSent, totalReplies, pending, approved] = await Promise.all([
+      CompanyModel.countDocuments({ userId, sent_at: { $ne: null } }),
+      CompanyModel.countDocuments({ userId, status: "replied" }),
+      CompanyModel.countDocuments({ userId, status: "pending" }),
+      CompanyModel.countDocuments({ userId, status: "approved" })
+    ]);
 
-    const totalSent = Number(totalSentRes?.count ?? 0);
-    const totalReplies = Number(totalRepliesRes?.count ?? 0);
-    const pending = Number(pendingRes?.count ?? 0);
-    const approved = Number(approvedRes?.count ?? 0);
+    // 2. Avg Reply Delay (in hours)
+    const companiesWithReplies = await CompanyModel.find({
+      userId,
+      status: "replied",
+      reply_detected_at: { $ne: null },
+      sent_at: { $ne: null }
+    });
 
-    // 2. Avg Reply Delay (in days/hours)
-    const avgDelayRes = db.prepare(`
-      SELECT AVG(julianday(reply_detected_at) - julianday(sent_at)) as avg_delay 
-      FROM companies 
-      WHERE status = 'replied' AND reply_detected_at IS NOT NULL AND sent_at IS NOT NULL
-    `).get() as any;
-    
     let avgReplyDelayHours = 24.5; // default fallback
-    if (avgDelayRes?.avg_delay !== null && avgDelayRes?.avg_delay !== undefined) {
-      avgReplyDelayHours = Math.round(Number(avgDelayRes.avg_delay) * 24 * 10) / 10;
+    if (companiesWithReplies.length > 0) {
+      let totalDelayMs = 0;
+      for (const c of companiesWithReplies) {
+        if (c.reply_detected_at && c.sent_at) {
+          const delay = new Date(c.reply_detected_at).getTime() - new Date(c.sent_at).getTime();
+          totalDelayMs += delay;
+        }
+      }
+      avgReplyDelayHours = Math.round((totalDelayMs / (1000 * 60 * 60 * companiesWithReplies.length)) * 10) / 10;
     }
 
     // 3. Open rate by company (real data from DB + simulated open rates)
-    const companiesList = db.prepare("SELECT id, company_name, status FROM companies WHERE sent_at IS NOT NULL LIMIT 10").all() as any[];
-    const openRateByCompany = companiesList.map((c) => {
-      // Deterministic simulation of open status based on company ID/status
-      const opened = c.status === "replied" || (c.id % 3 !== 0);
+    const companiesList = await CompanyModel.find({
+      userId,
+      sent_at: { $ne: null }
+    }).limit(10);
+
+    const openRateByCompany = companiesList.map((c, idx) => {
+      // Deterministic simulation of open status based on index/status
+      const opened = c.status === "replied" || (idx % 3 !== 0);
       return {
         company: c.company_name,
         sent: 1,
@@ -56,7 +70,6 @@ router.get("/", (req, res) => {
     }
 
     // 4. Response rate by email type (formal/casual/short)
-    // Scale rates using actual reply counts if available
     const baseShortReplies = Math.round(totalReplies * 0.5);
     const baseCasualReplies = Math.round(totalReplies * 0.3);
     const baseFormalReplies = totalReplies - baseShortReplies - baseCasualReplies;
@@ -104,7 +117,7 @@ router.get("/", (req, res) => {
       heatmap
     });
   } catch (error) {
-    logger.error("Failed to compile analytics metrics", { error: String(error), source: "analytics" });
+    logger.error("Failed to compile analytics metrics", { error: String(error), userId: req.user?.id, source: "analytics" });
     res.status(500).json({ error: String(error) });
   }
 });

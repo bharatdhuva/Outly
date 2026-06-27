@@ -1,7 +1,10 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
+import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
+import { checkAtsLimit } from "../../middleware/limits.js";
+import { activityQueries } from "../../db/queries.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -12,6 +15,9 @@ const { PDFParse } = require("pdf-parse");
 const mammoth = require("mammoth");
 
 const router = Router();
+
+// Protect all ATS routes with authentication
+router.use(requireAuth);
 const upload = multer({ dest: path.join(env.DATA_DIR, "uploads") });
 
 // Helper to extract content wrapped in custom tags
@@ -283,7 +289,7 @@ ${resume}`;
 
 
 // POST parse uploaded file to plain text
-router.post("/parse-file", upload.single("file"), async (req, res) => {
+router.post("/parse-file", upload.single("file"), async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded." });
   }
@@ -324,11 +330,22 @@ router.post("/parse-file", upload.single("file"), async (req, res) => {
 });
 
 // POST score resume against job description
-router.post("/score", async (req, res) => {
+router.post("/score", checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
   const { resume, jd } = req.body;
 
   if (!resume) {
     return res.status(400).json({ error: "Resume is required." });
+  }
+
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // Log ATS check activity
+  try {
+    await activityQueries.add(req.user.id, "ats_check", "Ran ATS resume score check");
+  } catch (err) {
+    logger.error("Failed to log ATS check activity", { error: String(err), userId: req.user.id });
   }
 
   // Try Gemini first
@@ -686,7 +703,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
 }
 
 // POST tailor resume to job description
-router.post("/tailor", async (req, res) => {
+router.post("/tailor", checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
   const { resume, jd } = req.body;
 
   if (!resume) {
@@ -694,6 +711,17 @@ router.post("/tailor", async (req, res) => {
   }
   if (!jd) {
     return res.status(400).json({ error: "Job description is required." });
+  }
+
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // Log ATS check activity
+  try {
+    await activityQueries.add(req.user.id, "ats_check", "Tailored resume to job description");
+  } catch (err) {
+    logger.error("Failed to log ATS check activity for tailoring", { error: String(err), userId: req.user.id });
   }
 
   const geminiPrompt = `You are an expert resume writer, professional editor, and career coach.

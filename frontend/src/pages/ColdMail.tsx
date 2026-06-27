@@ -68,6 +68,7 @@ export default function ColdMailPage() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  const [mainMode, setMainMode] = useState<"manual" | "csv">("manual");
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState<"formal" | "casual" | "short">("formal");
   const [showFollowUps, setShowFollowUps] = useState(false);
@@ -85,7 +86,6 @@ export default function ColdMailPage() {
     sender_location: "",
     personalization_hook: "",
   });
-  const [generateProvider, setGenerateProvider] = useState<"gemini" | "grok">("gemini");
   const [loadingId, setLoadingId] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<Company>>({});
@@ -145,7 +145,7 @@ export default function ColdMailPage() {
   });
 
   const generateMutation = useMutation({
-    mutationFn: (provider: "gemini" | "grok") => api.coldmail.generateAll(provider),
+    mutationFn: () => api.coldmail.generateAll("grok"),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["coldmail"] });
       toast.success(`Generated ${data.generated} mails`);
@@ -288,195 +288,218 @@ export default function ColdMailPage() {
       </AlertDialog>
 
       <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Cold Mail Manager
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            AI-personalized outreach pipeline
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2 xl:justify-end">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <Dialog open={isAdding} onOpenChange={setIsAdding}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Plus className="h-3.5 w-3.5" />
-                Add Manually
+        {/* Top Header */}
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              Cold Mail Manager
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              AI-personalized outreach & company application pipeline
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <Dialog open={isAdding} onOpenChange={setIsAdding}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2 border-border shadow-sm">
+                  <Plus className="h-3.5 w-3.5 text-primary" />
+                  Add Lead Manually
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Lead</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleCreate} className="space-y-4 py-2">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Company Name</Label>
+                      <Input
+                        required
+                        placeholder="e.g. Resilient Tech"
+                        value={newCompany.company_name}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, company_name: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Website (optional)</Label>
+                      <Input
+                        type="url"
+                        placeholder="https://..."
+                        value={newCompany.website_url || ""}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, website_url: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Target Person Name</Label>
+                      <Input
+                        placeholder="Sagar Vora"
+                        value={newCompany.target_person_name || ""}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, target_person_name: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Target Email</Label>
+                      <Input
+                        required
+                        type="email"
+                        placeholder="sagar@resilient.tech"
+                        value={newCompany.hr_email}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, hr_email: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Target Role</Label>
+                      <Input
+                        placeholder="Managing Partner"
+                        value={newCompany.target_person_role || ""}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, target_person_role: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Role You Are Applying For</Label>
+                      <Input
+                        placeholder="Full Stack Developer"
+                        value={newCompany.role}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, role: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Personalization Hook (Mental Note)</Label>
+                    <Textarea
+                      placeholder="e.g. They are ERPNext partners and building India Compliance app."
+                      value={newCompany.personalization_hook || ""}
+                      onChange={(e) =>
+                        setNewCompany({ ...newCompany, personalization_hook: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>My Name</Label>
+                      <Input
+                        value={newCompany.sender_name || ""}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, sender_name: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>My Location</Label>
+                      <Input
+                        value={newCompany.sender_location || ""}
+                        onChange={(e) =>
+                          setNewCompany({ ...newCompany, sender_location: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      onClick={handleCreateClick}
+                      disabled={createMutation.isPending}
+                    >
+                      {createMutation.isPending ? "Adding..." : "Add Lead"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            {mainMode === "manual" && (
+              <Button
+                size="sm"
+                className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+                onClick={() => generateMutation.mutate()}
+                disabled={generateMutation.isPending}
+              >
+                {generateMutation.isPending ? (
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
+                {generateMutation.isPending ? "Generating Mails..." : "Auto-Generate Emails"}
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Add New Lead</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreate} className="space-y-4 py-2">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Company Name</Label>
-                    <Input
-                      required
-                      placeholder="e.g. Resilient Tech"
-                      value={newCompany.company_name}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, company_name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Website (optional)</Label>
-                    <Input
-                      type="url"
-                      placeholder="https://..."
-                      value={newCompany.website_url || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, website_url: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
+            )}
+          </div>
+        </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Target Person Name</Label>
-                    <Input
-                      placeholder="Sagar Vora"
-                      value={newCompany.target_person_name || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, target_person_name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Target Email</Label>
-                    <Input
-                      required
-                      type="email"
-                      placeholder="sagar@resilient.tech"
-                      value={newCompany.hr_email}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, hr_email: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Target Role</Label>
-                    <Input
-                      placeholder="Managing Partner"
-                      value={newCompany.target_person_role || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, target_person_role: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Role You Are Applying For</Label>
-                    <Input
-                      placeholder="Full Stack Developer"
-                      value={newCompany.role}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, role: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Personalization Hook (Mental Note)</Label>
-                  <Textarea
-                    placeholder="e.g. They are ERPNext partners and building India Compliance app."
-                    value={newCompany.personalization_hook || ""}
-                    onChange={(e) =>
-                      setNewCompany({ ...newCompany, personalization_hook: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>My Name</Label>
-                    <Input
-                      value={newCompany.sender_name || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, sender_name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>My Location</Label>
-                    <Input
-                      value={newCompany.sender_location || ""}
-                      onChange={(e) =>
-                        setNewCompany({ ...newCompany, sender_location: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    onClick={handleCreateClick}
-                    disabled={createMutation.isPending}
-                  >
-                    {createMutation.isPending ? "Adding..." : "Add Lead"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadMutation.isPending}
+        {/* Mode Switcher Navigation */}
+        <div className="flex border-b border-border">
+          <button
+            onClick={() => setMainMode("manual")}
+            className={`pb-3 px-4 text-sm font-semibold transition-all relative ${
+              mainMode === "manual"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
-            <Upload className="h-3.5 w-3.5" />
-            Upload CSV
-          </Button>
-          <div className="flex rounded-md border border-border overflow-hidden">
-            <Button
-              size="sm"
-              variant="ghost"
-              className={`rounded-none border-r border-border gap-2 ${generateProvider === "gemini" ? "bg-accent" : ""}`}
-              onClick={() => setGenerateProvider("gemini")}
-            >
-              Gemini
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className={`rounded-none gap-2 ${generateProvider === "grok" ? "bg-accent" : ""}`}
-              onClick={() => setGenerateProvider("grok")}
-            >
-              Groq
+            Manual Outreach
+          </button>
+          <button
+            onClick={() => setMainMode("csv")}
+            className={`pb-3 px-4 text-sm font-semibold transition-all flex items-center gap-2 relative ${
+              mainMode === "csv"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span>CSV Bulk Import</span>
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">
+              Coming Soon
+            </span>
+          </button>
+        </div>
+
+        {mainMode === "csv" ? (
+          <div className="rounded-2xl border border-border bg-card p-12 text-center max-w-xl mx-auto my-8 shadow-sm">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 mb-4 border border-amber-500/20">
+              <Upload className="h-8 w-8" />
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 text-xs font-semibold mb-3 border border-amber-500/20">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Feature In Development</span>
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">CSV Bulk Outreach (Coming Soon)</h3>
+            <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed mb-6">
+              Automated CSV bulk import and multi-company campaign scheduling is coming soon. Use Manual Outreach to manage and personalize your leads.
+            </p>
+            <Button disabled variant="outline" className="gap-2 cursor-not-allowed opacity-60">
+              <Upload className="h-4 w-4" /> Upload CSV (Locked)
             </Button>
           </div>
-          <Button
-            size="sm"
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={() => generateMutation.mutate(generateProvider)}
-            disabled={generateMutation.isPending}
-          >
-            {generateMutation.isPending ? (
-              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="h-3.5 w-3.5" />
-            )}
-            {generateMutation.isPending ? "Generating..." : `Generate All (${generateProvider})`}
-          </Button>
-        </div>
-      </div>
+        ) : (
+          <>
 
       {/* Stats row */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -896,44 +919,14 @@ export default function ColdMailPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="flex-1 gap-2 h-10 shadow-lg shadow-primary/10"
-                          disabled={loadingId === selectedCompany.id}
-                          onClick={() => {
-                            setLoadingId(selectedCompany.id);
-                            api.coldmail.scrape(selectedCompany.id).then(() => {
-                              api.coldmail.generate(selectedCompany.id, "gemini").then(() => {
-                                queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                                toast.success("Mail generated with Gemini");
-                                setLoadingId(null);
-                              }).catch((e) => {
-                                toast.error(String(e));
-                                queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                                setLoadingId(null);
-                              });
-                            }).catch((e) => {
-                              toast.error(String(e));
-                              setLoadingId(null);
-                            });
-                          }}
-                        >
-                          {loadingId === selectedCompany.id ? (
-                            <RefreshCw className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Sparkles className="h-4 w-4" />
-                          )}
-                          Gemini
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 gap-2 h-10 shadow-lg shadow-info/10"
+                          className="flex-1 gap-2 h-10 border-primary/30 hover:bg-primary/5 text-foreground font-semibold"
                           disabled={loadingId === selectedCompany.id}
                           onClick={() => {
                             setLoadingId(selectedCompany.id);
                             api.coldmail.scrape(selectedCompany.id).then(() => {
                               api.coldmail.generate(selectedCompany.id, "grok").then(() => {
                                 queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                                toast.success("Mail generated with Grok");
+                                toast.success("Mail generated successfully");
                                 setLoadingId(null);
                               }).catch((e) => {
                                 toast.error(String(e));
@@ -949,9 +942,9 @@ export default function ColdMailPage() {
                           {loadingId === selectedCompany.id ? (
                             <RefreshCw className="h-4 w-4 animate-spin" />
                           ) : (
-                            <Sparkles className="h-4 w-4" />
+                            <Sparkles className="h-4 w-4 text-primary" />
                           )}
-                          Groq
+                          Auto-Generate Mail
                         </Button>
                       </div>
                     )}
@@ -1118,6 +1111,8 @@ export default function ColdMailPage() {
           )}
         </div>
       </div>
+      </>
+      )}
       </div>
     </>
   );

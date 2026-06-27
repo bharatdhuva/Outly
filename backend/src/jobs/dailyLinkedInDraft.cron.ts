@@ -3,6 +3,7 @@ import { env } from "../config/env.js";
 import { fetchAllNews } from "../automation/news/fetcher.js";
 import { generateLinkedInDraft } from "../automation/news/contentGenerator.js";
 import { postQueries, settingsQueries } from "../db/queries.js";
+import { User as UserModel } from "../db/models.js";
 import { sendWhatsApp } from "../notifications/whatsapp.js";
 import { logger } from "../lib/logger.js";
 
@@ -16,11 +17,11 @@ export function scheduleDailyLinkedInDraft(): void {
   const cronExpr = process.env.DAILY_LINKEDIN_DRAFT_CRON ?? "30 7 * * *"; // 7:30 AM so draft is ready before 8 AM
   
   cron.schedule(cronExpr, async () => {
-    const enabled = settingsQueries.get("daily_linkedin_draft_enabled");
-    if (enabled === "false") return;
-
     try {
-      logger.info("Generating daily LinkedIn draft...", { source: "cron" });
+      const users = await UserModel.find();
+      if (users.length === 0) return;
+
+      logger.info(`Running daily LinkedIn draft generation for ${users.length} users...`, { source: "cron" });
       
       const news = await fetchAllNews();
       if (news.length === 0) {
@@ -28,21 +29,33 @@ export function scheduleDailyLinkedInDraft(): void {
         return;
       }
 
-      const content = await generateLinkedInDraft(news);
-      
-      const post = postQueries.insert({
-        content,
-        news_sources: JSON.stringify(news.map((n) => ({ title: n.title, url: n.url, source: n.source }))),
-        status: "draft",
-        posted_at: null,
-        linkedin_post_url: null,
-      });
-      const postId = Number((post as { lastInsertRowid: number }).lastInsertRowid);
+      for (const user of users) {
+        const userId = user._id.toString();
+        const enabled = await settingsQueries.get(userId, "daily_linkedin_draft_enabled");
+        if (enabled === "false") continue;
 
-      // Light WhatsApp notification
-      await sendWhatsApp("🔵 Aaj ka LinkedIn draft ready hai! Outly dashboard check karo 📱");
+        try {
+          const voiceProfile = await settingsQueries.get(userId, "linkedin_voice_profile");
+          const voiceEnabled = (await settingsQueries.get(userId, "linkedin_voice_enabled")) === "true";
 
-      logger.info("Daily LinkedIn draft generated and saved to DB", { source: "cron", postId });
+          const content = await generateLinkedInDraft(news, voiceProfile, voiceEnabled);
+          
+          const post = await postQueries.insert(userId, {
+            content,
+            news_sources: JSON.stringify(news.map((n) => ({ title: n.title, url: n.url, source: n.source }))),
+            status: "draft",
+            posted_at: null,
+            linkedin_post_url: null,
+          });
+
+          // Light WhatsApp notification
+          await sendWhatsApp("🔵 Aaj ka LinkedIn draft ready hai! Outly dashboard check karo 📱", userId);
+
+          logger.info("Daily LinkedIn draft generated and saved to DB", { source: "cron", postId: post.id, userId });
+        } catch (err) {
+          logger.error("Failed to generate LinkedIn draft for user", { error: String(err), userId, source: "cron" });
+        }
+      }
     } catch (e) {
       logger.error("Daily LinkedIn draft cron failed", { error: String(e), source: "cron" });
     }

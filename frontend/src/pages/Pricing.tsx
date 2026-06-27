@@ -8,9 +8,15 @@ import logoTransparent from "../assets/brand/logo_transparent.png";
 export default function Pricing() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [currency, setCurrency] = useState<"INR" | "USD">("INR");
   const [timeLeft, setTimeLeft] = useState("");
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("outly_premium_user") === "true");
+
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap";
+    document.head.appendChild(link);
+  }, []);
 
   useEffect(() => {
     // 3 days in milliseconds
@@ -85,7 +91,7 @@ export default function Pricing() {
       return;
     }
 
-    const amountInPaise = currency === "INR" ? 4900 : 8000; // ₹49 or $0.99 equivalent (~₹80)
+    const amountInPaise = 4900; // ₹49 launch offer
 
     const options = {
       key: "rzp_test_mockkey12345",
@@ -172,39 +178,48 @@ export default function Pricing() {
   };
 
   return (
-    <div className="flex-1 py-6 px-4 max-w-5xl mx-auto flex flex-col items-center">
+    <div className="flex-1 py-4 md:py-6 px-4 max-w-5xl mx-auto flex flex-col items-center justify-center font-['Rubik',sans-serif]">
 
+      {/* Page Header - Landing Page Hero Style */}
+      <div className="text-center max-w-2xl mb-6 md:mb-8 select-none flex flex-col items-center">
+        <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-3 text-foreground font-['Rubik',sans-serif]">
+          Outly Cloud <span className="italic-serif text-outly-accent font-normal">Pricing</span>
+        </h1>
+        <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+          Choose the right plan for your job search. Run in the cloud with top speed and zero configuration.
+        </p>
+      </div>
 
       {/* Pricing Cards Grid */}
-      <div className="grid md:grid-cols-2 gap-10 items-stretch w-full max-w-4xl">
+      <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-stretch w-full max-w-4xl">
 
         {/* Outly Free Card */}
-        <div className="bg-white rounded-[24px] p-6 shadow-sm border border-border flex flex-col hover:border-outly-accent/10 transition-all duration-300">
+        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-border flex flex-col hover:border-outly-accent/10 transition-all duration-300">
           <div className="mb-4">
             <span className="bg-muted text-muted-foreground text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">YOUR DATA IS OUR KEY</span>
           </div>
-          <h3 className="text-2xl font-medium mb-2 tracking-tight">Outly Free</h3>
-          <p className="text-[12px] text-muted-foreground mb-5">Complete privacy. Your data stays yours, and is never sold.</p>
+          <h3 className="text-2xl md:text-3xl font-medium mb-2 tracking-tight font-['Rubik',sans-serif]">Outly <span className="italic-serif text-muted-foreground font-normal">Free</span></h3>
+          <p className="text-xs text-muted-foreground mb-6">Complete privacy. Your data stays yours, and is never sold.</p>
 
-          <div className="flex items-baseline gap-2 mb-5 select-none">
-            <span className="text-5xl font-medium">₹0</span>
+          <div className="flex items-baseline gap-2 mb-6 select-none">
+            <span className="text-5xl md:text-6xl font-bold">₹0</span>
             <span className="text-muted-foreground text-xs font-medium">forever — you only pay your AI provider</span>
           </div>
 
-          <ul className="space-y-3 mb-6 flex-1">
+          <ul className="space-y-3 mb-8 flex-1">
             <li className="flex items-center gap-3 text-xs text-foreground/80 font-semibold">
               <Check className="w-4 h-4 text-green-500 shrink-0" strokeWidth={3} />
               Basic Resume ATS Score checking
             </li>
             <li className="flex items-center gap-3 text-xs text-foreground/30 font-semibold line-through">
               <svg className="w-4 h-4 text-foreground/20 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
               Unlimited resume tailoring &amp; optimization
             </li>
             <li className="flex items-center gap-3 text-xs text-foreground/30 font-semibold line-through">
               <svg className="w-4 h-4 text-foreground/20 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
               Job search, tracking &amp; AI cold mail writing
             </li>
@@ -219,7 +234,7 @@ export default function Pricing() {
         </div>
 
         {/* Outly Cloud Card (Midnight Navy Slate) */}
-        <div className="bg-foreground rounded-[24px] p-6 text-white flex flex-col relative overflow-hidden shadow-xl shadow-outly-accent/5 border border-outly-accent/20 hover:shadow-outly-accent/15 transition-all duration-500">
+        <div className="bg-foreground rounded-3xl p-6 md:p-8 text-white flex flex-col relative overflow-hidden shadow-xl shadow-outly-accent/5 border border-outly-accent/20 hover:shadow-outly-accent/15 transition-all duration-500">
           <div className="mb-4 flex flex-wrap gap-2 items-center justify-between">
             <span className="bg-outly-accent text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">SPECIAL LAUNCH OFFER</span>
             <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] font-bold px-3 py-1.5 rounded-full tracking-wider font-mono flex items-center gap-1.5">
@@ -228,22 +243,22 @@ export default function Pricing() {
             </span>
           </div>
 
-          <h3 className="text-2xl font-medium mb-2 tracking-tight">Outly Cloud</h3>
-          <p className="text-[12px] text-white/60 mb-5">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
+          <h3 className="text-2xl md:text-3xl font-medium mb-2 tracking-tight font-['Rubik',sans-serif]">Outly <span className="italic-serif text-outly-accent font-normal">Cloud</span></h3>
+          <p className="text-xs text-white/60 mb-6">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
 
-          <div className="flex items-baseline gap-2 mb-5 select-none">
-            <span className="text-5xl font-medium">
-              {currency === "INR" ? "₹49" : "$0.99"}
+          <div className="flex items-baseline gap-2.5 mb-6 select-none">
+            <span className="text-5xl md:text-6xl font-bold">
+              ₹49
             </span>
-            <span className="text-white/30 text-lg font-medium line-through leading-none">
-              {currency === "INR" ? "₹299" : "$4.99"}
+            <span className="text-white/30 text-base md:text-lg font-medium line-through leading-none">
+              ₹299
             </span>
             <span className="text-white/60 text-xs font-medium">
-               one-time payment
+              one-time payment
             </span>
           </div>
 
-          <ul className="space-y-3 mb-6 flex-1">
+          <ul className="space-y-3 mb-8 flex-1">
             <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
               <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
               Unlimited Resume Tailoring &amp; ATS Score Checking
@@ -273,99 +288,12 @@ export default function Pricing() {
             </div>
           ) : (
             <button
-              onClick={handleButtonClick}
-              className="premium-upgrade-btn w-full py-3 px-5 gap-3 text-[#0b132b] flex items-center justify-center rounded-full shrink-0"
+              onClick={handleRazorpayPayment}
+              className="w-full bg-outly-accent py-3 rounded-full font-bold text-sm hover:brightness-110 transition shadow-lg shadow-outly-accent/20 text-center select-none cursor-pointer text-white"
             >
-              <div className="premium-sparkle-group w-6 h-6 shrink-0">
-                <svg className="premium-sparkle-svg w-full h-full" viewBox="0 0 100 100">
-                  <defs>
-                    <linearGradient id="card-btn-grad-top-left" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#c084fc" />
-                      <stop offset="100%" stopColor="#8b5cf6" />
-                    </linearGradient>
-                    <linearGradient id="card-btn-grad-top-right" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#a78bfa" />
-                      <stop offset="100%" stopColor="#7c3aed" />
-                    </linearGradient>
-                    <linearGradient id="card-btn-grad-bottom-right" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#6d28d9" />
-                      <stop offset="100%" stopColor="#4c1d95" />
-                    </linearGradient>
-                    <linearGradient id="card-btn-grad-bottom-left" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#7c3aed" />
-                      <stop offset="100%" stopColor="#5b21b6" />
-                    </linearGradient>
-                  </defs>
-
-                  <g className="premium-small-sparkle-1">
-                    <path d="M 80 25 L 80 15 C 80 21 77 25 71 25 Z" fill="url(#card-btn-grad-top-left)" />
-                    <path d="M 80 25 L 89 25 C 83 25 80 21 80 15 Z" fill="url(#card-btn-grad-top-right)" />
-                    <path d="M 80 25 L 80 35 C 80 29 83 25 89 25 Z" fill="url(#card-btn-grad-bottom-right)" />
-                    <path d="M 80 25 L 71 25 C 77 25 80 29 80 35 Z" fill="url(#card-btn-grad-bottom-left)" />
-                  </g>
-
-                  <g className="premium-small-sparkle-2">
-                    <path d="M 20 75 L 20 67 C 20 72 17 75 12 75 Z" fill="url(#card-btn-grad-top-left)" />
-                    <path d="M 20 75 L 28 75 C 23 75 20 72 20 67 Z" fill="url(#card-btn-grad-top-right)" />
-                    <path d="M 20 75 L 20 83 C 20 78 23 75 28 75 Z" fill="url(#card-btn-grad-bottom-right)" />
-                    <path d="M 20 75 L 12 75 C 17 75 20 78 20 83 Z" fill="url(#card-btn-grad-bottom-left)" />
-                  </g>
-
-                  <g className="premium-main-sparkle">
-                    <path d="M 50 50 L 50 10 C 50 32 32 50 10 50 Z" fill="url(#card-btn-grad-top-left)" />
-                    <path d="M 50 50 L 90 50 C 68 50 50 32 50 10 Z" fill="url(#card-btn-grad-top-right)" />
-                    <path d="M 50 50 L 50 90 C 50 68 68 50 90 50 Z" fill="url(#card-btn-grad-bottom-right)" />
-                    <path d="M 50 50 L 10 50 C 32 50 50 68 50 90 Z" fill="url(#card-btn-grad-bottom-left)" />
-                  </g>
-                </svg>
-              </div>
-
-              <span className="text-[13px] font-bold tracking-wider uppercase text-[#0b132b]">Unlock Full Access</span>
-
-              <svg className="premium-arrow-icon w-4 h-4 text-[#0b132b]" viewBox="0 0 24 24">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
+              Pay &amp; Upgrade via Razorpay
             </button>
           )}
-        </div>
-
-      </div>
-
-      {/* Payment Trust & Security Footer (Centered Single-Column Stack) */}
-      <div className="mt-10 w-full max-w-4xl border-t border-border/60 pt-6 flex flex-col items-center justify-center gap-4 select-none">
-        
-        {/* We are accepting: with small logos */}
-        <div className="flex items-center justify-center gap-4 text-[13px] font-medium text-muted-foreground/80 flex-wrap">
-          <span>We are accepting:</span>
-          <div className="flex items-center gap-4">
-            {/* UPI */}
-            <div className="flex items-center justify-center shrink-0">
-              <img 
-                src="/logos/UPI-Color.png" 
-                alt="UPI" 
-                style={{ height: "17px" }} 
-                className="w-auto object-contain shrink-0 opacity-90 hover:opacity-100 transition-opacity duration-200" 
-              />
-            </div>
-            {/* Visa */}
-            <div className="flex items-center justify-center shrink-0">
-              <img 
-                src="/logos/svgviewer-output.svg" 
-                alt="Visa" 
-                style={{ height: "17px" }} 
-                className="w-auto object-contain shrink-0 opacity-90 hover:opacity-100 transition-opacity duration-200" 
-              />
-            </div>
-            {/* Mastercard */}
-            <div className="flex items-center justify-center shrink-0">
-              <img 
-                src="/logos/mastercard-svgrepo-com.svg" 
-                alt="Mastercard" 
-                style={{ height: "17px" }} 
-                className="w-auto object-contain shrink-0 opacity-90 hover:opacity-100 transition-opacity duration-200" 
-              />
-            </div>
-          </div>
         </div>
 
       </div>

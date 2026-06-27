@@ -70,13 +70,13 @@ export function parseCompaniesCSV(filePath: string): CompanyRow[] {
   return companies;
 }
 
-export function importCompaniesFromCSV(filePath: string): number {
+export async function importCompaniesFromCSV(filePath: string, userId: string): Promise<number> {
   const companies = parseCompaniesCSV(filePath);
   let inserted = 0;
   for (const c of companies) {
     if (!c.company_name || !c.role || !c.hr_email) continue;
     try {
-      companyQueries.insert({
+      await companyQueries.insert(userId, {
         company_name: c.company_name,
         role: c.role,
         hr_email: c.hr_email,
@@ -98,12 +98,13 @@ export function importCompaniesFromCSV(filePath: string): number {
         followup_sent_at: null,
         followup_status: null,
         error_message: null,
+        generated_variants_json: null,
       });
       inserted++;
     } catch (e) {
-      logger.warn("Skip duplicate or invalid row", { company: c.company_name, error: String(e) });
+      logger.warn("Skip duplicate or invalid row", { company: c.company_name, error: String(e), userId });
     }
   }
-  logger.info(`Imported ${inserted} companies from CSV`, { source: "coldmail" });
+  logger.info(`Imported ${inserted} companies from CSV for user ${userId}`, { source: "coldmail", userId });
   return inserted;
 }

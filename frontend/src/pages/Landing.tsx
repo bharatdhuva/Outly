@@ -233,6 +233,11 @@ export default function Landing() {
   const navigateTo = usePageTransition();
 
   // ─── STATE MANAGEMENT ───
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("outly_token"));
+  }, []);
+
   const [scrolled, setScrolled] = useState(false);
   const [heroTypedText, setHeroTypedText] = useState("");
   const [heroCursor, setHeroCursor] = useState(true);
@@ -887,23 +892,24 @@ export default function Landing() {
             </div>
           </div>
           
-          {/* Center: Nav links (Hidden on mobile) */}
-          <nav className="hidden md:flex items-center justify-center gap-8 text-sm font-semibold text-outly-dark/70">
-            <a className="hover:text-outly-accent transition cursor-pointer" href="#features" onClick={(e) => handleScrollToSection(e, "features")}>Features</a>
-            <a className="hover:text-outly-accent transition cursor-pointer" href="#demo" onClick={(e) => handleScrollToSection(e, "demo")}>How it Works</a>
-            <a className="hover:text-outly-accent transition cursor-pointer" href="#pricing" onClick={(e) => handleScrollToSection(e, "pricing")}>Pricing</a>
+          <nav className="hidden md:flex items-center justify-center gap-8 font-schibsted text-[17px] font-medium text-[#4E4638]">
+            <a className="hover:text-outly-dark transition cursor-pointer" href="#features" onClick={(e) => handleScrollToSection(e, "features")}>Features</a>
+            <a className="hover:text-outly-dark transition cursor-pointer" href="#demo" onClick={(e) => handleScrollToSection(e, "demo")}>How it Works</a>
+            <a className="hover:text-outly-dark transition cursor-pointer" href="#pricing" onClick={(e) => handleScrollToSection(e, "pricing")}>Pricing</a>
           </nav>
           
           {/* Right: Buttons */}
           <div className="flex items-center justify-end gap-3 sm:gap-4">
-            <button onClick={() => navigateTo("/login")} className="border border-outly-border px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-outly-dark hover:bg-outly-border/20 hover:border-outly-dark/40 transition-all duration-300 text-center cursor-pointer">Sign in</button>
+            <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="border border-outly-border px-4 sm:px-6 py-1.5 sm:py-2 rounded-full font-sans text-[16px] font-medium text-outly-dark hover:bg-outly-border/20 hover:border-outly-dark/40 active:scale-[0.98] transition-all duration-200 text-center cursor-pointer">
+              {isLoggedIn ? "Dashboard" : "Sign in"}
+            </button>
           </div>
           
         </div>
       </header>
 
       {/* HERO SECTION */}
-      <main className="relative overflow-hidden pt-32 pb-20">
+      <main className="relative overflow-hidden pt-32 pb-24">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-12 gap-12 items-center">
           
           {/* Left Column: Hero Text */}
@@ -937,11 +943,11 @@ export default function Landing() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 justify-start hero-buttons opacity-0">
-              <button onClick={() => navigateTo("/login")} className="bg-outly-accent text-white px-8 py-4 rounded-full font-bold text-base hover:brightness-105 transition shadow-lg shadow-outly-accent/20 cursor-pointer">
-                Get started — it's free
+              <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="bg-outly-accent text-white px-8 py-4 rounded-full font-sans text-[16px] font-medium hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-outly-accent/25 cursor-pointer">
+                {isLoggedIn ? "Go to Dashboard" : "Get started — it's free"}
               </button>
-              <button onClick={() => navigateTo("/login")} className="bg-white border border-outly-border px-8 py-4 rounded-full font-bold text-base hover:bg-outly-border/30 transition cursor-pointer">
-                Sign in
+              <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="bg-white border border-outly-border hover:border-outly-dark/40 px-8 py-4 rounded-full font-sans text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 cursor-pointer">
+                {isLoggedIn ? "Dashboard" : "Sign in"}
               </button>
             </div>
             
@@ -1113,7 +1119,7 @@ export default function Landing() {
       </main>
 
       {/* FEATURE: THE DAILY BRIEF */}
-      <section id="features" className="max-w-6xl mx-auto px-6 py-20">
+      <section id="daily-brief" className="max-w-6xl mx-auto px-6 py-24">
         <div className="bg-outly-dark rounded-[48px] p-12 md:p-20 flex flex-col md:flex-row items-center gap-16 relative overflow-hidden">
           <div className="md:w-1/2 z-10">
             <div className="w-12 h-0.5 bg-[#c5a880] mb-10"></div>
@@ -1188,7 +1194,7 @@ export default function Landing() {
       </section>
 
       {/* FEATURE GRID */}
-      <section className="max-w-6xl mx-auto px-6 py-28">
+      <section id="features" className="max-w-6xl mx-auto px-6 py-24">
         <div className="mb-20">
           <h2 className="text-6xl md:text-7xl font-medium tracking-tight leading-[1] text-outly-dark">
             Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
@@ -1251,7 +1257,7 @@ export default function Landing() {
       </section>
 
       {/* INTERACTIVE WORKSPACE SHOWCASE */}
-      <section id="demo" className="max-w-6xl mx-auto px-6 py-20 text-center">
+      <section id="demo" className="max-w-6xl mx-auto px-6 py-24 text-center">
         <div className="text-outly-accent font-bold text-[10px] tracking-[0.3em] uppercase mb-8">TRY IT RIGHT HERE</div>
         <h2 className="text-6xl md:text-7xl font-medium tracking-tight mb-8 leading-[1]">
           Go on, <span className="italic-serif text-outly-accent">click around.</span>
@@ -1909,7 +1915,7 @@ export default function Landing() {
       </section>
 
       {/* PRICING SECTION */}
-      <section id="pricing" className="max-w-6xl mx-auto px-6 py-40">
+      <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
         <div className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div>
             <div className="flex items-center gap-3 mb-6">
@@ -1992,7 +1998,7 @@ export default function Landing() {
               <span className="text-[10px] font-bold px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Google Gemini</span>
               <span className="text-[10px] font-bold px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Groq</span>
             </div>
-            <button onClick={() => navigateTo("/login")} className="w-full border-2 border-outly-border py-5 rounded-full font-bold text-lg hover:bg-outly-cream transition text-center select-none block cursor-pointer">Start free</button>
+            <button onClick={() => navigateTo("/login")} className="w-full border-2 border-outly-border hover:border-outly-dark/40 py-5 rounded-full font-sans text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 text-center select-none block cursor-pointer">Start free</button>
           </div>
           
           {/* Outly Cloud Card */}
@@ -2043,7 +2049,7 @@ export default function Landing() {
                 Get hired faster with AI — only ₹49
               </li>
             </ul>
-            <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-5 rounded-full font-bold text-lg hover:brightness-110 transition shadow-2xl shadow-outly-accent/30 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
+            <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-5 rounded-full font-sans text-[16px] font-medium hover:brightness-115 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-2xl shadow-outly-accent/35 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
           </div>
         </div>
         
@@ -2063,7 +2069,7 @@ export default function Landing() {
       </section>
 
       {/* BOTTOM CTA */}
-      <section className="max-w-5xl mx-auto px-6 py-48 text-center relative">
+      <section className="max-w-5xl mx-auto px-6 py-24 text-center relative">
         <div className="relative inline-block mb-12 select-none">
           <div className="w-10 h-10 bg-outly-accent rounded-full mx-auto flex items-center justify-center overflow-hidden">
             <div className="w-6 h-6 bg-white rounded-full mt-4"></div>
@@ -2077,10 +2083,10 @@ export default function Landing() {
           Outly is free to start — sign up and get your first morning brief tomorrow.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button onClick={() => navigateTo("/login")} className="bg-outly-accent text-white px-8 py-4 rounded-full font-bold text-base hover:brightness-105 transition shadow-xl shadow-outly-accent/20 cursor-pointer">
+          <button onClick={() => navigateTo("/login")} className="bg-outly-accent text-white px-8 py-4 rounded-full font-sans text-[16px] font-medium hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-outly-accent/25 cursor-pointer">
             Get started — it's free
           </button>
-          <button onClick={() => navigateTo("/login")} className="bg-white border border-outly-border px-8 py-4 rounded-full font-bold text-base hover:bg-outly-border/30 transition cursor-pointer">
+          <button onClick={() => navigateTo("/login")} className="bg-white border border-outly-border hover:border-outly-dark/40 px-8 py-4 rounded-full font-sans text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 cursor-pointer">
             Sign in
           </button>
         </div>

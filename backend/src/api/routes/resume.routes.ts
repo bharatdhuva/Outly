@@ -1,7 +1,10 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import { resumeVaultQueries } from "../../db/queries.js";
 import { logger } from "../../lib/logger.js";
 import { env } from "../../config/env.js";
+import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
+import { checkResumeLimit } from "../../middleware/limits.js";
+import { uploadToCloudinary } from "../../lib/cloudinary.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -14,24 +17,26 @@ const mammoth = require("mammoth");
 const router = Router();
 const upload = multer({ dest: path.join(env.DATA_DIR, "uploads") });
 
-// GET all resumes
-router.get("/", (req, res) => {
+// Protect all routes with authentication
+router.use(requireAuth);
+
+// GET all resumes for the authenticated user
+router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const items = resumeVaultQueries.getAll();
+    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    const items = await resumeVaultQueries.getAll(req.user.id);
     res.json(items);
   } catch (error) {
-    logger.error("Failed to fetch resumes from vault", { error: String(error), source: "resume_vault" });
+    logger.error("Failed to fetch resumes from vault", { error: String(error), userId: req.user?.id, source: "resume_vault" });
     res.status(500).json({ error: String(error) });
   }
 });
 
 // GET resume by ID
-router.get("/:id", (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
-
+router.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const item = resumeVaultQueries.getById(id);
+    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    const item = await resumeVaultQueries.getById(req.params.id as string, req.user.id);
     if (!item) return res.status(404).json({ error: "Resume not found" });
     res.json(item);
   } catch (error) {
@@ -39,17 +44,21 @@ router.get("/:id", (req, res) => {
   }
 });
 
-// GET resume's original PDF/Word file from disk
-router.get("/:id/file", (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
-
+// GET resume's original PDF/Word file (from Cloudinary or local disk)
+router.get("/:id/file", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const item = resumeVaultQueries.getById(id);
+    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    const item = await resumeVaultQueries.getById(req.params.id as string, req.user.id);
     if (!item) return res.status(404).json({ error: "Resume not found" });
 
+    // If Cloudinary URL is stored, redirect directly to it
+    if (item.cloudinaryUrl) {
+      return res.redirect(item.cloudinaryUrl);
+    }
+
+    // Fallback: local disk
     const ext = path.extname(item.filename).toLowerCase();
-    const filePath = path.join(env.DATA_DIR, "resumes", `resume_${id}${ext}`);
+    const filePath = path.join(env.DATA_DIR, "resumes", `resume_${item.id}${ext}`);
 
     if (fs.existsSync(filePath)) {
       if (ext === ".pdf") {
@@ -61,7 +70,7 @@ router.get("/:id/file", (req, res) => {
       }
       res.sendFile(filePath);
     } else {
-      res.status(404).json({ error: "Original resume file not found on disk" });
+      res.status(404).json({ error: "Original resume file not found on disk or cloud" });
     }
   } catch (error) {
     res.status(500).json({ error: String(error) });
@@ -69,9 +78,14 @@ router.get("/:id/file", (req, res) => {
 });
 
 // POST upload and parse new resume
-router.post("/upload", upload.single("file"), async (req, res) => {
+router.post("/upload", upload.single("file"), checkResumeLimit, async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded." });
+  }
+
+  if (!req.user) {
+    if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   const { label } = req.body;
@@ -87,7 +101,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     let text = "";
 
-    // Parse plain text content
+    // Parse text content based on file extension
     if (ext === ".txt") {
       text = fs.readFileSync(tempFilePath, "utf-8");
     } else if (ext === ".pdf") {
@@ -104,41 +118,48 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "Unsupported file type. Please upload a .txt, .pdf, or .docx file." });
     }
 
-    // Determine if it should be default (if no resumes currently exist)
-    const existing = resumeVaultQueries.getAll();
+    // Upload to Cloudinary (optional)
+    const cloudinaryUrl = await uploadToCloudinary(tempFilePath, `outly/resumes/${req.user.id}`);
+
+    // Determine if it should be default (if no resumes currently exist for this user)
+    const existing = await resumeVaultQueries.getAll(req.user.id);
     const isDefault = existing.length === 0 ? 1 : 0;
 
     // Insert record in DB
-    const dbResult = resumeVaultQueries.insert({
+    const dbResult = await resumeVaultQueries.insert(req.user.id, {
       filename: originalName,
       label: label,
       content: text,
-      is_default: isDefault
+      is_default: isDefault,
+      cloudinaryUrl: cloudinaryUrl || undefined
     });
 
-    const newId = Number(dbResult.lastInsertRowid);
-
-    // Save the original file to data/resumes/resume_<id>.<ext>
-    const finalDestDir = path.join(env.DATA_DIR, "resumes");
-    if (!fs.existsSync(finalDestDir)) {
-      fs.mkdirSync(finalDestDir, { recursive: true });
+    // Save local copy only if Cloudinary upload didn't yield a URL (fallback)
+    if (!cloudinaryUrl) {
+      const finalDestDir = path.join(env.DATA_DIR, "resumes");
+      if (!fs.existsSync(finalDestDir)) {
+        fs.mkdirSync(finalDestDir, { recursive: true });
+      }
+      const finalPath = path.join(finalDestDir, `resume_${dbResult.id}${ext}`);
+      fs.copyFileSync(tempFilePath, finalPath);
     }
-    const finalPath = path.join(finalDestDir, `resume_${newId}${ext}`);
-    fs.copyFileSync(tempFilePath, finalPath);
 
     // Clean up temporary file
-    fs.unlinkSync(tempFilePath);
+    if (fs.existsSync(tempFilePath)) {
+      fs.unlinkSync(tempFilePath);
+    }
 
     res.json({
       success: true,
-      id: newId,
-      filename: originalName,
-      label: label,
-      content: text,
-      is_default: isDefault
+      id: dbResult.id,
+      filename: dbResult.filename,
+      label: dbResult.label,
+      content: dbResult.content,
+      is_default: dbResult.is_default,
+      cloudinaryUrl: dbResult.cloudinaryUrl
     });
   } catch (error) {
-    logger.error("Resume vault upload/parse failed", { filename: originalName, error: String(error), source: "resume_vault" });
+    logger.error("Resume vault upload/parse failed", { filename: originalName, userId: req.user.id, error: String(error), source: "resume_vault" });
     if (fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
     }
@@ -147,40 +168,54 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 });
 
 // POST set default resume
-router.post("/:id/default", (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
-
+router.post("/:id/default", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const item = resumeVaultQueries.getById(id);
+    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    const item = await resumeVaultQueries.getById(req.params.id as string, req.user.id);
     if (!item) return res.status(404).json({ error: "Resume not found" });
 
-    resumeVaultQueries.setDefault(id);
+    await resumeVaultQueries.setDefault(req.params.id as string, req.user.id);
     res.json({ success: true });
   } catch (error) {
-    logger.error("Failed to set default resume", { id, error: String(error), source: "resume_vault" });
+    logger.error("Failed to set default resume", { id: req.params.id, userId: req.user?.id, error: String(error), source: "resume_vault" });
     res.status(500).json({ error: String(error) });
   }
 });
 
 // DELETE resume
-router.delete("/:id", (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
-
+router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const item = resumeVaultQueries.getById(id);
+    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    const item = await resumeVaultQueries.getById(req.params.id as string, req.user.id);
     if (item) {
+      // If it has local file, clean it up
       const ext = path.extname(item.filename).toLowerCase();
-      const filePath = path.join(env.DATA_DIR, "resumes", `resume_${id}${ext}`);
+      const filePath = path.join(env.DATA_DIR, "resumes", `resume_${item.id}${ext}`);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
     }
-    resumeVaultQueries.delete(id);
+    await resumeVaultQueries.delete(req.params.id as string, req.user.id);
     res.json({ success: true });
   } catch (error) {
-    logger.error("Failed to delete resume", { id, error: String(error), source: "resume_vault" });
+    logger.error("Failed to delete resume", { id: req.params.id, userId: req.user?.id, error: String(error), source: "resume_vault" });
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+// PUT update resume details (like label or tags)
+router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    const { label } = req.body;
+    if (!label) return res.status(400).json({ error: "Label is required" });
+
+    const updated = await resumeVaultQueries.update(req.params.id, req.user.id, { label });
+    if (!updated) return res.status(404).json({ error: "Resume not found" });
+
+    res.json(updated);
+  } catch (error) {
+    logger.error("Failed to update resume details", { id: req.params.id, userId: req.user?.id, error: String(error), source: "resume_vault" });
     res.status(500).json({ error: String(error) });
   }
 });

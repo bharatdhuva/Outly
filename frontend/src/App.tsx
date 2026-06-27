@@ -13,6 +13,7 @@ import Twitter from "./pages/Twitter";
 import ResumeTailorPage from "./pages/ResumeTailor";
 import AtsScore from "./pages/AtsScore";
 import Applications from "./pages/Applications";
+import JobSearch from "./pages/JobSearch";
 import Analytics from "./pages/Analytics";
 import ResumeVault from "./pages/ResumeVault";
 import Landing from "./pages/Landing";
@@ -51,6 +52,7 @@ const App = () => (
                   <Route path="/resume-vault" element={<PageTransition><ResumeVault /></PageTransition>} />
                   <Route path="/ats-score" element={<PageTransition><AtsScore /></PageTransition>} />
                   <Route path="/applications" element={<PageTransition><Applications /></PageTransition>} />
+                  <Route path="/job-search" element={<PageTransition><JobSearch /></PageTransition>} />
                   <Route path="/analytics" element={<PageTransition><Analytics /></PageTransition>} />
                   <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
                   <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />

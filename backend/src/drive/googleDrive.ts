@@ -4,8 +4,8 @@ import path from "path";
 import { env } from "../config/env.js";
 import { getResumeDriveFileId } from "../config/appSettings.js";
 
-export async function downloadResumeToTemp(): Promise<string | null> {
-  const resumeDriveFileId = getResumeDriveFileId();
+export async function downloadResumeToTemp(userId: string): Promise<string | null> {
+  const resumeDriveFileId = await getResumeDriveFileId(userId);
   if (!resumeDriveFileId || !env.GOOGLE_DRIVE_REFRESH_TOKEN) return null;
 
   const oauth2Client = new google.auth.OAuth2(
@@ -35,6 +35,7 @@ export async function downloadResumeToTemp(): Promise<string | null> {
   return destPath;
 }
 
-export function isDriveConfigured(): boolean {
-  return !!(getResumeDriveFileId() && env.GOOGLE_DRIVE_REFRESH_TOKEN);
+export async function isDriveConfigured(userId: string): Promise<boolean> {
+  const resumeDriveFileId = await getResumeDriveFileId(userId);
+  return !!(resumeDriveFileId && env.GOOGLE_DRIVE_REFRESH_TOKEN);
 }

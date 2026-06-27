@@ -38,7 +38,13 @@ export default function PdfViewer({ file, url }: { file?: File | null; url?: str
           const arrayBuffer = await file.arrayBuffer();
           loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         } else if (url) {
-          loadingTask = pdfjsLib.getDocument(url);
+          const token = localStorage.getItem("outly_token");
+          const headers = token ? { "Authorization": `Bearer ${token}` } : {};
+          loadingTask = pdfjsLib.getDocument({
+            url,
+            httpHeaders: headers,
+            withCredentials: true
+          });
         } else {
           return;
         }

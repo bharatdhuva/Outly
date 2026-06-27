@@ -34,15 +34,15 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
   return transporter;
 }
 
-export async function sendColdMail(companyId: number): Promise<boolean> {
-  const company = companyQueries.getById(companyId);
+export async function sendColdMail(companyId: string): Promise<boolean> {
+  const company = await companyQueries.getById(companyId);
   if (!company || company.status !== "approved") return false;
   if (!company.generated_subject || !company.generated_mail) return false;
 
   try {
     const transport = await getTransporter();
     const messageId = `<${Date.now()}.${companyId}@outly.local>`;
-    const senderName = company.sender_name || getSenderName();
+    const senderName = company.sender_name || await getSenderName(company.userId);
     const senderEmail = getSenderEmail();
     await transport.sendMail({
       from: `"${senderName}" <${senderEmail}>`,
@@ -57,25 +57,31 @@ export async function sendColdMail(companyId: number): Promise<boolean> {
       },
     });
 
-    const now = new Date().toISOString();
-    companyQueries.updateStatus(companyId, "mail_sent", {
+    const now = new Date();
+    await companyQueries.updateStatus(companyId, "mail_sent", {
       sent_at: now,
       error_message: null,
     } as unknown as Partial<import("../../db/queries.js").Company>);
 
-    activityQueries.add(
+    await activityQueries.add(
+      company.userId,
       "mail_sent",
       `Cold mail sent to ${company.company_name} for ${company.role}`,
-      JSON.stringify({ companyId })
+      { companyId }
     );
     logger.info(`Cold mail sent to ${company.company_name}`, { source: "mail" });
     return true;
   } catch (e) {
     const errMsg = String(e);
-    companyQueries.updateStatus(companyId, "approved", {
+    await companyQueries.updateStatus(companyId, "approved", {
       error_message: errMsg,
     } as unknown as Partial<import("../../db/queries.js").Company>);
-    activityQueries.add("mail_failed", `Mail to ${company.company_name} failed: ${errMsg}`, JSON.stringify({ companyId }));
+    await activityQueries.add(
+      company.userId,
+      "mail_failed",
+      `Mail to ${company.company_name} failed: ${errMsg}`,
+      { companyId }
+    );
     logger.error(`Mail failed: ${company.company_name}`, { error: errMsg, source: "mail" });
     return false;
   }
@@ -85,13 +91,13 @@ export function isGmailConfigured(): boolean {
   return !!(env.GMAIL_CLIENT_ID && env.GMAIL_CLIENT_SECRET && env.GMAIL_REFRESH_TOKEN);
 }
 
-export async function sendFollowUpMail(companyId: number, subject: string, body: string): Promise<boolean> {
-  const company = companyQueries.getById(companyId);
+export async function sendFollowUpMail(companyId: string, subject: string, body: string): Promise<boolean> {
+  const company = await companyQueries.getById(companyId);
   if (!company || company.status !== "mail_sent") return false;
 
   try {
     const transport = await getTransporter();
-    const senderName = company.sender_name || getSenderName();
+    const senderName = company.sender_name || await getSenderName(company.userId);
     const senderEmail = getSenderEmail();
     // In-reply-to would be better here, but since we don't store Message-ID, 
     // a basic RE: subject keeps it threaded in most modern clients
@@ -108,27 +114,34 @@ export async function sendFollowUpMail(companyId: number, subject: string, body:
       },
     });
 
-    const now = new Date().toISOString();
-    companyQueries.update(companyId, {
+    const now = new Date();
+    await companyQueries.update(companyId, {
       followup_sent_at: now,
       followup_status: "sent"
     } as unknown as Partial<import("../../db/queries.js").Company>);
 
-    activityQueries.add(
+    await activityQueries.add(
+      company.userId,
       "followup_sent",
       `Follow-up sent to ${company.company_name} for ${company.role}`,
-      JSON.stringify({ companyId })
+      { companyId }
     );
     logger.info(`Follow-up sent to ${company.company_name}`, { source: "mail" });
     return true;
   } catch (e) {
     const errMsg = String(e);
-    companyQueries.update(companyId, {
+    await companyQueries.update(companyId, {
       followup_status: "failed",
       error_message: errMsg
     } as unknown as Partial<import("../../db/queries.js").Company>);
-    activityQueries.add("followup_failed", `Follow-up to ${company.company_name} failed: ${errMsg}`, JSON.stringify({ companyId }));
+    await activityQueries.add(
+      company.userId,
+      "followup_failed",
+      `Follow-up to ${company.company_name} failed: ${errMsg}`,
+      { companyId }
+    );
     logger.error(`Follow-up failed: ${company.company_name}`, { error: errMsg, source: "mail" });
     return false;
   }
 }
+

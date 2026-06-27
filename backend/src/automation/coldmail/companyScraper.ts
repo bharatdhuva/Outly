@@ -239,8 +239,8 @@ function buildHookCandidates(ctx: ScrapedContext, companyName: string): string[]
   ], 8);
 }
 
-export async function scrapeCompany(companyId: number): Promise<void> {
-  const company = companyQueries.getById(companyId);
+export async function scrapeCompany(companyId: string): Promise<void> {
+  const company = await companyQueries.getById(companyId);
   if (!company) return;
 
   logger.info(`Starting research for ${company.company_name}...`, { source: "scraper" });
@@ -290,7 +290,7 @@ export async function scrapeCompany(companyId: number): Promise<void> {
 
   ctx.hookCandidates = buildHookCandidates(ctx, company.company_name);
 
-  companyQueries.updateStatus(companyId, "scraped", {
+  await companyQueries.updateStatus(companyId, "scraped", {
     scraped_context: JSON.stringify(ctx),
   });
 

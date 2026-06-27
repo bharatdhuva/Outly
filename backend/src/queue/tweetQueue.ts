@@ -1,6 +1,14 @@
-import Queue from "bull";
-import { env } from "../config/env.js";
-
-// Queue for publishing Twitter posts
-export const tweetQueue = new Queue("tweetQueue", env.REDIS_URL);
-tweetQueue.on("error", (err) => console.error("Tweet queue error:", err.message));
+export const tweetQueue = {
+  add: async (data: any) => {
+    console.log("[MOCK QUEUE] Tweet job added:", data);
+    return { id: "mock-tweet-job-id" };
+  },
+  getWaitingCount: async () => 0,
+  getActiveCount: async () => 0,
+  process: (fn: any) => {
+    console.log("[MOCK QUEUE] Tweet processor registered");
+  },
+  on: (event: string, fn: any) => {
+    // no-op
+  }
+} as any;

@@ -1,9 +1,19 @@
 export const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = localStorage.getItem("outly_token");
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...options?.headers,
+  };
+  
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
-    headers: { "Content-Type": "application/json", ...options?.headers },
+    headers,
     credentials: "include",
   });
   if (!res.ok) throw new Error(await res.text().catch(() => res.statusText));
@@ -11,6 +21,34 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  auth: {
+    signup: (email: string, password: string, fullName?: string) =>
+      fetchApi<{ token: string; user: UserProfile }>("/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({ email, password, fullName }),
+      }),
+    login: (email: string, password: string) =>
+      fetchApi<{ token: string; user: UserProfile }>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      }),
+    googleLogin: (accessToken: string) =>
+      fetchApi<{ token: string; user: UserProfile }>("/auth/google", {
+        method: "POST",
+        body: JSON.stringify({ access_token: accessToken }),
+      }),
+    me: () =>
+      fetchApi<{ user: UserProfile }>("/auth/me"),
+    upgrade: (plan: "free" | "pro") =>
+      fetchApi<{ token: string; user: UserProfile; message: string }>("/auth/upgrade", {
+        method: "POST",
+        body: JSON.stringify({ plan }),
+      }),
+    logout: () => {
+      localStorage.removeItem("outly_token");
+    }
+  },
+
   dashboard: {
     stats: () => fetchApi<{
       mailsSent: number;
@@ -30,7 +68,7 @@ export const api = {
       offerCount?: number;
       rejectedCount?: number;
     }>("/dashboard/stats"),
-    activity: () => fetchApi<Array<{ type: string; message: string; created_at: string }>>("/dashboard/activity"),
+    activity: () => fetchApi<Array<{ type: string; message: string; createdAt: string }>>("/dashboard/activity"),
     queueStatus: () =>
       fetchApi<{ mailPending: number; applyPending: number; mailProcessing: boolean; applyProcessing: boolean }>(
         "/dashboard/queue-status"
@@ -54,15 +92,21 @@ export const api = {
     uploadCsv: (file: File) => {
       const form = new FormData();
       form.append("file", file);
+      const token = localStorage.getItem("outly_token");
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       return fetch(`${API_BASE}/coldmail/upload-csv`, {
         method: "POST",
+        headers,
         body: form,
         credentials: "include",
       }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(r.statusText))));
     },
-    scrape: (id: number) => fetchApi(`/coldmail/scrape/${id}`, { method: "POST" }),
+    scrape: (id: string) => fetchApi(`/coldmail/scrape/${id}`, { method: "POST" }),
     scrapeAll: () => fetchApi<{ scraped: number }>("/coldmail/scrape-all", { method: "POST" }),
-    generate: (id: number, provider: "gemini" | "grok" = "gemini") =>
+    generate: (id: string, provider: "gemini" | "grok" = "gemini") =>
       fetchApi<{ subject: string; body: string }>(`/coldmail/generate/${id}`, {
         method: "POST",
         body: JSON.stringify({ provider }),
@@ -72,15 +116,15 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ provider }),
       }),
-    update: (id: number, data: Partial<Company>) =>
+    update: (id: string, data: Partial<Company>) =>
       fetchApi(`/coldmail/companies/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
-    approve: (id: number) => fetchApi(`/coldmail/approve/${id}`, { method: "POST" }),
+    approve: (id: string) => fetchApi(`/coldmail/approve/${id}`, { method: "POST" }),
     approveAll: () => fetchApi<{ approved: number }>("/coldmail/approve-all", { method: "POST" }),
     sendApproved: () => fetchApi<{ queued: number }>("/coldmail/send-approved", { method: "POST" }),
-    create: (data: Omit<Company, "id" | "status" | "created_at" | "scraped_context" | "generated_subject" | "generated_mail" | "personalization_hook" | "sent_at" | "reply_detected_at" | "followup_status" | "followup_sent_at">) =>
+    create: (data: Omit<Company, "id" | "status" | "createdAt" | "scraped_context" | "generated_subject" | "generated_mail" | "personalization_hook" | "sent_at" | "reply_detected_at" | "followup_status" | "followup_sent_at">) =>
       fetchApi<Company>("/coldmail/companies", { method: "POST", body: JSON.stringify(data) }),
-    delete: (id: number) => fetchApi(`/coldmail/companies/${id}`, { method: "DELETE" }),
-    skip: (id: number) => fetchApi(`/coldmail/skip/${id}`, { method: "POST" }),
+    delete: (id: string) => fetchApi(`/coldmail/companies/${id}`, { method: "DELETE" }),
+    skip: (id: string) => fetchApi(`/coldmail/skip/${id}`, { method: "POST" }),
   },
   linkedin: {
     scanJobs: (keywords: string, location: string) =>
@@ -89,32 +133,29 @@ export const api = {
         body: JSON.stringify({ keywords, location }),
       }),
     jobs: () => fetchApi<Job[]>("/linkedin/jobs"),
-    apply: (id: number) => fetchApi(`/linkedin/apply/${id}`, { method: "POST" }),
+    apply: (id: string) => fetchApi(`/linkedin/apply/${id}`, { method: "POST" }),
     applyAll: () => fetchApi<{ queued: number }>("/linkedin/apply-all", { method: "POST" }),
-    skipJob: (id: number) => fetchApi(`/linkedin/skip-job/${id}`, { method: "POST" }),
+    skipJob: (id: string) => fetchApi(`/linkedin/skip-job/${id}`, { method: "POST" }),
     posts: () => fetchApi<Post[]>("/linkedin/posts"),
     generatePost: () =>
-      fetchApi<{ id: number; content: string; newsSources: NewsItem[] }>("/linkedin/generate-post", {
+      fetchApi<{ id: string; content: string; newsSources: NewsItem[] }>("/linkedin/generate-post", {
         method: "POST",
       }),
-    // v2.3: New daily draft generator
     generateDraft: () =>
-      fetchApi<{ id: number; content: string; charCount: number; newsSources: NewsItem[] }>("/linkedin/generate-draft", {
+      fetchApi<{ id: string; content: string; charCount: number; newsSources: NewsItem[] }>("/linkedin/generate-draft", {
         method: "POST",
       }),
-    // v2.3: Weekly roundup generator
     generateWeekly: () =>
-      fetchApi<{ id: number; content: string; charCount: number; newsSources: NewsItem[] }>("/linkedin/generate-weekly-post", {
+      fetchApi<{ id: string; content: string; charCount: number; newsSources: NewsItem[] }>("/linkedin/generate-weekly-post", {
         method: "POST",
       }),
-    updatePost: (id: number, data: { content?: string; status?: string }) =>
+    updatePost: (id: string, data: { content?: string; status?: string }) =>
       fetchApi(`/linkedin/posts/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
-    // v2.3: Mark as manually posted (replaces publishPost)
-    markPosted: (id: number) => fetchApi<{ ok: boolean }>(`/linkedin/mark-posted/${id}`, { method: "POST" }),
-    publishPost: (id: number) => fetchApi<{ ok: boolean; url?: string }>(`/linkedin/publish-post/${id}`, { method: "POST" }),
+    markPosted: (id: string) => fetchApi<{ ok: boolean }>(`/linkedin/mark-posted/${id}`, { method: "POST" }),
+    publishPost: (id: string) => fetchApi<{ ok: boolean; url?: string }>(`/linkedin/publish-post/${id}`, { method: "POST" }),
     setWeeklyPost: (enabled: boolean) =>
       fetchApi(`/linkedin/settings/weekly-post`, { method: "PATCH", body: JSON.stringify({ enabled }) }),
-    deletePost: (id: number) => fetchApi<{ ok: boolean }>(`/linkedin/posts/${id}`, { method: "DELETE" }),
+    deletePost: (id: string) => fetchApi<{ ok: boolean }>(`/linkedin/posts/${id}`, { method: "DELETE" }),
   },
   settings: {
     get: () => fetchApi<AppSettings>("/settings/"),
@@ -132,13 +173,13 @@ export const api = {
   twitter: {
     posts: () => fetchApi<TwitterPost[]>("/twitter/posts"),
     generate: (type: "single" | "thread", topic?: string) =>
-      fetchApi<{ success: boolean; dbId: number }>("/twitter/generate", {
+      fetchApi<{ success: boolean; dbId: string }>("/twitter/generate", {
         method: "POST",
         body: JSON.stringify({ type, topic }),
       }),
-    update: (id: number, data: Partial<TwitterPost>) =>
+    update: (id: string, data: Partial<TwitterPost>) =>
       fetchApi(`/twitter/posts/${id}`, { method: "PUT", body: JSON.stringify(data) }),
-    delete: (id: number) => fetchApi<{ success: boolean }>(`/twitter/posts/${id}`, { method: "DELETE" }),
+    delete: (id: string) => fetchApi<{ success: boolean }>(`/twitter/posts/${id}`, { method: "DELETE" }),
   },
   ats: {
     score: (resume: string, jd: string) =>
@@ -163,8 +204,14 @@ export const api = {
     parseFile: (file: File) => {
       const form = new FormData();
       form.append("file", file);
+      const token = localStorage.getItem("outly_token");
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       return fetch(`${API_BASE}/ats/parse-file`, {
         method: "POST",
+        headers,
         body: form,
         credentials: "include",
       }).then((r) => {
@@ -178,16 +225,16 @@ export const api = {
   applications: {
     list: () => fetchApi<TrackerApplication[]>("/applications"),
     create: (data: Omit<TrackerApplication, "id" | "created_at" | "updated_at">) =>
-      fetchApi<{ success: boolean; id: number }>("/applications", {
+      fetchApi<{ success: boolean; id: string }>("/applications", {
         method: "POST",
         body: JSON.stringify(data),
       }),
-    update: (id: number, data: Partial<Omit<TrackerApplication, "id" | "created_at">>) =>
+    update: (id: string, data: Partial<Omit<TrackerApplication, "id" | "created_at">>) =>
       fetchApi<{ success: boolean }>(`/applications/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),
       }),
-    delete: (id: number) =>
+    delete: (id: string) =>
       fetchApi<{ success: boolean }>(`/applications/${id}`, {
         method: "DELETE",
       }),
@@ -196,7 +243,7 @@ export const api = {
   resume: {
     list: () => fetchApi<ResumeVaultItem[]>("/resume"),
     create: (data: { filename: string; label: string; content?: string; is_default?: boolean }) =>
-      fetchApi<{ success: boolean; id: number }>("/resume", {
+      fetchApi<{ success: boolean; id: string }>("/resume", {
         method: "POST",
         body: JSON.stringify(data),
       }),
@@ -204,8 +251,14 @@ export const api = {
       const form = new FormData();
       form.append("file", file);
       form.append("label", label);
+      const token = localStorage.getItem("outly_token");
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       return fetch(`${API_BASE}/resume/upload`, {
         method: "POST",
+        headers,
         body: form,
         credentials: "include",
       }).then((r) => {
@@ -215,12 +268,17 @@ export const api = {
         return r.json() as Promise<ResumeVaultItem>;
       });
     },
-    getFileUrl: (id: number) => `${API_BASE}/resume/${id}/file`,
-    setDefault: (id: number) =>
+    getFileUrl: (id: string) => `${API_BASE}/resume/${id}/file`,
+    setDefault: (id: string) =>
       fetchApi<{ success: boolean }>(`/resume/${id}/default`, {
         method: "POST",
       }),
-    delete: (id: number) =>
+    update: (id: string, data: { label: string }) =>
+      fetchApi<ResumeVaultItem>(`/resume/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    delete: (id: string) =>
       fetchApi<{ success: boolean }>(`/resume/${id}`, {
         method: "DELETE",
       }),
@@ -263,17 +321,27 @@ export const api = {
   }
 };
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  fullName?: string;
+  profilePic?: string;
+  plan: "free" | "pro";
+  createdAt: string;
+}
+
 export interface ResumeVaultItem {
-  id: number;
+  id: string;
   filename: string;
   label: string;
   content: string | null;
   is_default: number;
+  cloudinaryUrl?: string;
   created_at: string;
 }
 
 export interface TrackerApplication {
-  id: number;
+  id: string;
   company: string;
   role: string;
   jd_url: string | null;
@@ -286,7 +354,7 @@ export interface TrackerApplication {
 }
 
 export interface Company {
-  id: number;
+  id: string;
   company_name: string;
   role: string;
   hr_email: string;
@@ -311,7 +379,7 @@ export interface Company {
 }
 
 export interface Job {
-  id: number;
+  id: string;
   job_title: string;
   company: string;
   location: string;
@@ -325,7 +393,7 @@ export interface Job {
 }
 
 export interface Post {
-  id: number;
+  id: string;
   content: string;
   news_sources: string | null;
   status: string;
@@ -368,7 +436,7 @@ export interface AppSettings {
 }
 
 export interface TwitterPost {
-  id: number;
+  id: string;
   content: string;
   type: "single" | "thread";
   status: string;
@@ -402,5 +470,3 @@ export interface EvaluationResult {
   formatting_issues?: string[];
   suggestions: string[];
 }
-
-

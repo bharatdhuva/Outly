@@ -1,18 +1,36 @@
-import { DatabaseSync } from "node:sqlite";
-import { env } from "../config/env.js";
+import { 
+  User, 
+  Company as CompanyModel, 
+  LinkedInPost as LinkedInPostModel, 
+  TwitterPost as TwitterPostModel, 
+  NotificationLog as NotificationLogModel, 
+  Setting as SettingModel, 
+  ActivityLog as ActivityLogModel, 
+  Application as ApplicationModel, 
+  ResumeVault as ResumeVaultModel 
+} from "./models.js";
 import { logger } from "../lib/logger.js";
 
-let _db: any = null;
-
-export function getDb() {
-  if (!_db) {
-    _db = new DatabaseSync(env.DB_PATH);
+// Helper to convert Mongoose documents to plain objects and map _id to id (string)
+function mapDoc<T>(doc: any): T | null {
+  if (!doc) return null;
+  const obj = doc.toObject ? doc.toObject() : doc;
+  obj.id = obj._id ? obj._id.toString() : obj.id;
+  if (obj.userId) {
+    obj.userId = obj.userId.toString();
   }
-  return _db;
+  delete obj._id;
+  delete obj.__v;
+  return obj as T;
+}
+
+function mapDocs<T>(docs: any[]): T[] {
+  return docs.map(d => mapDoc<T>(d)).filter(Boolean) as T[];
 }
 
 export interface Company {
-  id: number;
+  id: string;
+  userId: string;
   company_name: string;
   role: string;
   hr_email: string;
@@ -29,256 +47,44 @@ export interface Company {
   generated_subject: string | null;
   generated_mail: string | null;
   personalization_hook: string | null;
-  followup_sent_at: string | null;
+  followup_sent_at: Date | null;
   followup_status: string | null;
-  sent_at: string | null;
-  reply_detected_at: string | null;
+  sent_at: Date | null;
+  reply_detected_at: Date | null;
   error_message: string | null;
-  created_at: string;
+  generated_variants_json: string | null;
+  createdAt: Date;
 }
 
 export interface LinkedInPost {
-  id: number;
+  id: string;
+  userId: string;
   content: string;
   news_sources: string;
   status: string;
-  posted_at: string | null;
+  posted_at: Date | null;
   linkedin_post_url: string | null;
-  created_at: string;
+  createdAt: Date;
 }
 
 export interface TwitterPost {
-  id: number;
+  id: string;
+  userId: string;
   content: string;
   type: 'single' | 'thread';
   status: string;
-  posted_at: string | null;
+  posted_at: Date | null;
   twitter_post_id: string | null;
   impressions: number;
   likes: number;
   replies: number;
   error_message: string | null;
-  created_at: string;
+  createdAt: Date;
 }
 
-export const companyQueries = {
-  getAll: () =>
-    getDb()
-      .prepare("SELECT * FROM companies ORDER BY created_at DESC")
-      .all() as Company[],
-
-  getById: (id: number) =>
-    getDb().prepare("SELECT * FROM companies WHERE id = ?").get(id) as Company | undefined,
-
-  getByStatus: (status: string) =>
-    getDb()
-      .prepare("SELECT * FROM companies WHERE status = ?")
-      .all(status) as Company[],
-
-  getDueForFollowUp: (days: number) =>
-    getDb()
-      .prepare(`
-        SELECT * FROM companies 
-        WHERE status = 'mail_sent' 
-        AND followup_status IS NULL
-        AND sent_at <= date('now', '-' || ? || ' days')
-      `)
-      .all(days) as Company[],
-
-  insert: (company: Omit<Company, "id" | "created_at">) => {
-    const stmt = getDb().prepare(`
-      INSERT INTO companies (
-        company_name, role, hr_email, linkedin_url, website_url, 
-        target_person_name, target_person_role, key_skills, 
-        experience_level, sender_name, sender_location,
-        status, scraped_context, generated_subject, generated_mail, 
-        personalization_hook, sent_at, reply_detected_at, 
-        followup_sent_at, followup_status, error_message
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      company.company_name,
-      company.role,
-      company.hr_email,
-      company.linkedin_url ?? null,
-      company.website_url ?? null,
-      company.target_person_name ?? null,
-      company.target_person_role ?? null,
-      company.key_skills ?? null,
-      company.experience_level ?? null,
-      company.sender_name ?? null,
-      company.sender_location ?? null,
-      company.status,
-      company.scraped_context ?? null,
-      company.generated_subject ?? null,
-      company.generated_mail ?? null,
-      company.personalization_hook ?? null,
-      company.sent_at ?? null,
-      company.reply_detected_at ?? null,
-      company.followup_sent_at ?? null,
-      company.followup_status ?? null,
-      company.error_message ?? null
-    );
-  },
-
-  update: (id: number, company: Partial<Company>) => {
-    const keys = Object.keys(company).filter((k) => k !== "id");
-    const sets = keys.map((k) => `${k} = ?`);
-    const vals = keys.map((k) => (company as any)[k]);
-    if (sets.length === 0) return { changes: 0 };
-
-    const query = `UPDATE companies SET ${sets.join(", ")} WHERE id = ?`;
-    return getDb().prepare(query).run(...vals, id);
-  },
-
-  updateStatus: (id: number, status: string, extra?: Partial<Company>) => {
-    const updates = ["status = ?"];
-    const values: any[] = [status];
-
-    if (extra) {
-      Object.keys(extra).forEach((key) => {
-        if (key !== "status" && key !== "id") {
-          updates.push(`${key} = ?`);
-          values.push((extra as any)[key]);
-        }
-      });
-    }
-
-    const query = `UPDATE companies SET ${updates.join(", ")} WHERE id = ?`;
-    return getDb().prepare(query).run(...values, id);
-  },
-
-  delete: (id: number) =>
-    getDb().prepare("DELETE FROM companies WHERE id = ?").run(id),
-
-  countMailSent: () => {
-    const res = getDb().prepare("SELECT COUNT(*) as count FROM companies WHERE sent_at IS NOT NULL").get() as any;
-    return Number(res?.count ?? 0);
-  },
-
-  countMailsSentToday: () => {
-    const res = getDb()
-      .prepare("SELECT COUNT(*) as count FROM companies WHERE date(sent_at) = date('now')")
-      .get() as any;
-    return Number(res?.count ?? 0);
-  },
-
-  countReplies: () => {
-    const res = getDb().prepare("SELECT COUNT(*) as count FROM companies WHERE status = 'replied'").get() as any;
-    return Number(res?.count ?? 0);
-  },
-
-  countMailsSentThisWeek: () => {
-    const res = getDb()
-      .prepare("SELECT COUNT(*) as count FROM companies WHERE sent_at >= date('now', '-7 days')")
-      .get() as any;
-    return Number(res?.count ?? 0);
-  },
-
-  countRepliesThisWeek: () => {
-    const res = getDb()
-      .prepare(
-        "SELECT COUNT(*) as count FROM companies WHERE status = 'replied' AND reply_detected_at >= date('now', '-7 days')"
-      )
-      .get() as any;
-    return Number(res?.count ?? 0);
-  },
-};
-
-export const postQueries = {
-  getAll: () => getDb().prepare("SELECT * FROM linkedin_posts ORDER BY created_at DESC").all() as any[],
-  getById: (id: number) => getDb().prepare("SELECT * FROM linkedin_posts WHERE id = ?").get(id) as any,
-  insert: (post: any) => {
-    const stmt = getDb().prepare(`
-      INSERT INTO linkedin_posts (content, news_sources, status, posted_at, linkedin_post_url)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    return stmt.run(post.content, post.news_sources, post.status, post.posted_at, post.linkedin_post_url);
-  },
-  update: (id: number, post: Partial<any>) => {
-    const keys = Object.keys(post).filter((k) => k !== "id");
-    const sets = keys.map((k) => `${k} = ?`);
-    const vals = keys.map((k) => (post as any)[k]);
-    const query = `UPDATE linkedin_posts SET ${sets.join(", ")} WHERE id = ?`;
-    return getDb().prepare(query).run(...vals, id);
-  },
-  updateStatus: (id: number, status: string, extra?: any) => {
-    const updates = ["status = ?"];
-    const values: any[] = [status];
-    if (extra?.posted_at) {
-      updates.push("posted_at = ?");
-      values.push(extra.posted_at);
-    }
-    if (extra?.linkedin_post_url) {
-      updates.push("linkedin_post_url = ?");
-      values.push(extra.linkedin_post_url);
-    }
-    const query = `UPDATE linkedin_posts SET ${updates.join(", ")} WHERE id = ?`;
-    return getDb().prepare(query).run(...values, id);
-  },
-  countPosted: () => {
-    const res = getDb().prepare("SELECT COUNT(*) as count FROM linkedin_posts WHERE status = 'posted'").get() as any;
-    return Number(res?.count ?? 0);
-  },
-  delete: (id: number) =>
-    getDb().prepare("DELETE FROM linkedin_posts WHERE id = ?").run(id),
-};
-
-export const twitterQueries = {
-  getAll: (limit = 50) =>
-    getDb().prepare("SELECT * FROM twitter_posts ORDER BY created_at DESC LIMIT ?").all(limit) as any[],
-  getById: (id: number) => getDb().prepare("SELECT * FROM twitter_posts WHERE id = ?").get(id) as any,
-  insert: (tweet: any) => {
-    const stmt = getDb().prepare(`
-      INSERT INTO twitter_posts (content, type, status, posted_at, twitter_post_id)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    return stmt.run(tweet.content, tweet.type, tweet.status, tweet.posted_at, tweet.twitter_post_id);
-  },
-  update: (id: number, tweet: Partial<any>) => {
-    const keys = Object.keys(tweet).filter((k) => k !== "id");
-    const sets = keys.map((k) => `${k} = ?`);
-    const vals = keys.map((k) => (tweet as any)[k]);
-    const query = `UPDATE twitter_posts SET ${sets.join(", ")} WHERE id = ?`;
-    return getDb().prepare(query).run(...vals, id);
-  },
-  countPosted: () => {
-    const res = getDb().prepare("SELECT COUNT(*) as count FROM twitter_posts WHERE status = 'posted'").get() as any;
-    return Number(res?.count ?? 0);
-  },
-  delete: (id: number) =>
-    getDb().prepare("DELETE FROM twitter_posts WHERE id = ?").run(id),
-};
-
-export const settingsQueries = {
-  get: (key: string) => (getDb().prepare("SELECT value FROM settings WHERE key = ?").get(key) as any)?.value,
-  set: (key: string, value: string) => {
-    const stmt = getDb().prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
-    return stmt.run(key, value);
-  },
-};
-
-export const notificationsQueries = {
-  insert: (type: string, message: string, whatsappStatus: string) => {
-    const stmt = getDb().prepare("INSERT INTO notifications_log (type, message, whatsapp_status) VALUES (?, ?, ?)");
-    return stmt.run(type, message, whatsappStatus);
-  },
-  getRecent: (limit: number) =>
-    getDb().prepare("SELECT * FROM notifications_log ORDER BY sent_at DESC LIMIT ?").all(limit) as any[],
-};
-
-export const activityQueries = {
-  add: (type: string, message: string, meta?: any) => {
-    const stmt = getDb().prepare("INSERT INTO activity_log (type, message, meta) VALUES (?, ?, ?)");
-    return stmt.run(type, message, meta ? JSON.stringify(meta) : null);
-  },
-  getRecent: (limit: number) =>
-    getDb().prepare("SELECT * FROM activity_log ORDER BY created_at DESC LIMIT ?").all(limit) as any[],
-};
-
 export interface Application {
-  id: number;
+  id: string;
+  userId: string;
   company: string;
   role: string;
   jd_url: string | null;
@@ -286,75 +92,369 @@ export interface Application {
   resume_version_used: string | null;
   notes: string | null;
   email_history: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ResumeVaultItem {
-  id: number;
+  id: string;
+  userId: string;
   filename: string;
   label: string;
   content: string | null;
   is_default: number;
-  created_at: string;
+  cloudinaryUrl?: string;
+  createdAt: Date;
 }
 
-export const applicationQueries = {
-  getAll: () =>
-    getDb()
-      .prepare("SELECT * FROM applications ORDER BY created_at DESC")
-      .all() as Application[],
-  getById: (id: number) =>
-    getDb().prepare("SELECT * FROM applications WHERE id = ?").get(id) as Application | undefined,
-  insert: (app: Omit<Application, "id" | "created_at" | "updated_at">) => {
-    const stmt = getDb().prepare(`
-      INSERT INTO applications (company, role, jd_url, stage, resume_version_used, notes, email_history)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      app.company,
-      app.role,
-      app.jd_url ?? null,
-      app.stage ?? 'saved',
-      app.resume_version_used ?? null,
-      app.notes ?? null,
-      app.email_history ?? '[]'
+export const companyQueries = {
+  getAll: async (userId: string): Promise<Company[]> => {
+    const docs = await CompanyModel.find({ userId }).sort({ createdAt: -1 });
+    return mapDocs<Company>(docs);
+  },
+
+  getById: async (id: string, userId?: string): Promise<Company | null> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await CompanyModel.findOne(query);
+    return mapDoc<Company>(doc);
+  },
+
+  getByStatus: async (status: string, userId?: string): Promise<Company[]> => {
+    const query = userId ? { status, userId } : { status };
+    const docs = await CompanyModel.find(query);
+    return mapDocs<Company>(docs);
+  },
+
+  getDueForFollowUp: async (days: number, userId?: string): Promise<Company[]> => {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    
+    const query: any = {
+      status: 'mail_sent',
+      followup_status: null,
+      sent_at: { $lte: cutoffDate }
+    };
+    if (userId) query.userId = userId;
+
+    const docs = await CompanyModel.find(query);
+    return mapDocs<Company>(docs);
+  },
+
+  insert: async (userId: string, company: Omit<Company, "id" | "userId" | "createdAt">): Promise<Company> => {
+    const doc = new CompanyModel({
+      userId,
+      ...company
+    });
+    await doc.save();
+    return mapDoc<Company>(doc)!;
+  },
+
+  update: async (id: string, company: Partial<Company>, userId?: string): Promise<Company | null> => {
+    const updateData = { ...company };
+    delete (updateData as any).id;
+    delete (updateData as any).userId;
+    
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await CompanyModel.findOneAndUpdate(
+      query,
+      { $set: updateData },
+      { new: true }
+    );
+    return mapDoc<Company>(doc);
+  },
+
+  updateStatus: async (id: string, status: string, extra?: Partial<Company>, userId?: string): Promise<Company | null> => {
+    const updateData: any = { status };
+    if (extra) {
+      Object.keys(extra).forEach((key) => {
+        if (key !== "status" && key !== "id" && key !== "userId") {
+          updateData[key] = (extra as any)[key];
+        }
+      });
+    }
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await CompanyModel.findOneAndUpdate(
+      query,
+      { $set: updateData },
+      { new: true }
+    );
+    return mapDoc<Company>(doc);
+  },
+
+  delete: async (id: string, userId?: string): Promise<any> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    return await CompanyModel.deleteOne(query);
+  },
+
+  countMailSent: async (userId: string): Promise<number> => {
+    return await CompanyModel.countDocuments({ userId, sent_at: { $ne: null } });
+  },
+
+  countMailsSentToday: async (userId: string): Promise<number> => {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    return await CompanyModel.countDocuments({
+      userId,
+      sent_at: { $gte: startOfToday }
+    });
+  },
+
+  countReplies: async (userId: string): Promise<number> => {
+    return await CompanyModel.countDocuments({ userId, status: 'replied' });
+  },
+
+  countMailsSentThisWeek: async (userId: string): Promise<number> => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return await CompanyModel.countDocuments({
+      userId,
+      sent_at: { $gte: sevenDaysAgo }
+    });
+  },
+
+  countRepliesThisWeek: async (userId: string): Promise<number> => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return await CompanyModel.countDocuments({
+      userId,
+      status: 'replied',
+      reply_detected_at: { $gte: sevenDaysAgo }
+    });
+  },
+};
+
+export const postQueries = {
+  getAll: async (userId: string): Promise<LinkedInPost[]> => {
+    const docs = await LinkedInPostModel.find({ userId }).sort({ createdAt: -1 });
+    return mapDocs<LinkedInPost>(docs);
+  },
+
+  getById: async (id: string, userId?: string): Promise<LinkedInPost | null> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await LinkedInPostModel.findOne(query);
+    return mapDoc<LinkedInPost>(doc);
+  },
+
+  insert: async (userId: string, post: any): Promise<LinkedInPost> => {
+    const doc = new LinkedInPostModel({
+      userId,
+      ...post
+    });
+    await doc.save();
+    return mapDoc<LinkedInPost>(doc)!;
+  },
+
+  update: async (id: string, post: Partial<any>, userId?: string): Promise<LinkedInPost | null> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await LinkedInPostModel.findOneAndUpdate(
+      query,
+      { $set: post },
+      { new: true }
+    );
+    return mapDoc<LinkedInPost>(doc);
+  },
+
+  updateStatus: async (id: string, status: string, extra?: any, userId?: string): Promise<LinkedInPost | null> => {
+    const updateData: any = { status };
+    if (extra?.posted_at) updateData.posted_at = extra.posted_at;
+    if (extra?.linkedin_post_url) updateData.linkedin_post_url = extra.linkedin_post_url;
+    
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await LinkedInPostModel.findOneAndUpdate(
+      query,
+      { $set: updateData },
+      { new: true }
+    );
+    return mapDoc<LinkedInPost>(doc);
+  },
+
+  countPosted: async (userId: string): Promise<number> => {
+    return await LinkedInPostModel.countDocuments({ userId, status: 'posted' });
+  },
+
+  delete: async (id: string, userId?: string): Promise<any> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    return await LinkedInPostModel.deleteOne(query);
+  },
+};
+
+export const twitterQueries = {
+  getAll: async (userId: string, limit = 50): Promise<TwitterPost[]> => {
+    const docs = await TwitterPostModel.find({ userId }).sort({ createdAt: -1 }).limit(limit);
+    return mapDocs<TwitterPost>(docs);
+  },
+
+  getById: async (id: string, userId?: string): Promise<TwitterPost | null> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await TwitterPostModel.findOne(query);
+    return mapDoc<TwitterPost>(doc);
+  },
+
+  insert: async (userId: string, tweet: any): Promise<TwitterPost> => {
+    const doc = new TwitterPostModel({
+      userId,
+      ...tweet
+    });
+    await doc.save();
+    return mapDoc<TwitterPost>(doc)!;
+  },
+
+  update: async (id: string, tweet: Partial<any>, userId?: string): Promise<TwitterPost | null> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await TwitterPostModel.findOneAndUpdate(
+      query,
+      { $set: tweet },
+      { new: true }
+    );
+    return mapDoc<TwitterPost>(doc);
+  },
+
+  countPosted: async (userId: string): Promise<number> => {
+    return await TwitterPostModel.countDocuments({ userId, status: 'posted' });
+  },
+
+  delete: async (id: string, userId?: string): Promise<any> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    return await TwitterPostModel.deleteOne(query);
+  },
+};
+
+export const settingsQueries = {
+  get: async (userId: string, key: string): Promise<string | undefined> => {
+    const doc = await SettingModel.findOne({ userId, key });
+    return doc?.value ?? undefined;
+  },
+
+  set: async (userId: string, key: string, value: string): Promise<any> => {
+    return await SettingModel.findOneAndUpdate(
+      { userId, key },
+      { $set: { value } },
+      { upsert: true, new: true }
     );
   },
-  update: (id: number, app: Partial<Omit<Application, "id" | "created_at">>) => {
-    const updates = { ...app, updated_at: new Date().toISOString() };
-    const keys = Object.keys(updates).filter((k) => k !== "id");
-    const sets = keys.map((k) => `${k} = ?`);
-    const vals = keys.map((k) => (updates as any)[k]);
-    if (sets.length === 0) return { changes: 0 };
-    const query = `UPDATE applications SET ${sets.join(", ")} WHERE id = ?`;
-    return getDb().prepare(query).run(...vals, id);
+};
+
+export const notificationsQueries = {
+  insert: async (userId: string, type: string, message: string, whatsappStatus: string): Promise<any> => {
+    const doc = new NotificationLogModel({
+      userId,
+      type,
+      message,
+      whatsapp_status: whatsappStatus
+    });
+    await doc.save();
+    return mapDoc(doc);
   },
-  delete: (id: number) =>
-    getDb().prepare("DELETE FROM applications WHERE id = ?").run(id),
-  countByStage: (stage: string) => {
-    const res = getDb().prepare("SELECT COUNT(*) as count FROM applications WHERE stage = ?").get(stage) as any;
-    return Number(res?.count ?? 0);
+
+  getRecent: async (userId: string, limit: number): Promise<any[]> => {
+    const docs = await NotificationLogModel.find({ userId }).sort({ sent_at: -1 }).limit(limit);
+    return mapDocs(docs);
+  },
+};
+
+export const activityQueries = {
+  add: async (userId: string, type: string, message: string, meta?: any): Promise<any> => {
+    const doc = new ActivityLogModel({
+      userId,
+      type,
+      message,
+      meta: meta ? JSON.stringify(meta) : null
+    });
+    await doc.save();
+    return mapDoc(doc);
+  },
+
+  getRecent: async (userId: string, limit: number): Promise<any[]> => {
+    const docs = await ActivityLogModel.find({ userId }).sort({ createdAt: -1 }).limit(limit);
+    return mapDocs(docs);
+  },
+};
+
+export const applicationQueries = {
+  getAll: async (userId: string): Promise<Application[]> => {
+    const docs = await ApplicationModel.find({ userId }).sort({ createdAt: -1 });
+    return mapDocs<Application>(docs);
+  },
+
+  getById: async (id: string, userId?: string): Promise<Application | undefined> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await ApplicationModel.findOne(query);
+    return mapDoc<Application>(doc) || undefined;
+  },
+
+  insert: async (userId: string, app: Omit<Application, "id" | "userId" | "createdAt" | "updatedAt">): Promise<Application> => {
+    const doc = new ApplicationModel({
+      userId,
+      ...app
+    });
+    await doc.save();
+    return mapDoc<Application>(doc)!;
+  },
+
+  update: async (id: string, app: Partial<Omit<Application, "id" | "userId" | "createdAt">>, userId?: string): Promise<Application | null> => {
+    const updateData = { ...app, updatedAt: new Date() };
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await ApplicationModel.findOneAndUpdate(
+      query,
+      { $set: updateData },
+      { new: true }
+    );
+    return mapDoc<Application>(doc);
+  },
+
+  delete: async (id: string, userId?: string): Promise<any> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    return await ApplicationModel.deleteOne(query);
+  },
+
+  countByStage: async (userId: string, stage: string): Promise<number> => {
+    return await ApplicationModel.countDocuments({ userId, stage: stage as any });
   }
 };
 
 export const resumeVaultQueries = {
-  getAll: () =>
-    getDb().prepare("SELECT * FROM resume_vault ORDER BY created_at DESC").all() as ResumeVaultItem[],
-  getById: (id: number) =>
-    getDb().prepare("SELECT * FROM resume_vault WHERE id = ?").get(id) as ResumeVaultItem | undefined,
-  insert: (item: Omit<ResumeVaultItem, "id" | "created_at">) => {
-    const stmt = getDb().prepare(`
-      INSERT INTO resume_vault (filename, label, content, is_default)
-      VALUES (?, ?, ?, ?)
-    `);
-    return stmt.run(item.filename, item.label, item.content ?? null, item.is_default ?? 0);
+  getAll: async (userId: string): Promise<ResumeVaultItem[]> => {
+    const docs = await ResumeVaultModel.find({ userId }).sort({ createdAt: -1 });
+    return mapDocs<ResumeVaultItem>(docs);
   },
-  setDefault: (id: number) => {
-    getDb().prepare("UPDATE resume_vault SET is_default = 0").run();
-    return getDb().prepare("UPDATE resume_vault SET is_default = 1 WHERE id = ?").run(id);
-  },
-  delete: (id: number) =>
-    getDb().prepare("DELETE FROM resume_vault WHERE id = ?").run(id)
-};
 
+  getById: async (id: string, userId?: string): Promise<ResumeVaultItem | undefined> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await ResumeVaultModel.findOne(query);
+    return mapDoc<ResumeVaultItem>(doc) || undefined;
+  },
+
+  insert: async (userId: string, item: Omit<ResumeVaultItem, "id" | "userId" | "createdAt">): Promise<ResumeVaultItem> => {
+    const doc = new ResumeVaultModel({
+      userId,
+      ...item
+    });
+    await doc.save();
+    return mapDoc<ResumeVaultItem>(doc)!;
+  },
+
+  setDefault: async (id: string, userId?: string): Promise<any> => {
+    const query = userId ? { userId } : {};
+    await ResumeVaultModel.updateMany(query, { $set: { is_default: 0 } });
+    const findQuery = userId ? { _id: id, userId } : { _id: id };
+    return await ResumeVaultModel.findOneAndUpdate(
+      findQuery,
+      { $set: { is_default: 1 } },
+      { new: true }
+    );
+  },
+
+  update: async (id: string, userId: string, updateData: Partial<ResumeVaultItem>): Promise<ResumeVaultItem | undefined> => {
+    const doc = await ResumeVaultModel.findOneAndUpdate(
+      { _id: id, userId },
+      { $set: updateData },
+      { new: true }
+    );
+    return mapDoc<ResumeVaultItem>(doc) || undefined;
+  },
+
+  delete: async (id: string, userId?: string): Promise<any> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    return await ResumeVaultModel.deleteOne(query);
+  }
+};
