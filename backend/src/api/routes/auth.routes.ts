@@ -7,6 +7,7 @@ import { User } from "../../db/models.js";
 import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { connectDB } from "../../db/connection.js";
+import { sendWelcomeMail } from "../../automation/coldmail/mailSender.js";
 
 const router = Router();
 
@@ -41,6 +42,11 @@ router.post("/signup", async (req, res) => {
     });
 
     await user.save();
+
+    // Trigger Welcome Email asynchronously in background
+    sendWelcomeMail(user.email, user.fullName || undefined).catch((err) =>
+      console.error("Welcome email trigger error:", err)
+    );
 
     // Generate JWT
     const token = jwt.sign(
@@ -112,7 +118,9 @@ router.post("/google", async (req, res) => {
     const emailNormalized = payload.email.toLowerCase();
     let user = await User.findOne({ email: emailNormalized });
 
+    let isNewUser = false;
     if (!user) {
+      isNewUser = true;
       const saltRounds = 10;
       const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), saltRounds);
 
@@ -125,6 +133,11 @@ router.post("/google", async (req, res) => {
       });
 
       await user.save();
+
+      // Trigger Welcome Email for new Google account creation
+      sendWelcomeMail(user.email, user.fullName || undefined).catch((err) =>
+        console.error("Google welcome email trigger error:", err)
+      );
     } else if (payload.picture && user.profilePic !== payload.picture) {
       user.profilePic = payload.picture;
       await user.save();

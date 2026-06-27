@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { google } from "googleapis";
+import axios from "axios";
 import { env } from "../../config/env.js";
 import { companyQueries } from "../../db/queries.js";
 import { logger } from "../../lib/logger.js";
@@ -7,6 +8,37 @@ import { activityQueries } from "../../db/queries.js";
 import { getSenderEmail, getSenderName } from "../../config/appSettings.js";
 
 let transporter: nodemailer.Transporter | null = null;
+
+async function sendViaBrevo(options: {
+  senderName: string;
+  senderEmail: string;
+  toEmail: string;
+  subject: string;
+  textContent: string;
+  htmlContent: string;
+}): Promise<boolean> {
+  const apiKey = (process.env.BREVO_API_KEY || env.BREVO_API_KEY || "").trim();
+  if (!apiKey) throw new Error("Brevo API key is missing");
+
+  const response = await axios.post(
+    "https://api.brevo.com/v3/smtp/email",
+    {
+      sender: { name: options.senderName || "Founder Outly", email: "founder@outly.online" },
+      to: [{ email: options.toEmail }],
+      subject: options.subject,
+      textContent: options.textContent,
+      htmlContent: options.htmlContent,
+    },
+    {
+      headers: {
+        "api-key": apiKey,
+        "content-type": "application/json",
+        "accept": "application/json",
+      },
+    }
+  );
+  return !!response.data;
+}
 
 async function getTransporter(): Promise<nodemailer.Transporter> {
   if (transporter) return transporter;
@@ -40,22 +72,35 @@ export async function sendColdMail(companyId: string): Promise<boolean> {
   if (!company.generated_subject || !company.generated_mail) return false;
 
   try {
-    const transport = await getTransporter();
-    const messageId = `<${Date.now()}.${companyId}@outly.local>`;
     const senderName = company.sender_name || await getSenderName(company.userId);
     const senderEmail = getSenderEmail();
-    await transport.sendMail({
-      from: `"${senderName}" <${senderEmail}>`,
-      to: company.hr_email,
-      subject: company.generated_subject,
-      text: company.generated_mail,
-      html: company.generated_mail.replace(/\n/g, "<br>"),
-      headers: {
-        "Message-ID": messageId,
-        "Reply-To": senderEmail,
-        "List-Unsubscribe": `<mailto:${senderEmail}?subject=unsubscribe>`,
-      },
-    });
+    const brevoKey = (process.env.BREVO_API_KEY || env.BREVO_API_KEY || "").trim();
+
+    if (brevoKey) {
+      await sendViaBrevo({
+        senderName,
+        senderEmail,
+        toEmail: company.hr_email,
+        subject: company.generated_subject,
+        textContent: company.generated_mail,
+        htmlContent: company.generated_mail.replace(/\n/g, "<br>"),
+      });
+    } else {
+      const transport = await getTransporter();
+      const messageId = `<${Date.now()}.${companyId}@outly.local>`;
+      await transport.sendMail({
+        from: `"${senderName}" <${senderEmail}>`,
+        to: company.hr_email,
+        subject: company.generated_subject,
+        text: company.generated_mail,
+        html: company.generated_mail.replace(/\n/g, "<br>"),
+        headers: {
+          "Message-ID": messageId,
+          "Reply-To": senderEmail,
+          "List-Unsubscribe": `<mailto:${senderEmail}?subject=unsubscribe>`,
+        },
+      });
+    }
 
     const now = new Date();
     await companyQueries.updateStatus(companyId, "mail_sent", {
@@ -72,7 +117,7 @@ export async function sendColdMail(companyId: string): Promise<boolean> {
     logger.info(`Cold mail sent to ${company.company_name}`, { source: "mail" });
     return true;
   } catch (e) {
-    const errMsg = String(e);
+    const errMsg = e && typeof e === "object" && "response" in e ? JSON.stringify((e as any).response?.data || e) : String(e);
     await companyQueries.updateStatus(companyId, "approved", {
       error_message: errMsg,
     } as unknown as Partial<import("../../db/queries.js").Company>);
@@ -88,7 +133,7 @@ export async function sendColdMail(companyId: string): Promise<boolean> {
 }
 
 export function isGmailConfigured(): boolean {
-  return !!(env.GMAIL_CLIENT_ID && env.GMAIL_CLIENT_SECRET && env.GMAIL_REFRESH_TOKEN);
+  return !!(process.env.BREVO_API_KEY || env.BREVO_API_KEY || (env.GMAIL_CLIENT_ID && env.GMAIL_CLIENT_SECRET && env.GMAIL_REFRESH_TOKEN));
 }
 
 export async function sendFollowUpMail(companyId: string, subject: string, body: string): Promise<boolean> {
@@ -96,23 +141,34 @@ export async function sendFollowUpMail(companyId: string, subject: string, body:
   if (!company || company.status !== "mail_sent") return false;
 
   try {
-    const transport = await getTransporter();
     const senderName = company.sender_name || await getSenderName(company.userId);
     const senderEmail = getSenderEmail();
-    // In-reply-to would be better here, but since we don't store Message-ID, 
-    // a basic RE: subject keeps it threaded in most modern clients
-    const messageId = `<followup_${Date.now()}.${companyId}@outly.local>`;
-    await transport.sendMail({
-      from: `"${senderName}" <${senderEmail}>`,
-      to: company.hr_email,
-      subject: subject,
-      text: body,
-      html: body.replace(/\n/g, "<br>"),
-      headers: {
-        "Message-ID": messageId,
-        "Reply-To": senderEmail,
-      },
-    });
+    const brevoKey = (process.env.BREVO_API_KEY || env.BREVO_API_KEY || "").trim();
+
+    if (brevoKey) {
+      await sendViaBrevo({
+        senderName,
+        senderEmail,
+        toEmail: company.hr_email,
+        subject: subject,
+        textContent: body,
+        htmlContent: body.replace(/\n/g, "<br>"),
+      });
+    } else {
+      const transport = await getTransporter();
+      const messageId = `<followup_${Date.now()}.${companyId}@outly.local>`;
+      await transport.sendMail({
+        from: `"${senderName}" <${senderEmail}>`,
+        to: company.hr_email,
+        subject: subject,
+        text: body,
+        html: body.replace(/\n/g, "<br>"),
+        headers: {
+          "Message-ID": messageId,
+          "Reply-To": senderEmail,
+        },
+      });
+    }
 
     const now = new Date();
     await companyQueries.update(companyId, {
@@ -141,6 +197,155 @@ export async function sendFollowUpMail(companyId: string, subject: string, body:
       { companyId }
     );
     logger.error(`Follow-up failed: ${company.company_name}`, { error: errMsg, source: "mail" });
+    return false;
+  }
+}
+
+export async function sendWelcomeMail(toEmail: string, fullName?: string): Promise<boolean> {
+  try {
+    const name = fullName || toEmail.split("@")[0];
+    const subject = `Welcome to Outly! 🚀`;
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <style type="text/css">
+          body, table, td, a{-webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;}
+          table, td{mso-table-lspace: 0pt; mso-table-rspace: 0pt;}
+          img{-ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none;}
+          table{border-collapse: collapse !important;}
+          body{height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #fafafa; font-family: Arial, Helvetica, sans-serif; color: #1a1a1a;}
+          @media screen and (max-width: 665px) {
+            .wrapper { width: 100% !important; max-width: 100% !important; }
+            .padding2 { padding: 15px 20px !important; }
+            .logo-header { padding: 18px 15px 12px !important; }
+            .logo-img { width: 115px !important; max-height: 36px !important; }
+            .mobile-link-td { padding-top: 4px !important; font-size: 12px !important; }
+          }
+        </style>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #fafafa;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fafafa; padding: 30px 10px;">
+          <tr>
+            <td bgcolor="#fafafa" align="center">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e8e2d5; box-shadow: 0 4px 12px rgba(0,0,0,0.03);" class="wrapper">
+                
+                <!-- LOGO HEADER -->
+                <tr>
+                  <td align="center" valign="top" width="100%" style="border-bottom: 1px solid #e8e2d5; padding: 22px 30px 16px;" class="logo-header">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td align="left" valign="middle">
+                          <a href="https://outly.online" target="_blank" style="display: inline-block;">
+                            <img src="https://res.cloudinary.com/dmgd1iunu/image/upload/v1782581584/outly_brand/outly_logo.png" alt="Outly" width="125" style="display: block; border: 0; outline: none; height: auto; max-height: 40px; width: 125px; object-fit: contain;" class="logo-img" />
+                          </a>
+                        </td>
+                        <td align="right" valign="middle" class="mobile-link-td">
+                          <a href="https://outly.online" target="_blank" style="color: #2dc08d; text-decoration: none; font-family: Arial, sans-serif; font-size: 13px; font-weight: bold;">www.outly.online</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- CONTENT BODY -->
+                <tr>
+                  <td style="padding: 30px 35px 20px;" class="padding2">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td align="left" style="font-size: 16px; line-height: 24px; font-family: Arial, sans-serif; color: #1a1a1a; padding-bottom: 16px;">
+                          Hi ${name},
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="left" style="font-size: 18px; font-weight: bold; line-height: 26px; font-family: Arial, sans-serif; color: #1a1a1a; padding-bottom: 16px;">
+                          Welcome to Outly! 🎉
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="left" style="font-size: 15px; line-height: 24px; font-family: Arial, sans-serif; color: #333333; padding-bottom: 16px;">
+                          I'm Bharat, founder of Outly.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="left" style="font-size: 15px; line-height: 25px; font-family: Arial, sans-serif; color: #333333; padding-bottom: 16px;">
+                          We're building a space where people can showcase their skills, pursue their hobbies, and grow together — your career and your passion, all in one place.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="left" style="font-size: 15px; line-height: 24px; font-family: Arial, sans-serif; color: #333333; padding-bottom: 16px;">
+                          Glad to have you here early.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="left" style="font-size: 15px; line-height: 25px; font-family: Arial, sans-serif; color: #333333; padding-bottom: 20px;">
+                          Complete your profile, explore the community, and don’t hesitate to share your feedback. I read every message personally.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="left" style="font-size: 16px; font-weight: bold; line-height: 24px; font-family: Arial, sans-serif; color: #2dc08d; padding-bottom: 24px;">
+                          Let’s build something awesome together.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="left" style="font-size: 15px; line-height: 22px; font-family: Arial, sans-serif; color: #333333; padding-bottom: 10px; border-top: 1px dashed #e8e2d5; padding-top: 20px;">
+                          Cheers,<br/>
+                          <strong style="color: #1a1a1a; font-size: 16px;">Bharat</strong><br/>
+                          <span style="color: #666666; font-size: 14px;">Founder, Outly</span><br/>
+                          <a href="https://outly.online" target="_blank" style="color: #2dc08d; text-decoration: underline; font-weight: bold; font-size: 14px;">www.outly.online</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- FOOTER / SUPPORT -->
+                <tr>
+                  <td style="border-top: 1px solid #e8e2d5; padding: 18px 35px; background-color: #fcfbf9;">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td align="left" style="font-family: Arial, sans-serif; font-size: 14px; color: #555555; line-height: 20px;">
+                          <strong style="color: #1a1a1a;">Outly Support</strong><br/>
+                          <a href="mailto:bharatdhuva27@gmail.com" style="color: #0066cc; text-decoration: underline;">bharatdhuva27@gmail.com</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const brevoKey = (process.env.BREVO_API_KEY || env.BREVO_API_KEY || "").trim();
+    if (brevoKey) {
+      await sendViaBrevo({
+        senderName: "Founder Outly",
+        senderEmail: "founder@outly.online",
+        toEmail,
+        subject,
+        textContent: `Hi ${name},\nWelcome to Outly! 🎉\nI'm Bharat, founder of Outly.\nWe're building a space where people can showcase their skills, pursue their hobbies, and grow together — your career and your passion, all in one place.\nGlad to have you here early.\nComplete your profile, explore the community, and don’t hesitate to share your feedback. I read every message personally.\nLet’s build something awesome together.\n\nCheers,\nBharat\nFounder, Outly\nwww.outly.online\nOutly Support: bharatdhuva27@gmail.com`,
+        htmlContent,
+      });
+    } else {
+      const transport = await getTransporter();
+      await transport.sendMail({
+        from: `"Founder Outly" <founder@outly.online>`,
+        to: toEmail,
+        subject,
+        html: htmlContent,
+      });
+    }
+    logger.info(`Welcome email sent to ${toEmail}`, { source: "mail" });
+    return true;
+  } catch (err) {
+    logger.error(`Failed to send welcome email to ${toEmail}`, { error: String(err), source: "mail" });
     return false;
   }
 }
