@@ -30,6 +30,7 @@ import {
   HelpCircle,
   Check
 } from "lucide-react";
+import LockedFeatureGuard from "@/components/LockedFeatureGuard";
 
 const STAGES = [
   { id: "saved", label: "Saved", color: "border-slate-500/20 bg-slate-500/5 text-slate-500" },
@@ -161,7 +162,8 @@ export default function ApplicationsPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-8 animate-fade-in pb-16">
+    <LockedFeatureGuard featureTitle="Job Tracker & Application Scheduler">
+      <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-8 animate-fade-in pb-16">
       
       {/* Header Title Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-left">
@@ -531,6 +533,7 @@ export default function ApplicationsPage() {
         </DialogContent>
       </Dialog>
 
-    </div>
+      </div>
+    </LockedFeatureGuard>
   );
 }

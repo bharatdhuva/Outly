@@ -17,6 +17,8 @@ import {
   CheckCircle2
 } from "lucide-react";
 
+import LockedFeatureGuard from "@/components/LockedFeatureGuard";
+
 export default function JobSearchPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -101,7 +103,8 @@ export default function JobSearchPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-8 animate-fade-in pb-16">
+    <LockedFeatureGuard featureTitle="Job Search Engine">
+      <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-8 animate-fade-in pb-16">
       
       {/* Hero Header */}
       <div className="space-y-3 text-left">
@@ -299,6 +302,7 @@ export default function JobSearchPage() {
         )}
       </div>
 
-    </div>
+      </div>
+    </LockedFeatureGuard>
   );
 }
