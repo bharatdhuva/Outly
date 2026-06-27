@@ -9,12 +9,17 @@ import { connectDB } from "../../db/connection.js";
 const router = Router();
 
 function getRazorpayInstance() {
-  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
+  const key_id = (process.env.RAZORPAY_KEY_ID || env.RAZORPAY_KEY_ID || "").trim();
+  const key_secret = (process.env.RAZORPAY_KEY_SECRET || env.RAZORPAY_KEY_SECRET || "").trim();
+
+  console.log(`[Razorpay] Credentials check -> Key ID: ${key_id ? key_id.substring(0, 8) + "..." : "MISSING"}, Secret: ${key_secret ? key_secret.substring(0, 8) + "..." : "MISSING"}`);
+
+  if (!key_id || !key_secret) {
     throw new Error("Razorpay credentials (RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET) are missing in environment variables.");
   }
   return new Razorpay({
-    key_id: env.RAZORPAY_KEY_ID,
-    key_secret: env.RAZORPAY_KEY_SECRET,
+    key_id,
+    key_secret,
   });
 }
 
@@ -67,13 +72,14 @@ router.post("/verify-payment", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Missing required verification parameters (razorpay_payment_id, razorpay_order_id, razorpay_signature)." });
     }
 
-    if (!env.RAZORPAY_KEY_SECRET) {
+    const key_secret = (process.env.RAZORPAY_KEY_SECRET || env.RAZORPAY_KEY_SECRET || "").trim();
+    if (!key_secret) {
       return res.status(500).json({ error: "Razorpay secret is not configured on server." });
     }
 
     // Algorithm: HMAC-SHA256(order_id + "|" + payment_id, KEY_SECRET)
     const generatedSignature = crypto
-      .createHmac("sha256", env.RAZORPAY_KEY_SECRET)
+      .createHmac("sha256", key_secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 

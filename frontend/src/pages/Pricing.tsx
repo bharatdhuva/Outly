@@ -105,7 +105,15 @@ export default function Pricing() {
       return;
     }
 
-    const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T6elPl8rVPbtd6";
+    const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+    if (!razorpayKeyId) {
+      toast({
+        title: "Configuration Error",
+        description: "Razorpay Key ID is missing. Please set VITE_RAZORPAY_KEY_ID in environment variables.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // 2. Open Razorpay Checkout Modal
     const options = {
