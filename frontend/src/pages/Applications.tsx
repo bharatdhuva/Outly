@@ -214,7 +214,7 @@ export default function ApplicationsPage() {
                 key={stage.id}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, stage.id)}
-                className={`rounded-2xl border p-4 min-h-[560px] flex flex-col gap-3.5 transition-colors ${stage.color}`}
+                className={`rounded-2xl border p-4 min-h-[420px] lg:min-h-[560px] flex flex-col gap-3.5 transition-colors ${stage.color}`}
               >
                 {/* Column header */}
                 <div className="flex items-center justify-between border-b border-border/40 pb-2 mb-0.5 text-left">

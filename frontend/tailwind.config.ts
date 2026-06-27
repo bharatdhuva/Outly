@@ -27,6 +27,7 @@ export default {
         outly: {
           cream: '#fafafa',
           accent: '#2dc08d',
+          logo: '#f23c5d',
           dark: '#1a1a1a',
           muted: '#71717a',
           border: '#e8e2d5'

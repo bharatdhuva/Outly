@@ -882,13 +882,13 @@ export default function Landing() {
           ? "bg-outly-cream/80 backdrop-blur-md border-b border-outly-border shadow-soft py-4" 
           : "bg-outly-cream/40 backdrop-blur-sm border-b border-outly-border/30 py-5"
       }`}>
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-3 items-center">
           
           {/* Left: Logo */}
           <div className="flex justify-start">
-            <div className="flex items-center gap-1 font-bold text-2xl tracking-tight cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-              <img src={logoTransparent} alt="Outly Logo" className="w-10 h-10 object-contain" />
-              <span className="text-outly-accent">Outly</span>
+            <div className="flex items-center gap-1 font-bold text-xl sm:text-2xl tracking-tight cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+              <span className="text-outly-logo">Outly</span>
             </div>
           </div>
           
@@ -899,8 +899,8 @@ export default function Landing() {
           </nav>
           
           {/* Right: Buttons */}
-          <div className="flex items-center justify-end gap-3 sm:gap-4">
-            <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="border border-outly-border px-4 sm:px-6 py-1.5 sm:py-2 rounded-full font-sans text-[16px] font-medium text-outly-dark hover:bg-outly-border/20 hover:border-outly-dark/40 active:scale-[0.98] transition-all duration-200 text-center cursor-pointer">
+          <div className="flex items-center justify-end gap-2 sm:gap-4">
+            <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="border border-outly-border px-3 sm:px-6 py-1.5 sm:py-2 rounded-full font-sans text-[13px] sm:text-[16px] font-medium text-outly-dark hover:bg-outly-border/20 hover:border-outly-dark/40 active:scale-[0.98] transition-all duration-200 text-center cursor-pointer">
               {isLoggedIn ? "Dashboard" : "Sign in"}
             </button>
           </div>
@@ -909,23 +909,23 @@ export default function Landing() {
       </header>
 
       {/* HERO SECTION */}
-      <main className="relative overflow-hidden pt-32 pb-24">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-12 gap-12 items-center">
+      <main className="relative overflow-hidden pt-24 sm:pt-32 pb-12 sm:pb-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-12 gap-8 sm:gap-12 items-center">
           
           {/* Left Column: Hero Text */}
           <div className="md:col-span-6 z-10 hero-text-container">
-            <div className="flex items-center gap-4 mb-8 hero-tag opacity-0 text-[10px] font-bold tracking-[0.2em] uppercase select-none">
+            <div className="flex items-center gap-4 mb-4 sm:mb-8 hero-tag opacity-0 text-[9px] sm:text-[10px] font-bold tracking-[0.2em] uppercase select-none">
               <span className="text-outly-accent flex items-center gap-2">
                 <span className="w-6 h-0.5 bg-outly-accent"></span>
                 Careers + Automation + AI
               </span>
             </div>
             
-            <h1 className="text-5xl sm:text-6xl md:text-[96px] font-medium tracking-tight mb-8 leading-[0.95] text-left hero-title opacity-0">
+            <h1 className="text-3xl sm:text-5xl md:text-[72px] font-medium tracking-tight mb-5 sm:mb-8 leading-[1.05] text-left hero-title opacity-0">
               Your career,<br />already <span className="relative inline-block italic-serif text-outly-accent">
                 sorted.
                 {/* Hand-drawn animated underline SVG */}
-                <svg className="absolute left-0 -bottom-4 w-full h-[14px] overflow-visible" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                <svg className="absolute left-0 -bottom-2 sm:-bottom-4 w-full h-[10px] sm:h-[14px] overflow-visible" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
                   <path 
                     d="M 4 9 Q 50 3 100 8 T 196 7" 
                     fill="none" 
@@ -938,26 +938,32 @@ export default function Landing() {
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-outly-dark/60 mb-10 max-w-full sm:max-w-lg text-left leading-relaxed font-medium hero-subtitle opacity-0">
+            <p className="text-base sm:text-lg md:text-xl text-outly-dark/60 mb-6 sm:mb-10 max-w-full sm:max-w-lg text-left leading-relaxed font-medium hero-subtitle opacity-0">
               Outly automates your job hunt so you don't have to. Personalized outreach, resume tailoring, and interview prep in one place.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 justify-start hero-buttons opacity-0">
-              <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="bg-outly-accent text-white px-8 py-4 rounded-full font-sans text-[16px] font-medium hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-outly-accent/25 cursor-pointer">
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-6 justify-start hero-buttons opacity-0">
+              <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="w-full sm:w-auto bg-outly-accent text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-sans text-[14px] sm:text-[16px] font-medium hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-outly-accent/25 cursor-pointer">
                 {isLoggedIn ? "Go to Dashboard" : "Get started — it's free"}
               </button>
-              <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="bg-white border border-outly-border hover:border-outly-dark/40 px-8 py-4 rounded-full font-sans text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 cursor-pointer">
+              <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="w-full sm:w-auto bg-white border border-outly-border hover:border-outly-dark/40 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-sans text-[14px] sm:text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 cursor-pointer">
                 {isLoggedIn ? "Dashboard" : "Sign in"}
               </button>
             </div>
-            
-            <p className="text-[11px] font-medium text-outly-dark/40 text-left hero-meta opacity-0">
+
+            <div className="mb-6 block md:hidden rounded-2xl sm:rounded-3xl border border-outly-border bg-white/95 p-4 sm:p-5 shadow-lg shadow-outly-accent/10 text-outly-dark">
+              <p className="text-xs sm:text-sm font-medium leading-relaxed">
+                Outly keeps mobile lean: one quick brief, simple recruiter updates, and fast draft-ready follow-ups without bulky dashboards.
+              </p>
+            </div>
+
+            <p className="text-[10px] sm:text-[11px] font-medium text-outly-dark/40 text-left hero-meta opacity-0">
               ✓ Free, because your data is our key. No card needed.
             </p>
           </div>
 
           {/* Right Column: Interactive Floating Cards */}
-          <div className="md:col-span-6 relative h-[320px] sm:h-[400px] md:h-[520px] w-full flex items-center justify-center z-10 select-none">
+          <div className="hidden md:flex md:col-span-6 relative h-auto sm:h-[360px] md:h-[520px] w-full flex items-center justify-center z-10 select-none">
             
             {/* Concentric Orbits Background */}
             <div className="absolute inset-0 hidden sm:flex items-center justify-center pointer-events-none overflow-hidden z-0">
@@ -1119,62 +1125,62 @@ export default function Landing() {
       </main>
 
       {/* FEATURE: THE DAILY BRIEF */}
-      <section id="daily-brief" className="max-w-6xl mx-auto px-6 py-24">
-        <div className="bg-outly-dark rounded-[48px] p-12 md:p-20 flex flex-col md:flex-row items-center gap-16 relative overflow-hidden">
+      <section id="daily-brief" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
+        <div className="bg-outly-dark rounded-[24px] sm:rounded-[48px] p-6 sm:p-12 md:p-20 flex flex-col md:flex-row items-center gap-8 sm:gap-16 relative overflow-hidden">
           <div className="md:w-1/2 z-10">
-            <div className="w-12 h-0.5 bg-[#c5a880] mb-10"></div>
-            <p className="text-[10px] font-bold tracking-[0.3em] text-[#c5a880] uppercase mb-8">THE DAILY BRIEF</p>
-            <h2 className="text-5xl md:text-6xl text-white font-medium mb-10 leading-[1.05] tracking-tight">
-              Open Outly.<br />Read one thing.<br /><span className="italic-serif text-[#c5a880] text-6xl md:text-7xl">Know your whole search.</span>
+            <div className="w-12 h-0.5 bg-[#c5a880] mb-6 sm:mb-10"></div>
+            <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.3em] text-[#c5a880] uppercase mb-4 sm:mb-8">THE DAILY BRIEF</p>
+            <h2 className="text-3xl sm:text-5xl md:text-6xl text-white font-medium mb-6 sm:mb-10 leading-[1.05] tracking-tight">
+              Open Outly.<br />Read one thing.<br /><span className="italic-serif text-[#c5a880] text-4xl sm:text-6xl md:text-7xl">Know your whole search.</span>
             </h2>
-            <p className="text-white/60 text-lg leading-relaxed max-w-md font-medium">
+            <p className="text-white/60 text-sm sm:text-lg leading-relaxed max-w-md font-medium">
               Every morning at 7, Outly summarizes your outreach progress, new job matches, and provides interview tips — all in thirty seconds of reading.
             </p>
           </div>
           <div className="md:w-1/2 w-full z-10">
-            <div className="bg-white rounded-[32px] p-10 text-outly-dark shadow-2xl border border-outly-border/45">
-              <div className="flex justify-between items-baseline mb-10 border-b border-outly-border/50 pb-6">
-                <h4 className="italic text-2xl tracking-tight">Wednesday, April 8</h4>
-                <span className="text-[10px] text-outly-dark/40 font-bold tracking-widest uppercase">7:00 AM BRIEF</span>
+            <div className="bg-white rounded-[20px] sm:rounded-[32px] p-5 sm:p-10 text-outly-dark shadow-2xl border border-outly-border/45">
+              <div className="flex justify-between items-baseline mb-6 sm:mb-10 border-b border-outly-border/50 pb-4 sm:pb-6">
+                <h4 className="italic text-lg sm:text-2xl tracking-tight">Wednesday, April 8</h4>
+                <span className="text-[8px] sm:text-[10px] text-outly-dark/40 font-bold tracking-widest uppercase">7:00 AM BRIEF</span>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 
                 {/* Row 1 */}
-                <div className="flex gap-6 items-start group cursor-pointer">
-                  <span className="text-xs font-bold text-outly-accent w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">First</span>
-                  <p className="text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
+                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
+                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">First</span>
+                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
                     <span className="font-bold text-outly-dark transition-colors duration-300 group-hover:text-outly-accent">Reply to Stripe</span> — interview scheduling requested by Friday. Outreach draft is ready.
                   </p>
                 </div>
 
                 {/* Row 2 */}
-                <div className="flex gap-6 items-start group cursor-pointer">
-                  <span className="text-xs font-bold text-outly-accent w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">9:30 AM</span>
-                  <p className="text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
+                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
+                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">9:30 AM</span>
+                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
                     <span className="font-bold text-outly-dark transition-colors duration-300 group-hover:text-outly-accent">Spotify prep</span> — review tailored pitch brief and 3 key talking points.
                   </p>
                 </div>
 
                 {/* Row 3 */}
-                <div className="flex gap-6 items-start group cursor-pointer">
-                  <span className="text-xs font-bold text-outly-accent w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">2:30 PM</span>
-                  <p className="text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
+                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
+                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">2:30 PM</span>
+                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
                     <span className="font-bold text-outly-dark transition-colors duration-300 group-hover:text-outly-accent">Notion call</span> — recruiter conversation. Calendar invite synced.
                   </p>
                 </div>
 
                 {/* Row 4 */}
-                <div className="flex gap-6 items-start group cursor-pointer">
-                  <span className="text-xs font-bold text-outly-accent w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">Heads up</span>
-                  <p className="text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
+                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
+                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">Heads up</span>
+                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
                     <span className="font-bold text-outly-dark transition-colors duration-300 group-hover:text-outly-accent">OpenAI viewed resume</span> — 96% profile match rating on your tailored variant.
                   </p>
                 </div>
 
                 {/* Row 5 */}
-                <div className="flex gap-6 items-start group cursor-pointer">
-                  <span className="text-xs font-bold text-outly-accent w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">Quiet</span>
-                  <p className="text-xs md:text-sm leading-relaxed text-outly-dark/50 transition-colors duration-300 group-hover:text-outly-dark">
+                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
+                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">Quiet</span>
+                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/50 transition-colors duration-300 group-hover:text-outly-dark">
                     Your afternoon after 3 is clear. Protected for interview prep.
                   </p>
                 </div>
@@ -1184,27 +1190,27 @@ export default function Landing() {
           </div>
           
           {/* Subtle gold wavy lines matching the ZenScail background theme */}
-          <svg className="absolute bottom-0 left-0 w-[400px] h-[200px] text-[#c5a880]/10 pointer-events-none z-0" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg className="hidden md:block absolute bottom-0 left-0 w-[400px] h-[200px] text-[#c5a880]/10 pointer-events-none z-0" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M-10 50 C 20 42, 50 48, 110 25" stroke="currentColor" strokeWidth="0.5" fill="none"/>
             <path d="M-10 50 C 30 35, 60 40, 110 15" stroke="currentColor" strokeWidth="0.5" fill="none"/>
           </svg>
 
-          <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-outly-accent/5 blur-[120px] rounded-full z-0"></div>
+          <div className="hidden md:block absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-outly-accent/5 blur-[120px] rounded-full z-0"></div>
         </div>
       </section>
 
       {/* FEATURE GRID */}
-      <section id="features" className="max-w-6xl mx-auto px-6 py-24">
-        <div className="mb-20">
-          <h2 className="text-6xl md:text-7xl font-medium tracking-tight leading-[1] text-outly-dark">
+      <section id="features" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
+        <div className="mb-10 sm:mb-20">
+          <h2 className="text-3xl sm:text-6xl md:text-7xl font-medium tracking-tight leading-[1] text-outly-dark">
             Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
           </h2>
         </div>
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
+        <div className="grid md:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
           
           {/* Card 1 */}
-          <div className="bg-white p-10 rounded-3xl border border-outly-border shadow-soft hover:shadow-lg transition-all duration-500 flex flex-col items-start group cursor-pointer">
-            <div className="w-full h-40 bg-outly-cream/50 rounded-2xl mb-10 flex items-center justify-center border border-outly-border/50 overflow-hidden">
+          <div className="bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft hover:shadow-lg transition-all duration-500 flex flex-col items-start group cursor-pointer">
+            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50 overflow-hidden">
               <div className="flex flex-col gap-3 w-2/3">
                 <div className="h-1 w-full bg-outly-accent/10 rounded-full overflow-hidden">
                   <div className="h-full w-0 bg-outly-accent/40 rounded-full transition-all duration-1000 group-hover:w-full"></div>
@@ -1221,13 +1227,13 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-            <h4 className="text-xl font-bold mb-4 tracking-tight group-hover:text-outly-accent transition-colors">Smart Outreach</h4>
-            <p className="text-outly-dark/50 leading-relaxed text-sm font-medium">Outly identifies the best recruiters and drafts personalized messages that sound exactly like you.</p>
+            <h4 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight group-hover:text-outly-accent transition-colors">Smart Outreach</h4>
+            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Outly identifies the best recruiters and drafts personalized messages that sound exactly like you.</p>
           </div>
 
           {/* Card 2 */}
-          <div className="bg-white p-10 rounded-3xl border border-outly-border shadow-soft hover:shadow-lg transition-all duration-500 flex flex-col items-start group cursor-pointer">
-            <div className="w-full h-40 bg-outly-cream/50 rounded-2xl mb-10 flex items-center justify-center border border-outly-border/50">
+          <div className="bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft hover:shadow-lg transition-all duration-500 flex flex-col items-start group cursor-pointer">
+            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
               <div className="relative">
                 <div className="w-12 h-12 rounded-full border-2 border-outly-accent/20 flex items-center justify-center transition-transform duration-500 group-hover:rotate-180">
                   <div className="w-6 h-6 rounded-full bg-outly-accent/20"></div>
@@ -1235,13 +1241,13 @@ export default function Landing() {
                 <div className="absolute -top-2 -right-2 w-4 h-4 bg-outly-accent rounded-full border-2 border-white transition-transform duration-500 group-hover:scale-150"></div>
               </div>
             </div>
-            <h4 className="text-xl font-bold mb-4 tracking-tight group-hover:text-outly-accent transition-colors">ATS Scoring</h4>
-            <p className="text-outly-dark/50 leading-relaxed text-sm font-medium">Every job application is instantly scored against your profile with tips to hit 95%+ every time.</p>
+            <h4 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight group-hover:text-outly-accent transition-colors">ATS Scoring</h4>
+            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Every job application is instantly scored against your profile with tips to hit 95%+ every time.</p>
           </div>
 
           {/* Card 3 */}
-          <div className="bg-white p-10 rounded-3xl border border-outly-border shadow-soft hover:shadow-lg transition-all duration-500 flex flex-col items-start group cursor-pointer">
-            <div className="w-full h-40 bg-outly-cream/50 rounded-2xl mb-10 flex items-center justify-center border border-outly-border/50">
+          <div className="bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft hover:shadow-lg transition-all duration-500 flex flex-col items-start group cursor-pointer">
+            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
               <div className="w-16 h-20 bg-white border border-outly-border rounded shadow-sm relative p-2 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
                 <div className="h-1 w-full bg-outly-dark/10 rounded mb-1"></div>
                 <div className="h-1 w-2/3 bg-outly-dark/10 rounded mb-4"></div>
@@ -1250,88 +1256,88 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-            <h4 className="text-xl font-bold mb-4 tracking-tight group-hover:text-outly-accent transition-colors">Resume Vault</h4>
-            <p className="text-outly-dark/50 leading-relaxed text-sm font-medium">Outly auto-generates tailored resume versions for every single application, saved and ready to send.</p>
+            <h4 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight group-hover:text-outly-accent transition-colors">Resume Vault</h4>
+            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Outly auto-generates tailored resume versions for every single application, saved and ready to send.</p>
           </div>
         </div>
       </section>
 
       {/* INTERACTIVE WORKSPACE SHOWCASE */}
-      <section id="demo" className="max-w-6xl mx-auto px-6 py-24 text-center">
-        <div className="text-outly-accent font-bold text-[10px] tracking-[0.3em] uppercase mb-8">TRY IT RIGHT HERE</div>
-        <h2 className="text-6xl md:text-7xl font-medium tracking-tight mb-8 leading-[1]">
+      <section id="demo" className="max-w-6xl mx-auto px-3 sm:px-6 py-8 sm:py-16 md:py-24 text-center">
+        <div className="text-outly-accent font-bold text-[8px] sm:text-[10px] tracking-[0.3em] uppercase mb-2 sm:mb-6">TRY IT RIGHT HERE</div>
+        <h2 className="text-2xl sm:text-5xl md:text-7xl font-medium tracking-tight mb-3 sm:mb-6 leading-[1.1]">
           Go on, <span className="italic-serif text-outly-accent">click around.</span>
         </h2>
-        <p className="text-outly-dark/50 text-xl mb-20 max-w-2xl mx-auto font-medium">
+        <p className="text-outly-dark/50 text-xs sm:text-base md:text-xl mb-6 sm:mb-14 max-w-2xl mx-auto font-medium leading-relaxed">
           This is a living preview of Outly. Manage your daily schedule, customize resumes, and send automated responses on autopilot.
         </p>
         
         {/* Browser Mockup Container */}
-        <div className="bg-white rounded-3xl md:rounded-[40px] shadow-2xl overflow-hidden border border-outly-border text-left max-w-5xl mx-auto">
+        <div className="bg-white rounded-xl sm:rounded-3xl md:rounded-[40px] shadow-xl sm:shadow-2xl overflow-hidden border border-outly-border text-left max-w-5xl mx-auto">
           
           {/* Browser Header */}
-          <div className="bg-outly-cream/40 px-6 py-4 border-b border-outly-border flex items-center gap-3">
-            <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-outly-dark/10"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-outly-dark/10"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-outly-dark/10"></div>
+          <div className="bg-outly-cream/40 px-3 sm:px-6 py-2 sm:py-4 border-b border-outly-border flex items-center gap-2 sm:gap-3">
+            <div className="flex gap-1">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-outly-dark/10"></div>
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-outly-dark/10"></div>
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-outly-dark/10"></div>
             </div>
-            <div className="bg-white border border-outly-border rounded-lg px-4 py-1 text-[10px] font-bold text-outly-dark/30 mx-auto select-none">
+            <div className="bg-white border border-outly-border rounded-lg px-2.5 sm:px-4 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-bold text-outly-dark/30 mx-auto select-none truncate max-w-[160px] sm:max-w-none text-center">
               outly.com/<span>{activeTab === "brief" ? "dashboard" : (activeTab === "calendar" ? "jobs" : activeTab)}</span>
             </div>
-            <div className="text-[10px] font-bold text-outly-accent flex items-center gap-1.5 select-none">
+            <div className="text-[8px] sm:text-[10px] font-bold text-outly-accent flex items-center gap-1 sm:gap-1.5 select-none shrink-0">
               <div className="w-1.5 h-1.5 rounded-full bg-outly-accent animate-pulse"></div>
               Interactive Demo
             </div>
           </div>
           
           {/* Workspace Body */}
-          <div className="flex flex-col md:flex-row h-[620px] md:h-[550px] overflow-hidden">
+          <div className="flex flex-col md:flex-row h-auto md:h-[550px] overflow-hidden">
             
             {/* Sidebar */}
-            <div className="w-full md:w-64 bg-outly-cream/10 border-b md:border-b-0 md:border-r border-outly-border p-6 md:p-8 flex flex-row md:flex-col justify-between shrink-0 overflow-x-auto no-scrollbar">
-              <div className="flex flex-row md:flex-col gap-6 md:gap-6 w-full">
+            <div className="w-full md:w-64 bg-outly-cream/10 border-b md:border-b-0 md:border-r border-outly-border p-3 sm:p-6 md:p-8 flex flex-row md:flex-col justify-between shrink-0 overflow-x-auto no-scrollbar">
+              <div className="flex flex-row md:flex-col gap-3 sm:gap-6 w-full shrink-0">
                 
                 {/* Brief Tab Button */}
-                <div className={`flex items-center gap-3 text-sm font-bold transition cursor-pointer select-none py-1 ${
+                <div className={`flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold transition cursor-pointer select-none py-1 whitespace-nowrap ${
                   activeTab === "brief" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
                 }`} onClick={() => handleTabSwitch("brief")}>
-                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2" stroke-linecap="round" stroke-linejoin="round"></path>
                   </svg>
                   Daily brief
                 </div>
                 
                 {/* Inbox Tab Button */}
-                <div className={`flex items-center justify-between text-sm font-bold transition cursor-pointer select-none py-1 w-full ${
+                <div className={`flex items-center justify-between gap-2 text-xs sm:text-sm font-bold transition cursor-pointer select-none py-1 w-auto md:w-full whitespace-nowrap ${
                   activeTab === "inbox" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
                 }`} onClick={() => handleTabSwitch("inbox")}>
-                  <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
-                    Recruiter Outreach
+                    Outreach
                   </div>
                   {inboxBadgeCount > 0 && (
-                    <span className="bg-outly-accent text-white text-[9px] px-1.5 rounded transition-all duration-300">{inboxBadgeCount}</span>
+                    <span className="bg-outly-accent text-white text-[8px] sm:text-[9px] px-1.5 rounded transition-all duration-300">{inboxBadgeCount}</span>
                   )}
                 </div>
                 
                 {/* Calendar Tab Button */}
-                <div className={`flex items-center gap-3 text-sm font-bold transition cursor-pointer select-none py-1 ${
+                <div className={`flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold transition cursor-pointer select-none py-1 whitespace-nowrap ${
                   activeTab === "calendar" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
                 }`} onClick={() => handleTabSwitch("calendar")}>
-                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M9 4.5v15m6-15v15m-9-15h12a1.5 1.5 0 011.5 1.5v12a1.5 1.5 0 01-1.5 1.5H6a1.5 1.5 0 01-1.5-1.5V6a1.5 1.5 0 011.5-1.5z" stroke-linecap="round" stroke-linejoin="round"></path>
                   </svg>
                   Job Tracker
                 </div>
 
                 {/* Vault Tab Button */}
-                <div className={`flex items-center gap-3 text-sm font-bold transition cursor-pointer select-none py-1 ${
+                <div className={`flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold transition cursor-pointer select-none py-1 whitespace-nowrap ${
                   activeTab === "vault" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
                 }`} onClick={() => handleTabSwitch("vault")}>
-                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
                   </svg>
                   Resume Vault
@@ -1349,19 +1355,19 @@ export default function Landing() {
               
               {/* TAB 1: DAILY BRIEF */}
               {activeTab === "brief" && (
-                <div className="h-full p-6 md:p-8 flex flex-col overflow-y-auto custom-scrollbar">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div className="h-full p-4 sm:p-6 md:p-8 flex flex-col overflow-y-auto custom-scrollbar">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6 sm:mb-8">
                     <div>
-                      <h3 className="font-bold text-2xl tracking-tight">Morning Analytics</h3>
-                      <p className="text-xs text-outly-dark/40 font-medium">Outreach metrics and match rate summaries.</p>
+                      <h3 className="font-bold text-xl sm:text-2xl tracking-tight">Morning Analytics</h3>
+                      <p className="text-[11px] sm:text-xs text-outly-dark/40 font-medium">Outreach metrics and match rate summaries.</p>
                     </div>
-                    <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-outly-border shadow-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-outly-border shadow-sm">
                       <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-outly-dark/60">Live Updates</span>
+                      <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-outly-dark/60">Live Updates</span>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-8">
                     <div className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-outly-border shadow-soft">
                       <span className="text-[7px] sm:text-[8px] font-bold uppercase tracking-wider text-outly-dark/30 block mb-1">Total Mails</span>
                       <div className="text-base sm:text-2xl font-semibold tracking-tight text-outly-dark">{totalMailsSent}</div>
@@ -1546,15 +1552,15 @@ export default function Landing() {
               {/* TAB 3: CALENDAR */}
               {/* TAB 3: JOB TRACKER */}
               {activeTab === "calendar" && (
-                <div className="h-full p-4 md:p-8 flex flex-col overflow-y-auto custom-scrollbar bg-[#fdfaf5]/10">
+                <div className="h-full p-3 sm:p-6 md:p-8 flex flex-col overflow-y-auto custom-scrollbar bg-[#fdfaf5]/10">
                   
                   {/* Tab Title & Header */}
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start mb-3 sm:mb-4">
                     <div>
-                      <h3 className="font-bold text-2xl tracking-tight">
+                      <h3 className="font-bold text-lg sm:text-2xl tracking-tight">
                         {jobsSubTab === "tracker" ? "Job Application Tracker" : "Tailored Job Search"}
                       </h3>
-                      <p className="text-xs text-outly-dark/40 font-medium">
+                      <p className="text-[11px] sm:text-xs text-outly-dark/40 font-medium">
                         {jobsSubTab === "tracker" 
                           ? "Drag, track, and manage your tailored applications in real-time." 
                           : "Discover target roles matching your resume and track them instantly."}
@@ -1563,11 +1569,11 @@ export default function Landing() {
                   </div>
 
                   {/* Sub-Tab Selector */}
-                  <div className="flex items-center gap-4 mb-6 pb-2 border-b border-outly-border/30">
-                    <div className="flex bg-outly-cream/50 p-1 rounded-xl border border-outly-border/40 select-none">
+                  <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6 pb-2 border-b border-outly-border/30">
+                    <div className="flex bg-outly-cream/50 p-0.5 sm:p-1 rounded-xl border border-outly-border/40 select-none">
                       <button
                         onClick={() => setJobsSubTab("tracker")}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                        className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 ${
                           jobsSubTab === "tracker"
                             ? "bg-white text-outly-accent shadow-sm border border-outly-border/30"
                             : "text-outly-dark/40 hover:text-outly-dark/70"
@@ -1577,7 +1583,7 @@ export default function Landing() {
                       </button>
                       <button
                         onClick={() => setJobsSubTab("search")}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                        className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 ${
                           jobsSubTab === "search"
                             ? "bg-white text-outly-accent shadow-sm border border-outly-border/30"
                             : "text-outly-dark/40 hover:text-outly-dark/70"
@@ -1586,7 +1592,7 @@ export default function Landing() {
                         Job Search
                       </button>
                     </div>
-                    <div className="ml-auto text-[10px] font-bold text-outly-accent bg-outly-accent/10 px-3 py-1.5 rounded-full select-none uppercase">
+                    <div className="ml-auto text-[8px] sm:text-[10px] font-bold text-outly-accent bg-outly-accent/10 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full select-none uppercase">
                       {jobsSubTab === "tracker" ? "Active pipeline" : "AI match active"}
                     </div>
                   </div>
@@ -1599,7 +1605,7 @@ export default function Landing() {
                       <div 
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDropKanban(e, "applied")}
-                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
+                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-auto sm:h-[380px] overflow-hidden w-full max-w-[280px] md:w-auto shrink-0 md:shrink snap-center"
                       >
                         <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
                           <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider">Applied ({jobTrackerData.applied.length})</span>
@@ -1644,7 +1650,7 @@ export default function Landing() {
                       <div 
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDropKanban(e, "interviewing")}
-                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
+                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-auto sm:h-[380px] overflow-hidden w-full max-w-[280px] md:w-auto shrink-0 md:shrink snap-center"
                       >
                         <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
                           <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider">Interviewing ({jobTrackerData.interviewing.length})</span>
@@ -1689,7 +1695,7 @@ export default function Landing() {
                       <div 
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDropKanban(e, "offer")}
-                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-[380px] overflow-hidden w-[280px] md:w-auto shrink-0 md:shrink snap-center"
+                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-auto sm:h-[380px] overflow-hidden w-full max-w-[280px] md:w-auto shrink-0 md:shrink snap-center"
                       >
                         <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
                           <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider text-green-600">Offers ({jobTrackerData.offer.length}) 🎉</span>
@@ -1794,11 +1800,11 @@ export default function Landing() {
               
               {/* TAB 4: RESUME VAULT */}
               {activeTab === "vault" && (
-                <div className="h-full p-6 md:p-8 flex flex-col overflow-y-auto custom-scrollbar">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div className="h-full p-3 sm:p-6 md:p-8 flex flex-col overflow-y-auto custom-scrollbar">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6 sm:mb-8">
                     <div>
-                      <h3 className="font-bold text-2xl tracking-tight">Resume Vault &amp; ATS Score Checker</h3>
-                      <p className="text-xs text-outly-dark/40 font-medium">Auto-generate hyper-tailored variants for target job posts.</p>
+                      <h3 className="font-bold text-lg sm:text-2xl tracking-tight">Resume Vault &amp; ATS Score Checker</h3>
+                      <p className="text-[11px] sm:text-xs text-outly-dark/40 font-medium">Auto-generate hyper-tailored variants for target job posts.</p>
                     </div>
                   </div>
                   
@@ -1915,24 +1921,24 @@ export default function Landing() {
       </section>
 
       {/* PRICING SECTION */}
-      <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
-        <div className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8">
+      <section id="pricing" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
+        <div className="mb-12 sm:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-6 sm:gap-8">
           <div>
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
               <div className="h-px w-8 bg-outly-accent"></div>
-              <div className="text-outly-accent font-bold text-[10px] tracking-[0.3em] uppercase">PRICING</div>
+              <div className="text-outly-accent font-bold text-[9px] sm:text-[10px] tracking-[0.3em] uppercase">PRICING</div>
             </div>
-            <h2 className="text-6xl md:text-8xl font-medium tracking-tight mb-10 leading-[0.95]">
+            <h2 className="text-3xl sm:text-6xl md:text-8xl font-medium tracking-tight mb-4 sm:mb-10 leading-[0.95]">
               Free <span className="italic-serif text-outly-accent">by nature.</span><br />
               Paid <span className="italic-serif text-outly-accent">for convenience.</span>
             </h2>
-            <p className="text-outly-dark/50 text-xl max-w-2xl leading-relaxed font-medium">
+            <p className="text-outly-dark/50 text-base sm:text-xl max-w-2xl leading-relaxed font-medium">
               Outly is built around a simple idea: the tool is free. Your data is our key, so it always stays private and secure — or let us handle the cloud setup and pay one calm price.
             </p>
           </div>
           
           {/* Pricing Switcher Controls */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 bg-white border border-outly-border p-4 rounded-3xl shadow-soft shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 bg-white border border-outly-border p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-soft shrink-0">
             
             {/* Currency switcher */}
             <div className="flex items-center gap-2 select-none">
@@ -1959,151 +1965,151 @@ export default function Landing() {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-10 items-stretch">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-stretch">
           
           {/* Outly Free Card */}
-          <div className="bg-white rounded-[48px] p-12 md:p-16 shadow-soft border border-outly-border flex flex-col hover:border-outly-accent/20 transition-all duration-500">
-            <div className="mb-10">
-              <span className="bg-outly-dark/5 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest text-outly-dark/50">YOUR DATA IS OUR KEY</span>
+          <div className="bg-white rounded-[24px] sm:rounded-[48px] p-6 sm:p-12 md:p-16 shadow-soft border border-outly-border flex flex-col hover:border-outly-accent/20 transition-all duration-500">
+            <div className="mb-6 sm:mb-10">
+              <span className="bg-outly-dark/5 text-[9px] sm:text-[10px] font-bold px-3 sm:px-4 py-1.5 rounded-full uppercase tracking-widest text-outly-dark/50">YOUR DATA IS OUR KEY</span>
             </div>
-            <h3 className="text-4xl font-medium mb-6 tracking-tight">Outly Free</h3>
-            <p className="text-[13px] text-outly-dark/40 font-medium mb-12">Complete privacy. Your data stays yours, and is never sold.</p>
-            <div className="flex items-baseline gap-3 mb-12">
-              <span className="text-7xl font-medium">{priceData.free}</span>
+            <h3 className="text-2xl sm:text-4xl font-medium mb-3 sm:mb-6 tracking-tight">Outly Free</h3>
+            <p className="text-xs sm:text-[13px] text-outly-dark/40 font-medium mb-6 sm:mb-12">Complete privacy. Your data stays yours, and is never sold.</p>
+            <div className="flex items-baseline gap-2 sm:gap-3 mb-6 sm:mb-12">
+              <span className="text-4xl sm:text-7xl font-medium">{priceData.free}</span>
               <span className="text-outly-dark/30 text-xs font-medium">{priceData.freeMeta}</span>
             </div>
-            <ul className="space-y-6 mb-16 flex-1">
-              <li className="flex items-center gap-4 text-sm font-bold text-outly-dark/70">
-                <svg className="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+            <ul className="space-y-4 sm:space-y-6 mb-8 sm:mb-16 flex-1">
+              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-outly-dark/70">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
                 Basic Resume ATS Score checking
               </li>
-              <li className="flex items-center gap-4 text-sm font-bold text-outly-dark/30 line-through">
-                <svg className="w-5 h-5 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-outly-dark/30 line-through">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
                 Unlimited resume tailoring &amp; optimization
               </li>
-              <li className="flex items-center gap-4 text-sm font-bold text-outly-dark/30 line-through">
-                <svg className="w-5 h-5 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-outly-dark/30 line-through">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
                 Job search, tracking &amp; AI cold mail writing
               </li>
             </ul>
-            <div className="flex flex-wrap gap-2 mb-10 select-none">
-              <span className="text-[10px] font-bold px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">OpenAI</span>
-              <span className="text-[10px] font-bold px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Anthropic</span>
-              <span className="text-[10px] font-bold px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Google Gemini</span>
-              <span className="text-[10px] font-bold px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Groq</span>
+            <div className="flex flex-wrap gap-2 mb-6 sm:mb-10 select-none">
+              <span className="text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">OpenAI</span>
+              <span className="text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Anthropic</span>
+              <span className="text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Google Gemini</span>
+              <span className="text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Groq</span>
             </div>
-            <button onClick={() => navigateTo("/login")} className="w-full border-2 border-outly-border hover:border-outly-dark/40 py-5 rounded-full font-sans text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 text-center select-none block cursor-pointer">Start free</button>
+            <button onClick={() => navigateTo("/login")} className="w-full border-2 border-outly-border hover:border-outly-dark/40 py-3.5 sm:py-5 rounded-full font-sans text-[14px] sm:text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 text-center select-none block cursor-pointer">Start free</button>
           </div>
           
           {/* Outly Cloud Card */}
-          <div className="bg-foreground rounded-[48px] p-12 md:p-16 text-white flex flex-col relative overflow-hidden shadow-2xl shadow-outly-accent/10 border border-outly-accent/20 hover:shadow-outly-accent/20 transition-all duration-500">
-            <div className="mb-10 flex flex-wrap gap-2 items-center">
-              <span className="bg-outly-accent text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">SPECIAL LAUNCH OFFER</span>
-              <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold px-3.5 py-1.5 rounded-full tracking-wider font-mono flex items-center gap-1.5">
+          <div className="bg-foreground rounded-[24px] sm:rounded-[48px] p-6 sm:p-12 md:p-16 text-white flex flex-col relative overflow-hidden shadow-2xl shadow-outly-accent/10 border border-outly-accent/20 hover:shadow-outly-accent/20 transition-all duration-500">
+            <div className="mb-6 sm:mb-10 flex flex-wrap gap-2 items-center">
+              <span className="bg-outly-accent text-[9px] sm:text-[10px] font-bold px-3 sm:px-4 py-1.5 rounded-full uppercase tracking-widest">SPECIAL LAUNCH OFFER</span>
+              <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3.5 py-1.5 rounded-full tracking-wider font-mono flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
                 <span>{timeLeft || "3d 00h 00m 00s"} LEFT</span>
               </span>
             </div>
-            <h3 className="text-4xl font-medium mb-6 tracking-tight">Outly Cloud</h3>
-            <p className="text-[13px] text-white/40 font-medium mb-12">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
-            <div className="flex items-baseline gap-3 mb-12">
-              <span className="text-7xl font-medium">{priceData.pro}</span>
-              <span className="text-white/20 text-xl font-medium line-through leading-none">{priceData.proSlashed}</span>
-              <span className="text-white/40 text-sm font-medium">{priceData.proDuration}</span>
+            <h3 className="text-2xl sm:text-4xl font-medium mb-3 sm:mb-6 tracking-tight">Outly Cloud</h3>
+            <p className="text-xs sm:text-[13px] text-white/40 font-medium mb-6 sm:mb-12">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
+            <div className="flex items-baseline gap-2 sm:gap-3 mb-6 sm:mb-12">
+              <span className="text-4xl sm:text-7xl font-medium">{priceData.pro}</span>
+              <span className="text-white/20 text-lg sm:text-xl font-medium line-through leading-none">{priceData.proSlashed}</span>
+              <span className="text-white/40 text-xs sm:text-sm font-medium">{priceData.proDuration}</span>
             </div>
-            <ul className="space-y-6 mb-16 flex-1">
-              <li className="flex items-center gap-4 text-sm font-bold text-white/90">
-                <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+            <ul className="space-y-4 sm:space-y-6 mb-8 sm:mb-16 flex-1">
+              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
                 Unlimited Resume Tailoring &amp; ATS Score Checking
               </li>
-              <li className="flex items-center gap-4 text-sm font-bold text-white/90">
-                <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
                 AI Job Search &amp; Visual Job Tracker
               </li>
-              <li className="flex items-center gap-4 text-sm font-bold text-white/90">
-                <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
                 LinkedIn &amp; Twitter Post Schedulers
               </li>
-              <li className="flex items-center gap-4 text-sm font-bold text-white/90">
-                <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
                 AI Cold Mail Writer &amp; Automations
               </li>
-              <li className="flex items-center gap-4 text-sm font-bold text-white/90">
-                <svg className="w-5 h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
                 Get hired faster with AI — only ₹49
               </li>
             </ul>
-            <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-5 rounded-full font-sans text-[16px] font-medium hover:brightness-115 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-2xl shadow-outly-accent/35 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
+            <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-3.5 sm:py-5 rounded-full font-sans text-[14px] sm:text-[16px] font-medium hover:brightness-115 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-2xl shadow-outly-accent/35 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
           </div>
         </div>
         
         {/* Security Alert Note */}
-        <div className="mt-16 bg-white rounded-[32px] p-8 max-w-2xl mx-auto flex gap-6 items-center border border-outly-border shadow-soft">
-          <div className="w-14 h-14 bg-[#5e7d5e]/10 rounded-2xl flex items-center justify-center text-[#5e7d5e] shrink-0 border border-[#5e7d5e]/20">
-            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+        <div className="mt-8 sm:mt-16 bg-white rounded-[20px] sm:rounded-[32px] p-5 sm:p-8 max-w-2xl mx-auto flex gap-4 sm:gap-6 items-center border border-outly-border shadow-soft">
+          <div className="w-10 h-10 sm:w-14 sm:h-14 bg-[#5e7d5e]/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-[#5e7d5e] shrink-0 border border-[#5e7d5e]/20">
+            <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
             </svg>
           </div>
           <div>
-            <h5 className="text-sm font-bold text-outly-dark mb-1">Your data is our key and stays yours</h5>
-            <p className="text-xs text-outly-dark/40 leading-relaxed font-medium">Maintain complete control over your private information. Your data is <span className="text-outly-dark font-bold">fully encrypted and localized before it's stored</span>, and never written to logs or trained on external models.</p>
+            <h5 className="text-xs sm:text-sm font-bold text-outly-dark mb-1">Your data is our key and stays yours</h5>
+            <p className="text-[11px] sm:text-xs text-outly-dark/40 leading-relaxed font-medium">Maintain complete control over your private information. Your data is <span className="text-outly-dark font-bold">fully encrypted and localized before it's stored</span>, and never written to logs or trained on external models.</p>
           </div>
         </div>
-        <p className="text-center mt-12 text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest">Either way, your email never trains anyone's models. That's a promise, not a setting.</p>
+        <p className="text-center mt-6 sm:mt-12 text-[9px] sm:text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest">Either way, your email never trains anyone's models. That's a promise, not a setting.</p>
       </section>
 
       {/* BOTTOM CTA */}
-      <section className="max-w-5xl mx-auto px-6 py-24 text-center relative">
-        <div className="relative inline-block mb-12 select-none">
-          <div className="w-10 h-10 bg-outly-accent rounded-full mx-auto flex items-center justify-center overflow-hidden">
-            <div className="w-6 h-6 bg-white rounded-full mt-4"></div>
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-24 text-center relative">
+        <div className="relative inline-block mb-6 sm:mb-12 select-none">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-outly-accent rounded-full mx-auto flex items-center justify-center overflow-hidden">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full mt-3 sm:mt-4"></div>
           </div>
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-px h-10 bg-outly-accent/20"></div>
+          <div className="absolute -top-8 sm:-top-10 left-1/2 -translate-x-1/2 w-px h-8 sm:h-10 bg-outly-accent/20"></div>
         </div>
-        <h2 className="text-7xl md:text-[90px] font-medium tracking-tight mb-10 leading-[0.9] text-outly-dark">
+        <h2 className="text-4xl sm:text-7xl md:text-[90px] font-medium tracking-tight mb-6 sm:mb-10 leading-[0.9] text-outly-dark">
           Tomorrow morning<br />could feel <span className="italic-serif text-outly-accent">different.</span>
         </h2>
-        <p className="text-outly-dark/40 text-lg mb-12 leading-relaxed max-w-xl mx-auto font-medium">
+        <p className="text-outly-dark/40 text-base sm:text-lg mb-8 sm:mb-12 leading-relaxed max-w-xl mx-auto font-medium">
           Outly is free to start — sign up and get your first morning brief tomorrow.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button onClick={() => navigateTo("/login")} className="bg-outly-accent text-white px-8 py-4 rounded-full font-sans text-[16px] font-medium hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-outly-accent/25 cursor-pointer">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <button onClick={() => navigateTo("/login")} className="w-full sm:w-auto bg-outly-accent text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-sans text-[14px] sm:text-[16px] font-medium hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-outly-accent/25 cursor-pointer">
             Get started — it's free
           </button>
-          <button onClick={() => navigateTo("/login")} className="bg-white border border-outly-border hover:border-outly-dark/40 px-8 py-4 rounded-full font-sans text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 cursor-pointer">
+          <button onClick={() => navigateTo("/login")} className="w-full sm:w-auto bg-white border border-outly-border hover:border-outly-dark/40 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-sans text-[14px] sm:text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 cursor-pointer">
             Sign in
           </button>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-white pt-24 pb-12 border-t border-outly-border/50">
-        <div className="max-w-7xl mx-auto px-10 grid md:grid-cols-4 gap-20 pb-20 mb-12">
-          <div className="col-span-1">
-            <div className="flex items-center gap-1 font-bold text-xl mb-6 tracking-tight">
+      <footer className="bg-white pt-12 sm:pt-24 pb-8 sm:pb-12 border-t border-outly-border/50">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-20 pb-10 sm:pb-20 mb-8 sm:mb-12">
+          <div className="col-span-2 sm:col-span-1">
+            <div className="flex items-center gap-1 font-bold text-xl mb-4 sm:mb-6 tracking-tight">
               <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
-              <span className="text-outly-accent">Outly</span>
+              <span className="text-outly-logo">Outly</span>
             </div>
             <p className="text-xs text-outly-dark/40 leading-relaxed font-medium">
               Email and calendar, gathered into one calm morning brief. Built for people who'd rather be working.
             </p>
-            <div className="flex gap-4 mt-8">
+            <div className="flex gap-4 mt-6 sm:mt-8">
               <a className="text-outly-dark/20 hover:text-outly-accent transition" href="#">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
@@ -2117,24 +2123,24 @@ export default function Landing() {
             </div>
           </div>
           <div>
-            <h6 className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-8">Product</h6>
-            <ul className="space-y-4 text-xs font-bold text-outly-dark/60">
+            <h6 className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-4 sm:mb-8">Product</h6>
+            <ul className="space-y-3 sm:space-y-4 text-xs font-bold text-outly-dark/60">
               <li><a className="hover:text-outly-accent transition cursor-pointer" href="#features" onClick={(e) => handleScrollToSection(e, "features")}>Features</a></li>
               <li><a className="hover:text-outly-accent transition cursor-pointer" href="#demo" onClick={(e) => handleScrollToSection(e, "demo")}>Live demo</a></li>
               <li><a className="hover:text-outly-accent transition cursor-pointer" href="#pricing" onClick={(e) => handleScrollToSection(e, "pricing")}>Pricing</a></li>
             </ul>
           </div>
           <div>
-            <h6 className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-8">Company</h6>
-            <ul className="space-y-4 text-xs font-bold text-outly-dark/60">
+            <h6 className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-4 sm:mb-8">Company</h6>
+            <ul className="space-y-3 sm:space-y-4 text-xs font-bold text-outly-dark/60">
               <li><a className="hover:text-outly-accent transition" href="#">About</a></li>
               <li><a className="hover:text-outly-accent transition" href="#">Founder</a></li>
               <li><a className="hover:text-outly-accent transition" href="#">Contact</a></li>
             </ul>
           </div>
           <div>
-            <h6 className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-8">Trust</h6>
-            <ul className="space-y-4 text-xs font-bold text-outly-dark/60">
+            <h6 className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-4 sm:mb-8">Trust</h6>
+            <ul className="space-y-3 sm:space-y-4 text-xs font-bold text-outly-dark/60">
               <li><a className="hover:text-outly-accent transition" href="#">Privacy</a></li>
               <li><a className="hover:text-outly-accent transition" href="#">Security</a></li>
               <li><a className="hover:text-outly-accent transition" href="#">Terms</a></li>
@@ -2143,9 +2149,9 @@ export default function Landing() {
           </div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-10 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold text-outly-dark/20 tracking-widest uppercase select-none">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold text-outly-dark/20 tracking-widest uppercase select-none text-center md:text-left">
           <p>© 2026 Outly, All rights reserved. • team@outly.com</p>
-          <div className="flex items-center gap-6 mt-8 md:mt-0">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mt-6 md:mt-0">
             <p>Made with care, before 9 AM</p>
             <div className="flex items-center gap-2 bg-outly-cream px-4 py-2 rounded-full border border-outly-border text-outly-dark/50 shadow-sm">
               <div className="w-1.5 h-1.5 bg-outly-accent rounded-full animate-pulse"></div>
