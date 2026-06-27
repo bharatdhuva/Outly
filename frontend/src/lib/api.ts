@@ -321,7 +321,7 @@ export const api = {
   },
   payment: {
     createOrder: (amount: number, currency: string = "INR") =>
-      fetchApi<{ order_id: string; amount: number; currency: string }>("/create-order", {
+      fetchApi<{ order_id: string; amount: number; currency: string; key_id?: string }>("/create-order", {
         method: "POST",
         body: JSON.stringify({ amount, currency }),
       }),

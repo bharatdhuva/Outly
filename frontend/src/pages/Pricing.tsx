@@ -105,7 +105,7 @@ export default function Pricing() {
       return;
     }
 
-    const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+    const razorpayKeyId = orderData.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
     if (!razorpayKeyId) {
       toast({
         title: "Configuration Error",

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cd backend && npm install && npm run build && cd ../frontend && npm install && npm run build"
+    "build": "npm run build --prefix backend && npm run build --prefix frontend"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

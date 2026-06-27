@@ -54,6 +54,7 @@ router.post("/create-order", async (req: Request, res: Response) => {
       order_id: order.id,
       amount: order.amount,
       currency: order.currency,
+      key_id,
     });
   } catch (error: any) {
     console.error("Razorpay order creation error:", error);
