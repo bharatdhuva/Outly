@@ -5,10 +5,8 @@ import fs from "fs";
 import { env } from "../config/env.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import coldmailRoutes from "./routes/coldmail.routes.js";
-import linkedinRoutes from "./routes/linkedin.routes.js";
 import settingsRoutes from "./routes/settings.routes.js";
 import logsRoutes from "./routes/logs.routes.js";
-import twitterRoutes from "./routes/twitter.routes.js";
 import atsRoutes from "./routes/ats.routes.js";
 import applicationsRoutes from "./routes/applications.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
@@ -25,10 +23,8 @@ app.use("/api/auth", authRoutes);
 app.use("/auth", authRoutes); // alias for compatibility with direct auth calls
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/coldmail", coldmailRoutes);
-app.use("/api/linkedin", linkedinRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/logs", logsRoutes);
-app.use("/api/twitter", twitterRoutes);
 app.use("/api/ats", atsRoutes);
 app.use("/api/applications", applicationsRoutes);
 app.use("/api/resume", resumeRoutes);
@@ -36,7 +32,6 @@ app.use("/api/analytics", analyticsRoutes);
 app.use("/api/scraper", scraperRoutes);
 app.use("/api", paymentRoutes);
 app.use("/api/payment", paymentRoutes);
-
 
 // Server frontend in production
 const rootDir = process.cwd().endsWith("src") ? path.resolve(process.cwd(), "..") : process.cwd();

@@ -41,35 +41,7 @@ const CompanySchema = new mongoose.Schema({
 });
 export const Company = mongoose.model("Company", CompanySchema);
 
-// 3. LinkedIn Post Model
-const LinkedInPostSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  content: String,
-  news_sources: String,
-  status: { type: String, enum: ["draft", "approved", "posted", "failed"], default: "draft" },
-  posted_at: Date,
-  linkedin_post_url: String,
-  createdAt: { type: Date, default: Date.now }
-});
-export const LinkedInPost = mongoose.model("LinkedInPost", LinkedInPostSchema);
-
-// 4. Twitter Post Model
-const TwitterPostSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  content: String,
-  type: { type: String, enum: ["single", "thread"], default: "single" },
-  status: { type: String, enum: ["draft", "approved", "posted", "failed"], default: "draft" },
-  posted_at: Date,
-  twitter_post_id: String,
-  impressions: { type: Number, default: 0 },
-  likes: { type: Number, default: 0 },
-  replies: { type: Number, default: 0 },
-  error_message: String,
-  createdAt: { type: Date, default: Date.now }
-});
-export const TwitterPost = mongoose.model("TwitterPost", TwitterPostSchema);
-
-// 5. Notification Log Model
+// 3. Notification Log Model
 const NotificationLogSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   type: String,
@@ -79,7 +51,7 @@ const NotificationLogSchema = new mongoose.Schema({
 });
 export const NotificationLog = mongoose.model("NotificationLog", NotificationLogSchema);
 
-// 6. Settings Model
+// 4. Settings Model
 const SettingSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   key: { type: String, required: true },
@@ -89,7 +61,7 @@ const SettingSchema = new mongoose.Schema({
 SettingSchema.index({ userId: 1, key: 1 }, { unique: true });
 export const Setting = mongoose.model("Setting", SettingSchema);
 
-// 7. Activity Log Model
+// 5. Activity Log Model
 const ActivityLogSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   type: { type: String, required: true },
@@ -99,7 +71,7 @@ const ActivityLogSchema = new mongoose.Schema({
 });
 export const ActivityLog = mongoose.model("ActivityLog", ActivityLogSchema);
 
-// 8. Application Model
+// 6. Application Model
 const ApplicationSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   company: { type: String, required: true },
@@ -114,7 +86,7 @@ const ApplicationSchema = new mongoose.Schema({
 });
 export const Application = mongoose.model("Application", ApplicationSchema);
 
-// 9. Resume Vault Model
+// 7. Resume Vault Model
 const ResumeVaultSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   filename: { type: String, required: true },
