@@ -28,9 +28,11 @@ try {
 }
 
 const router = Router();
-const upload = process.env.VERCEL
-  ? multer({ storage: multer.memoryStorage() })
-  : multer({ dest: path.join(env.DATA_DIR, "uploads") });
+const uploadDir = path.join(env.DATA_DIR, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+const upload = multer({ dest: uploadDir });
 
 // Protect all routes with authentication
 router.use(requireAuth);

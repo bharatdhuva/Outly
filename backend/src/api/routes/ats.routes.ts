@@ -29,9 +29,11 @@ const router = Router();
 
 // Protect all ATS routes with authentication
 router.use(requireAuth);
-const upload = process.env.VERCEL
-  ? multer({ storage: multer.memoryStorage() })
-  : multer({ dest: path.join(env.DATA_DIR, "uploads") });
+const uploadDir = path.join(env.DATA_DIR, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+const upload = multer({ dest: uploadDir });
 
 // Helper to extract content wrapped in custom tags
 function extractTagContent(text: string, tag: string): string {
