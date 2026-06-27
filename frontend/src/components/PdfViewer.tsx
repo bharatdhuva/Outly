@@ -39,12 +39,11 @@ export default function PdfViewer({ file, url }: { file?: File | null; url?: str
           loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         } else if (url) {
           const token = localStorage.getItem("outly_token");
-          const headers = token ? { "Authorization": `Bearer ${token}` } : {};
-          loadingTask = pdfjsLib.getDocument({
-            url,
-            httpHeaders: headers,
-            withCredentials: true
-          });
+          const headers: Record<string, string> = token ? { "Authorization": `Bearer ${token}` } : {};
+          const response = await fetch(url, { headers });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const arrayBuffer = await response.arrayBuffer();
+          loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         } else {
           return;
         }
