@@ -1,0 +1,19 @@
+{
+  "name": "outly-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "cd backend && npm install && npm run build && cd ../frontend && npm install && npm run build"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.2",
+    "razorpay": "^2.9.6"
+  }
+}
