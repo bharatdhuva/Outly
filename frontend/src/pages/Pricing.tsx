@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Check } from "lucide-react";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/logo_transparent.png";
+import { api } from "@/lib/api";
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -91,44 +92,100 @@ export default function Pricing() {
       return;
     }
 
-    const amountInPaise = 4900; // ₹49 launch offer
+    let orderData;
+    try {
+      // 1. Create order on backend
+      orderData = await api.payment.createOrder(4900, "INR");
+    } catch (err: any) {
+      toast({
+        title: "Order Creation Failed",
+        description: err?.message || "Could not create payment order. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
 
+    const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T6elPl8rVPbtd6";
+
+    // 2. Open Razorpay Checkout Modal
     const options = {
-      key: "rzp_test_mockkey12345",
-      amount: amountInPaise,
-      currency: "INR",
+      key: razorpayKeyId,
+      amount: orderData.amount,
+      currency: orderData.currency,
       name: "Outly",
       description: "Outly Cloud - One-Time Launch Offer",
       image: logoTransparent,
-      handler: function (response: any) {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
+      order_id: orderData.order_id,
+      handler: async function (response: any) {
+        try {
+          // 3. Verify payment signature on backend
+          const verifyRes = await api.payment.verifyPayment({
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+          });
 
-        localStorage.setItem("outly_premium_user", "true");
-        setIsPremium(true);
-        window.dispatchEvent(new Event("premium_upgrade"));
+          if (verifyRes.success) {
+            if (verifyRes.token) {
+              localStorage.setItem("outly_token", verifyRes.token);
+            }
+            localStorage.setItem("outly_premium_user", "true");
+            setIsPremium(true);
+            window.dispatchEvent(new Event("premium_upgrade"));
 
-        toast({
-          title: "Upgrade Successful ✨",
-          description: "Welcome to Outly Cloud! Your account has been upgraded.",
-        });
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
+
+            toast({
+              title: "Upgrade Successful ✨",
+              description: "Welcome to Outly Cloud! Your account has been upgraded.",
+            });
+          } else {
+            toast({
+              title: "Payment Verification Failed",
+              description: verifyRes.message || "Payment signature verification failed.",
+              variant: "destructive",
+            });
+          }
+        } catch (err: any) {
+          toast({
+            title: "Verification Error",
+            description: err?.message || "Failed to verify payment with server.",
+            variant: "destructive",
+          });
+        }
       },
       prefill: {
         name: "Outly User",
         email: "user@example.com",
-        contact: "9999999999"
       },
       theme: {
         color: "#2dc08d"
+      },
+      modal: {
+        ondismiss: function () {
+          toast({
+            title: "Payment Cancelled",
+            description: "You closed the payment checkout before completing.",
+          });
+        }
       }
     };
 
     const rzp = new (window as any).Razorpay(options);
+    rzp.on("payment.failed", function (response: any) {
+      toast({
+        title: "Payment Failed",
+        description: response?.error?.description || "Your transaction could not be processed.",
+        variant: "destructive",
+      });
+    });
     rzp.open();
   };
+
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const button = e.currentTarget;

@@ -318,8 +318,21 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ role, location, experience }),
       }),
+  },
+  payment: {
+    createOrder: (amount: number, currency: string = "INR") =>
+      fetchApi<{ order_id: string; amount: number; currency: string }>("/create-order", {
+        method: "POST",
+        body: JSON.stringify({ amount, currency }),
+      }),
+    verifyPayment: (data: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) =>
+      fetchApi<{ success: boolean; message: string; token?: string }>("/verify-payment", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
   }
 };
+
 
 export interface UserProfile {
   id: string;

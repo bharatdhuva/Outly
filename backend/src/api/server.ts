@@ -15,6 +15,7 @@ import resumeRoutes from "./routes/resume.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 import scraperRoutes from "./routes/scraper.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
 
 const app = express();
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
@@ -33,6 +34,9 @@ app.use("/api/applications", applicationsRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/scraper", scraperRoutes);
+app.use("/api", paymentRoutes);
+app.use("/api/payment", paymentRoutes);
+
 
 // Server frontend in production
 const rootDir = process.cwd().endsWith("src") ? path.resolve(process.cwd(), "..") : process.cwd();
