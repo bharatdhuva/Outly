@@ -1,42 +1,38 @@
 <div align="center">
 
 <h1>Outly 🚀</h1>
-<h3>AI-Powered Job Hunt Automation</h3>
-<p><em>Stop applying manually. Let AI do the heavy lifting.</em></p>
+<h3>AI-Powered Personal Career Automation System</h3>
+<p><em>Stop applying manually. Let AI automate your outreach, tailoring, and job tracking.</em></p>
 
-[![GitHub stars](https://img.shields.io/github/stars/bharatdhuva/Outly?style=flat-square&color=6366f1)](https://github.com/bharatdhuva/Outly/stargazers)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square&color=6366f1)](LICENSE)
-[![Status](https://img.shields.io/badge/status-Active-brightgreen?style=flat-square)](https://github.com/bharatdhuva/Outly)
-[![Made with](https://img.shields.io/badge/Made%20with-Node.js%20%2B%20GPT--4-6366f1?style=flat-square)](https://github.com/bharatdhuva/Outly)
+[![Status](https://img.shields.io/badge/status-Active-brightgreen?style=flat-square)](https://outly.online)
+[![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite%20%2B%20TS-6366f1?style=flat-square)](https://outly.online)
+[![Backend](https://img.shields.io/badge/Backend-Node.js%20%2B%20Express%20%2B%20TS-green?style=flat-square)](https://github.com/bharatdhuva/Outly)
+[![Database](https://img.shields.io/badge/Database-MongoDB%20%2B%20SQLite-orange?style=flat-square)](https://github.com/bharatdhuva/Outly)
 
 </div>
 
 ---
 
-## What is Outly?
+## 🌟 What is Outly?
 
-Job hunting is broken.
+Job hunting can be repetitive and exhausting: writing dozens of cold emails, customizing resumes for every job description, and manually tracking application statuses.
 
-You spend hours writing the same email to 50 companies. You forget to post on LinkedIn for weeks. You send the same generic resume to every job description and wonder why no one replies.
+**Outly automates your career search so you don't have to.**
 
-**Outly fixes all of that.**
-
-Upload a CSV → GPT-4 researches every company → writes hyper-personalized cold emails → saves them directly to your Gmail drafts. It also matches your resume to any Job Description, scores it, and suggests exact fixes. Plus, it generates and schedules smart LinkedIn & Twitter posts automatically.
-
-**Your job search. On autopilot.**
+Outly provides a unified suite for job seekers — featuring personalized AI recruiter outreach, instant ATS resume scoring, automated resume tailoring, visual Kanban job tracking, and daily morning career briefs.
 
 ---
 
-## ✨ Features
+## ✨ Core Features
 
-| Feature | What it does |
+| Feature | Description |
 |---------|-------------|
-| 📧 **AI Cold Email Generator** | Upload CSV → GPT-4 researches each company → writes unique personalized email → saved to Gmail Drafts |
-| 📄 **AI Resume-to-JD Matcher(upcoming)** | GPT-4 scores your resume vs any JD, highlights missing ATS keywords, gives exact fixes |
-| 📅 **AI Content Scheduler** | GPT-4 writes LinkedIn + Twitter posts, allowing manual or scheduled publishing |
-| ⚡ **Fault-Tolerant Job Queue** | Bull + Redis with rate-limiting, auto-retry, zero duplicate actions |
-| 🔔 **Real-Time Notifications** | Instant WhatsApp alerts for every action — email saved, post published, match scored |
-| 🔐 **Gmail OAuth Integration** | Securely connects to your Gmail — no password needed, just one-click OAuth |
+| 🌅 **The Daily Brief** | A morning overview summarizing application progress, interview schedules, and new job matches in seconds. |
+| 📧 **AI Recruiter Outreach** | Upload outreach targets → AI analyzes company details → generates personalized cold email drafts in your voice. |
+| 📄 **Resume Vault & ATS Matcher** | Auto-scores resumes against job descriptions, highlights missing ATS keywords, and exports tailored PDFs. |
+| 📋 **Visual Job Application Tracker** | Interactive Kanban board to drag, drop, and manage applications across *Applied*, *Interviewing*, and *Offers*. |
+| 🔍 **AI Job Search Engine** | Discover matching job opportunities tuned to your profile and track them directly into your pipeline. |
+| 📅 **Social Content Scheduler** | AI-assisted generation and scheduling for LinkedIn & Twitter career updates. |
 
 ---
 
@@ -44,101 +40,10 @@ Upload a CSV → GPT-4 researches every company → writes hyper-personalized co
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React.js |
-| **Backend** | Node.js + Express.js |
-| **AI** | GPT-4 (OpenAI) |
-| **Queue & Cache** | Bull Queue + Redis |
-| **APIs** | Gmail API, OAuth 2.0 |
-| **Auth** | JWT |
-
----
-
-## 📸 Screenshots
-
-<details>
-<summary>📂 Click to view screenshots</summary>
-
-<br>
-
-**Loading Screen**
-![Dashboard Overview](https://github.com/user-attachments/assets/bc8517e4-28e2-445c-9449-374b6162a6f5)
-
-**Welcome Page**
-![Cold Email Generator](https://github.com/user-attachments/assets/b0ed4b66-1bfd-4c91-b74c-897f180b434f)
-
-**Home-Page**
-![Resume Matcher](https://github.com/user-attachments/assets/7f8282a5-6695-4040-84ca-6598f2ff72d9)
-
-**Cold-Mailing Page**
-![Content Scheduler](https://github.com/user-attachments/assets/5b8a5e0b-8253-41c0-9400-28ceb18ad4d4)
-
-
-![Queue Monitor](https://github.com/user-attachments/assets/b802e226-2da6-46ac-842d-f437a4263f35)
-
-
-![Settings](https://github.com/user-attachments/assets/209b38a7-2f62-4e8a-8f67-5563fd6c02e4)
-
-</details>
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- Redis (local or via Docker)
-- OpenAI API key
-- Gmail OAuth credentials
-
-### Installation
-
-**1. Clone the repository**
-
-```bash
-git clone https://github.com/bharatdhuva/Outly.git
-cd Outly
-```
-
-**2. Backend setup**
-
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Add your API keys in .env
-npm run dev
-```
-
-**3. Frontend setup** *(open a new terminal)*
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) — you're ready to go.
-
----
-
-## 🔑 Environment Variables
-
-```env
-# OpenAI
-OPENAI_API_KEY=
-
-# Gmail OAuth
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=
-
-# Redis
-REDIS_URL=
-
-# JWT
-JWT_SECRET=
-```
+| **Frontend** | React (TypeScript), Vite, TailwindCSS, Shadcn UI, Lucide Icons, GSAP, Recharts |
+| **Backend** | Node.js (TypeScript), Express.js, TypeScript Compiler (`tsc`) |
+| **Databases** | MongoDB (Mongoose) + SQLite (`better-sqlite3`) |
+| **Deployment** | Vercel (Frontend CDN) + Render (Cloud Backend API) |
 
 ---
 
@@ -146,45 +51,69 @@ JWT_SECRET=
 
 ```
 Outly/
-├── backend/
+├── backend/                  # Express TypeScript Backend API
 │   ├── src/
-│   │   ├── routes/        # API endpoints
-│   │   ├── services/      # AI, Gmail, WhatsApp logic
-│   │   ├── jobs/          # Bull queue workers
-│   │   └── index.js       # Entry point
-├── frontend/
+│   │   ├── api/routes/       # REST API endpoints (Auth, Resumes, Applications, etc.)
+│   │   ├── db/               # Database schemas and queries (MongoDB & SQLite)
+│   │   ├── services/         # AI engines, Emailers & Notification services
+│   │   └── index.ts          # Backend entry point
+│   └── package.json
+├── frontend/                 # Vite React TypeScript Frontend
 │   ├── src/
-│   │   ├── pages/         # Dashboard pages
-│   │   ├── components/    # UI components
-│   │   └── App.jsx
-├── .env.example
-├── .gitignore
+│   │   ├── components/       # UI components & Dashboard layouts
+│   │   ├── pages/            # Landing, Login, Overview, ResumeVault, Pricing
+│   │   └── index.css         # Global styles & Design tokens
+│   ├── vercel.json           # Frontend SPA rewrite routing
+│   └── package.json
+├── vercel.json               # Root monorepo Vercel build configuration
 └── README.md
 ```
 
 ---
 
-## 🗺️ Roadmap
+## 🚀 Getting Started
 
-- [x] AI Cold Email Generation + Gmail Drafts
-- [x] AI Resume-to-JD Matcher
-- [x] LinkedIn & Twitter Content Scheduler
-- [x] WhatsApp Notifications
-- [x] Bull + Redis Fault-Tolerant Job Queue
-- [ ] Application Tracker (Kanban Board)
-- [ ] Auto Follow-up Emails (3-day delay)
-- [ ] Multi-user SaaS Mode
-- [ ] Chrome Extension
+### Prerequisites
+- Node.js 18+
+- npm / yarn / pnpm
+
+### Local Setup
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/bharatdhuva/Outly.git
+cd Outly
+```
+
+**2. Backend Setup**
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+**3. Frontend Setup** *(in a new terminal)*
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open [http://localhost:8080](http://localhost:8080) (or Vite's active local port) to view the application.
 
 ---
 
-## 💡 Why I Built This
+## 🗺️ Roadmap & Progress
 
-I was tired of spending hours on copy-paste job applications that felt generic and forgettable.
-
-Every company deserves a personalized email. Every resume should actually match the job description. And no one has time to post on LinkedIn every single day.
-
-So I built Outly — a complete automation system that handles the boring, repetitive parts of job hunting so you can focus on what actually matters: getting replies and cracking interviews.
+- [x] AI Cold Email Generation & Outreach Drafts
+- [x] AI Resume-to-JD Matcher & Keyword Scoring
+- [x] Resume Vault & Tailored PDF Generator
+- [x] Interactive Job Application Tracker (Kanban Board)
+- [x] Daily Morning Briefing System
+- [x] Mobile Responsive UI & Modern Design System
+- [x] Vercel & Render Full-Stack Production Deployment
+- [ ] Automated Recruiter Follow-up Sequences
+- [ ] Chrome Extension for One-Click Application Saving
 
 ---
 
@@ -192,13 +121,11 @@ So I built Outly — a complete automation system that handles the boring, repet
 
 Built with ❤️ by **[Bharat Dhuva](https://github.com/bharatdhuva)**
 
-Third-year Computer Science Student · MS University Baroda, Gujarat
-
 [![GitHub](https://img.shields.io/badge/GitHub-bharatdhuva-181717?style=flat-square&logo=github)](https://github.com/bharatdhuva)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-bharatdhuva27-0077B5?style=flat-square&logo=linkedin)](https://linkedin.com/in/bharatdhuva27)
 
 ---
 
-*If Outly helped you or you liked it — drop a ⭐ It means a lot.*
+*If Outly helped your job search — drop a ⭐ on GitHub!*
 
 </div>
