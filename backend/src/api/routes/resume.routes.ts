@@ -210,7 +210,7 @@ router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
     const { label } = req.body;
     if (!label) return res.status(400).json({ error: "Label is required" });
 
-    const updated = await resumeVaultQueries.update(req.params.id, req.user.id, { label });
+    const updated = await resumeVaultQueries.update(req.params.id as string, req.user.id, { label });
     if (!updated) return res.status(404).json({ error: "Resume not found" });
 
     res.json(updated);
