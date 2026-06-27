@@ -94,7 +94,7 @@ export default function ApplicationsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<TrackerApplication> }) =>
+    mutationFn: ({ id, data }: { id: string; data: Partial<TrackerApplication> }) =>
       api.applications.update(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
@@ -117,8 +117,8 @@ export default function ApplicationsPage() {
   });
 
   // HTML5 Drag and Drop handlers
-  const handleDragStart = (e: React.DragEvent, id: number) => {
-    e.dataTransfer.setData("text/plain", id.toString());
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    e.dataTransfer.setData("text/plain", id);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -127,9 +127,8 @@ export default function ApplicationsPage() {
 
   const handleDrop = (e: React.DragEvent, targetStage: TrackerApplication["stage"]) => {
     e.preventDefault();
-    const idStr = e.dataTransfer.getData("text/plain");
-    const id = parseInt(idStr, 10);
-    if (!isNaN(id)) {
+    const id = e.dataTransfer.getData("text/plain");
+    if (id) {
       updateMutation.mutate({ id, data: { stage: targetStage } });
       toast({
         title: "Stage Updated",
