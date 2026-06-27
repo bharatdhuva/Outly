@@ -20,7 +20,8 @@ import { connectDB } from "../db/connection.js";
 
 const app = express();
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Ensure MongoDB connection before handling any API routes
 app.use(async (_req, res, next) => {
