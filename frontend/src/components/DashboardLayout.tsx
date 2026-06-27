@@ -488,72 +488,41 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 {activeDropdown === "tools" && (
                   <div
-                    className="absolute left-0 top-full z-50 grid w-[480px] sm:w-[520px] grid-cols-12 gap-5 rounded-2xl border border-border bg-white p-5 shadow-2xl animate-slide-up select-none"
+                    className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-2xl border border-border bg-white p-5 shadow-2xl animate-slide-up select-none"
                     onMouseEnter={() => openDropdown("tools")}
                     onMouseLeave={scheduleDropdownClose}
                   >
-                    {/* Left: AI Outreach */}
-                    <div className="col-span-7 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">AI Outreach</div>
-                      <div className="space-y-1">
-                        <Link 
-                          to="/cold-mail" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
-                            {/* Envelope (Cold Mail) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                              <polyline points="22,6 12,13 2,6" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Cold Mail Automation</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Automate personalized emails to recruiters.</span>
-                          </div>
-                        </Link>
-                        
-                        <Link 
-                          to="/content-scheduler" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
-                            <Calendar className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Content Post Scheduler</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Automate and queue AI-generated posts.</span>
-                          </div>
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Right: System & Settings */}
-                    <div className="col-span-5 border-l border-border pl-4 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1">System &amp; Settings</div>
-                      <div className="space-y-1 pt-1">
-                        <Link 
-                          to="/logs" 
-                          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/50 transition text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent text-left w-full group"
-                        >
-                          <ScrollText className="h-3.5 w-3.5 text-muted-foreground group-hover:text-outly-accent" />
-                          <span>System Logs</span>
-                        </Link>
-                        <Link 
-                          to="/settings" 
-                          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/50 transition text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent text-left w-full group"
-                        >
-                          <SettingsIcon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-outly-accent" />
-                          <span>Workspace Settings</span>
-                        </Link>
-                        <Link 
-                          to="/settings" 
-                          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/50 transition text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent text-left w-full group"
-                        >
-                          <KeyRound className="h-3.5 w-3.5 text-muted-foreground group-hover:text-outly-accent" />
-                          <span>API Connections</span>
-                        </Link>
-                      </div>
+                    <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">AI Outreach</div>
+                    <div className="space-y-1">
+                      <Link 
+                        to="/cold-mail" 
+                        className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
+                          {/* Envelope (Cold Mail) */}
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                          </svg>
+                        </div>
+                        <div>
+                          <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Cold Mail Automation</span>
+                          <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Automate personalized emails to recruiters.</span>
+                        </div>
+                      </Link>
+                      
+                      <Link 
+                        to="/content-scheduler" 
+                        className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
+                          <Calendar className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Content Post Scheduler</span>
+                          <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Automate and queue AI-generated posts.</span>
+                        </div>
+                      </Link>
                     </div>
                   </div>
                 )}
@@ -839,29 +808,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <div>
                       <span className="block text-[11.5px] font-bold text-foreground">Content Post Scheduler</span>
                       <span className="block text-[9.5px] text-muted-foreground mt-0.5">Automate and queue posts</span>
-                    </div>
-                  </Link>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* ACCORDION ITEM: SYSTEM & SETTINGS */}
-              <AccordionItem value="system" className="border-b-0">
-                <AccordionTrigger className="text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground py-3 hover:no-underline">
-                  System &amp; Settings
-                </AccordionTrigger>
-                <AccordionContent className="pb-3 pt-1 space-y-2.5">
-                  <Link to="/logs" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <ScrollText className="h-4 w-4 text-primary shrink-0" />
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">System Logs</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Background worker status</span>
-                    </div>
-                  </Link>
-                  <Link to="/settings" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <SettingsIcon className="h-4 w-4 text-primary shrink-0" />
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Workspace Settings</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Manage API keys and preferences</span>
                     </div>
                   </Link>
                 </AccordionContent>

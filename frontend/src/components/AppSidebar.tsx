@@ -44,8 +44,6 @@ const navSections = [
     label: "Admin",
     items: [
       { title: "Analytics", url: "/analytics", icon: TrendingUp, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" },
-      { title: "Settings", url: "/settings", icon: Settings, hoverClass: "group-hover:scale-110 group-hover:rotate-45" },
-      { title: "Logs", url: "/logs", icon: ScrollText, hoverClass: "group-hover:scale-110 group-hover:-rotate-3" },
     ],
   },
 ];
