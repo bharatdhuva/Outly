@@ -95,7 +95,7 @@ export default function Pricing() {
     let orderData;
     try {
       // 1. Create order on backend
-      orderData = await api.payment.createOrder(100, "INR");
+      orderData = await api.payment.createOrder(4900, "INR");
     } catch (err: any) {
       toast({
         title: "Order Creation Failed",
