@@ -94,6 +94,10 @@ router.get("/:id/file", async (req: AuthenticatedRequest, res: Response) => {
     const filePath = path.join(env.DATA_DIR, "resumes", `resume_${item.id}${ext}`);
     if (fs.existsSync(filePath)) {
       res.sendFile(filePath);
+    } else if (item.content) {
+      // Fallback for legacy records created before Cloudinary fix: return parsed text
+      res.setHeader("Content-Type", "text/plain");
+      res.send(item.content);
     } else {
       res.status(404).json({ error: "Original resume file not found on disk or cloud" });
     }
