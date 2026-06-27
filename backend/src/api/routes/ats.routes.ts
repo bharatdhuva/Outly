@@ -311,6 +311,9 @@ router.post("/parse-file", upload.single("file"), async (req: AuthenticatedReque
       text = fs.readFileSync(filePath, "utf-8");
     } else if (ext === ".pdf") {
       try {
+        if (!(globalThis as any).DOMMatrix) {
+          try { (globalThis as any).DOMMatrix = require("dommatrix"); } catch (_) {}
+        }
         const pdfModule = require("pdf-parse");
         const buffer = fs.readFileSync(filePath);
         if (typeof pdfModule === "function") {

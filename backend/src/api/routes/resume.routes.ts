@@ -115,6 +115,9 @@ router.post("/upload", upload.single("file"), checkResumeLimit, async (req: Auth
       text = fs.readFileSync(tempFilePath, "utf-8");
     } else if (ext === ".pdf") {
       try {
+        if (!(globalThis as any).DOMMatrix) {
+          try { (globalThis as any).DOMMatrix = require("dommatrix"); } catch (_) {}
+        }
         const pdfModule = require("pdf-parse");
         const buffer = fs.readFileSync(tempFilePath);
         if (typeof pdfModule === "function") {
