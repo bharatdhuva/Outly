@@ -288,7 +288,7 @@ export default function ResumeTailorPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-8 animate-fade-in pb-16">
+    <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
       
       {/* Hero text header */}
       <div className="space-y-3 text-left">

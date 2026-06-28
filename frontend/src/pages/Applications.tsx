@@ -163,7 +163,7 @@ export default function ApplicationsPage() {
 
   return (
     <LockedFeatureGuard featureTitle="Job Tracker & Application Scheduler">
-      <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-8 animate-fade-in pb-16">
+      <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
       
       {/* Header Title Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-left">

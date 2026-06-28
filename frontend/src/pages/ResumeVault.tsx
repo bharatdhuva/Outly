@@ -234,7 +234,7 @@ export default function ResumeVaultPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-2 py-4 sm:py-8 space-y-12 animate-fade-in pb-16">
+    <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-12 animate-fade-in pb-16">
       
       {/* TWO COLUMN WORKSPACE GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
