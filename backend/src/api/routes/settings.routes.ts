@@ -22,42 +22,32 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
 
     res.json({
       ...mergedSettings,
-      sender_email: env.GMAIL_USER,
+      sender_email: env.GMAIL_USER || req.user.email || "",
       gmailConfigured: isGmailConfigured(),
       linkedinSessionValid: hasValidSession(),
       whatsappConfigured: await isWhatsAppConfigured(req.user.id),
     });
-  } catch (e) {
-    res.status(500).json({ error: String(e) });
-  }
-});
-
-router.post("/", async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
-    const { key, value } = req.body;
-    if (!key) return res.status(400).json({ error: "Missing key" });
-
-    await settingsQueries.set(req.user.id, key, String(value ?? ""));
-    return res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ error: String(e) });
+  } catch (e: any) {
+    res.status(500).json({ error: e?.message || String(e) });
   }
 });
 
 const handleSettingsUpdate = async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user || !req.user.id) return res.status(401).json({ error: "Unauthorized" });
-    const { settings } = req.body as {
-      settings?: Record<string, string | number | boolean | null | undefined>;
-    };
-
-    if (!settings || typeof settings !== "object") {
-      return res.status(400).json({ error: "Missing settings payload" });
+    
+    // Support both { settings: { ... } } and direct key/value or key-value pair objects
+    let targetSettings: Record<string, any> = {};
+    if (req.body && typeof req.body.settings === "object" && req.body.settings !== null) {
+      targetSettings = req.body.settings;
+    } else if (req.body && typeof req.body.key === "string") {
+      targetSettings[req.body.key] = req.body.value;
+    } else if (req.body && typeof req.body === "object") {
+      targetSettings = req.body;
     }
 
-    for (const [key, value] of Object.entries(settings)) {
-      if (key) {
+    for (const [key, value] of Object.entries(targetSettings)) {
+      if (key && key !== "sender_email" && key !== "gmailConfigured" && key !== "linkedinSessionValid" && key !== "whatsappConfigured") {
         await settingsQueries.set(req.user.id, key, String(value ?? ""));
       }
     }
@@ -71,6 +61,8 @@ const handleSettingsUpdate = async (req: AuthenticatedRequest, res: Response) =>
 
 router.put("/", handleSettingsUpdate);
 router.put("", handleSettingsUpdate);
+router.post("/", handleSettingsUpdate);
+router.post("", handleSettingsUpdate);
 
 router.post("/test-whatsapp", async (req: AuthenticatedRequest, res) => {
   try {

@@ -307,7 +307,13 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <div className="space-y-6">
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          saveMutation.mutate(form);
+        }}
+        className="space-y-6"
+      >
         <div className="grid gap-6 lg:grid-cols-2">
           
           {/* Profile & Target Career Context */}
@@ -413,7 +419,7 @@ export default function SettingsPage() {
 
             <div className="pt-4 border-t border-slate-100 flex justify-end">
               <Button 
-                onClick={() => saveMutation.mutate(form)} 
+                type="submit" 
                 disabled={saveMutation.isPending} 
                 className="gap-2 bg-outly-accent text-white hover:brightness-110 shadow-md shadow-outly-accent/20 rounded-full px-8 py-3 font-semibold h-11 text-sm cursor-pointer w-full sm:w-auto"
               >
@@ -424,7 +430,7 @@ export default function SettingsPage() {
           </div>
 
         </div>
-      </div>
+      </form>
     </div>
   );
 }
