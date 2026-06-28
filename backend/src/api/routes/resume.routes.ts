@@ -62,7 +62,7 @@ router.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// GET resume's original PDF/Word file (from Cloudinary or local disk)
+// GET resume's original PDF/Word file (from local disk or Cloudinary)
 router.get("/:id/file", async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
@@ -70,37 +70,35 @@ router.get("/:id/file", async (req: AuthenticatedRequest, res: Response) => {
     if (!item) return res.status(404).json({ error: "Resume not found" });
 
     const ext = path.extname(item.filename).toLowerCase();
+    const filePath = path.join(env.DATA_DIR, "resumes", `resume_${item.id}${ext}`);
 
-    // Set appropriate content type header for clean browser rendering
-    if (ext === ".pdf") {
-      res.setHeader("Content-Type", "application/pdf");
-    } else if (ext === ".docx") {
-      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-    } else if (ext === ".txt") {
-      res.setHeader("Content-Type", "text/plain");
+    // 1. Primary: If file exists on local disk, serve via res.download to guarantee binary integrity
+    if (fs.existsSync(filePath)) {
+      return res.download(filePath, item.filename);
     }
 
-    // If Cloudinary URL is stored, proxy stream it to bypass cross-origin / 401 restrictions
+    // 2. Secondary: Proxy stream from Cloudinary with proper headers
     if (item.cloudinaryUrl) {
       try {
         const streamRes = await axios.get(item.cloudinaryUrl, { responseType: "stream" });
+        if (ext === ".pdf") res.setHeader("Content-Type", "application/pdf");
+        else if (ext === ".docx") res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        else if (ext === ".txt") res.setHeader("Content-Type", "text/plain");
+        res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(item.filename)}"`);
         return streamRes.data.pipe(res);
       } catch (streamErr) {
-        logger.warn("Failed to stream from Cloudinary, attempting local disk fallback", { error: String(streamErr) });
+        logger.warn("Failed to stream from Cloudinary", { error: String(streamErr) });
       }
     }
 
-    // Fallback: local disk
-    const filePath = path.join(env.DATA_DIR, "resumes", `resume_${item.id}${ext}`);
-    if (fs.existsSync(filePath)) {
-      res.sendFile(filePath);
-    } else if (item.content) {
-      // Fallback for legacy records created before Cloudinary fix: return parsed text
+    // 3. Fallback for text content
+    if (item.content) {
       res.setHeader("Content-Type", "text/plain");
-      res.send(item.content);
-    } else {
-      res.status(404).json({ error: "Original resume file not found on disk or cloud" });
+      res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(item.filename.replace(/\.(pdf|docx)$/i, '.txt'))}"`);
+      return res.send(item.content);
     }
+
+    res.status(404).json({ error: "Original resume file not found" });
   } catch (error) {
     res.status(500).json({ error: String(error) });
   }
@@ -186,15 +184,13 @@ router.post("/upload", upload.single("file"), checkResumeLimit, async (req: Auth
       cloudinaryUrl: cloudinaryUrl || undefined
     });
 
-    // Save local copy only if Cloudinary upload didn't yield a URL (fallback)
-    if (!cloudinaryUrl) {
-      const finalDestDir = path.join(env.DATA_DIR, "resumes");
-      if (!fs.existsSync(finalDestDir)) {
-        fs.mkdirSync(finalDestDir, { recursive: true });
-      }
-      const finalPath = path.join(finalDestDir, `resume_${dbResult.id}${ext}`);
-      fs.copyFileSync(tempFilePath, finalPath);
+    // Always save local copy on disk to guarantee binary integrity during downloads
+    const finalDestDir = path.join(env.DATA_DIR, "resumes");
+    if (!fs.existsSync(finalDestDir)) {
+      fs.mkdirSync(finalDestDir, { recursive: true });
     }
+    const finalPath = path.join(finalDestDir, `resume_${dbResult.id}${ext}`);
+    fs.copyFileSync(tempFilePath, finalPath);
 
     // Clean up temporary file
     if (fs.existsSync(tempFilePath)) {

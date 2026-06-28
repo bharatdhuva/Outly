@@ -475,13 +475,9 @@ export default function ContentScheduler() {
             POST SCHEDULER & BRAND AUTOMATION
           </span>
 
-          <h1 className="text-2xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
-            Build your personal engineering brand on autopilot.
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+            Auto-generate & schedule posts for <span className="text-outly-accent font-extrabold">1-tap WhatsApp approval</span>.
           </h1>
-
-          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Consistency is your ultimate unfair advantage. Outly generates high-value technical posts and delivers them straight to your WhatsApp for 1-tap approval.
-          </p>
         </div>
 
         <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
