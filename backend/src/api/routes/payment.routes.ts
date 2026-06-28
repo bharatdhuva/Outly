@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { env } from "../../config/env.js";
 import { User } from "../../db/models.js";
 import { connectDB } from "../../db/connection.js";
+import { sendUpgradeMail } from "../../automation/coldmail/mailSender.js";
 
 const router = Router();
 
@@ -108,6 +109,9 @@ router.post("/verify-payment", async (req: Request, res: Response) => {
             { new: true }
           );
           if (updatedUser) {
+            sendUpgradeMail(updatedUser.email, updatedUser.fullName || undefined).catch((err) =>
+              console.error("Upgrade thank-you email trigger error:", err)
+            );
             updatedUserToken = jwt.sign(
               {
                 id: updatedUser._id.toString(),

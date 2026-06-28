@@ -8,7 +8,7 @@ import { User } from "../../db/models.js";
 import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { connectDB } from "../../db/connection.js";
-import { sendWelcomeMail } from "../../automation/coldmail/mailSender.js";
+import { sendWelcomeMail, sendUpgradeMail } from "../../automation/coldmail/mailSender.js";
 
 const router = Router();
 
@@ -316,6 +316,12 @@ router.post("/upgrade", requireAuth, async (req: AuthenticatedRequest, res: Resp
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
+    }
+
+    if (targetPlan === "pro") {
+      sendUpgradeMail(user.email, user.fullName || undefined).catch((err) =>
+        console.error("Upgrade thank-you email trigger error:", err)
+      );
     }
 
     // Sign a new token with the updated plan
