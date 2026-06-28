@@ -14,6 +14,16 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Plus,
   Trash2,
   CheckCircle,
@@ -53,6 +63,9 @@ export default function ResumeVaultPage() {
   // Edit label state
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editLabelText, setEditLabelText] = useState("");
+
+  // Delete modal state
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
 
   const handleDownloadResume = async (resumeId: number, filename: string) => {
     try {
@@ -373,9 +386,7 @@ export default function ResumeVaultPage() {
                           title="Delete Resume"
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (confirm(`Are you sure you want to delete "${resumeItem.label}"?`)) {
-                              deleteMutation.mutate(resumeItem.id);
-                            }
+                            setDeleteTarget(resumeItem);
                           }}
                         >
                           <Trash2 className="h-3 w-3" />
@@ -694,6 +705,32 @@ export default function ResumeVaultPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* DELETE CONFIRMATION ALERT DIALOG */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent className="border-border bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Resume Version?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong className="text-foreground">"{deleteTarget?.label}"</strong>? This will remove this version from your vault.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
+              onClick={() => {
+                if (deleteTarget) {
+                  deleteMutation.mutate(deleteTarget.id);
+                  setDeleteTarget(null);
+                }
+              }}
+            >
+              Delete Resume
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>
   );

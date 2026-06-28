@@ -14,6 +14,16 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Plus,
   Trash2,
   ExternalLink,
@@ -47,6 +57,7 @@ export default function ApplicationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedApp, setSelectedApp] = useState<TrackerApplication | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [deleteAppTarget, setDeleteAppTarget] = useState<TrackerApplication | null>(null);
 
   // New Application form state
   const [newCompany, setNewCompany] = useState("");
@@ -410,9 +421,7 @@ export default function ApplicationsPage() {
                   size="sm"
                   className="gap-1 text-[11px] font-bold text-destructive hover:bg-destructive/10 hover:text-destructive rounded-lg h-8"
                   onClick={() => {
-                    if (confirm("Are you sure you want to delete this application?")) {
-                      deleteMutation.mutate(selectedApp.id);
-                    }
+                    setDeleteAppTarget(selectedApp);
                   }}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -532,6 +541,33 @@ export default function ApplicationsPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* DELETE APPLICATION ALERT DIALOG */}
+      <AlertDialog open={!!deleteAppTarget} onOpenChange={(open) => !open && setDeleteAppTarget(null)}>
+        <AlertDialogContent className="border-border bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Application Card?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong className="text-foreground">"{deleteAppTarget?.company_name} — {deleteAppTarget?.role_title}"</strong>? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
+              onClick={() => {
+                if (deleteAppTarget) {
+                  deleteMutation.mutate(deleteAppTarget.id);
+                  setDeleteAppTarget(null);
+                  setSelectedApp(null);
+                }
+              }}
+            >
+              Delete Application
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       </div>
     </LockedFeatureGuard>

@@ -27,6 +27,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ContentPost {
   id: number;
@@ -290,6 +300,7 @@ export default function ContentScheduler() {
   const [editContent, setEditContent] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [newTopic, setNewTopic] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [deliveryTime, setDeliveryTime] = useState<string>("09:00");
   const [whatsappNumber, setWhatsappNumber] = useState<string>("+91 98765 43210");
