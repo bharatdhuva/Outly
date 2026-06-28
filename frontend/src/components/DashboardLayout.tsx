@@ -888,7 +888,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
       <main className="flex-1 w-full flex flex-col min-h-0 overflow-x-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex-1 flex flex-col min-h-0">
+        <div className="w-full max-w-7xl mx-auto px-6 py-6 sm:px-8 lg:px-10 flex-1 flex flex-col min-h-0">
           {children}
         </div>
       </main>

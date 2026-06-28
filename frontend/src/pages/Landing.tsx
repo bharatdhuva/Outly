@@ -894,7 +894,7 @@ export default function Landing() {
           ? "bg-outly-cream/80 backdrop-blur-md border-b border-outly-border shadow-soft py-4" 
           : "bg-outly-cream/40 backdrop-blur-sm border-b border-outly-border/30 py-5"
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-3 items-center">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 grid grid-cols-2 md:grid-cols-3 items-center">
           
           {/* Left: Logo */}
           <div className="flex justify-start">
@@ -922,7 +922,7 @@ export default function Landing() {
 
       {/* HERO SECTION */}
       <main className="relative overflow-hidden pt-24 sm:pt-32 pb-12 sm:pb-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-12 gap-8 sm:gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 grid md:grid-cols-12 gap-8 sm:gap-12 items-center">
           
           {/* Left Column: Hero Text */}
           <div className="md:col-span-6 z-10 hero-text-container">
@@ -1104,7 +1104,7 @@ export default function Landing() {
 
 
       {/* WHY OUTLY - INTERACTIVE KNOWLEDGE HUB */}
-      <section id="why-outly" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24 text-center">
+      <section id="why-outly" className="max-w-6xl mx-auto px-6 sm:px-8 py-12 sm:py-24 text-center">
         <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6">
           <div className="h-px w-8 bg-outly-accent"></div>
           <div className="text-outly-accent font-bold text-[9px] sm:text-[10px] tracking-[0.3em] uppercase">KNOWLEDGE HUB</div>
@@ -1295,7 +1295,7 @@ export default function Landing() {
       </section>
 
       {/* FEATURE GRID */}
-      <section id="features" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
+      <section id="features" className="max-w-6xl mx-auto px-6 sm:px-8 py-12 sm:py-24">
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
           <div className="h-px w-8 bg-outly-accent"></div>
           <div className="text-outly-accent font-bold text-[9px] sm:text-[10px] tracking-[0.3em] uppercase">FEATURES</div>
@@ -1362,7 +1362,7 @@ export default function Landing() {
       </section>
 
       {/* PRICING SECTION */}
-      <section id="pricing" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
+      <section id="pricing" className="max-w-6xl mx-auto px-6 sm:px-8 py-12 sm:py-24">
         <div className="mb-12 sm:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-6 sm:gap-8">
           <div>
             <div className="flex items-center gap-3 mb-4 sm:mb-6">
@@ -1406,97 +1406,97 @@ export default function Landing() {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-stretch">
+        <div className="grid md:grid-cols-2 gap-6 items-stretch max-w-4xl mx-auto">
           
           {/* Outly Free Card */}
-          <div className="bg-white rounded-[24px] sm:rounded-[48px] p-6 sm:p-12 md:p-16 shadow-soft border border-outly-border flex flex-col hover:border-outly-accent/20 transition-all duration-500">
-            <div className="mb-6 sm:mb-10">
-              <span className="bg-outly-dark/5 text-[9px] sm:text-[10px] font-bold px-3 sm:px-4 py-1.5 rounded-full uppercase tracking-widest text-outly-dark/50">YOUR DATA IS OUR KEY</span>
+          <div className="bg-white rounded-3xl p-5 md:p-6 shadow-soft border border-outly-border flex flex-col hover:border-outly-accent/20 transition-all duration-300">
+            <div className="mb-3">
+              <span className="bg-outly-dark/5 text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-outly-dark/50">YOUR DATA IS OUR KEY</span>
             </div>
-            <h3 className="text-2xl sm:text-4xl font-medium mb-3 sm:mb-6 tracking-tight">Outly Free</h3>
-            <p className="text-xs sm:text-[13px] text-outly-dark/40 font-medium mb-6 sm:mb-12">Complete privacy. Your data stays yours, and is never sold.</p>
-            <div className="flex items-baseline gap-2 sm:gap-3 mb-6 sm:mb-12">
-              <span className="text-4xl sm:text-7xl font-medium">{priceData.free}</span>
+            <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight">Outly <span className="italic-serif text-outly-dark/40 font-normal">Free</span></h3>
+            <p className="text-xs text-outly-dark/50 font-medium mb-4">Complete privacy. Your data stays yours, and is never sold.</p>
+            <div className="flex items-baseline gap-2 mb-4 select-none">
+              <span className="text-4xl md:text-5xl font-bold">{priceData.free}</span>
               <span className="text-outly-dark/30 text-xs font-medium">{priceData.freeMeta}</span>
             </div>
-            <ul className="space-y-4 sm:space-y-6 mb-8 sm:mb-16 flex-1">
-              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-outly-dark/70">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+            <ul className="space-y-2.5 mb-6 flex-1">
+              <li className="flex items-center gap-3 text-xs font-semibold text-outly-dark/70">
+                <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 Basic Resume ATS Score checking
               </li>
-              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-outly-dark/30 line-through">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+              <li className="flex items-center gap-3 text-xs font-semibold text-outly-dark/30 line-through">
+                <svg className="w-4 h-4 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 Unlimited resume tailoring &amp; optimization
               </li>
-              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-outly-dark/30 line-through">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+              <li className="flex items-center gap-3 text-xs font-semibold text-outly-dark/30 line-through">
+                <svg className="w-4 h-4 text-outly-dark/20 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 Job search, tracking &amp; AI cold mail writing
               </li>
             </ul>
-            <div className="flex flex-wrap gap-2 mb-6 sm:mb-10 select-none">
-              <span className="text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">OpenAI</span>
-              <span className="text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Anthropic</span>
-              <span className="text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Google Gemini</span>
-              <span className="text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-widest">Groq</span>
+            <div className="flex flex-wrap gap-1.5 mb-4 select-none">
+              <span className="text-[9px] font-bold px-2.5 py-0.5 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-wider">OpenAI</span>
+              <span className="text-[9px] font-bold px-2.5 py-0.5 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-wider">Anthropic</span>
+              <span className="text-[9px] font-bold px-2.5 py-0.5 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-wider">Google Gemini</span>
+              <span className="text-[9px] font-bold px-2.5 py-0.5 bg-outly-cream rounded border border-outly-border text-outly-dark/30 uppercase tracking-wider">Groq</span>
             </div>
-            <button onClick={() => navigateTo("/login")} className="w-full border-2 border-outly-border hover:border-outly-dark/40 py-3.5 sm:py-5 rounded-full font-sans text-[14px] sm:text-[16px] font-medium hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 text-center select-none block cursor-pointer">Start free</button>
+            <button onClick={() => navigateTo("/login")} className="w-full border-2 border-outly-border hover:border-outly-dark/40 py-2.5 rounded-full font-sans text-xs md:text-sm font-bold hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 text-center select-none block cursor-pointer">Start free</button>
           </div>
           
           {/* Outly Cloud Card */}
-          <div className="bg-foreground rounded-[24px] sm:rounded-[48px] p-6 sm:p-12 md:p-16 text-white flex flex-col relative overflow-hidden shadow-2xl shadow-outly-accent/10 border border-outly-accent/20 hover:shadow-outly-accent/20 transition-all duration-500">
-            <div className="mb-6 sm:mb-10 flex flex-wrap gap-2 items-center">
-              <span className="bg-outly-accent text-[9px] sm:text-[10px] font-bold px-3 sm:px-4 py-1.5 rounded-full uppercase tracking-widest">SPECIAL LAUNCH OFFER</span>
-              <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3.5 py-1.5 rounded-full tracking-wider font-mono flex items-center gap-1.5">
+          <div className="bg-foreground rounded-3xl p-5 md:p-6 text-white flex flex-col relative overflow-hidden shadow-xl shadow-outly-accent/10 border border-outly-accent/20 hover:shadow-outly-accent/20 transition-all duration-500">
+            <div className="mb-3 flex flex-wrap gap-2 items-center justify-between">
+              <span className="bg-outly-accent text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">SPECIAL LAUNCH OFFER</span>
+              <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] font-bold px-2.5 py-1.5 rounded-full tracking-wider font-mono flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
                 <span>{timeLeft || "3d 00h 00m 00s"} LEFT</span>
               </span>
             </div>
-            <h3 className="text-2xl sm:text-4xl font-medium mb-3 sm:mb-6 tracking-tight">Outly Cloud</h3>
-            <p className="text-xs sm:text-[13px] text-white/40 font-medium mb-6 sm:mb-12">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
-            <div className="flex items-baseline gap-2 sm:gap-3 mb-6 sm:mb-12">
-              <span className="text-4xl sm:text-7xl font-medium">{priceData.pro}</span>
-              <span className="text-white/20 text-lg sm:text-xl font-medium line-through leading-none">{priceData.proSlashed}</span>
-              <span className="text-white/40 text-xs sm:text-sm font-medium">{priceData.proDuration}</span>
+            <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight">Outly <span className="italic-serif text-outly-accent font-normal">Cloud</span></h3>
+            <p className="text-xs text-white/60 mb-4">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
+            <div className="flex items-baseline gap-2.5 mb-4 select-none">
+              <span className="text-4xl md:text-5xl font-bold">{priceData.pro}</span>
+              <span className="text-white/30 text-sm md:text-base font-medium line-through leading-none">{priceData.proSlashed}</span>
+              <span className="text-white/60 text-xs font-medium">{priceData.proDuration}</span>
             </div>
-            <ul className="space-y-4 sm:space-y-6 mb-8 sm:mb-16 flex-1">
-              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+            <ul className="space-y-2.5 mb-6 flex-1">
+              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
+                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 Unlimited Resume Tailoring &amp; ATS Score Checking
               </li>
-              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
+                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 AI Job Search &amp; Visual Job Tracker
               </li>
-              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
+                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 LinkedIn &amp; Twitter Post Schedulers
               </li>
-              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
+                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 AI Cold Mail Writer &amp; Automations
               </li>
-              <li className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-white/90">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-outly-accent shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
+                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 Get hired faster with AI — 7-day trial @ ₹1/-
               </li>
             </ul>
-            <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-3.5 sm:py-5 rounded-full font-sans text-[14px] sm:text-[16px] font-medium hover:brightness-115 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-2xl shadow-outly-accent/35 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
+            <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-2.5 rounded-full font-sans text-xs md:text-sm font-bold hover:brightness-115 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-outly-accent/25 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
           </div>
         </div>
         
@@ -1516,7 +1516,7 @@ export default function Landing() {
       </section>
 
       {/* BOTTOM CTA */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-24 text-center relative">
+      <section className="max-w-5xl mx-auto px-6 sm:px-8 py-12 sm:py-24 text-center relative">
         <div className="relative inline-block mb-6 sm:mb-12 select-none">
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-outly-accent rounded-full mx-auto flex items-center justify-center overflow-hidden">
             <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full mt-3 sm:mt-4"></div>
