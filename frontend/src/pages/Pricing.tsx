@@ -262,37 +262,35 @@ export default function Pricing() {
         <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
           Choose the right plan for your job search. Run in the cloud with top speed and zero configuration.
         </p>
-      </div>
-
-      {/* Pricing Cards Grid */}
-      <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-stretch w-full max-w-4xl">
+      </div>      {/* Pricing Cards Grid */}
+      <div className="grid md:grid-cols-2 gap-4 md:gap-6 items-stretch w-full max-w-3xl">
 
         {/* Outly Free Card */}
-        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-border flex flex-col hover:border-outly-accent/10 transition-all duration-300">
-          <div className="mb-4">
+        <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-border flex flex-col hover:border-outly-accent/10 transition-all duration-300">
+          <div className="mb-3">
             <span className="bg-muted text-muted-foreground text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">YOUR DATA IS OUR KEY</span>
           </div>
-          <h3 className="text-2xl md:text-3xl font-medium mb-2 tracking-tight font-['Rubik',sans-serif]">Outly <span className="italic-serif text-muted-foreground font-normal">Free</span></h3>
-          <p className="text-xs text-muted-foreground mb-6">Complete privacy. Your data stays yours, and is never sold.</p>
+          <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight font-['Rubik',sans-serif]">Outly <span className="italic-serif text-muted-foreground font-normal">Free</span></h3>
+          <p className="text-xs text-muted-foreground mb-4">Complete privacy. Your data stays yours, and is never sold.</p>
 
-          <div className="flex items-baseline gap-2 mb-6 select-none">
-            <span className="text-5xl md:text-6xl font-bold">₹0</span>
+          <div className="flex items-baseline gap-2 mb-4 select-none">
+            <span className="text-4xl md:text-5xl font-bold">₹0</span>
             <span className="text-muted-foreground text-xs font-medium">forever — you only pay your AI provider</span>
           </div>
 
-          <ul className="space-y-3 mb-8 flex-1">
+          <ul className="space-y-2.5 mb-6 flex-1">
             <li className="flex items-center gap-3 text-xs text-foreground/80 font-semibold">
               <Check className="w-4 h-4 text-green-500 shrink-0" strokeWidth={3} />
               Basic Resume ATS Score checking
             </li>
             <li className="flex items-center gap-3 text-xs text-foreground/30 font-semibold line-through">
-              <svg className="w-4 h-4 text-foreground/20 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-foreground/20 shrink-0" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
                 <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
               Unlimited resume tailoring &amp; optimization
             </li>
             <li className="flex items-center gap-3 text-xs text-foreground/30 font-semibold line-through">
-              <svg className="w-4 h-4 text-foreground/20 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-foreground/20 shrink-0" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
                 <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
               Job search, tracking &amp; AI cold mail writing
@@ -301,15 +299,15 @@ export default function Pricing() {
 
           <button
             disabled
-            className="w-full border-2 border-border py-3 rounded-full font-bold text-sm text-muted-foreground bg-muted/25 cursor-default text-center select-none"
+            className="w-full border-2 border-border py-2.5 rounded-full font-bold text-sm text-muted-foreground bg-muted/25 cursor-default text-center select-none"
           >
             {isPremium ? "Free Plan" : "Current Plan"}
           </button>
         </div>
 
         {/* Outly Cloud Card (Midnight Navy Slate) */}
-        <div className="bg-foreground rounded-3xl p-6 md:p-8 text-white flex flex-col relative overflow-hidden shadow-xl shadow-outly-accent/5 border border-outly-accent/20 hover:shadow-outly-accent/15 transition-all duration-500">
-          <div className="mb-4 flex flex-wrap gap-2 items-center justify-between">
+        <div className="bg-foreground rounded-3xl p-5 md:p-6 text-white flex flex-col relative overflow-hidden shadow-xl shadow-outly-accent/5 border border-outly-accent/20 hover:shadow-outly-accent/15 transition-all duration-500">
+          <div className="mb-3 flex flex-wrap gap-2 items-center justify-between">
             <span className="bg-outly-accent text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">SPECIAL LAUNCH OFFER</span>
             <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] font-bold px-3 py-1.5 rounded-full tracking-wider font-mono flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
@@ -317,14 +315,14 @@ export default function Pricing() {
             </span>
           </div>
 
-          <h3 className="text-2xl md:text-3xl font-medium mb-2 tracking-tight font-['Rubik',sans-serif]">Outly <span className="italic-serif text-outly-accent font-normal">Cloud</span></h3>
-          <p className="text-xs text-white/60 mb-6">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
+          <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight font-['Rubik',sans-serif]">Outly <span className="italic-serif text-outly-accent font-normal">Cloud</span></h3>
+          <p className="text-xs text-white/60 mb-4">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
 
-          <div className="flex items-baseline gap-2.5 mb-6 select-none">
-            <span className="text-5xl md:text-6xl font-bold">
+          <div className="flex items-baseline gap-2.5 mb-4 select-none">
+            <span className="text-4xl md:text-5xl font-bold">
               ₹1
             </span>
-            <span className="text-white/30 text-base md:text-lg font-medium line-through leading-none">
+            <span className="text-white/30 text-sm md:text-base font-medium line-through leading-none">
               ₹99
             </span>
             <span className="text-white/60 text-xs font-medium">
@@ -332,7 +330,7 @@ export default function Pricing() {
             </span>
           </div>
 
-          <ul className="space-y-3 mb-8 flex-1">
+          <ul className="space-y-2.5 mb-6 flex-1">
             <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
               <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
               Unlimited Resume Tailoring &amp; ATS Score Checking
@@ -356,7 +354,7 @@ export default function Pricing() {
           </ul>
 
           {isPremium ? (
-            <div className="w-full bg-outly-accent/25 border border-outly-accent/30 py-3 rounded-full font-bold text-sm text-outly-accent select-none text-center flex items-center justify-center gap-1.5">
+            <div className="w-full bg-outly-accent/25 border border-outly-accent/30 py-2.5 rounded-full font-bold text-sm text-outly-accent select-none text-center flex items-center justify-center gap-1.5">
               <Sparkles className="w-4 h-4 fill-outly-accent/20" />
               Active Premium Plan
             </div>
@@ -364,7 +362,7 @@ export default function Pricing() {
             <button
               onClick={handleRazorpayPayment}
               disabled={isProcessingPayment}
-              className="w-full bg-outly-accent py-3 rounded-full font-bold text-sm hover:brightness-110 transition shadow-lg shadow-outly-accent/20 text-center select-none cursor-pointer text-white flex items-center justify-center gap-2 disabled:opacity-80"
+              className="w-full bg-outly-accent py-2.5 rounded-full font-bold text-sm hover:brightness-110 transition shadow-lg shadow-outly-accent/20 text-center select-none cursor-pointer text-white flex items-center justify-center gap-2 disabled:opacity-80"
             >
               {isProcessingPayment ? (
                 <>

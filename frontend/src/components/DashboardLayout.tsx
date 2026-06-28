@@ -850,6 +850,30 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
             </Accordion>
 
+            {/* Standalone Mobile Links: PRICING & SUPPORT */}
+            <div className="flex flex-col w-full mb-4">
+              <Link
+                to="/pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between text-xs font-bold uppercase tracking-wider py-3.5 border-b border-border/55 hover:no-underline transition duration-200 ${
+                  location.pathname === "/pricing" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>Pricing</span>
+                <span className="text-[10px] text-muted-foreground/60">→</span>
+              </Link>
+              <Link
+                to="/support"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between text-xs font-bold uppercase tracking-wider py-3.5 border-b border-border/55 hover:no-underline transition duration-200 ${
+                  location.pathname === "/support" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>Support</span>
+                <span className="text-[10px] text-muted-foreground/60">→</span>
+              </Link>
+            </div>
+
             <button
               onClick={handleLogout}
               type="button"

@@ -699,16 +699,22 @@ export default function AtsScorePage() {
 
                         {/* Keyword gaps (Live/mock data mapped) */}
                         {getMissingKeywordsArray(activeResult.missing_keywords).length > 0 ? (
-                          <div className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/20 p-2.5 rounded-xl">
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                            <div>
-                              <span className="block text-[11px] font-bold text-amber-700">Keyword Gaps Detected</span>
-                              <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Your CV lacks these core terms required for this domain:</span>
-                              <div className="flex flex-wrap gap-1.5 mt-2">
-                                {getMissingKeywordsArray(activeResult.missing_keywords).map((kw, i) => (
-                                  <span key={i} className="text-[9px] font-bold bg-amber-500/10 text-amber-700 px-2 py-0.5 rounded border border-amber-500/20">{kw}</span>
-                                ))}
+                          <div className="space-y-3 w-full">
+                            <div className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/15 p-2.5 rounded-xl">
+                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                              <div className="w-full">
+                                <span className="block text-[11px] font-bold text-amber-700">Keyword Gaps Detected</span>
+                                <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Your CV lacks these core terms required for this domain:</span>
                               </div>
+                            </div>
+                            
+                            <div className="space-y-2 w-full">
+                              {getMissingKeywordsArray(activeResult.missing_keywords).map((kw, i) => (
+                                <div key={i} className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/10 p-2.5 rounded-xl w-full text-left break-words">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5"></span>
+                                  <span className="text-[10px] font-medium text-foreground leading-relaxed break-words w-full">{kw}</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         ) : (

@@ -325,17 +325,8 @@ export default function Landing() {
     });
   };
 
-  // Showcase state
-  const [activeTab, setActiveTab] = useState<"brief" | "inbox" | "calendar" | "vault">("inbox");
-  
-  // Inbox client state
-  const [emails, setEmails] = useState<Record<string, EmailThread>>(initialEmails);
-  const [activeEmailId, setActiveEmailId] = useState<"priya" | "atlas" | "openai">("priya");
-  const [autopilotDraftActive, setAutopilotDraftActive] = useState(false);
-  const [autopilotTypedText, setAutopilotTypedText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [inboxBadgeCount, setInboxBadgeCount] = useState(3);
-  const [totalMailsSent, setTotalMailsSent] = useState(48);
+  // Knowledge Hub state
+  const [infoTab, setInfoTab] = useState<"about" | "features" | "why-us">("about");
 
   // Job Tracker state
   const [selectedTrackerJob, setSelectedTrackerJob] = useState<string>("spotify");
@@ -1019,42 +1010,7 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Draggable Parent for Daily Brief Card */}
-            <div 
-              className="absolute z-20 cursor-grab left-4 right-4 sm:left-[2%] sm:right-auto sm:w-[380px]"
-              style={{
-                top: "12%",
-                transform: `translate3d(${offsets.brief.x}px, ${offsets.brief.y}px, 0)`,
-                transition: draggingCard === 'brief' ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
-              }}
-              onMouseDown={(e) => handleDragStart(e, 'brief')}
-              onTouchStart={(e) => handleDragStart(e, 'brief')}
-            >
-              <div 
-                ref={cardBriefRef} 
-                className={`w-full max-w-[360px] sm:w-[380px] bg-white rounded-2xl shadow-xl border border-outly-border p-5 transform -rotate-1 select-none transition-shadow duration-300 ${
-                  draggingCard === 'brief' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
-                }`}
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-outly-accent/10 flex items-center justify-center select-none">
-                      <span className="text-outly-accent text-xs font-bold">👤</span>
-                    </div>
-                    <div>
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-outly-dark/40">Your morning brief</div>
-                      <div className="text-[11px] font-bold">Wednesday, April 8 • 7:00 AM</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-xs md:text-sm font-medium leading-relaxed min-h-[3.5rem] text-outly-dark/80">
-                    Good morning, Maya. <span className="text-outly-dark">{renderHighlightedText(heroTypedText)}</span>
-                    {heroCursor && <span className="text-outly-accent font-bold animate-pulse">|</span>}
-                  </div>
-                </div>
-              </div>
-            </div>
+
 
             {/* Draggable Parent for Calendar Card */}
             <div 
@@ -1283,661 +1239,194 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* INTERACTIVE WORKSPACE SHOWCASE */}
-      <section id="demo" className="max-w-6xl mx-auto px-3 sm:px-6 py-8 sm:py-16 md:py-24 text-center">
-        <div className="text-outly-accent font-bold text-[8px] sm:text-[10px] tracking-[0.3em] uppercase mb-2 sm:mb-6">TRY IT RIGHT HERE</div>
-        <h2 className="text-2xl sm:text-5xl md:text-7xl font-medium tracking-tight mb-3 sm:mb-6 leading-[1.1]">
-          Go on, <span className="italic-serif text-outly-accent">click around.</span>
+      {/* WHY OUTLY - INTERACTIVE KNOWLEDGE HUB */}
+      <section id="why-outly" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24 text-center">
+        <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6">
+          <div className="h-px w-8 bg-outly-accent"></div>
+          <div className="text-outly-accent font-bold text-[9px] sm:text-[10px] tracking-[0.3em] uppercase">KNOWLEDGE HUB</div>
+          <div className="h-px w-8 bg-outly-accent"></div>
+        </div>
+        <h2 className="text-3xl sm:text-5xl md:text-7xl font-medium tracking-tight mb-4 sm:mb-10 leading-[1.05] text-outly-dark">
+          Everything you need to know<br />about <span className="italic-serif text-outly-accent">Outly.</span>
         </h2>
-        <p className="text-outly-dark/50 text-xs sm:text-base md:text-xl mb-6 sm:mb-14 max-w-2xl mx-auto font-medium leading-relaxed">
-          This is a living preview of Outly. Manage your daily schedule, customize resumes, and send automated responses on autopilot.
+        <p className="text-outly-dark/50 text-xs sm:text-base md:text-lg mb-8 sm:mb-16 max-w-2xl mx-auto font-medium leading-relaxed">
+          Outly is a privacy-first, zero-setup dashboard designed to streamline your professional journey, keep your search organized, and help you land your next role faster.
         </p>
-        
-        {/* Browser Mockup Container */}
-        <div className="bg-white rounded-xl sm:rounded-3xl md:rounded-[40px] shadow-xl sm:shadow-2xl overflow-hidden border border-outly-border text-left max-w-5xl mx-auto">
-          
-          {/* Browser Header */}
-          <div className="bg-outly-cream/40 px-3 sm:px-6 py-2 sm:py-4 border-b border-outly-border flex items-center gap-2 sm:gap-3">
-            <div className="flex gap-1">
-              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-outly-dark/10"></div>
-              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-outly-dark/10"></div>
-              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-outly-dark/10"></div>
-            </div>
-            <div className="bg-white border border-outly-border rounded-lg px-2.5 sm:px-4 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-bold text-outly-dark/30 mx-auto select-none truncate max-w-[160px] sm:max-w-none text-center">
-              outly.com/<span>{activeTab === "brief" ? "dashboard" : (activeTab === "calendar" ? "jobs" : activeTab)}</span>
-            </div>
-            <div className="text-[8px] sm:text-[10px] font-bold text-outly-accent flex items-center gap-1 sm:gap-1.5 select-none shrink-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-outly-accent animate-pulse"></div>
-              Interactive Demo
-            </div>
-          </div>
-          
-          {/* Workspace Body */}
-          <div className="flex flex-col md:flex-row h-auto md:h-[550px] overflow-hidden">
-            
-            {/* Sidebar */}
-            <div className="w-full md:w-64 bg-outly-cream/10 border-b md:border-b-0 md:border-r border-outly-border p-3 sm:p-6 md:p-8 flex flex-row md:flex-col justify-between shrink-0 overflow-x-auto no-scrollbar">
-              <div className="flex flex-row md:flex-col gap-3 sm:gap-6 w-full shrink-0">
-                
-                {/* Brief Tab Button */}
-                <div className={`flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold transition cursor-pointer select-none py-1 whitespace-nowrap ${
-                  activeTab === "brief" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
-                }`} onClick={() => handleTabSwitch("brief")}>
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2" stroke-linecap="round" stroke-linejoin="round"></path>
-                  </svg>
-                  Daily brief
-                </div>
-                
-                {/* Inbox Tab Button */}
-                <div className={`flex items-center justify-between gap-2 text-xs sm:text-sm font-bold transition cursor-pointer select-none py-1 w-auto md:w-full whitespace-nowrap ${
-                  activeTab === "inbox" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
-                }`} onClick={() => handleTabSwitch("inbox")}>
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                    Outreach
-                  </div>
-                  {inboxBadgeCount > 0 && (
-                    <span className="bg-outly-accent text-white text-[8px] sm:text-[9px] px-1.5 rounded transition-all duration-300">{inboxBadgeCount}</span>
-                  )}
-                </div>
-                
-                {/* Calendar Tab Button */}
-                <div className={`flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold transition cursor-pointer select-none py-1 whitespace-nowrap ${
-                  activeTab === "calendar" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
-                }`} onClick={() => handleTabSwitch("calendar")}>
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M9 4.5v15m6-15v15m-9-15h12a1.5 1.5 0 011.5 1.5v12a1.5 1.5 0 01-1.5 1.5H6a1.5 1.5 0 01-1.5-1.5V6a1.5 1.5 0 011.5-1.5z" stroke-linecap="round" stroke-linejoin="round"></path>
-                  </svg>
-                  Job Tracker
-                </div>
 
-                {/* Vault Tab Button */}
-                <div className={`flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold transition cursor-pointer select-none py-1 whitespace-nowrap ${
-                  activeTab === "vault" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
-                }`} onClick={() => handleTabSwitch("vault")}>
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
-                  </svg>
-                  Resume Vault
+        {/* Interactive Tabs Header */}
+        <div className="flex justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 border-b border-outly-border pb-3 max-w-lg mx-auto">
+          <button
+            onClick={() => setInfoTab("about")}
+            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${
+              infoTab === "about" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
+            }`}
+          >
+            What is Outly?
+            {infoTab === "about" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-outly-accent rounded-full animate-fade-in"></div>
+            )}
+          </button>
+          <button
+            onClick={() => setInfoTab("features")}
+            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${
+              infoTab === "features" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
+            }`}
+          >
+            Core Features
+            {infoTab === "features" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-outly-accent rounded-full animate-fade-in"></div>
+            )}
+          </button>
+          <button
+            onClick={() => setInfoTab("why-us")}
+            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${
+              infoTab === "why-us" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
+            }`}
+          >
+            Why Choose Us?
+            {infoTab === "why-us" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-outly-accent rounded-full animate-fade-in"></div>
+            )}
+          </button>
+        </div>
+
+        {/* Interactive Content Area */}
+        <div className="max-w-4xl mx-auto min-h-[350px]">
+          {infoTab === "about" && (
+            <div className="grid md:grid-cols-2 gap-8 items-center text-left animate-fade-in">
+              <div className="space-y-4 sm:space-y-6">
+                <h3 className="text-2xl sm:text-3xl font-bold text-outly-dark tracking-tight">
+                  Your complete professional <span className="italic-serif text-outly-accent font-normal">command center.</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-outly-dark/70 leading-relaxed font-medium">
+                  Outly is built for professionals who want to take control of their career growth. Instead of juggling spreadsheets, email threads, and multiple resume versions, Outly aggregates everything into a single, beautifully designed dashboard.
+                </p>
+                <p className="text-xs sm:text-sm text-outly-dark/70 leading-relaxed font-medium">
+                  We believe that job searching shouldn't feel like a second full-time job. By bringing structure, clarity, and organization to your daily outreach, Outly lets you focus on what really matters: preparing for interviews and doing great work.
+                </p>
+              </div>
+              <div className="bg-outly-cream/40 rounded-3xl p-6 sm:p-10 border border-outly-border shadow-soft space-y-4 flex flex-col justify-center">
+                <div className="flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-outly-accent/10 flex items-center justify-center text-outly-accent shrink-0 select-none">🛡️</div>
+                  <div>
+                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">100% Private & Secure</h5>
+                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">Your data is stored locally or securely in your private cloud. We never sell your personal information or resume data.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-outly-accent/10 flex items-center justify-center text-outly-accent shrink-0 select-none">⚡</div>
+                  <div>
+                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">Zero Configuration</h5>
+                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">No complicated setup. Just upload your master resume and start managing your applications instantly.</p>
+                  </div>
                 </div>
               </div>
-              
-              <div className="hidden md:block select-none">
-                <div className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest mb-1">Maya's workspace •</div>
-                <div className="text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest">Wednesday, April 8</div>
+            </div>
+          )}
+
+          {infoTab === "features" && (
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 text-left animate-fade-in">
+              {/* Feature 1 */}
+              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+                <div>
+                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">📊</div>
+                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Application Tracker</h4>
+                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                    A visual Kanban board to track your job applications from applied to interviewing to offer stage.
+                  </p>
+                </div>
+              </div>
+              {/* Feature 2 */}
+              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+                <div>
+                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">📁</div>
+                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Resume Vault</h4>
+                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                    Store your master resume and manage all tailored variants in one secure, accessible repository.
+                  </p>
+                </div>
+              </div>
+              {/* Feature 3 */}
+              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+                <div>
+                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">✉️</div>
+                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Outreach Manager</h4>
+                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                    Organize your recruiter conversations, track follow-ups, and make sure you never miss a reply.
+                  </p>
+                </div>
+              </div>
+              {/* Feature 4 */}
+              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+                <div>
+                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">📝</div>
+                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">ATS Analysis</h4>
+                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                    Analyze job descriptions to see how well your profile matches, with actionable tips to optimize it.
+                  </p>
+                </div>
+              </div>
+              {/* Feature 5 */}
+              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+                <div>
+                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">📅</div>
+                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Content Scheduler</h4>
+                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                    Build your professional brand by scheduling posts for LinkedIn and Twitter directly from your dashboard.
+                  </p>
+                </div>
+              </div>
+              {/* Feature 6 */}
+              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+                <div>
+                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">🔍</div>
+                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Smart Search</h4>
+                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                    Filter and find jobs across multiple platforms based on your exact skills and experience level.
+                  </p>
+                </div>
               </div>
             </div>
-            
-            {/* View Panel Content */}
-            <div id="showcase-panel-wrapper" className="flex-1 overflow-hidden">
-              
-              {/* TAB 1: DAILY BRIEF */}
-              {activeTab === "brief" && (
-                <div className="h-full p-4 sm:p-6 md:p-8 flex flex-col overflow-y-auto custom-scrollbar">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6 sm:mb-8">
-                    <div>
-                      <h3 className="font-bold text-xl sm:text-2xl tracking-tight">Morning Analytics</h3>
-                      <p className="text-[11px] sm:text-xs text-outly-dark/40 font-medium">Outreach metrics and match rate summaries.</p>
-                    </div>
-                    <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-outly-border shadow-sm">
-                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-outly-dark/60">Live Updates</span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-8">
-                    <div className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-outly-border shadow-soft">
-                      <span className="text-[7px] sm:text-[8px] font-bold uppercase tracking-wider text-outly-dark/30 block mb-1">Total Mails</span>
-                      <div className="text-base sm:text-2xl font-semibold tracking-tight text-outly-dark">{totalMailsSent}</div>
-                      <span className="text-[8px] sm:text-[9px] text-green-600 font-bold">↑ 18%</span>
-                    </div>
-                    <div className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-outly-border shadow-soft">
-                      <span className="text-[7px] sm:text-[8px] font-bold uppercase tracking-wider text-outly-dark/30 block mb-1">Responses</span>
-                      <div className="text-base sm:text-2xl font-semibold tracking-tight text-outly-dark">28.4%</div>
-                      <span className="text-[8px] sm:text-[9px] text-outly-accent font-bold">+4.2%</span>
-                    </div>
-                    <div className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-outly-border shadow-soft">
-                      <span className="text-[7px] sm:text-[8px] font-bold uppercase tracking-wider text-outly-dark/30 block mb-1">ATS Score</span>
-                      <div className="text-base sm:text-2xl font-semibold tracking-tight text-outly-dark">94.2%</div>
-                      <span className="text-[8px] sm:text-[9px] text-green-600 font-bold">✓ Excellent</span>
-                    </div>
-                  </div>
-                  
-                  {/* Recharts Graphical Dashboard */}
-                  <div className="bg-white p-5 rounded-3xl border border-outly-border shadow-soft flex-1 min-h-[220px] flex flex-col justify-between">
-                    <div className="flex justify-between items-center mb-2 select-none">
-                      <span className="text-[10px] font-bold text-outly-dark/60 uppercase tracking-widest">Outreach Performance</span>
-                      <span className="text-[9px] font-bold text-outly-dark/30">6-WEEK PERFORMANCE</span>
-                    </div>
-                    <div className="w-full h-[140px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
-                          <XAxis dataKey="name" tick={{ fontSize: 8, fill: "#71717a" }} axisLine={false} tickLine={false} />
-                          <YAxis tick={{ fontSize: 8, fill: "#71717a" }} axisLine={false} tickLine={false} />
-                          <RechartsTooltip contentStyle={{ fontSize: 10, borderRadius: 8 }} />
-                          <Line type="monotone" dataKey="sent" stroke="#1a1a1a" strokeWidth={2} dot={{ r: 1 }} activeDot={{ r: 4 }} name="Mails Sent" />
-                          <Line type="monotone" dataKey="replies" stroke="#f23c5d" strokeWidth={2} dot={{ r: 1 }} activeDot={{ r: 4 }} name="Replies" />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
+          )}
+
+          {infoTab === "why-us" && (
+            <div className="grid md:grid-cols-2 gap-8 text-left animate-fade-in">
+              <div className="bg-white rounded-3xl border border-outly-border p-6 sm:p-8 shadow-soft flex flex-col justify-between">
+                <div className="space-y-4">
+                  <span className="text-[9px] font-bold text-outly-accent uppercase tracking-widest block">THE OUTLY DIFFERENCE</span>
+                  <h4 className="text-xl sm:text-2xl font-bold text-outly-dark tracking-tight">
+                    Built for <span className="italic-serif text-outly-accent font-normal">privacy,</span> not data harvesting.
+                  </h4>
+                  <p className="text-xs sm:text-sm text-outly-dark/60 leading-relaxed font-medium">
+                    Most career platforms make money by selling your resume data to recruiters or third parties. Outly is different. Your workspace belongs entirely to you. We charge a flat, transparent fee for our cloud features, ensuring our incentives align with your success.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0 select-none font-bold">✓</div>
+                  <div>
+                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">No Ads or Spam</h5>
+                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">A clean, distraction-free interface focused purely on your productivity.</p>
                   </div>
                 </div>
-              )}
-              
-              {/* TAB 2: INBOX */}
-              {activeTab === "inbox" && (
-                <div className="flex h-full overflow-hidden">
-                  
-                  {/* Thread list */}
-                  <div className={`w-full md:w-72 border-r border-outly-border flex flex-col h-full bg-white ${
-                    mobileInboxView === "detail" ? "hidden md:flex" : "flex"
-                  }`}>
-                    <div className="p-4 border-b border-outly-border bg-outly-cream/10 flex justify-between items-center shrink-0 select-none">
-                      <span className="text-[10px] font-bold text-outly-dark/40 uppercase tracking-wider">All Threads</span>
-                      <span className="text-[8px] font-bold text-outly-accent bg-outly-accent/10 px-1.5 py-0.5 rounded">AUTO WATCH</span>
-                    </div>
-                    <div className="flex-1 overflow-y-auto custom-scrollbar">
-                      {Object.values(emails).map((email) => (
-                        <div
-                          key={email.id}
-                          id={`inbox-thread-item-${email.id}`}
-                          className={`p-4 border-b border-outly-border cursor-pointer border-l-4 select-none transition-all ${
-                            activeEmailId === email.id
-                              ? "bg-outly-accent/5 border-l-outly-accent"
-                              : "hover:bg-outly-cream/10 border-l-transparent"
-                          }`}
-                          onClick={() => handleSelectEmail(email.id)}
-                        >
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="font-bold text-xs text-outly-dark block truncate w-2/3">{email.from.split(" • ")[0]}</span>
-                            <span className={email.badgeStyle}>{email.badge}</span>
-                          </div>
-                          <span className="text-[10px] font-bold text-outly-dark/70 block truncate mb-0.5">{email.subject}</span>
-                          <p className="text-[10px] text-outly-dark/40 line-clamp-2">{email.body}</p>
-                        </div>
-                      ))}
-                      {Object.keys(emails).length === 0 && (
-                        <div className="p-8 text-center text-outly-dark/30 text-xs font-semibold select-none">No messages in queue</div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Thread detail */}
-                  {emails[activeEmailId] ? (
-                    <div className={`flex-1 flex flex-col h-full bg-outly-cream/5 relative overflow-hidden ${
-                      mobileInboxView === "list" ? "hidden md:flex" : "flex"
-                    }`} id="inbox-detail-container">
-                      <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 custom-scrollbar pb-24">
-                        {/* Mobile Back Button */}
-                        <button 
-                          type="button" 
-                          className="md:hidden flex items-center gap-1.5 text-xs font-bold text-outly-accent mb-2 select-none"
-                          onClick={() => setMobileInboxView("list")}
-                        >
-                          ← Back to Inbox
-                        </button>
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-bold text-lg mb-1 text-outly-dark leading-tight">{emails[activeEmailId].subject}</h4>
-                            <p className="text-[9px] font-bold text-outly-dark/40">{emails[activeEmailId].from}</p>
-                          </div>
-                          <span className="text-[9px] font-mono text-outly-dark/40">{emails[activeEmailId].time}</span>
-                        </div>
-                        
-                        <div className="bg-white border border-outly-border rounded-xl p-4 text-xs text-outly-dark/70 leading-relaxed shadow-sm">
-                          {emails[activeEmailId].body}
-                        </div>
-                        
-                        {/* ZenScale summary card */}
-                        <div className="bg-white border border-outly-border rounded-xl p-5 shadow-sm">
-                          <div className="text-[9px] font-bold text-outly-accent tracking-widest uppercase mb-4 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-outly-accent animate-pulse"></span>
-                            • ZenScale AI Summary
-                          </div>
-                          <ul className="space-y-3">
-                            {emails[activeEmailId].bullets.map((bullet, idx) => (
-                              <li key={idx} className="flex gap-2 text-[11px] font-medium leading-relaxed">
-                                <div className="w-1.5 h-1.5 rounded-full bg-outly-accent mt-1 shrink-0"></div>
-                                {bullet}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Autopilot Typist Box */}
-                        {autopilotDraftActive && (
-                          <div className="bg-white border border-outly-accent/30 rounded-xl p-5 shadow-md relative overflow-hidden animate-slide-up">
-                            <div className="text-[9px] font-bold text-outly-accent tracking-widest uppercase mb-3 flex items-center justify-between select-none">
-                              <span className="flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-outly-accent animate-pulse"></span>
-                                • Autopilot Draft Writer
-                              </span>
-                              <span className="text-outly-dark/40 font-mono text-[8px]">{autopilotTypedText.length} chars</span>
-                            </div>
-                            <div className="text-xs text-outly-dark/80 font-medium leading-relaxed min-h-[60px] max-h-[100px] overflow-y-auto outline-none custom-scrollbar italic" contentEditable suppressContentEditableWarning>
-                              {autopilotTypedText}
-                            </div>
-                            <div className="flex justify-end gap-3 mt-4 border-t border-outly-border pt-3">
-                              <button className="px-3 py-1.5 rounded-lg border border-outly-border text-[9px] font-bold hover:bg-outly-cream transition select-none" onClick={handleDiscardDraft}>Discard</button>
-                              <button
-                                className={`bg-outly-accent text-white px-4 py-1.5 rounded-lg text-[9px] font-bold transition shadow-sm select-none flex items-center gap-1.5 ${
-                                  isTyping ? "opacity-50 pointer-events-none" : "hover:brightness-105"
-                                }`}
-                                onClick={handleSendDraft}
-                              >
-                                <span>Send Draft</span>
-                                <svg ref={paperPlaneRef} className="w-3 h-3 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                  <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-linecap="round" stroke-linejoin="round"></path>
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Action footer */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-outly-border bg-white flex items-center justify-between gap-3 shrink-0">
-                        <span className="text-[9px] font-bold text-outly-dark/40 uppercase hidden md:inline">Reply in Maya's voice:</span>
-                        <div className="flex items-center gap-3 w-full md:w-auto">
-                          <button className="flex-1 md:flex-none bg-white border border-outly-border px-4 py-2.5 rounded-lg text-[10px] font-bold hover:bg-outly-cream/40 transition select-none shadow-sm" onClick={() => handleTriggerReply(1)}>
-                            {emails[activeEmailId].suggestions[0]}
-                          </button>
-                          <button className="flex-1 md:flex-none bg-white border border-outly-border px-4 py-2.5 rounded-lg text-[10px] font-bold hover:bg-outly-cream/40 transition select-none shadow-sm" onClick={() => handleTriggerReply(2)}>
-                            {emails[activeEmailId].suggestions[1]}
-                          </button>
-                        </div>
-                        <button className="text-outly-accent text-[10px] font-bold hover:underline select-none whitespace-nowrap hidden md:inline animate-pulse-subtle" onClick={() => handleTriggerReply(3)}>
-                          {emails[activeEmailId].suggestions[2]}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex-1 flex items-center justify-center text-center p-8 select-none">
-                      <div>
-                        <div className="w-12 h-12 rounded-full bg-[#5e7d5e]/10 flex items-center justify-center text-[#5e7d5e] mx-auto mb-4">
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
-                          </svg>
-                        </div>
-                        <h4 className="font-bold text-base text-outly-dark mb-1">Inbox completely clear</h4>
-                        <p className="text-xs text-outly-dark/40 max-w-xs leading-relaxed mx-auto font-medium">All pending outreach drafts have been successfully handled.</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {/* TAB 3: CALENDAR */}
-              {/* TAB 3: JOB TRACKER */}
-              {activeTab === "calendar" && (
-                <div className="h-full p-3 sm:p-6 md:p-8 flex flex-col overflow-y-auto custom-scrollbar bg-[#fdfaf5]/10">
-                  
-                  {/* Tab Title & Header */}
-                  <div className="flex justify-between items-start mb-3 sm:mb-4">
-                    <div>
-                      <h3 className="font-bold text-lg sm:text-2xl tracking-tight">
-                        {jobsSubTab === "tracker" ? "Job Application Tracker" : "Tailored Job Search"}
-                      </h3>
-                      <p className="text-[11px] sm:text-xs text-outly-dark/40 font-medium">
-                        {jobsSubTab === "tracker" 
-                          ? "Drag, track, and manage your tailored applications in real-time." 
-                          : "Discover target roles matching your resume and track them instantly."}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Sub-Tab Selector */}
-                  <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6 pb-2 border-b border-outly-border/30">
-                    <div className="flex bg-outly-cream/50 p-0.5 sm:p-1 rounded-xl border border-outly-border/40 select-none">
-                      <button
-                        onClick={() => setJobsSubTab("tracker")}
-                        className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 ${
-                          jobsSubTab === "tracker"
-                            ? "bg-white text-outly-accent shadow-sm border border-outly-border/30"
-                            : "text-outly-dark/40 hover:text-outly-dark/70"
-                        }`}
-                      >
-                        Job Tracker
-                      </button>
-                      <button
-                        onClick={() => setJobsSubTab("search")}
-                        className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 ${
-                          jobsSubTab === "search"
-                            ? "bg-white text-outly-accent shadow-sm border border-outly-border/30"
-                            : "text-outly-dark/40 hover:text-outly-dark/70"
-                        }`}
-                      >
-                        Job Search
-                      </button>
-                    </div>
-                    <div className="ml-auto text-[8px] sm:text-[10px] font-bold text-outly-accent bg-outly-accent/10 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full select-none uppercase">
-                      {jobsSubTab === "tracker" ? "Active pipeline" : "AI match active"}
-                    </div>
-                  </div>
-
-                  {jobsSubTab === "tracker" ? (
-                    /* Kanban columns layout - takes 100% width (no detail panel) and scrollable on mobile */
-                    <div className="w-full flex flex-row md:grid md:grid-cols-3 gap-4 overflow-x-auto md:overflow-x-visible md:overflow-y-auto pr-1 pb-4 select-none snap-x snap-mandatory no-scrollbar">
-                      
-                      {/* Column 1: Applied */}
-                      <div 
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => handleDropKanban(e, "applied")}
-                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-auto sm:h-[380px] overflow-hidden w-full max-w-[280px] md:w-auto shrink-0 md:shrink snap-center"
-                      >
-                        <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
-                          <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider">Applied ({jobTrackerData.applied.length})</span>
-                        </div>
-                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-0.5">
-                          {jobTrackerData.applied.map(job => (
-                            <div 
-                              key={job.id}
-                              draggable={true}
-                              onDragStart={(e) => handleDragStartKanban(e, job.id, "applied")}
-                              className={`p-3 bg-white border rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm hover:shadow-md hover:border-outly-accent/35 hover:scale-[1.01] relative group ${
-                                selectedTrackerJob === job.id ? "ring-2 ring-outly-accent/20 border-outly-accent" : "border-outly-border"
-                              }`}
-                              onClick={() => setSelectedTrackerJob(job.id)}
-                            >
-                              <div className="flex justify-between items-start mb-1.5">
-                                <h5 className="font-bold text-xs text-outly-dark truncate w-3/4">{job.company}</h5>
-                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${
-                                  job.score >= 90 ? "bg-green-500/10 text-green-600" : "bg-[#c5a880]/10 text-[#c5a880]"
-                                }`}>{job.score}% Match</span>
-                              </div>
-                              <p className="text-[10px] font-semibold text-outly-dark/60 truncate">{job.title}</p>
-                              <p className="text-[8px] text-outly-dark/30 mt-1">{job.location}</p>
-                              
-                              {/* Quick Move Trigger button */}
-                              <button 
-                                className="absolute right-2 bottom-2 w-5 h-5 rounded-full bg-outly-cream border border-outly-border text-outly-dark hover:bg-outly-accent hover:text-white hover:border-outly-accent flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleMoveJobStage(job.id, "applied");
-                                }}
-                                title="Move to Interviewing"
-                              >
-                                →
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Column 2: Interviewing */}
-                      <div 
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => handleDropKanban(e, "interviewing")}
-                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-auto sm:h-[380px] overflow-hidden w-full max-w-[280px] md:w-auto shrink-0 md:shrink snap-center"
-                      >
-                        <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
-                          <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider">Interviewing ({jobTrackerData.interviewing.length})</span>
-                        </div>
-                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-0.5">
-                          {jobTrackerData.interviewing.map(job => (
-                            <div 
-                              key={job.id}
-                              draggable={true}
-                              onDragStart={(e) => handleDragStartKanban(e, job.id, "interviewing")}
-                              className={`p-3 bg-white border rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm hover:shadow-md hover:border-outly-accent/35 hover:scale-[1.01] relative group ${
-                                selectedTrackerJob === job.id ? "ring-2 ring-outly-accent/20 border-outly-accent" : "border-outly-border"
-                              }`}
-                              onClick={() => setSelectedTrackerJob(job.id)}
-                            >
-                              <div className="flex justify-between items-start mb-1.5">
-                                <h5 className="font-bold text-xs text-outly-dark truncate w-3/4">{job.company}</h5>
-                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${
-                                  job.score >= 90 ? "bg-green-500/10 text-green-600" : "bg-[#c5a880]/10 text-[#c5a880]"
-                                }`}>{job.score}% Match</span>
-                              </div>
-                              <p className="text-[10px] font-semibold text-outly-dark/60 truncate">{job.title}</p>
-                              <p className="text-[8px] text-outly-dark/30 mt-1">{job.location}</p>
-                              
-                              {/* Quick Move Trigger button */}
-                              <button 
-                                className="absolute right-2 bottom-2 w-5 h-5 rounded-full bg-outly-cream border border-outly-border text-outly-dark hover:bg-outly-accent hover:text-white hover:border-outly-accent flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleMoveJobStage(job.id, "interviewing");
-                                }}
-                                title="Move to Offers"
-                              >
-                                →
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Column 3: Offers */}
-                      <div 
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => handleDropKanban(e, "offer")}
-                        className="bg-slate-50/70 border border-outly-border/70 rounded-3xl p-4 flex flex-col h-auto sm:h-[380px] overflow-hidden w-full max-w-[280px] md:w-auto shrink-0 md:shrink snap-center"
-                      >
-                        <div className="flex justify-between items-center mb-3 pb-2 border-b border-outly-border/30">
-                          <span className="text-[10px] font-extrabold text-outly-dark/40 uppercase tracking-wider text-green-600">Offers ({jobTrackerData.offer.length}) 🎉</span>
-                        </div>
-                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-0.5">
-                          {jobTrackerData.offer.map(job => (
-                            <div 
-                              key={job.id}
-                              draggable={true}
-                              onDragStart={(e) => handleDragStartKanban(e, job.id, "offer")}
-                              className={`p-3 bg-white border rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm hover:shadow-md hover:border-outly-accent/35 hover:scale-[1.01] relative group ${
-                                selectedTrackerJob === job.id ? "ring-2 ring-outly-accent/20 border-outly-accent" : "border-outly-border"
-                              }`}
-                              onClick={() => setSelectedTrackerJob(job.id)}
-                            >
-                              <div className="flex justify-between items-start mb-1.5">
-                                <h5 className="font-bold text-xs text-outly-dark truncate w-3/4">{job.company}</h5>
-                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded bg-green-500/10 text-green-600`}>{job.score}% Match</span>
-                              </div>
-                              <p className="text-[10px] font-semibold text-outly-dark/60 truncate">{job.title}</p>
-                              <p className="text-[8px] text-outly-dark/30 mt-1">{job.location}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                    </div>
-                  ) : (
-                    /* Job Search view - takes 100% width */
-                    <div className="w-full flex flex-col h-full overflow-hidden pb-4">
-                      <div className="relative mb-6 select-none">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-outly-dark/30">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round"></path>
-                          </svg>
-                        </span>
-                        <input
-                          type="text"
-                          placeholder="Search roles or companies (e.g. Netflix, Vercel, Designer)..."
-                          value={jobSearchQuery}
-                          onChange={(e) => setJobSearchQuery(e.target.value)}
-                          className="w-full bg-white border border-outly-border rounded-xl pl-10 pr-4 py-3 text-xs font-semibold focus:ring-1 focus:ring-outly-accent focus:border-outly-accent outline-none transition duration-200"
-                        />
-                      </div>
-
-                      <div className="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-1 max-h-[350px]">
-                        {(() => {
-                          const filtered = MOCK_SEARCH_JOBS.filter(
-                            job => 
-                              job.company.toLowerCase().includes(jobSearchQuery.toLowerCase()) ||
-                              job.title.toLowerCase().includes(jobSearchQuery.toLowerCase()) ||
-                              job.description.toLowerCase().includes(jobSearchQuery.toLowerCase()) ||
-                              job.location.toLowerCase().includes(jobSearchQuery.toLowerCase())
-                          );
-
-                          if (filtered.length > 0) {
-                            return filtered.map(job => (
-                              <div 
-                                key={job.id}
-                                className="p-4 bg-white border border-outly-border rounded-2xl shadow-sm hover:shadow-md hover:border-outly-accent/35 transition-all duration-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-                              >
-                                <div className="space-y-1.5 flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <div className="w-6 h-6 rounded-lg bg-outly-accent/5 border border-outly-accent/10 flex items-center justify-center font-black text-[10px] text-outly-accent select-none shrink-0 uppercase">
-                                      {job.company.substring(0, 2)}
-                                    </div>
-                                    <h4 className="font-bold text-xs text-outly-dark truncate">{job.company}</h4>
-                                    <span className="text-[9px] text-outly-dark/40">•</span>
-                                    <span className="text-[9px] font-semibold text-outly-dark/50">{job.location}</span>
-                                  </div>
-                                  <h3 className="font-bold text-sm text-outly-dark">{job.title}</h3>
-                                  <p className="text-[10px] text-outly-dark/60 leading-relaxed max-w-xl">{job.description}</p>
-                                </div>
-                                
-                                <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
-                                  <span className="text-[9px] font-black bg-green-500/10 text-green-600 px-2 py-1 rounded-lg select-none">
-                                    {job.score}% Match
-                                  </span>
-                                  <button
-                                    onClick={() => handleAddJobToTracker(job)}
-                                    className="bg-outly-accent text-white hover:brightness-105 transition text-[10px] font-bold px-4 py-2 rounded-xl flex items-center gap-1 shadow-sm select-none"
-                                  >
-                                    <span>Tailor &amp; Track</span>
-                                    <span className="text-[8px]">✦</span>
-                                  </button>
-                                </div>
-                              </div>
-                            ));
-                          }
-
-                          return (
-                            <div className="text-center py-12 bg-outly-cream/10 border border-dashed border-outly-border rounded-2xl select-none">
-                              <p className="text-xs text-outly-dark/40 font-semibold">No matching jobs found. Try adjusting your search query.</p>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {/* TAB 4: RESUME VAULT */}
-              {activeTab === "vault" && (
-                <div className="h-full p-3 sm:p-6 md:p-8 flex flex-col overflow-y-auto custom-scrollbar">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6 sm:mb-8">
-                    <div>
-                      <h3 className="font-bold text-lg sm:text-2xl tracking-tight">Resume Vault &amp; ATS Score Checker</h3>
-                      <p className="text-[11px] sm:text-xs text-outly-dark/40 font-medium">Auto-generate hyper-tailored variants for target job posts.</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col md:flex-row gap-8">
-                    
-                    {/* Left config */}
-                    <div className="flex-1 space-y-6">
-                      <div>
-                        <label className="text-[9px] font-bold text-outly-dark/40 uppercase tracking-wider block mb-2">Select Target Role</label>
-                        <select
-                          value={currentVaultRole}
-                          onChange={(e) => handleVaultRoleChange(e.target.value as any)}
-                          className="w-full bg-white border border-outly-border rounded-xl px-4 py-3 text-xs font-semibold focus:ring-1 focus:ring-outly-accent focus:border-outly-accent outline-none cursor-pointer"
-                        >
-                          <option value="spotify">Spotify • Product Designer (Stockholm / Remote)</option>
-                          <option value="notion">Notion • Brand Lead (San Francisco)</option>
-                          <option value="stripe">Stripe • Systems Engineer (Dublin)</option>
-                        </select>
-                      </div>
-                      
-                      {/* Score card */}
-                      <div className="bg-white border border-outly-border rounded-2xl p-6 shadow-soft flex items-center justify-between">
-                        <div className="space-y-1">
-                          <span className="text-[10px] font-bold text-outly-accent uppercase tracking-wider">{atsMatchScore}% Match</span>
-                          <h5 className="font-bold text-base">{vaultRoles[currentVaultRole].title}</h5>
-                          <p className="text-xs font-semibold text-outly-dark/40">{vaultRoles[currentVaultRole].meta}</p>
-                        </div>
-                        
-                        {/* Circular Score Dial */}
-                        <div className="relative w-20 h-20 shrink-0">
-                          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path className="text-outly-cream" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            <path
-                              className="text-outly-accent transition-all duration-1000 ease-out"
-                              strokeDasharray={`${atsMatchScore}, 100`}
-                              strokeWidth="3"
-                              strokeLinecap="round"
-                              stroke="currentColor"
-                              fill="none"
-                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex items-center justify-center font-bold text-sm text-outly-dark">{atsMatchScore}%</div>
-                        </div>
-                      </div>
-                      
-                      <button
-                        className={`w-full text-xs font-bold py-4 rounded-xl shadow-lg tracking-widest uppercase select-none transition-all duration-300 ${
-                          isTailoring
-                            ? "bg-outly-dark text-white pointer-events-none"
-                            : tailorSuccess
-                            ? "bg-green-600 text-white pointer-events-none"
-                            : "bg-outly-accent text-white shadow-outly-accent/10 hover:brightness-105 active:scale-95"
-                        }`}
-                        onClick={handleRunTailor}
-                      >
-                        {isTailoring ? "Analyzing JD keywords..." : tailorSuccess ? "Optimized ✓ PDF Ready" : "Tailor Resume Now"}
-                      </button>
-                    </div>
-                    
-                    {/* Right side status logs and document lists */}
-                    <div className="w-full md:w-80 space-y-6">
-                      <div className="bg-outly-cream/20 border border-outly-border rounded-2xl p-6 relative">
-                        <span className="text-[10px] font-bold text-outly-dark/30 mb-4 uppercase tracking-[0.2em] block">AI Analysis</span>
-                        <p className="text-sm font-medium mb-6 italic-serif leading-relaxed text-outly-dark/80">
-                          "{vaultRoles[currentVaultRole].analysis}"
-                        </p>
-                        
-                        {/* Terminal log panel */}
-                        {(isTailoring || tailorSuccess) && (
-                          <div className="bg-white border border-outly-border rounded-xl p-4 animate-slide-up">
-                            <div className="text-[9px] font-bold text-green-600 tracking-wider uppercase mb-2">Keyword Injection Log</div>
-                            <div className="space-y-1.5 text-[9px] font-mono text-outly-dark/60">
-                              {tailorLogs.map((log, idx) => (
-                                <div key={idx} className="flex items-center gap-1.5">
-                                  <span className="w-1 h-1 bg-green-500 rounded-full"></span>
-                                  <span>{log}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Document vault list */}
-                      <div className="bg-white border border-outly-border rounded-2xl p-6 shadow-soft space-y-4">
-                        <span className="text-[9px] font-bold text-outly-dark/40 uppercase tracking-widest block">Tailored PDF Outputs</span>
-                        <div className="space-y-3 max-h-[140px] overflow-y-auto custom-scrollbar">
-                          {tailoredPDFs.map((pdf) => (
-                            <div key={pdf.id} className="flex justify-between items-center p-3 border border-outly-border rounded-xl bg-outly-cream/10 select-none animate-fade-in">
-                              <div className="flex items-center gap-3">
-                                <svg className="w-5 h-5 text-outly-dark/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
-                                </svg>
-                                <div>
-                                  <span className="font-bold text-[11px] text-outly-dark block truncate max-w-[120px]">{pdf.filename}</span>
-                                  <span className="text-[8px] text-outly-dark/40 block leading-none mt-0.5">{pdf.meta}</span>
-                                </div>
-                              </div>
-                              <span className="text-[8px] bg-green-600 text-white px-2 py-0.5 rounded font-bold uppercase select-none cursor-pointer hover:brightness-105 transition">DOWNLOAD</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    
+                <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0 select-none font-bold">✓</div>
+                  <div>
+                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">Lightning Fast Performance</h5>
+                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">Optimized React architecture designed for instant transitions and smooth animations.</p>
                   </div>
                 </div>
-              )}
-              
+                <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0 select-none font-bold">✓</div>
+                  <div>
+                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">Active Support</h5>
+                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">Direct access to our support team to resolve any queries or custom feature requests.</p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
