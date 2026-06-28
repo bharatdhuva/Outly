@@ -1296,6 +1296,10 @@ export default function Landing() {
 
       {/* FEATURE GRID */}
       <section id="features" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
+        <div className="flex items-center gap-3 mb-4 sm:mb-6">
+          <div className="h-px w-8 bg-outly-accent"></div>
+          <div className="text-outly-accent font-bold text-[9px] sm:text-[10px] tracking-[0.3em] uppercase">FEATURES</div>
+        </div>
         <div className="mb-10 sm:mb-20">
           <h2 className="text-3xl sm:text-6xl md:text-7xl font-medium tracking-tight leading-[1] text-outly-dark">
             Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
