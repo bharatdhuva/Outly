@@ -32,7 +32,7 @@ router.post("/create-order", async (req: Request, res: Response) => {
     // Validate amount
     const parsedAmount = Number(amount);
     if (!parsedAmount || isNaN(parsedAmount) || parsedAmount < 100) {
-      return res.status(400).json({ error: "Amount is required and must be at least 100 paise (₹1)." });
+      return res.status(400).json({ error: "Amount is required and must be at least 100 paise." });
     }
 
     let razorpay;

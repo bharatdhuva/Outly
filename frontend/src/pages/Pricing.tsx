@@ -98,7 +98,7 @@ export default function Pricing() {
     let orderData;
     try {
       // 1. Create order on backend
-      orderData = await api.payment.createOrder(100, "INR");
+      orderData = await api.payment.createOrder(1900, "INR");
     } catch (err: any) {
       setIsProcessingPayment(false);
       toast({
@@ -320,7 +320,7 @@ export default function Pricing() {
 
           <div className="flex items-baseline gap-2.5 mb-4 select-none">
             <span className="text-4xl md:text-5xl font-bold">
-              ₹1
+              ₹19
             </span>
             <span className="text-white/30 text-sm md:text-base font-medium line-through leading-none">
               ₹99
@@ -349,7 +349,7 @@ export default function Pricing() {
             </li>
             <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
               <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
-              Get hired faster with AI — 7-day trial @ ₹1/-
+              Get hired faster with AI — 7-day trial @ ₹19/-
             </li>
           </ul>
 
@@ -370,7 +370,7 @@ export default function Pricing() {
                   <span>Processing your order...</span>
                 </>
               ) : (
-                <span>Start 7-Day Trial @ ₹1/-</span>
+                <span>Start 7-Day Trial @ ₹19/-</span>
               )}
             </button>
           )}
@@ -381,7 +381,7 @@ export default function Pricing() {
       {/* ℹ️ SYSTEM SCALABILITY TESTING NOTICE */}
       <div className="mt-8 p-3.5 rounded-2xl bg-secondary/30 border border-border/50 max-w-lg mx-auto text-center flex items-center justify-center gap-2 text-xs text-muted-foreground font-medium">
         <Info className="w-4 h-4 text-outly-accent shrink-0" />
-        <span>Note: ₹1 trial pricing is currently active for project scalability &amp; live load testing.</span>
+        <span>Note: ₹19 trial pricing is currently active for project scalability &amp; live load testing.</span>
       </div>
 
     </div>
