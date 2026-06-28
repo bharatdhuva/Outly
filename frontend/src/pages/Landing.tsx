@@ -1101,143 +1101,7 @@ export default function Landing() {
         </div>
       </main>
 
-      {/* FEATURE: THE DAILY BRIEF */}
-      <section id="daily-brief" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
-        <div className="bg-outly-dark rounded-[24px] sm:rounded-[48px] p-6 sm:p-12 md:p-20 flex flex-col md:flex-row items-center gap-8 sm:gap-16 relative overflow-hidden">
-          <div className="md:w-1/2 z-10">
-            <div className="w-12 h-0.5 bg-[#c5a880] mb-6 sm:mb-10"></div>
-            <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.3em] text-[#c5a880] uppercase mb-4 sm:mb-8">THE DAILY BRIEF</p>
-            <h2 className="text-3xl sm:text-5xl md:text-6xl text-white font-medium mb-6 sm:mb-10 leading-[1.05] tracking-tight">
-              Open Outly.<br />Read one thing.<br /><span className="italic-serif text-[#c5a880] text-4xl sm:text-6xl md:text-7xl">Know your whole search.</span>
-            </h2>
-            <p className="text-white/60 text-sm sm:text-lg leading-relaxed max-w-md font-medium">
-              Every morning at 7, Outly summarizes your outreach progress, new job matches, and provides interview tips — all in thirty seconds of reading.
-            </p>
-          </div>
-          <div className="md:w-1/2 w-full z-10">
-            <div className="bg-white rounded-[20px] sm:rounded-[32px] p-5 sm:p-10 text-outly-dark shadow-2xl border border-outly-border/45">
-              <div className="flex justify-between items-baseline mb-6 sm:mb-10 border-b border-outly-border/50 pb-4 sm:pb-6">
-                <h4 className="italic text-lg sm:text-2xl tracking-tight">Wednesday, April 8</h4>
-                <span className="text-[8px] sm:text-[10px] text-outly-dark/40 font-bold tracking-widest uppercase">7:00 AM BRIEF</span>
-              </div>
-              <div className="space-y-4 sm:space-y-6">
-                
-                {/* Row 1 */}
-                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
-                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">First</span>
-                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
-                    <span className="font-bold text-outly-dark transition-colors duration-300 group-hover:text-outly-accent">Reply to Stripe</span> — interview scheduling requested by Friday. Outreach draft is ready.
-                  </p>
-                </div>
 
-                {/* Row 2 */}
-                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
-                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">9:30 AM</span>
-                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
-                    <span className="font-bold text-outly-dark transition-colors duration-300 group-hover:text-outly-accent">Spotify prep</span> — review tailored pitch brief and 3 key talking points.
-                  </p>
-                </div>
-
-                {/* Row 3 */}
-                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
-                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">2:30 PM</span>
-                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
-                    <span className="font-bold text-outly-dark transition-colors duration-300 group-hover:text-outly-accent">Notion call</span> — recruiter conversation. Calendar invite synced.
-                  </p>
-                </div>
-
-                {/* Row 4 */}
-                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
-                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">Heads up</span>
-                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/70 transition-colors duration-300 group-hover:text-outly-dark">
-                    <span className="font-bold text-outly-dark transition-colors duration-300 group-hover:text-outly-accent">OpenAI viewed resume</span> — 96% profile match rating on your tailored variant.
-                  </p>
-                </div>
-
-                {/* Row 5 */}
-                <div className="flex gap-3 sm:gap-6 items-start group cursor-pointer">
-                  <span className="text-[10px] sm:text-xs font-bold text-outly-accent w-14 sm:w-20 pt-0.5 shrink-0 text-left transition-transform duration-300 group-hover:translate-x-1">Quiet</span>
-                  <p className="text-[10px] sm:text-xs md:text-sm leading-relaxed text-outly-dark/50 transition-colors duration-300 group-hover:text-outly-dark">
-                    Your afternoon after 3 is clear. Protected for interview prep.
-                  </p>
-                </div>
-
-              </div>
-            </div>
-          </div>
-          
-          {/* Subtle gold wavy lines matching the ZenScail background theme */}
-          <svg className="hidden md:block absolute bottom-0 left-0 w-[400px] h-[200px] text-[#c5a880]/10 pointer-events-none z-0" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M-10 50 C 20 42, 50 48, 110 25" stroke="currentColor" strokeWidth="0.5" fill="none"/>
-            <path d="M-10 50 C 30 35, 60 40, 110 15" stroke="currentColor" strokeWidth="0.5" fill="none"/>
-          </svg>
-
-          <div className="hidden md:block absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-outly-accent/5 blur-[120px] rounded-full z-0"></div>
-        </div>
-      </section>
-
-      {/* FEATURE GRID */}
-      <section id="features" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
-        <div className="mb-10 sm:mb-20">
-          <h2 className="text-3xl sm:text-6xl md:text-7xl font-medium tracking-tight leading-[1] text-outly-dark">
-            Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
-          </h2>
-        </div>
-        <div ref={featuresGridRef} className="grid md:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
-          
-          {/* Card 1 */}
-          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-100 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50 overflow-hidden">
-              <div className="flex flex-col gap-3 w-2/3">
-                <div className="h-1 w-full bg-outly-accent/10 rounded-full overflow-hidden">
-                  <div className={`h-full bg-outly-accent/40 rounded-full transition-all duration-1000 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
-                </div>
-                <div className="h-1 w-5/6 bg-outly-accent/10 rounded-full overflow-hidden">
-                  <div className={`h-full bg-outly-accent/40 rounded-full transition-all duration-1000 delay-100 ${visibleCards ? 'w-5/6' : 'w-0'} group-hover:w-5/6`}></div>
-                </div>
-                <div className="h-1 w-full bg-outly-accent/10 rounded-full overflow-hidden">
-                  <div className={`h-full bg-outly-accent/40 rounded-full transition-all duration-1000 delay-200 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
-                </div>
-                <div className="flex gap-2 items-center mt-2">
-                  <div className={`w-4 h-4 rounded-full bg-outly-accent/20 transition-transform duration-500 ${visibleCards ? 'scale-110' : ''} group-hover:scale-125`}></div>
-                  <div className="h-1 w-12 bg-outly-accent/20 rounded-full"></div>
-                </div>
-              </div>
-            </div>
-            <h4 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight transition-colors ${visibleCards ? 'text-outly-accent' : ''} group-hover:text-outly-accent`}>Smart Outreach</h4>
-            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Outly identifies the best recruiters and drafts personalized messages that sound exactly like you.</p>
-          </div>
-
-          {/* Card 2 */}
-          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-300 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
-              <div className="relative">
-                <div className={`w-12 h-12 rounded-full border-2 border-outly-accent/20 flex items-center justify-center transition-transform duration-700 ${visibleCards ? 'rotate-180 scale-105' : ''} group-hover:rotate-180 group-hover:scale-110`}>
-                  <div className="w-6 h-6 rounded-full bg-outly-accent/20"></div>
-                </div>
-                <div className={`absolute -top-2 -right-2 w-4 h-4 bg-outly-accent rounded-full border-2 border-white transition-transform duration-500 ${visibleCards ? 'scale-125 animate-pulse' : ''} group-hover:scale-150`}></div>
-              </div>
-            </div>
-            <h4 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight transition-colors ${visibleCards ? 'text-outly-accent' : ''} group-hover:text-outly-accent`}>ATS Scoring</h4>
-            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Every job application is instantly scored against your profile with tips to hit 95%+ every time.</p>
-          </div>
-
-          {/* Card 3 */}
-          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-500 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
-              <div className={`w-16 h-20 bg-white border border-outly-border rounded shadow-sm relative p-2 transition-transform duration-500 ${visibleCards ? 'scale-105 -rotate-2 shadow-md' : ''} group-hover:scale-110 group-hover:-rotate-3 group-hover:shadow-lg`}>
-                <div className="h-1 w-full bg-outly-dark/10 rounded mb-1"></div>
-                <div className="h-1 w-2/3 bg-outly-dark/10 rounded mb-4"></div>
-                <div className="h-4 w-full bg-outly-accent/10 rounded overflow-hidden">
-                  <div className={`h-full bg-outly-accent/30 rounded transition-all duration-1000 delay-300 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
-                </div>
-              </div>
-            </div>
-            <h4 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight transition-colors ${visibleCards ? 'text-outly-accent' : ''} group-hover:text-outly-accent`}>Resume Vault</h4>
-            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Outly auto-generates tailored resume versions for every single application, saved and ready to send.</p>
-          </div>
-        </div>
-      </section>
 
       {/* WHY OUTLY - INTERACTIVE KNOWLEDGE HUB */}
       <section id="why-outly" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24 text-center">
@@ -1427,6 +1291,69 @@ export default function Landing() {
               </div>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* FEATURE GRID */}
+      <section id="features" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
+        <div className="mb-10 sm:mb-20">
+          <h2 className="text-3xl sm:text-6xl md:text-7xl font-medium tracking-tight leading-[1] text-outly-dark">
+            Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
+          </h2>
+        </div>
+        <div ref={featuresGridRef} className="grid md:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
+          
+          {/* Card 1 */}
+          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-100 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50 overflow-hidden">
+              <div className="flex flex-col gap-3 w-2/3">
+                <div className="h-1 w-full bg-outly-accent/10 rounded-full overflow-hidden">
+                  <div className={`h-full bg-outly-accent/40 rounded-full transition-all duration-1000 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
+                </div>
+                <div className="h-1 w-5/6 bg-outly-accent/10 rounded-full overflow-hidden">
+                  <div className={`h-full bg-outly-accent/40 rounded-full transition-all duration-1000 delay-100 ${visibleCards ? 'w-5/6' : 'w-0'} group-hover:w-5/6`}></div>
+                </div>
+                <div className="h-1 w-full bg-outly-accent/10 rounded-full overflow-hidden">
+                  <div className={`h-full bg-outly-accent/40 rounded-full transition-all duration-1000 delay-200 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
+                </div>
+                <div className="flex gap-2 items-center mt-2">
+                  <div className={`w-4 h-4 rounded-full bg-outly-accent/20 transition-transform duration-500 ${visibleCards ? 'scale-110' : ''} group-hover:scale-125`}></div>
+                  <div className="h-1 w-12 bg-outly-accent/20 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+            <h4 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight transition-colors ${visibleCards ? 'text-outly-accent' : ''} group-hover:text-outly-accent`}>Smart Outreach</h4>
+            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Outly identifies the best recruiters and drafts personalized messages that sound exactly like you.</p>
+          </div>
+
+          {/* Card 2 */}
+          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-300 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
+              <div className="relative">
+                <div className={`w-12 h-12 rounded-full border-2 border-outly-accent/20 flex items-center justify-center transition-transform duration-700 ${visibleCards ? 'rotate-180 scale-105' : ''} group-hover:rotate-180 group-hover:scale-110`}>
+                  <div className="w-6 h-6 rounded-full bg-outly-accent/20"></div>
+                </div>
+                <div className={`absolute -top-2 -right-2 w-4 h-4 bg-outly-accent rounded-full border-2 border-white transition-transform duration-500 ${visibleCards ? 'scale-125 animate-pulse' : ''} group-hover:scale-150`}></div>
+              </div>
+            </div>
+            <h4 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight transition-colors ${visibleCards ? 'text-outly-accent' : ''} group-hover:text-outly-accent`}>ATS Scoring</h4>
+            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Every job application is instantly scored against your profile with tips to hit 95%+ every time.</p>
+          </div>
+
+          {/* Card 3 */}
+          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-500 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
+              <div className={`w-16 h-20 bg-white border border-outly-border rounded shadow-sm relative p-2 transition-transform duration-500 ${visibleCards ? 'scale-105 -rotate-2 shadow-md' : ''} group-hover:scale-110 group-hover:-rotate-3 group-hover:shadow-lg`}>
+                <div className="h-1 w-full bg-outly-dark/10 rounded mb-1"></div>
+                <div className="h-1 w-2/3 bg-outly-dark/10 rounded mb-4"></div>
+                <div className="h-4 w-full bg-outly-accent/10 rounded overflow-hidden">
+                  <div className={`h-full bg-outly-accent/30 rounded transition-all duration-1000 delay-300 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
+                </div>
+              </div>
+            </div>
+            <h4 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight transition-colors ${visibleCards ? 'text-outly-accent' : ''} group-hover:text-outly-accent`}>Resume Vault</h4>
+            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Outly auto-generates tailored resume versions for every single application, saved and ready to send.</p>
+          </div>
         </div>
       </section>
 
