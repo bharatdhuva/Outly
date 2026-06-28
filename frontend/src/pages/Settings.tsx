@@ -126,6 +126,10 @@ export default function SettingsPage() {
     queryKey: ["settings"],
     queryFn: api.settings.get,
   });
+  const { data: userData } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: api.auth.me,
+  });
   const [form, setForm] = useState<AppSettings>(emptySettings);
 
   // Active Tab: config | vault
@@ -331,7 +335,7 @@ export default function SettingsPage() {
                 <Input 
                   value={form.full_name} 
                   onChange={(e) => updateField("full_name", e.target.value)} 
-                  placeholder="e.g. Bharat Ahir"
+                  placeholder={userData?.fullName || userData?.name ? `e.g. ${userData.fullName || userData.name}` : "e.g. Your Name"}
                   className="h-10 text-xs rounded-xl"
                 />
               </div>
