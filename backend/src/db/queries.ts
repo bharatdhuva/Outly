@@ -321,15 +321,17 @@ export const twitterQueries = {
 
 export const settingsQueries = {
   get: async (userId: string, key: string): Promise<string | undefined> => {
+    if (!userId || !key) return undefined;
     const doc = await SettingModel.findOne({ userId, key });
     return doc?.value ?? undefined;
   },
 
   set: async (userId: string, key: string, value: string): Promise<any> => {
+    if (!userId || !key) return null;
     return await SettingModel.findOneAndUpdate(
       { userId, key },
-      { $set: { value } },
-      { upsert: true, new: true }
+      { $set: { value: String(value ?? "") } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
     );
   },
 };

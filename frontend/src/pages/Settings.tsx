@@ -159,11 +159,11 @@ export default function SettingsPage() {
       ]);
       toast({ title: "Settings saved", description: "Frontend and backend now use the updated values." });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         variant: "destructive",
         title: "Save failed",
-        description: String(error),
+        description: error?.message || String(error) || "Could not save profile settings.",
       });
     },
   });

@@ -45,9 +45,9 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.put("/", async (req: AuthenticatedRequest, res: Response) => {
+const handleSettingsUpdate = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    if (!req.user || !req.user.id) return res.status(401).json({ error: "Unauthorized" });
     const { settings } = req.body as {
       settings?: Record<string, string | number | boolean | null | undefined>;
     };
@@ -57,14 +57,20 @@ router.put("/", async (req: AuthenticatedRequest, res: Response) => {
     }
 
     for (const [key, value] of Object.entries(settings)) {
-      await settingsQueries.set(req.user.id, key, String(value ?? ""));
+      if (key) {
+        await settingsQueries.set(req.user.id, key, String(value ?? ""));
+      }
     }
 
     return res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ error: String(e) });
+  } catch (e: any) {
+    console.error("Error updating user settings:", e);
+    return res.status(500).json({ error: e?.message || String(e) || "Failed to update settings" });
   }
-});
+};
+
+router.put("/", handleSettingsUpdate);
+router.put("", handleSettingsUpdate);
 
 router.post("/test-whatsapp", async (req: AuthenticatedRequest, res) => {
   try {

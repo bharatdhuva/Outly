@@ -406,7 +406,7 @@ export default function ResumeVaultPage() {
               </div>
               <div className="bg-white border border-border/50 rounded-md text-[10px] font-bold text-muted-foreground/60 px-6 py-0.5 tracking-tight flex items-center gap-1.5 select-none">
                 <Lock className="w-2.5 h-2.5 text-success shrink-0" />
-                <span>vault.outly.com/cv/preview</span>
+                <span>vault.outly.online/cv/preview</span>
               </div>
               <div className="w-10"></div>
             </div>

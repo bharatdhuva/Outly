@@ -16,7 +16,25 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
     headers,
     credentials: "include",
   });
-  if (!res.ok) throw new Error(await res.text().catch(() => res.statusText));
+  if (!res.ok) {
+    let errorMsg = res.statusText || `Request failed (${res.status})`;
+    try {
+      const text = await res.text();
+      try {
+        const json = JSON.parse(text);
+        if (json && (json.error || json.message)) {
+          errorMsg = json.error || json.message;
+        } else if (text) {
+          errorMsg = text;
+        }
+      } catch {
+        if (text) errorMsg = text;
+      }
+    } catch {
+      // fallback to statusText
+    }
+    throw new Error(errorMsg);
+  }
   return res.json();
 }
 
@@ -159,11 +177,11 @@ export const api = {
     deletePost: (id: string) => fetchApi<{ ok: boolean }>(`/linkedin/posts/${id}`, { method: "DELETE" }),
   },
   settings: {
-    get: () => fetchApi<AppSettings>("/settings/"),
+    get: () => fetchApi<AppSettings>("/settings"),
     set: (key: string, value: string) =>
-      fetchApi("/settings/", { method: "POST", body: JSON.stringify({ key, value }) }),
+      fetchApi("/settings", { method: "POST", body: JSON.stringify({ key, value }) }),
     update: (settings: Partial<AppSettings>) =>
-      fetchApi("/settings/", { method: "PUT", body: JSON.stringify({ settings }) }),
+      fetchApi("/settings", { method: "PUT", body: JSON.stringify({ settings }) }),
     testWhatsApp: () => fetchApi<{ ok: boolean }>("/settings/test-whatsapp", { method: "POST" }),
     testResume: () => fetchApi<{ ok: boolean }>("/settings/test-resume", { method: "POST" }),
   },
