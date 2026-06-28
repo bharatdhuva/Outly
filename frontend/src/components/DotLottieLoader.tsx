@@ -21,8 +21,8 @@ interface DotLottieLoaderProps {
 }
 
 export function DotLottieLoader({
-  src = "https://lottie.host/4442d395-43f9-4f37-afba-8443e3a41eb9/8R6ZHnaUF2.lottie",
-  size = 200,
+  src = "/outly_bouncing_loader.json",
+  size = 180,
   message = "Syncing Outly Workspace...",
   minHeight = "min-h-[350px]",
 }: DotLottieLoaderProps) {
