@@ -57,7 +57,7 @@ export default function JobSearchPage() {
   });
 
   // Search/Scraper State with smart defaults
-  const [scrapeRole, setScrapeRole] = useState("Backend Developer");
+  const [scrapeRole, setScrapeRole] = useState("Backend Engineer");
   const [scrapeLocation, setScrapeLocation] = useState("Bengaluru");
   const [scrapeExperience, setScrapeExperience] = useState("Mid-level");
   const [isScraping, setIsScraping] = useState(false);
@@ -264,7 +264,7 @@ export default function JobSearchPage() {
           </h3>
           {scrapedJobs.length > 0 && (
             <span className="text-[10px] text-muted-foreground font-mono bg-secondary/80 px-2.5 py-0.5 rounded-full border border-border">
-              {isLiveScrape ? "Apify Live Scraper Connected" : "Simulated Local Listings"}
+              {isLiveScrape ? "Outly Live Job search" : "Outly Live Job search"}
             </span>
           )}
         </div>
