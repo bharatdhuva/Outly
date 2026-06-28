@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import DotLottieLoader from "@/components/DotLottieLoader";
 import {
   Mail,
   Upload,
@@ -258,11 +259,7 @@ export default function ColdMailPage() {
   };
 
   if (isLoading)
-    return (
-      <div className="flex justify-center py-12 text-muted-foreground">
-        Loading...
-      </div>
-    );
+    return <DotLottieLoader minHeight="min-h-[400px]" />;
 
   // Helper to ensure MSU reference in draft
   // Remove repeated lines/paragraphs and ensure MSU reference

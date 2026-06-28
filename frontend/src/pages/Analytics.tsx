@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import DotLottieLoader from "@/components/DotLottieLoader";
 import {
   TrendingUp,
   Mail,
@@ -18,14 +19,7 @@ export default function AnalyticsPage() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[400px] items-center justify-center text-muted-foreground">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <span>Analyzing database metrics...</span>
-        </div>
-      </div>
-    );
+    return <DotLottieLoader minHeight="min-h-[400px]" />;
   }
 
   const metrics = data?.summary || {

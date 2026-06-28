@@ -21,10 +21,10 @@ interface DotLottieLoaderProps {
 }
 
 export function DotLottieLoader({
-  src = "/outly_bouncing_loader.json",
-  size = 180,
-  message = "Syncing Outly Workspace...",
-  minHeight = "min-h-[350px]",
+  src = "https://lottie.host/f9db9402-abd5-4c78-89bd-d6de6e0405cd/F3ylcW82SW.lottie",
+  size = 200,
+  message = "",
+  minHeight = "min-h-[250px]",
 }: DotLottieLoaderProps) {
   return (
     <div className={`flex flex-col items-center justify-center ${minHeight} w-full py-10 px-4 animate-fade-in select-none`}>

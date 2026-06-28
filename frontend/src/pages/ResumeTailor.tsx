@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
+import DotLottieLoader from "@/components/DotLottieLoader";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PdfViewer from "@/components/PdfViewer";
 import {
@@ -335,10 +336,7 @@ export default function ResumeTailorPage() {
           </div>
 
           {loading ? (
-            <div className="flex-1 border border-border bg-secondary/15 rounded-xl flex flex-col items-center justify-center p-6 text-center">
-              <Loader2 className="h-7 w-7 animate-spin text-success" />
-              <span className="text-[12px] font-semibold text-muted-foreground mt-2">Loading resume...</span>
-            </div>
+            <DotLottieLoader size={150} minHeight="min-h-[250px]" />
           ) : !resumeFile && selectedVaultId === "custom" ? (
             isLimitExceeded ? (
               <div className="flex-1 border-2 border-dashed border-border bg-secondary/35 rounded-xl flex flex-col items-center justify-center p-6 text-center select-none cursor-not-allowed">

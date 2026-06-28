@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
+import DotLottieLoader from "@/components/DotLottieLoader";
 import {
   Dialog,
   DialogContent,
@@ -519,10 +520,7 @@ export default function ContentScheduler() {
 
           <div className="divide-y divide-border/60 max-h-[550px] overflow-auto custom-scrollbar flex-1">
             {isLoading ? (
-              <div className="p-12 text-center text-muted-foreground font-medium text-xs">
-                <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-primary" />
-                Loading posts...
-              </div>
+              <DotLottieLoader size={150} minHeight="min-h-[250px]" />
             ) : posts.length === 0 ? (
               <div className="p-16 text-center text-muted-foreground">
                 <FileText className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
