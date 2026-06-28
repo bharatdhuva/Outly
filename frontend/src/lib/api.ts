@@ -106,21 +106,22 @@ export const api = {
     },
     scrape: (id: string) => fetchApi(`/coldmail/scrape/${id}`, { method: "POST" }),
     scrapeAll: () => fetchApi<{ scraped: number }>("/coldmail/scrape-all", { method: "POST" }),
-    generate: (id: string, provider: "gemini" | "grok" = "gemini") =>
+    generate: (id: string, provider: "gemini" | "grok" | "openrouter" = "gemini", model: string = "gemini-2.5-flash") =>
       fetchApi<{ subject: string; body: string }>(`/coldmail/generate/${id}`, {
         method: "POST",
-        body: JSON.stringify({ provider }),
+        body: JSON.stringify({ provider, model }),
       }),
-    generateAll: (provider: "gemini" | "grok" = "gemini") =>
+    generateAll: (provider: "gemini" | "grok" | "openrouter" = "gemini", model: string = "gemini-2.5-flash") =>
       fetchApi<{ generated: number }>("/coldmail/generate-all", {
         method: "POST",
-        body: JSON.stringify({ provider }),
+        body: JSON.stringify({ provider, model }),
       }),
     update: (id: string, data: Partial<Company>) =>
       fetchApi(`/coldmail/companies/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
     approve: (id: string) => fetchApi(`/coldmail/approve/${id}`, { method: "POST" }),
     approveAll: () => fetchApi<{ approved: number }>("/coldmail/approve-all", { method: "POST" }),
     sendApproved: () => fetchApi<{ queued: number }>("/coldmail/send-approved", { method: "POST" }),
+    createGmailDraft: (id: string) => fetchApi<{ ok: boolean }>(`/coldmail/create-gmail-draft/${id}`, { method: "POST" }),
     create: (data: Omit<Company, "id" | "status" | "createdAt" | "scraped_context" | "generated_subject" | "generated_mail" | "personalization_hook" | "sent_at" | "reply_detected_at" | "followup_status" | "followup_sent_at">) =>
       fetchApi<Company>("/coldmail/companies", { method: "POST", body: JSON.stringify(data) }),
     delete: (id: string) => fetchApi(`/coldmail/companies/${id}`, { method: "DELETE" }),
@@ -432,6 +433,8 @@ export interface AppSettings {
   full_name: string;
   target_roles: string;
   target_cities: string;
+  skills: string;
+  experience: string;
   phone: string;
   resume_drive_file_id: string;
   weekly_post_enabled: string;

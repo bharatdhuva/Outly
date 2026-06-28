@@ -148,8 +148,9 @@ router.post("/generate/:id", checkColdMailLimit, async (req: AuthenticatedReques
     const company = await companyQueries.getById(id, req.user.id);
     if (!company) return res.status(404).json({ error: "Company not found" });
 
-    const provider = (req.body.provider as "gemini" | "grok") || "grok";
-    const result = await generateMailForCompany(id, provider);
+    const provider = (req.body.provider as "gemini" | "grok" | "openrouter") || "gemini";
+    const model = (req.body.model as string) || "gemini-2.5-flash";
+    const result = await generateMailForCompany(id, provider, model);
     if (!result) {
       const updated = await companyQueries.getById(id, req.user.id);
       return res.status(500).json({
@@ -165,11 +166,14 @@ router.post("/generate/:id", checkColdMailLimit, async (req: AuthenticatedReques
 router.post("/generate-all", checkColdMailLimit, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
-    const provider = (req.body.provider as "gemini" | "grok") || "grok";
+    const provider = (req.body.provider as "gemini" | "grok" | "openrouter") || "gemini";
+    const model = (req.body.model as string) || "gemini-2.5-flash";
+    const pending = await companyQueries.getByStatus("pending", req.user.id);
     const scraped = await companyQueries.getByStatus("scraped", req.user.id);
+    const targets = [...pending, ...scraped];
     let count = 0;
-    for (const c of scraped) {
-      const r = await generateMailForCompany(c.id, provider);
+    for (const c of targets) {
+      const r = await generateMailForCompany(c.id, provider, model);
       if (r) count++;
     }
     res.json({ generated: count });
@@ -264,6 +268,21 @@ router.post("/skip/:id", async (req: AuthenticatedRequest, res: Response) => {
     if (!company) return res.status(404).json({ error: "Company not found" });
 
     await companyQueries.updateStatus(id, "skipped", {}, req.user.id);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: String(e) });
+  }
+});
+
+router.post("/create-gmail-draft/:id", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    const id = req.params.id as string;
+    const company = await companyQueries.getById(id, req.user.id);
+    if (!company) return res.status(404).json({ error: "Company not found" });
+
+    const { createGmailDraft } = await import("../../automation/coldmail/mailSender.js");
+    await createGmailDraft(id);
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: String(e) });

@@ -32,7 +32,8 @@ import {
   FolderOpen,
   Lock,
   UploadCloud,
-  Edit2
+  Edit2,
+  Download
 } from "lucide-react";
 
 export default function ResumeVaultPage() {
@@ -42,6 +43,7 @@ export default function ResumeVaultPage() {
 
   const [selectedResumeId, setSelectedResumeId] = useState<number | null>(null);
   const [activePreviewTab, setActivePreviewTab] = useState<"preview" | "applications">("preview");
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
   
   // Upload state
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
@@ -51,6 +53,33 @@ export default function ResumeVaultPage() {
   // Edit label state
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editLabelText, setEditLabelText] = useState("");
+
+  const handleDownloadResume = async (resumeId: number, filename: string) => {
+    try {
+      setDownloadingId(resumeId);
+      const url = api.resume.getFileUrl(resumeId);
+      const token = localStorage.getItem("outly_token");
+      const headers: Record<string, string> = token ? { "Authorization": `Bearer ${token}` } : {};
+      const res = await fetch(url, { headers });
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename || "Resume.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Download failed",
+        description: "Could not download the resume file.",
+      });
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   // Fetch resumes from vault
   const { data: resumes = [], isLoading: resumesLoading } = useQuery({
@@ -459,21 +488,29 @@ export default function ResumeVaultPage() {
                 {/* Sub-tab Content Panel */}
                 <div className="flex-1 min-h-0 flex flex-col">
                   {activePreviewTab === "preview" ? (
-                    selectedResume.filename.toLowerCase().endsWith(".pdf") ? (
-                      <div className="flex-1 overflow-hidden rounded-xl border border-border bg-secondary/15">
-                        <PdfViewer url={api.resume.getFileUrl(selectedResume.id)} content={selectedResume.content} filename={selectedResume.filename} />
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-8 rounded-xl border border-dashed border-border bg-secondary/10 min-h-[350px]">
+                      <div className="w-14 h-14 rounded-2xl bg-outly-accent/10 text-outly-accent border border-outly-accent/20 flex items-center justify-center mb-4 shadow-sm">
+                        <FileText className="h-7 w-7" />
                       </div>
-                    ) : (
-                      <div className="flex-1 overflow-y-auto rounded-xl border border-border bg-secondary/20 p-3.5">
-                        <div className="mb-3 flex items-center gap-2 text-[10px] text-amber-700 bg-amber-500/5 p-2.5 rounded-lg border border-amber-500/10">
-                          <Info className="h-3.5 w-3.5 shrink-0" />
-                          <span>PDF formatting preview is unavailable for text-only files. Showing text representation:</span>
-                        </div>
-                        <pre className="whitespace-pre-wrap font-mono text-[10px] leading-relaxed text-foreground/80">
-                          {selectedResume.content || "Empty content."}
-                        </pre>
-                      </div>
-                    )
+                      <h3 className="text-base font-bold text-foreground mb-1.5">
+                        Working on Resume Preview
+                      </h3>
+                      <p className="text-xs text-muted-foreground max-w-sm leading-relaxed mb-6">
+                        We are currently optimizing live inline document rendering. In the meantime, you can download your complete resume file directly below.
+                      </p>
+                      <Button
+                        onClick={() => handleDownloadResume(selectedResume.id, selectedResume.filename)}
+                        disabled={downloadingId === selectedResume.id}
+                        className="bg-outly-accent hover:bg-outly-accent/90 text-white font-bold text-xs h-10 px-6 rounded-xl gap-2 shadow-sm active:scale-[0.98] transition-all"
+                      >
+                        {downloadingId === selectedResume.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4" />
+                        )}
+                        <span>Download Resume File</span>
+                      </Button>
+                    </div>
                   ) : (
                     /* Applications linked list */
                     <div className="flex-1 overflow-y-auto pr-1">

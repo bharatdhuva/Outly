@@ -507,17 +507,17 @@ export default function AtsScorePage() {
               </div>
 
               {/* View PDF file or plain text */}
-              <div className="flex-1 min-h-[260px] overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
+              <div className="flex-1 min-h-[480px] overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
                 {resumeFile && resumeFile.type === "application/pdf" ? (
-                  <div className="flex-1 min-h-[260px]">
+                  <div className="flex-1 flex flex-col min-h-[480px]">
                     <PdfViewer file={resumeFile} />
                   </div>
                 ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
-                  <div className="flex-1 min-h-[260px]">
+                  <div className="flex-1 flex flex-col min-h-[480px]">
                     <PdfViewer url={api.resume.getFileUrl(Number(selectedVaultId))} />
                   </div>
                 ) : (
-                  <div className="flex-1 max-h-[340px] overflow-y-auto p-4 text-left">
+                  <div className="flex-1 max-h-[480px] overflow-y-auto p-4 text-left">
                     <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-foreground/80">{resume}</pre>
                   </div>
                 )}

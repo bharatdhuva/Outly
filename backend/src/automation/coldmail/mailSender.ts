@@ -350,3 +350,50 @@ export async function sendWelcomeMail(toEmail: string, fullName?: string): Promi
   }
 }
 
+export async function createGmailDraft(companyId: string): Promise<boolean> {
+  const company = await companyQueries.getById(companyId);
+  if (!company || !company.generated_subject || !company.generated_mail) return false;
+
+  try {
+    const oauth2Client = new google.auth.OAuth2(
+      env.GMAIL_CLIENT_ID,
+      env.GMAIL_CLIENT_SECRET,
+      env.GMAIL_REDIRECT_URI
+    );
+    oauth2Client.setCredentials({ refresh_token: env.GMAIL_REFRESH_TOKEN });
+
+    const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+    const senderName = company.sender_name || await getSenderName(company.userId);
+    const senderEmail = getSenderEmail();
+
+    const rawMessage = [
+      `From: "${senderName}" <${senderEmail}>`,
+      `To: ${company.hr_email}`,
+      `Subject: ${company.generated_subject}`,
+      `Content-Type: text/plain; charset="UTF-8"`,
+      ``,
+      company.generated_mail,
+    ].join("\n");
+
+    const encodedMessage = Buffer.from(rawMessage)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    await gmail.users.drafts.create({
+      userId: "me",
+      requestBody: {
+        message: {
+          raw: encodedMessage,
+        },
+      },
+    });
+    logger.info(`Created Gmail API draft for company ${companyId}`, { source: "mail" });
+    return true;
+  } catch (err) {
+    logger.error(`Failed to create Gmail API draft for company ${companyId}`, { error: String(err), source: "mail" });
+    throw err;
+  }
+}
+

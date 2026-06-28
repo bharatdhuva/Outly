@@ -18,6 +18,7 @@ import ResumeVault from "./pages/ResumeVault";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Pricing from "./pages/Pricing";
+import Support from "./pages/Support";
 import { PageTransition, GlobalPageTransitionInterceptor } from "./components/PageTransition";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ const App = () => (
                   <Route path="/job-search" element={<PageTransition><JobSearch /></PageTransition>} />
                   <Route path="/analytics" element={<PageTransition><Analytics /></PageTransition>} />
                   <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
+                  <Route path="/support" element={<PageTransition><Support /></PageTransition>} />
                   <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
                 </Routes>
               </DashboardLayout>

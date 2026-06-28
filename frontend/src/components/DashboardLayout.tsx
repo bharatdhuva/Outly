@@ -12,7 +12,8 @@ import {
   LogOut,
   KeyRound,
   Sparkles,
-  Calendar
+  Calendar,
+  HelpCircle
 } from "lucide-react";
 import {
   Dialog,
@@ -52,7 +53,8 @@ const pageTitles: Record<string, string> = {
   "/content-scheduler": "Content Post Scheduler",
   "/resume-vault": "Resume Vault",
   "/analytics": "Analytics",
-  "/pricing": "Pricing"
+  "/pricing": "Pricing",
+  "/support": "Support & Help"
 };
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -551,6 +553,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <span>Pricing</span>
               </Link>
 
+              {/* Standalone Link: SUPPORT */}
+              <Link 
+                to="/support"
+                className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
+                  location.pathname === "/support"
+                    ? "border-primary text-primary" 
+                    : "border-transparent text-outly-dark/70 hover:text-outly-accent"
+                }`}
+              >
+                <span>Support</span>
+              </Link>
+
             </nav>
           </div>
 
@@ -654,6 +668,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     >
                       <SettingsIcon className="h-3.5 w-3.5" />
                       Settings
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        navigate("/support");
+                      }}
+                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
+                    >
+                      <HelpCircle className="h-3.5 w-3.5 text-outly-accent" />
+                      Support &amp; Help
                     </button>
                     <div className="h-px bg-[#e8e2d5] my-1" />
                     <button 

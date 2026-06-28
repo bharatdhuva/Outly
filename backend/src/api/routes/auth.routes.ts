@@ -3,6 +3,7 @@ import axios from "axios";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { google } from "googleapis";
 import { User } from "../../db/models.js";
 import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
@@ -252,6 +253,46 @@ router.get("/me", requireAuth, async (req: AuthenticatedRequest, res: Response) 
 });
 
 // 4. MOCK UPGRADE ROUTE FOR TESTING
+router.get("/gmail/url", (req, res) => {
+  const oauth2Client = new google.auth.OAuth2(
+    env.GMAIL_CLIENT_ID,
+    env.GMAIL_CLIENT_SECRET,
+    env.GMAIL_REDIRECT_URI
+  );
+  const url = oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    prompt: "consent",
+    scope: [
+      "https://mail.google.com/",
+      "https://www.googleapis.com/auth/gmail.send",
+      "https://www.googleapis.com/auth/gmail.compose",
+      "https://www.googleapis.com/auth/gmail.modify",
+    ],
+  });
+  res.json({ url });
+});
+
+router.get("/gmail/callback", async (req, res) => {
+  try {
+    const code = req.query.code as string;
+    if (!code) return res.status(400).send("No code provided");
+
+    const oauth2Client = new google.auth.OAuth2(
+      env.GMAIL_CLIENT_ID,
+      env.GMAIL_CLIENT_SECRET,
+      env.GMAIL_REDIRECT_URI
+    );
+    const { tokens } = await oauth2Client.getToken(code);
+    res.send(`
+      <h2>Gmail Authorization Successful!</h2>
+      <p>Here is your Refresh Token (Copy and add this to your backend .env file as <b>GMAIL_REFRESH_TOKEN</b>):</p>
+      <pre style="background: #eee; padding: 10px; border-radius: 5px; word-break: break-all;">${tokens.refresh_token || tokens.access_token}</pre>
+    `);
+  } catch (e) {
+    res.status(500).send("Gmail Auth failed: " + String(e));
+  }
+});
+
 router.post("/upgrade", requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     await connectDB();

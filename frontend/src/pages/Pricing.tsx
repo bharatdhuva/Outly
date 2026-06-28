@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Check } from "lucide-react";
+import { Sparkles, Check, Info, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/logo_transparent.png";
 import { api } from "@/lib/api";
@@ -11,6 +11,7 @@ export default function Pricing() {
   const { toast } = useToast();
   const [timeLeft, setTimeLeft] = useState("");
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("outly_premium_user") === "true");
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -82,8 +83,10 @@ export default function Pricing() {
   };
 
   const handleRazorpayPayment = async () => {
+    setIsProcessingPayment(true);
     const isLoaded = await loadRazorpayScript();
     if (!isLoaded) {
+      setIsProcessingPayment(false);
       toast({
         title: "Connection Error",
         description: "Failed to load Razorpay SDK. Please check your internet connection.",
@@ -95,8 +98,9 @@ export default function Pricing() {
     let orderData;
     try {
       // 1. Create order on backend
-      orderData = await api.payment.createOrder(1900, "INR");
+      orderData = await api.payment.createOrder(100, "INR");
     } catch (err: any) {
+      setIsProcessingPayment(false);
       toast({
         title: "Order Creation Failed",
         description: err?.message || "Could not create payment order. Please try again.",
@@ -107,6 +111,7 @@ export default function Pricing() {
 
     const razorpayKeyId = orderData.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
     if (!razorpayKeyId) {
+      setIsProcessingPayment(false);
       toast({
         title: "Configuration Error",
         description: "Razorpay Key ID is missing. Please set VITE_RAZORPAY_KEY_ID in environment variables.",
@@ -164,6 +169,8 @@ export default function Pricing() {
             description: err?.message || "Failed to verify payment with server.",
             variant: "destructive",
           });
+        } finally {
+          setIsProcessingPayment(false);
         }
       },
       prefill: {
@@ -175,6 +182,7 @@ export default function Pricing() {
       },
       modal: {
         ondismiss: function () {
+          setIsProcessingPayment(false);
           toast({
             title: "Payment Cancelled",
             description: "You closed the payment checkout before completing.",
@@ -185,6 +193,7 @@ export default function Pricing() {
 
     const rzp = new (window as any).Razorpay(options);
     rzp.on("payment.failed", function (response: any) {
+      setIsProcessingPayment(false);
       toast({
         title: "Payment Failed",
         description: response?.error?.description || "Your transaction could not be processed.",
@@ -313,10 +322,10 @@ export default function Pricing() {
 
           <div className="flex items-baseline gap-2.5 mb-6 select-none">
             <span className="text-5xl md:text-6xl font-bold">
-              ₹19
+              ₹1
             </span>
             <span className="text-white/30 text-base md:text-lg font-medium line-through leading-none">
-              ₹299
+              ₹99
             </span>
             <span className="text-white/60 text-xs font-medium">
               start 7-day trial
@@ -342,7 +351,7 @@ export default function Pricing() {
             </li>
             <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
               <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
-              Get hired faster with AI — 7-day trial @ ₹19/-
+              Get hired faster with AI — 7-day trial @ ₹1/-
             </li>
           </ul>
 
@@ -354,13 +363,27 @@ export default function Pricing() {
           ) : (
             <button
               onClick={handleRazorpayPayment}
-              className="w-full bg-outly-accent py-3 rounded-full font-bold text-sm hover:brightness-110 transition shadow-lg shadow-outly-accent/20 text-center select-none cursor-pointer text-white"
+              disabled={isProcessingPayment}
+              className="w-full bg-outly-accent py-3 rounded-full font-bold text-sm hover:brightness-110 transition shadow-lg shadow-outly-accent/20 text-center select-none cursor-pointer text-white flex items-center justify-center gap-2 disabled:opacity-80"
             >
-              Start 7-Day Trial @ ₹19/-
+              {isProcessingPayment ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                  <span>Processing your order...</span>
+                </>
+              ) : (
+                <span>Start 7-Day Trial @ ₹1/-</span>
+              )}
             </button>
           )}
         </div>
 
+      </div>
+
+      {/* ℹ️ SYSTEM SCALABILITY TESTING NOTICE */}
+      <div className="mt-8 p-3.5 rounded-2xl bg-secondary/30 border border-border/50 max-w-lg mx-auto text-center flex items-center justify-center gap-2 text-xs text-muted-foreground font-medium">
+        <Info className="w-4 h-4 text-outly-accent shrink-0" />
+        <span>Note: ₹1 trial pricing is currently active for project scalability &amp; live load testing.</span>
       </div>
 
     </div>

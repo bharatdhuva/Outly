@@ -5,6 +5,8 @@ export const editableSettingDefaults = {
   full_name: "",
   target_roles: "",
   target_cities: "",
+  skills: "",
+  experience: "",
   phone: env.YOUR_WHATSAPP_NUMBER,
   resume_drive_file_id: env.RESUME_DRIVE_FILE_ID,
   weekly_post_enabled: "true",

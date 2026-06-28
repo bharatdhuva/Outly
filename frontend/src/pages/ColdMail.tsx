@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Mail,
   Upload,
@@ -49,6 +50,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+const GmailIcon = () => (
+  <img
+    src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
+    alt="Gmail"
+    className="h-5 w-5 shrink-0 object-contain"
+  />
+);
+
 const pipelineSteps = [
   { key: "pending", label: "Pending" },
   { key: "scraped", label: "Scraped" },
@@ -87,14 +96,25 @@ export default function ColdMailPage() {
     sender_location: "",
     personalization_hook: "",
   });
+  const navigate = useNavigate();
+  const [selectedModel, setSelectedModel] = useState<string>("gemini");
   const [loadingId, setLoadingId] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<Company>>({});
   const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
+  const [showSettingsPrompt, setShowSettingsPrompt] = useState(false);
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: api.settings.get,
   });
+
+  const handleGenerateCheck = (action: () => void) => {
+    if (!settings?.full_name || !settings?.skills || !settings?.experience) {
+      setShowSettingsPrompt(true);
+      return;
+    }
+    action();
+  };
 
   const { data: companies = [], isLoading } = useQuery({
     queryKey: ["coldmail", "companies"],
@@ -103,6 +123,12 @@ export default function ColdMailPage() {
   });
 
   const selectedCompany = companies.find((c: Company) => c.id === selected);
+
+  useEffect(() => {
+    if (selected === null && companies.length > 0) {
+      setSelected(companies[0].id);
+    }
+  }, [companies, selected]);
 
   useEffect(() => {
     if (!settings) return;
@@ -126,7 +152,7 @@ export default function ColdMailPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: Partial<Company>) => api.coldmail.create(data as any),
+    mutationFn: api.coldmail.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coldmail"] });
       setIsAdding(false);
@@ -134,7 +160,7 @@ export default function ColdMailPage() {
         company_name: "",
         website_url: "",
         hr_email: "",
-        role: settings?.target_role || "Software Development Engineer",
+        role: "Software Development Engineer",
         target_person_name: "",
         target_person_role: "",
         key_skills: settings?.skills || "React, TypeScript, Node.js",
@@ -149,7 +175,7 @@ export default function ColdMailPage() {
   });
 
   const generateMutation = useMutation({
-    mutationFn: () => api.coldmail.generateAll("grok"),
+    mutationFn: () => api.coldmail.generateAll("gemini", "gemini-2.5-flash"),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["coldmail"] });
       toast.success(`Generated ${data.generated} mails`);
@@ -301,7 +327,7 @@ export default function ColdMailPage() {
               COLD MAIL MANAGER
             </span>
             <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
-              Automate your cold outreach pipeline
+              Smart Cold Outreach & Follow-up Manager
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base max-w-2xl leading-relaxed">
               Generate personalized cold emails for target hiring managers, manage drafts, and track application responses in real-time.
@@ -428,7 +454,7 @@ export default function ColdMailPage() {
               <Button
                 size="sm"
                 className="gap-2 bg-outly-accent text-white hover:brightness-110 shadow-md shadow-outly-accent/20 rounded-full px-6 py-2.5 font-semibold text-sm h-11 cursor-pointer"
-                onClick={() => generateMutation.mutate()}
+                onClick={() => handleGenerateCheck(() => generateMutation.mutate())}
                 disabled={generateMutation.isPending}
               >
                 {generateMutation.isPending ? (
@@ -618,10 +644,11 @@ export default function ColdMailPage() {
                     {selectedCompany.company_name}
                   </h3>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
-                    <StatusBadge status={selectedCompany.status} />
-                    <span className="text-[10px] text-muted-foreground uppercase font-medium tracking-tight">
-                      Since {new Date(selectedCompany.created_at).toLocaleDateString()}
-                    </span>
+                    {(selectedCompany.createdAt || selectedCompany.created_at) && (
+                      <span className="text-[10px] text-muted-foreground uppercase font-medium tracking-tight">
+                        Since {new Date(selectedCompany.createdAt || selectedCompany.created_at!).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {selectedCompany.website_url && (
@@ -657,39 +684,7 @@ export default function ColdMailPage() {
                    </p>
                 </div>
               </div>
-              {/* Who to Email Suggester */}
-              <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
-                    💡 Who to Email Suggester
-                  </span>
-                  <select
-                    value={companySize}
-                    onChange={(e) => setCompanySize(e.target.value as any)}
-                    className="text-[11px] rounded bg-secondary border border-border p-1 outline-none text-foreground font-semibold"
-                  >
-                    <option value="startup">Startup</option>
-                    <option value="mid">Mid-size</option>
-                    <option value="large">Large Enterprise</option>
-                  </select>
-                </div>
-                <div className="bg-secondary/40 rounded-lg p-3 text-[12px] space-y-1 border border-border/40">
-                  <p className="font-bold text-foreground">
-                    Target: <span className="text-primary">{(() => {
-                      if (companySize === "startup") return "Founder or CTO";
-                      if (companySize === "mid") return "Engineering Manager or VP Engineering";
-                      return "Technical Recruiter or HR Business Partner";
-                    })()}</span>
-                  </p>
-                  <p className="text-muted-foreground text-[11px] leading-4">
-                    {(() => {
-                      if (companySize === "startup") return "Startups respond 3x better to founder outreach since decision-making is direct.";
-                      if (companySize === "mid") return "Mid-size companies have dedicated engineering leaders who manage hiring budgets.";
-                      return "Large enterprises have formal recruiting pipelines. Direct recruiter messaging ensures review.";
-                    })()}
-                  </p>
-                </div>
-              </div>
+
 
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-2 opacity-10">
@@ -768,77 +763,20 @@ export default function ColdMailPage() {
 
                     return (
                       <div className="space-y-4">
-                        {/* Tab Switcher */}
-                        {variantsData?.variants && (
-                          <div className="flex border border-border rounded-lg overflow-hidden bg-secondary/50">
-                            {(["formal", "casual", "short"] as const).map((tab) => (
-                              <button
-                                key={tab}
-                                type="button"
-                                className={`flex-1 py-2 text-center text-xs font-semibold uppercase tracking-wider border-r border-border last:border-r-0 ${
-                                  activeTab === tab ? "bg-white text-primary" : "text-muted-foreground hover:bg-secondary"
-                                }`}
-                                onClick={() => setActiveTab(tab)}
-                              >
-                                {tab}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-4">
-                          {/* Subject Options */}
-                          <div className="space-y-2 border-b border-border pb-3">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
-                              Subject Options (Select/Copy)
+                        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                          <div className="border-b border-border/60 pb-2.5">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block mb-1">
+                              Subject
                             </span>
-                            <div className="space-y-1.5">
-                              {activeSubjectOptions.map((subj: string, index: number) => (
-                                <div key={index} className="flex items-center justify-between gap-2 rounded bg-white border border-border p-2 text-xs">
-                                  <span className="font-medium text-foreground truncate">{subj}</span>
-                                  <div className="flex gap-1 shrink-0">
-                                    <Button
-                                      size="sm"
-                                      type="button"
-                                      variant="ghost"
-                                      className="h-6 px-2 text-[10px] text-primary"
-                                      onClick={() => handleApplySubject(subj)}
-                                    >
-                                      Apply
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      type="button"
-                                      variant="ghost"
-                                      className="h-6 px-2 text-[10px] text-muted-foreground"
-                                      onClick={() => handleCopyText(subj)}
-                                    >
-                                      Copy
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
+                            <p className="text-xs font-semibold text-foreground">
+                              {selectedCompany.generated_subject || "No subject generated yet."}
+                            </p>
                           </div>
 
                           {/* Email Body */}
-                          <div className="font-mono text-[11px] leading-relaxed text-secondary-foreground whitespace-pre-wrap">
-                            {activeDraftBody ? cleanDraft(activeDraftBody) : "No draft generated yet."}
+                          <div className="font-mono text-[11px] leading-relaxed text-secondary-foreground whitespace-pre-wrap pt-1">
+                            {selectedCompany.generated_mail ? cleanDraft(selectedCompany.generated_mail) : "No draft generated yet."}
                           </div>
-
-                          {variantsData?.variants?.[activeTab] && (
-                            <div className="flex justify-end pt-2">
-                              <Button
-                                size="sm"
-                                type="button"
-                                variant="outline"
-                                className="h-8 text-xs gap-1.5"
-                                onClick={() => handleApplyBody(activeDraftBody)}
-                              >
-                                Apply Variant Body
-                              </Button>
-                            </div>
-                          )}
                         </div>
 
                         {/* Follow up sequence items */}
@@ -904,147 +842,163 @@ export default function ColdMailPage() {
               </div>
 
                 <div className="flex flex-wrap gap-2 pt-2">
-                    {["pending", "scraped", "mail_generated", "approved"].includes(selectedCompany.status) && (
-                      <div className="flex w-full flex-col gap-2 sm:flex-1 sm:flex-row">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 gap-2 h-10 border-primary/30 hover:bg-primary/5 text-foreground font-semibold"
-                          disabled={loadingId === selectedCompany.id}
-                          onClick={() => {
-                            setLoadingId(selectedCompany.id);
-                            api.coldmail.scrape(selectedCompany.id).then(() => {
-                              api.coldmail.generate(selectedCompany.id, "grok").then(() => {
-                                queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                                toast.success("Mail generated successfully");
-                                setLoadingId(null);
-                              }).catch((e) => {
-                                toast.error(String(e));
-                                queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                                setLoadingId(null);
-                              });
-                            }).catch((e) => {
-                              toast.error(String(e));
-                              setLoadingId(null);
-                            });
-                          }}
-                        >
-                          {loadingId === selectedCompany.id ? (
-                            <RefreshCw className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Sparkles className="h-4 w-4 text-primary" />
-                          )}
-                          Auto-Generate Mail
-                        </Button>
-                      </div>
-                    )}
-                  {["mail_generated", "approved"].includes(selectedCompany.status) && (
-                     <Button
-                      size="sm"
-                      variant={selectedCompany.status === "approved" ? "default" : "outline"}
-                      className={`flex-1 gap-2 h-10 ${selectedCompany.status === "approved" ? "bg-primary shadow-lg shadow-primary/20" : ""}`}
-                      onClick={() => {
-                        if (selectedCompany.status === "approved") {
-                          sendApprovedMutation.mutate();
-                        } else {
-                          api.coldmail.approve(selectedCompany.id).then(() =>
-                            queryClient.invalidateQueries({ queryKey: ["coldmail"] })
-                          );
-                        }
-                      }}
-                    >
-                      {selectedCompany.status === "approved" ? <Send className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                      {selectedCompany.status === "approved" ? "Send Now" : "Approve"}
-                    </Button>
-                  )}
-                  <Dialog open={isEditing} onOpenChange={setIsEditing}>
-                    <DialogTrigger asChild>
+                  {["mail_generated", "approved"].includes(selectedCompany.status) ? (
+                    <div className="flex w-full items-center gap-2">
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-10 px-3"
+                        className="flex-1 gap-2.5 h-10 border-border bg-card hover:bg-secondary/40 text-foreground font-semibold shadow-sm cursor-pointer"
+                        title="Open direct compose window in Gmail web app"
                         onClick={() => {
-                          setEditData({
-                            company_name: selectedCompany.company_name,
-                            generated_subject: selectedCompany.generated_subject || "",
-                            generated_mail: selectedCompany.generated_mail || "",
-                            personalization_hook: selectedCompany.personalization_hook || "",
-                          });
+                          const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(selectedCompany.hr_email)}&su=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(selectedCompany.generated_mail || "")}`;
+                          window.open(url, "_blank");
                         }}
                       >
-                        <Edit className="h-4 w-4" />
+                        <GmailIcon />
+                        <span>Draft in Gmail</span>
                       </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[700px]">
-                      <DialogHeader>
-                        <DialogTitle>Edit Mail & Details</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 py-2">
-                        <div className="space-y-2">
-                          <Label>Company Name</Label>
-                          <Input
-                            value={editData.company_name || ""}
-                            onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Generated Subject</Label>
-                          <Input
-                            value={editData.generated_subject || ""}
-                            onChange={(e) => setEditData({ ...editData, generated_subject: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Generated Email Body</Label>
-                          <Textarea
-                            className="min-h-[300px] font-mono text-[13px]"
-                            value={editData.generated_mail || ""}
-                            onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Personalization Hook (Preview)</Label>
-                          <Input
-                            value={editData.personalization_hook || ""}
-                            onChange={(e) => setEditData({ ...editData, personalization_hook: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter className="flex-col gap-2 sm:flex-row">
-                        <Button
-                          onClick={() => {
-                            updateMutation.mutate({ id: selectedCompany.id, data: editData });
-                            setIsEditing(false);
-                          }}
-                          disabled={updateMutation.isPending}
-                        >
-                          {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-10 px-3 hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={() => {
-                      setDeleteTarget(selectedCompany);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-10 px-3"
-                    onClick={() => {
-                      api.coldmail.skip(selectedCompany.id).then(() =>
-                        queryClient.invalidateQueries({ queryKey: ["coldmail"] })
-                      );
-                    }}
-                  >
-                    <SkipForward className="h-4 w-4" />
-                  </Button>
+
+                      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-10 px-3 cursor-pointer"
+                            title="Edit Mail & Details"
+                            onClick={() => {
+                              setEditData({
+                                company_name: selectedCompany.company_name,
+                                generated_subject: selectedCompany.generated_subject || "",
+                                generated_mail: selectedCompany.generated_mail || "",
+                                personalization_hook: selectedCompany.personalization_hook || "",
+                              });
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[700px]">
+                          <DialogHeader>
+                            <DialogTitle>Edit Mail & Details</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4 py-2">
+                            <div className="space-y-2">
+                              <Label>Company Name</Label>
+                              <Input
+                                value={editData.company_name || ""}
+                                onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Generated Subject</Label>
+                              <Input
+                                value={editData.generated_subject || ""}
+                                onChange={(e) => setEditData({ ...editData, generated_subject: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Generated Email Body</Label>
+                              <Textarea
+                                className="min-h-[300px] font-mono text-[13px]"
+                                value={editData.generated_mail || ""}
+                                onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Personalization Hook (Preview)</Label>
+                              <Input
+                                value={editData.personalization_hook || ""}
+                                onChange={(e) => setEditData({ ...editData, personalization_hook: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter className="flex-col gap-2 sm:flex-row">
+                            <Button
+                              onClick={() => {
+                                updateMutation.mutate({ id: selectedCompany.id, data: editData });
+                                setIsEditing(false);
+                              }}
+                              disabled={updateMutation.isPending}
+                            >
+                              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-10 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
+                        title="Delete Lead"
+                        onClick={() => {
+                          setDeleteTarget(selectedCompany);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex w-full items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 gap-2 h-10 border-primary/30 hover:bg-primary/5 text-foreground font-semibold cursor-pointer"
+                        disabled={loadingId === selectedCompany.id}
+                        onClick={() => {
+                          handleGenerateCheck(() => {
+                            setLoadingId(selectedCompany.id);
+                            api.coldmail.scrape(selectedCompany.id).then(() => {
+                            api.coldmail.generate(selectedCompany.id, "gemini", "gemini-2.5-flash").then(() => {
+                              queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+                              toast.success("Mail generated successfully");
+                              setLoadingId(null);
+                            }).catch((e) => {
+                              toast.error(String(e));
+                              queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+                              setLoadingId(null);
+                            });
+                          }).catch((e) => {
+                            toast.error(String(e));
+                            setLoadingId(null);
+                          });
+                        });
+                      }}
+                      >
+                        {loadingId === selectedCompany.id ? (
+                          <RefreshCw className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-4 w-4 text-primary" />
+                        )}
+                        Auto-Generate Mail
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-10 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
+                        title="Delete Lead"
+                        onClick={() => {
+                          setDeleteTarget(selectedCompany);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-10 px-3 cursor-pointer"
+                        title="Skip Lead"
+                        onClick={() => {
+                          api.coldmail.skip(selectedCompany.id).then(() =>
+                            queryClient.invalidateQueries({ queryKey: ["coldmail"] })
+                          );
+                        }}
+                      >
+                        <SkipForward className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
               {/* Advanced info section */}
@@ -1104,6 +1058,22 @@ export default function ColdMailPage() {
       </>
       )}
         </div>
+      <AlertDialog open={showSettingsPrompt} onOpenChange={setShowSettingsPrompt}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Profile Settings Required</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please complete your profile details (Full Name, Tech Stack, Experience) in Settings before generating emails so AI can write personalized emails with your information.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => navigate("/settings")}>
+              Go to Settings
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       </LockedFeatureGuard>
     </>
   );

@@ -106,12 +106,11 @@ export default function PdfViewer({
           loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         } else if (url) {
           const token = localStorage.getItem("outly_token");
-          const headers = token ? { "Authorization": `Bearer ${token}` } : {};
-          loadingTask = pdfjsLib.getDocument({
-            url,
-            httpHeaders: headers,
-            withCredentials: true
-          });
+          const headers: Record<string, string> = token ? { "Authorization": `Bearer ${token}` } : {};
+          const res = await fetch(url, { headers });
+          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+          const arrayBuffer = await res.arrayBuffer();
+          loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         } else {
           return;
         }
@@ -125,10 +124,14 @@ export default function PdfViewer({
         // Clear container first
         container.innerHTML = "";
 
+        const containerWidth = container.clientWidth > 0 ? container.clientWidth - 24 : 500;
+
         // Render each page vertically onto dynamic canvases
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
           const page = await pdf.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 1.15 });
+          const unscaledViewport = page.getViewport({ scale: 1.0 });
+          const calculatedScale = containerWidth / unscaledViewport.width;
+          const viewport = page.getViewport({ scale: Math.min(Math.max(calculatedScale, 0.75), 1.1) });
 
           const canvas = document.createElement("canvas");
           canvas.className = "max-w-full h-auto shadow-md border border-border/60 rounded-md bg-white mb-4 transition-all hover:shadow-lg";
@@ -174,7 +177,7 @@ export default function PdfViewer({
   }
 
   return (
-    <div className="relative w-full flex flex-col items-center justify-center min-h-[400px] bg-secondary/15 rounded-xl border border-border/60 p-4 overflow-hidden">
+    <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[380px] bg-secondary/15 rounded-xl border border-border/60 p-2 overflow-hidden">
       {loading && (
         <div className="flex flex-col items-center justify-center p-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -203,7 +206,7 @@ export default function PdfViewer({
       {/* The actual PDF container */}
       <div
         ref={containerRef}
-        className={`w-full flex flex-col items-center overflow-y-auto max-h-[650px] custom-scrollbar p-2 ${
+        className={`w-full flex-1 flex flex-col items-center overflow-y-auto max-h-[520px] custom-scrollbar p-2 ${
           loading || error ? "hidden" : "block"
         }`}
       />

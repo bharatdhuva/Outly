@@ -202,6 +202,85 @@ function AnalogClockModal({
   );
 }
 
+function LiveAnalogClock() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const seconds = time.getSeconds();
+  const minutes = time.getMinutes();
+  const hours = time.getHours() % 12;
+
+  const secAngle = seconds * 6;
+  const minAngle = minutes * 6 + seconds * 0.1;
+  const hourAngle = hours * 30 + minutes * 0.5;
+
+  return (
+    <div className="flex items-center gap-3 bg-card border border-border/80 px-4 py-2.5 rounded-2xl shadow-xs shrink-0">
+      <div className="relative w-8 h-8 rounded-full border-2 border-primary/40 bg-secondary/30 flex items-center justify-center shrink-0">
+        <svg className="w-full h-full" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" className="text-border/60" strokeWidth="1.5" />
+          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
+            <line
+              key={deg}
+              x1="20"
+              y1="4"
+              x2="20"
+              y2="6"
+              stroke="currentColor"
+              className="text-muted-foreground/60"
+              strokeWidth="1.5"
+              transform={`rotate(${deg} 20 20)`}
+            />
+          ))}
+          <line
+            x1="20"
+            y1="20"
+            x2="20"
+            y2="11"
+            stroke="currentColor"
+            className="text-foreground"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            transform={`rotate(${hourAngle} 20 20)`}
+          />
+          <line
+            x1="20"
+            y1="20"
+            x2="20"
+            y2="7"
+            stroke="currentColor"
+            className="text-outly-accent"
+            strokeWidth="2"
+            strokeLinecap="round"
+            transform={`rotate(${minAngle} 20 20)`}
+          />
+          <line
+            x1="20"
+            y1="22"
+            x2="20"
+            y2="5"
+            stroke="#ef4444"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            transform={`rotate(${secAngle} 20 20)`}
+          />
+          <circle cx="20" cy="20" r="1.5" fill="#ef4444" />
+        </svg>
+      </div>
+      <div className="text-left font-mono leading-tight">
+        <p className="text-xs font-bold text-foreground tracking-tight">
+          {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        </p>
+        <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Live Clock</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ContentScheduler() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -377,38 +456,28 @@ export default function ContentScheduler() {
         </DialogContent>
       </Dialog>
 
-      {/* 🚀 HERO SECTION WITH COMING SOON BADGE */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-card to-primary/5 p-8 sm:p-10 border border-border/80 shadow-md">
-        <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-        
-        <div className="relative z-10 space-y-4 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-extrabold uppercase tracking-wider shadow-2xs animate-pulse">
-            <Rocket className="h-3.5 w-3.5" />
-            <span>AI SOCIAL API & AUTOMATION ENGINE 2.0 (IN ACTIVE DEVELOPMENT)</span>
-          </div>
+      {/* 🚀 REDESIGNED HERO & ENGINE STATUS HEADER */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 sm:p-8 rounded-3xl bg-card border border-border/80 shadow-xs text-left">
+        <div className="space-y-2 max-w-2xl">
+          <span className="text-[10px] font-extrabold tracking-widest text-outly-accent uppercase bg-outly-accent/10 px-3 py-1 rounded-full border border-outly-accent/20 inline-block">
+            POST SCHEDULER & BRAND AUTOMATION
+          </span>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-foreground leading-tight tracking-tight">
-            Automated Content Post Scheduler & WhatsApp Delivery
+          <h1 className="text-2xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
+            Build your personal engineering brand on autopilot.
           </h1>
 
-          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-            Build a high-impact personal brand on LinkedIn & Twitter on autopilot. Connect once via WhatsApp, receive ready-to-publish scheduled posts automatically on your preferred time!
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Consistency is your ultimate unfair advantage. Outly generates high-value technical posts and delivers them straight to your WhatsApp for 1-tap approval.
           </p>
         </div>
-      </div>
 
-      {/* ⚡ ACTIVE API INTEGRATION ANNOUNCEMENT CARD */}
-      <div className="rounded-2xl border border-primary/30 bg-primary/5 p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="space-y-1.5 flex-1">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-            <Zap className="h-3.5 w-3.5" /> Working on Direct Social Media APIs & Auto-Publishing Integration
+        <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
+          <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+            Working on Meta API & Social Auto-Publishing
           </span>
-          <h3 className="text-lg font-bold text-foreground">
-            Coming Soon: Direct 1-Click Publishing to LinkedIn & Twitter/X
-          </h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            We are actively integrating official APIs for LinkedIn and Twitter/X auto-posting alongside WhatsApp instant alerts. Configured preferences will lock in early priority access!
-          </p>
+          <LiveAnalogClock />
         </div>
       </div>
 
@@ -591,90 +660,46 @@ export default function ContentScheduler() {
         </div>
       </div>
 
-      {/* 🌟 ZEN-SCAIL STYLE PREMIUM CARDS: WHY SCHEDULED POSTS ARE GOOD FOR YOUR CAREER */}
-      <div className="space-y-8 pt-8 border-t border-border/60">
-        <div className="space-y-2 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-extrabold uppercase tracking-wider">
-            <TrendingUp className="h-3.5 w-3.5" />
-            Career Leverage
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-            Why Scheduled Posts are Good for Your Career
+      {/* 🌟 STREAMLINED BENEFIT PILLARS */}
+      <div className="space-y-6 pt-6 border-t border-border/60 text-left">
+        <div className="space-y-1">
+          <span className="text-[10px] font-extrabold tracking-widest text-outly-accent uppercase bg-outly-accent/10 px-2.5 py-0.5 rounded-full inline-block">
+            WHY SCHEDULED POSTS WORK
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+            Maximum Career Leverage with Zero Daily Effort
           </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
-            Building a consistent digital presence is the highest ROI activity for modern software engineers.
-          </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Card 1: Build in public, effortlessly */}
-          <div className="flex flex-col md:flex-row items-start gap-5 p-6 rounded-3xl border border-border/50 bg-[#fdfcf9] hover:border-primary/30 transition-all duration-300 shadow-xs group">
-            <div className="p-3.5 rounded-2xl bg-[#faf6ef] border border-border/30 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="2" y="3" width="20" height="14" rx="2" className="stroke-primary/40" />
-                <path d="M6 8l3 3-3 3M11 12h4" />
-                <circle cx="17" cy="17" r="3" className="fill-primary/10" />
-                <path d="M17 14v3M14 17h3" />
-              </svg>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="p-5 rounded-2xl border border-border/60 bg-card shadow-xs hover:border-outly-accent/30 transition-all space-y-2">
+            <div className="w-9 h-9 rounded-xl bg-outly-accent/10 text-outly-accent flex items-center justify-center font-bold text-base">
+              🎯
             </div>
-            <div className="space-y-2 text-left">
-              <h4 className="font-bold text-base text-foreground">Build in public, on autopilot</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Turn your daily learnings, git commits, and project milestones into structured posts. Build a high-value engineering portfolio that speaks for itself and establishes your technical depth.
-              </p>
-            </div>
+            <h4 className="font-bold text-sm text-foreground">Inbound Recruiter Magnet</h4>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Consistent technical posts make founders & hiring managers reach out directly to your inbox.
+            </p>
           </div>
 
-          {/* Card 2: Consistency without the burnout */}
-          <div className="flex flex-col md:flex-row items-start gap-5 p-6 rounded-3xl border border-border/50 bg-[#fdfcf9] hover:border-primary/30 transition-all duration-300 shadow-xs group">
-            <div className="p-3.5 rounded-2xl bg-[#faf6ef] border border-border/30 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" className="stroke-primary/40" />
-                <path d="M16 2v4M8 2v4M3 10h18" />
-                <circle cx="12" cy="16" r="4" className="fill-primary/10" />
-                <path d="M12 14v2l1.5 1" />
-              </svg>
+          <div className="p-5 rounded-2xl border border-border/60 bg-card shadow-xs hover:border-outly-accent/30 transition-all space-y-2">
+            <div className="w-9 h-9 rounded-xl bg-outly-accent/10 text-outly-accent flex items-center justify-center font-bold text-base">
+              ⚡
             </div>
-            <div className="space-y-2 text-left">
-              <h4 className="font-bold text-base text-foreground">Consistency, solved</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Staring at a blank screen is exhausting. Spend 15 minutes on Sunday scheduling your weekly insights, and let Outly maintain your presence while you focus on what you do best—writing code.
-              </p>
-            </div>
+            <h4 className="font-bold text-sm text-foreground">Autopilot Branding</h4>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Turn daily commits & project milestones into automated structured LinkedIn & Twitter posts.
+            </p>
           </div>
 
-          {/* Card 3: An inbound recruiter magnet */}
-          <div className="flex flex-col md:flex-row items-start gap-5 p-6 rounded-3xl border border-border/50 bg-[#fdfcf9] hover:border-primary/30 transition-all duration-300 shadow-xs group">
-            <div className="p-3.5 rounded-2xl bg-[#faf6ef] border border-border/30 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" className="stroke-primary/40" />
-                <path d="M22 6l-10 7L2 6" />
-                <circle cx="12" cy="16" r="3" className="fill-amber-500/10 stroke-amber-500" />
-              </svg>
+          <div className="p-5 rounded-2xl border border-border/60 bg-card shadow-xs hover:border-outly-accent/30 transition-all space-y-2">
+            <div className="w-9 h-9 rounded-xl bg-outly-accent/10 text-outly-accent flex items-center justify-center font-bold text-base">
+              📱
             </div>
-            <div className="space-y-2 text-left">
-              <h4 className="font-bold text-base text-foreground">Recruiters come to you</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                A consistent technical presence acts as an inbound funnel. Bypass the standard resume black hole and have founders and engineering managers reach out directly to your inbox with high-paying roles.
-              </p>
-            </div>
-          </div>
-
-          {/* Card 4: 1-Tap WhatsApp Approval */}
-          <div className="flex flex-col md:flex-row items-start gap-5 p-6 rounded-3xl border border-border/50 bg-[#fdfcf9] hover:border-primary/30 transition-all duration-300 shadow-xs group">
-            <div className="p-3.5 rounded-2xl bg-[#faf6ef] border border-border/30 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="5" y="2" width="14" height="20" rx="2" className="stroke-primary/40" />
-                <circle cx="12" cy="19" r="1" />
-                <path d="M9 6h6M9 10h6M9 14h4" />
-              </svg>
-            </div>
-            <div className="space-y-2 text-left">
-              <h4 className="font-bold text-base text-foreground">One chat, not five tabs</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                No need to open multiple social dashboards on your browser. Outly sends your daily draft straight to your WhatsApp. Review, edit, or publish with a single tap from your phone.
-              </p>
-            </div>
+            <h4 className="font-bold text-sm text-foreground">WhatsApp 1-Tap Control</h4>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              No complex dashboards. Receive daily scheduled drafts on WhatsApp and publish with 1 tap.
+            </p>
           </div>
         </div>
       </div>

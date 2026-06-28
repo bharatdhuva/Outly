@@ -11,16 +11,22 @@ export const setGlobalLoading = (loading: boolean) => {
 };
 
 /**
- * PageTransition — wraps page content with a smooth fade + slide entrance.
+ * PageTransition — wraps page content with a smooth fade + slide entrance on every route change.
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
+
   return (
-    <div className="w-full flex-1 animate-page-enter">
+    <div key={location.pathname} className="w-full flex-1 animate-page-enter">
       <style>{`
         @keyframes page-enter {
           0% {
-            opacity: 0;
-            transform: translateY(8px);
+            opacity: 0.15;
+            transform: translateY(6px);
             filter: blur(2px);
           }
           100% {
@@ -30,7 +36,8 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
           }
         }
         .animate-page-enter {
-          animation: page-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: page-enter 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+          will-change: transform, opacity, filter;
         }
       `}</style>
       {children}

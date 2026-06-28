@@ -33,6 +33,8 @@ const emptySettings: AppSettings = {
   full_name: "",
   target_roles: "",
   target_cities: "",
+  skills: "",
+  experience: "",
   phone: "",
   resume_drive_file_id: "",
   weekly_post_enabled: "true",
@@ -54,6 +56,8 @@ function getEditableSettingsPayload(form: AppSettings) {
     full_name: form.full_name,
     target_roles: form.target_roles,
     target_cities: form.target_cities,
+    skills: form.skills,
+    experience: form.experience,
     phone: form.phone,
     resume_drive_file_id: form.resume_drive_file_id,
     weekly_post_enabled: form.weekly_post_enabled,
@@ -334,7 +338,26 @@ export default function SettingsPage() {
                   placeholder="e.g. Software Development Engineer, Full Stack"
                   className="h-10 text-xs rounded-xl"
                 />
-                <p className="text-[11px] text-muted-foreground">Used by Job Search and Cold Outreach to match relevant positions.</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground/80">Tech Stack / Key Skills</label>
+                <Input 
+                  value={form.skills} 
+                  onChange={(e) => updateField("skills", e.target.value)} 
+                  placeholder="e.g. React, TypeScript, Node.js, Go"
+                  className="h-10 text-xs rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground/80">Experience / Background</label>
+                <Input 
+                  value={form.experience} 
+                  onChange={(e) => updateField("experience", e.target.value)} 
+                  placeholder="e.g. 3rd year CS student at MSU Baroda"
+                  className="h-10 text-xs rounded-xl"
+                />
               </div>
 
               <div className="space-y-1.5">
@@ -346,49 +369,28 @@ export default function SettingsPage() {
                   className="h-10 text-xs rounded-xl"
                 />
               </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground/80">LinkedIn Headline / Tagline</label>
-                <Input 
-                  value={form.linkedin_headline} 
-                  onChange={(e) => updateField("linkedin_headline", e.target.value)} 
-                  placeholder="e.g. Full Stack Engineer | React & Node.js"
-                  className="h-10 text-xs rounded-xl"
-                />
-              </div>
             </div>
           </div>
 
-          {/* Resume & Integration Links */}
+          {/* Integrations & Account */}
           <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-5 flex flex-col justify-between">
             <div className="space-y-5">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
                 <FileText className="h-4 w-4 text-outly-accent" />
                 <h2 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/80">
-                  Resume & Integrations
+                  Account Integrations
                 </h2>
               </div>
 
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground/80">Google Drive Resume File ID</label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={form.resume_drive_file_id}
-                      onChange={(e) => updateField("resume_drive_file_id", e.target.value)}
-                      placeholder="Paste Google Drive File ID"
-                      className="font-mono text-xs h-10 rounded-xl flex-1"
-                    />
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => testResumeMutation.mutate()} 
-                      disabled={testResumeMutation.isPending}
-                      className="h-10 text-xs rounded-xl font-semibold px-4 shrink-0"
-                    >
-                      {testResumeMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Test Link"}
-                    </Button>
-                  </div>
+                  <label className="text-xs font-semibold text-foreground/80">LinkedIn Tagline</label>
+                  <Input 
+                    value={form.linkedin_headline} 
+                    onChange={(e) => updateField("linkedin_headline", e.target.value)} 
+                    placeholder="e.g. Full Stack Engineer | React & Node.js"
+                    className="h-10 text-xs rounded-xl"
+                  />
                 </div>
 
                 <div className="space-y-2 pt-2">

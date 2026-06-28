@@ -307,7 +307,7 @@ export default function ResumeTailorPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
         
         {/* Left Input: Job Description */}
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[380px] text-left space-y-4">
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[460px] text-left space-y-4">
           <div className="flex justify-between items-center border-b border-border/40 pb-3">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
               <FileText className="h-4.5 w-4.5 text-outly-accent" />
@@ -324,7 +324,7 @@ export default function ResumeTailorPage() {
         </div>
 
         {/* Right Input: Resume Source */}
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[380px] text-left">
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[460px] text-left">
           
           <div className="flex justify-between items-center border-b border-border/40 pb-3 mb-4">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -433,15 +433,15 @@ export default function ResumeTailorPage() {
 
               <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
                 {resumeFile && resumeFile.type === "application/pdf" ? (
-                  <div className="flex-1">
+                  <div className="flex-1 min-h-0 flex flex-col">
                     <PdfViewer file={resumeFile} />
                   </div>
                 ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
-                  <div className="flex-1">
+                  <div className="flex-1 min-h-0 flex flex-col">
                     <PdfViewer url={api.resume.getFileUrl(Number(selectedVaultId))} />
                   </div>
                 ) : (
-                  <div className="flex-1 overflow-y-auto p-3.5 text-left">
+                  <div className="flex-1 overflow-y-auto p-3.5 text-left max-h-[380px]">
                     <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-foreground/80">{resumeText}</pre>
                   </div>
                 )}

@@ -121,12 +121,17 @@ router.post("/jobs", async (req: AuthenticatedRequest, res: Response) => {
       // Format salary
       let sal = "";
       if (job.job_min_salary && job.job_max_salary) {
-        sal = `${job.job_salary_currency || "₹"} ${job.job_min_salary} - ${job.job_max_salary} / ${job.job_salary_period || "year"}`;
+        sal = `${job.job_salary_currency || "₹"} ${job.job_min_salary.toLocaleString()} - ${job.job_max_salary.toLocaleString()} / ${job.job_salary_period || "yr"}`;
       } else if (job.job_min_salary) {
-        sal = `Min ${job.job_salary_currency || "₹"} ${job.job_min_salary} / ${job.job_salary_period || "year"}`;
+        sal = `From ${job.job_salary_currency || "₹"} ${job.job_min_salary.toLocaleString()} / ${job.job_salary_period || "yr"}`;
       } else if (job.job_max_salary) {
-        sal = `Max ${job.job_salary_currency || "₹"} ${job.job_max_salary} / ${job.job_salary_period || "year"}`;
+        sal = `Up to ${job.job_salary_currency || "₹"} ${job.job_max_salary.toLocaleString()} / ${job.job_salary_period || "yr"}`;
       }
+
+      // Format skills & requirements
+      const skills: string[] = Array.isArray(job.job_required_skills) && job.job_required_skills.length > 0 
+        ? job.job_required_skills.slice(0, 3) 
+        : (Array.isArray(job.job_highlights?.Qualifications) ? job.job_highlights.Qualifications.slice(0, 2) : []);
 
       return {
         id: job.job_id || Math.random().toString(36).substr(2, 9),
@@ -136,7 +141,8 @@ router.post("/jobs", async (req: AuthenticatedRequest, res: Response) => {
         source: job.job_publisher || "JSearch",
         url: job.job_apply_link || "",
         experience: exp,
-        salary: sal || "Not specified",
+        salary: sal || "Salary Undisclosed",
+        skills,
       };
     });
 

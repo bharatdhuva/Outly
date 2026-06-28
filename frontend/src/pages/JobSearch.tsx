@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,17 +19,67 @@ import {
 
 import LockedFeatureGuard from "@/components/LockedFeatureGuard";
 
+const jobBoards = [
+  { id: "linkedin", name: "LinkedIn Jobs", badge: "MNC & Corporate", domain: "linkedin.com" },
+  { id: "wellfound", name: "Wellfound", badge: "Startup Careers", domain: "wellfound.com" },
+  { id: "naukri", name: "Naukri.com", badge: "Pan-India Hiring", domain: "naukri.com" },
+  { id: "internshala", name: "Internshala", badge: "Internships & Freshers", domain: "internshala.com" },
+  { id: "cutshort", name: "Cutshort", badge: "AI Tech Matching", domain: "cutshort.io" },
+  { id: "indeed", name: "Indeed", badge: "Global Listings", domain: "indeed.com" },
+  { id: "glassdoor", name: "Glassdoor", badge: "Salaries & Reviews", domain: "glassdoor.com" },
+  { id: "unstop", name: "Unstop", badge: "Campus & Challenges", domain: "unstop.org" },
+];
+
+function BrandLogo({ domain, name }: { domain: string; name: string }) {
+  return (
+    <img 
+      src={`https://logo.clearbit.com/${domain}`}
+      alt={name}
+      className="h-5 w-5 object-contain rounded-sm shrink-0"
+      onError={(e) => {
+        const target = e.target as HTMLImageElement;
+        if (!target.dataset.fallback) {
+          target.dataset.fallback = "true";
+          target.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+        }
+      }}
+    />
+  );
+}
+
 export default function JobSearchPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Search/Scraper State
-  const [scrapeRole, setScrapeRole] = useState("");
-  const [scrapeLocation, setScrapeLocation] = useState("");
-  const [scrapeExperience, setScrapeExperience] = useState("Entry-level");
+  const { data: settings } = useQuery({
+    queryKey: ["settings"],
+    queryFn: api.settings.get,
+  });
+
+  // Search/Scraper State with smart defaults
+  const [scrapeRole, setScrapeRole] = useState("Backend Developer");
+  const [scrapeLocation, setScrapeLocation] = useState("Bengaluru");
+  const [scrapeExperience, setScrapeExperience] = useState("Mid-level");
   const [isScraping, setIsScraping] = useState(false);
   const [scrapedJobs, setScrapedJobs] = useState<any[]>([]);
   const [isLiveScrape, setIsLiveScrape] = useState(false);
+
+  useEffect(() => {
+    if (settings) {
+      if (settings.target_roles) {
+        setScrapeRole(settings.target_roles.split(",")[0]?.trim() || settings.target_roles);
+      }
+      if (settings.target_cities) {
+        setScrapeLocation(settings.target_cities.split(",")[0]?.trim() || settings.target_cities);
+      }
+      if (settings.experience) {
+        const expLower = settings.experience.toLowerCase();
+        if (expLower.includes("senior")) setScrapeExperience("Senior-level");
+        else if (expLower.includes("mid") || expLower.includes("year")) setScrapeExperience("Mid-level");
+        else if (expLower.includes("entry") || expLower.includes("student") || expLower.includes("fresher")) setScrapeExperience("Entry-level");
+      }
+    }
+  }, [settings]);
   
   // Track which job IDs have been added during this session
   const [trackedJobIds, setTrackedJobIds] = useState<Record<string, boolean>>({});
@@ -112,11 +162,29 @@ export default function JobSearchPage() {
           JOB SEARCH
         </span>
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
-          Auto-Fetch Career Opportunities
+          Smart Job Search & Auto Apply Platform
         </h1>
         <p className="text-muted-foreground text-[13px] sm:text-[14px] leading-relaxed max-w-3xl">
           Search across major job portals like LinkedIn, Wellfound, Internshala, and Naukri. One-click track listings straight into your Kanban pipeline.
         </p>
+
+        {/* Job Portals Horizontal Marquee Carousel */}
+        <div className="slider-mask relative w-full py-4 my-2 group">
+          <div className="animate-marquee flex items-center gap-8">
+            {[...jobBoards, ...jobBoards, ...jobBoards].map((board, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2.5 shrink-0 opacity-85 hover:opacity-100 transition-all duration-200 cursor-pointer group/item"
+              >
+                <BrandLogo domain={board.domain} name={board.name} />
+                <div className="text-left">
+                  <p className="text-xs font-bold text-foreground leading-snug group-hover/item:text-primary transition-colors">{board.name}</p>
+                  <span className="text-[10px] font-medium text-muted-foreground">{board.badge}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Scraper Parameters Input Form */}
@@ -220,12 +288,12 @@ export default function JobSearchPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-card border border-border rounded-lg p-5 shadow-[var(--shadow-card)] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between h-[200px] text-left animate-pop-in"
+                  className="bg-card border border-border rounded-lg p-5 shadow-[var(--shadow-card)] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between min-h-[210px] text-left animate-pop-in space-y-4"
                 >
                   <div className="space-y-3">
                     {/* Card Header: Company & Portal Source */}
                     <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground">
-                      <span className="flex items-center gap-1.5 truncate max-w-[130px]" title={job.company}>
+                      <span className="flex items-center gap-1.5 truncate max-w-[140px]" title={job.company}>
                         <Building className="h-3.5 w-3.5 text-outly-accent shrink-0" />
                         {job.company}
                       </span>
@@ -235,29 +303,40 @@ export default function JobSearchPage() {
                     </div>
 
                     {/* Job Title */}
-                    <h4 className="text-[13px] font-bold text-foreground truncate" title={job.title}>
+                    <h4 className="text-[13px] font-bold text-foreground line-clamp-2 leading-snug" title={job.title}>
                       {job.title}
                     </h4>
                     
                     {/* Metadata tags */}
                     <div className="flex flex-wrap gap-1.5 pt-0.5">
-                      <span className="inline-flex items-center gap-1 text-[9.5px] bg-secondary/40 text-muted-foreground px-2 py-0.5 rounded border border-border/40">
-                        <MapPin className="w-2.5 h-2.5 shrink-0" />
-                        {job.location || "N/A"}
+                      <span className="inline-flex items-center gap-1 text-[9.5px] bg-secondary/40 text-muted-foreground px-2 py-0.5 rounded border border-border/40 font-medium">
+                        <MapPin className="w-2.5 h-2.5 shrink-0 text-muted-foreground/70" />
+                        {job.location || "Location N/A"}
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[9.5px] bg-secondary/40 text-muted-foreground px-2 py-0.5 rounded border border-border/40">
-                        <Clock className="w-2.5 h-2.5 shrink-0" />
-                        {job.experience || "N/A"}
+                      <span className="inline-flex items-center gap-1 text-[9.5px] bg-secondary/40 text-muted-foreground px-2 py-0.5 rounded border border-border/40 font-medium">
+                        <Clock className="w-2.5 h-2.5 shrink-0 text-muted-foreground/70" />
+                        {job.experience || "Req. Exp N/A"}
                       </span>
-                      <span className={`inline-flex items-center gap-0.5 text-[9.5px] px-2 py-0.5 rounded border ${
-                        job.salary && job.salary !== "Not specified"
-                          ? "bg-success/5 text-success border-success/15 font-bold"
-                          : "bg-secondary/20 text-muted-foreground/60 border-border/30"
+                      <span className={`inline-flex items-center gap-1 text-[9.5px] px-2 py-0.5 rounded border font-medium ${
+                        job.salary && !job.salary.includes("Undisclosed") && job.salary !== "Not specified"
+                          ? "bg-success/10 text-success border-success/20 font-bold"
+                          : "bg-secondary/30 text-muted-foreground/70 border-border/40"
                       }`}>
                         <DollarSign className="w-2.5 h-2.5 shrink-0" />
-                        {job.salary || "N/A"}
+                        {job.salary || "Salary Undisclosed"}
                       </span>
                     </div>
+
+                    {/* Required Skills / Qualifications tags */}
+                    {Array.isArray(job.skills) && job.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pt-1 border-t border-border/20">
+                        {job.skills.map((skill: string, sIdx: number) => (
+                          <span key={sIdx} className="text-[9px] bg-primary/5 text-primary border border-primary/15 px-1.5 py-0.5 rounded font-mono truncate max-w-[120px]">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions Footer */}
