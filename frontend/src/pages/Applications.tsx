@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type TrackerApplication } from "@/lib/api";
-import OutlyPageLoader from "@/components/OutlyPageLoader";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -215,7 +214,9 @@ export default function ApplicationsPage() {
 
       {/* Kanban Board Grid */}
       {isLoading ? (
-        <OutlyPageLoader message="Loading Application Funnel & Board..." />
+        <div className="flex justify-center py-20 bg-card border border-border rounded-2xl shadow-[var(--shadow-card)]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-5 items-start">
           {STAGES.map((stage) => {

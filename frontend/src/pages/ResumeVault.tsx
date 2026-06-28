@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import OutlyPageLoader from "@/components/OutlyPageLoader";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
@@ -301,7 +300,9 @@ export default function ResumeVaultPage() {
             </h2>
 
             {resumesLoading ? (
-              <OutlyPageLoader message="Loading Vault Documents..." minHeight="min-h-[200px]" />
+              <div className="flex-1 flex items-center justify-center py-10">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
             ) : resumes.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-border rounded-xl bg-secondary/10">
                 <FileText className="h-7 w-7 text-muted-foreground/50 mb-2" />

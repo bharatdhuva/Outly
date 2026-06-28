@@ -20,7 +20,6 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { api, API_BASE } from "@/lib/api";
-import OutlyPageLoader from "@/components/OutlyPageLoader";
 import {
   Dialog,
   DialogContent,
@@ -663,7 +662,7 @@ export default function LinkedInPostsPage() {
                 </h2>
                 <div className="space-y-3 max-h-[400px] overflow-y-auto">
                   {isLoadingPosts ? (
-                    <OutlyPageLoader message="Loading LinkedIn Draft History..." minHeight="min-h-[150px]" />
+                    <p className="text-xs text-muted-foreground text-center py-4">Loading...</p>
                   ) : posts.length === 0 ? (
                     <p className="text-xs text-muted-foreground text-center py-4">No posts yet. Generate your first draft!</p>
                   ) : (
