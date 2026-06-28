@@ -963,12 +963,6 @@ export default function Landing() {
               </button>
             </div>
 
-            <div className="mb-6 block md:hidden rounded-2xl sm:rounded-3xl border border-outly-border bg-white/95 p-4 sm:p-5 shadow-lg shadow-outly-accent/10 text-outly-dark">
-              <p className="text-xs sm:text-sm font-medium leading-relaxed">
-                Outly keeps mobile lean: one quick brief, simple recruiter updates, and fast draft-ready follow-ups without bulky dashboards.
-              </p>
-            </div>
-
             <p className="text-[10px] sm:text-[11px] font-medium text-outly-dark/40 text-left hero-meta opacity-0">
               ✓ Free, because your data is our key. No card needed.
             </p>
