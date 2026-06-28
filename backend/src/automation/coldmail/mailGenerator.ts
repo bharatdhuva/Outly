@@ -225,7 +225,7 @@ Only return the JSON block, no markdown formatting outside it.`;
 
     if (provider === "gemini") {
       const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-      const modelCandidates = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.0-flash"];
+      const modelCandidates = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
       let lastErr: any = null;
       for (const mName of modelCandidates) {
         try {

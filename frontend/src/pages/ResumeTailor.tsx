@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import DotLottieLoader from "@/components/DotLottieLoader";
+import AiErrorModal from "@/components/AiErrorModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PdfViewer from "@/components/PdfViewer";
 import {
@@ -56,6 +57,7 @@ export default function ResumeTailorPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch resumes from vault
@@ -210,11 +212,16 @@ export default function ResumeTailorPage() {
         const userPrefix = userData?.user?.email || "anonymous";
         localStorage.setItem(`ats_limit_reached_${userPrefix}`, "true");
       } else {
-        toast({
-          variant: "destructive",
-          title: "Tailoring Failed",
-          description: errStr,
-        });
+        const isAiError = errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404");
+        if (isAiError) {
+          setShowAiErrorModal(true);
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Tailoring Failed",
+            description: errStr,
+          });
+        }
       }
     } finally {
       setTailoring(false);
@@ -691,6 +698,8 @@ export default function ResumeTailorPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
 
     </div>
   );

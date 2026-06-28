@@ -565,7 +565,7 @@ ${resume}`;
         logger.warn("Gemini 2.5 Flash failed for score, attempting fallback to Gemini 1.5 Flash with grounding", { error: String(gemini25Error), source: "ats" });
         try {
           const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
+            model: "gemini-2.0-flash",
             tools: [{ googleSearch: {} } as any]
           });
           const result = await model.generateContent({
@@ -575,7 +575,7 @@ ${resume}`;
           text = result.response.text().trim();
         } catch (gemini15GroundedError) {
           logger.warn("Gemini 1.5 Flash with grounding failed for score, trying without grounding", { error: String(gemini15GroundedError), source: "ats" });
-          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+          const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
           const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],
             generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
@@ -863,7 +863,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
         logger.warn("ATS tailoring via Gemini 2.5 Flash without grounding failed, trying Gemini 1.5 Flash with grounding", { error: String(gemini25Error), source: "ats" });
         try {
           const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
+            model: "gemini-2.0-flash",
             tools: [{ googleSearch: {} } as any] 
           });
           const result = await model.generateContent({
@@ -875,7 +875,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
         } catch (gemini15GroundedError) {
           logger.warn("ATS tailoring via Gemini 1.5 Flash with grounding failed, trying without grounding", { error: String(gemini15GroundedError), source: "ats" });
           const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash"
+            model: "gemini-2.0-flash"
           });
           const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],

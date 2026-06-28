@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { api, EvaluationResult } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import PdfViewer from "@/components/PdfViewer";
+import AiErrorModal from "@/components/AiErrorModal";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +44,7 @@ export default function AtsScorePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showAiErrorModal, setShowAiErrorModal] = useState(false);
 
   // Interactive dashboard states
   const [activeCategory, setActiveCategory] = useState<"content" | "format" | "style" | "sections" | "roles">("content");
@@ -263,11 +265,16 @@ export default function AtsScorePage() {
         const userPrefix = userData?.user?.email || "anonymous";
         localStorage.setItem(`ats_limit_reached_${userPrefix}`, "true");
       } else {
-        toast({
-          variant: "destructive",
-          title: "Evaluation Failed",
-          description: errStr,
-        });
+        const isAiError = errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404");
+        if (isAiError) {
+          setShowAiErrorModal(true);
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Evaluation Failed",
+            description: errStr,
+          });
+        }
       }
       setResult(null);
     } finally {
@@ -1008,6 +1015,8 @@ export default function AtsScorePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
 
     </div>
   );

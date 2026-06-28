@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DotLottieLoader from "@/components/DotLottieLoader";
+import AiErrorModal from "@/components/AiErrorModal";
 import {
   Mail,
   Upload,
@@ -104,6 +105,7 @@ export default function ColdMailPage() {
   const [editData, setEditData] = useState<Partial<Company>>({});
   const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
   const [showSettingsPrompt, setShowSettingsPrompt] = useState(false);
+  const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: api.settings.get,
@@ -181,7 +183,14 @@ export default function ColdMailPage() {
       queryClient.invalidateQueries({ queryKey: ["coldmail"] });
       toast.success(`Generated ${data.generated} mails`);
     },
-    onError: (e) => toast.error(String(e)),
+    onError: (e) => {
+      const errStr = String(e);
+      if (errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404")) {
+        setShowAiErrorModal(true);
+      } else {
+        toast.error(errStr);
+      }
+    },
   });
 
   const approveAllMutation = useMutation({
@@ -938,7 +947,12 @@ export default function ColdMailPage() {
                               toast.success("Mail generated successfully");
                               setLoadingId(null);
                             }).catch((e) => {
-                              toast.error(String(e));
+                              const errStr = String(e);
+                              if (errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404")) {
+                                setShowAiErrorModal(true);
+                              } else {
+                                toast.error(errStr);
+                              }
                               queryClient.invalidateQueries({ queryKey: ["coldmail"] });
                               setLoadingId(null);
                             });
@@ -1058,6 +1072,8 @@ export default function ColdMailPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
       </LockedFeatureGuard>
     </>
   );
