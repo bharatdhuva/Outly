@@ -889,10 +889,10 @@ export default function Landing() {
     <div className="bg-outly-cream text-outly-dark font-['Rubik',sans-serif] selection:bg-outly-accent/20 min-h-screen">
       
       {/* HEADER */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      <header className={`fixed top-0 left-0 right-0 z-[100] w-full transition-all duration-300 ${
         scrolled 
-          ? "bg-outly-cream/80 backdrop-blur-md border-b border-outly-border shadow-soft py-4" 
-          : "bg-outly-cream/40 backdrop-blur-sm border-b border-outly-border/30 py-5"
+          ? "bg-outly-cream/95 backdrop-blur-lg border-b border-outly-border shadow-md py-3.5" 
+          : "bg-outly-cream/90 backdrop-blur-md border-b border-outly-border/40 py-4 sm:py-5"
       }`}>
         <div className="max-w-7xl mx-auto px-6 sm:px-8 grid grid-cols-2 md:grid-cols-3 items-center">
           
