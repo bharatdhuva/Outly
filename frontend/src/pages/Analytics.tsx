@@ -10,6 +10,7 @@ import {
   Calendar,
   CheckSquare,
 } from "lucide-react";
+import OutlyPageLoader from "@/components/OutlyPageLoader";
 
 export default function AnalyticsPage() {
   const { data, isLoading } = useQuery({
@@ -18,14 +19,7 @@ export default function AnalyticsPage() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[400px] items-center justify-center text-muted-foreground">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <span>Analyzing database metrics...</span>
-        </div>
-      </div>
-    );
+    return <OutlyPageLoader message="Analyzing Outly Telemetry & Metrics..." />;
   }
 
   const metrics = data?.summary || {

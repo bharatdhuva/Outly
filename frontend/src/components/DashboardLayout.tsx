@@ -3,6 +3,7 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import logoTransparent from "@/assets/brand/logo_transparent.png";
+import OutlyPageLoader from "@/components/OutlyPageLoader";
 import {
   ScrollText,
   Settings as SettingsIcon,
@@ -237,6 +238,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     }
     setActiveDropdown((current) => (current === dropdown ? null : dropdown));
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+        <OutlyPageLoader message="Initializing Outly Workspace Session..." minHeight="min-h-[500px]" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-outly-dark flex flex-col font-sans">

@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { api, type AppSettings, type ResumeVaultItem } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import OutlyPageLoader from "@/components/OutlyPageLoader";
 
 interface SettingSectionProps {
   title: string;
@@ -288,11 +289,7 @@ export default function SettingsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[300px] items-center justify-center text-muted-foreground font-medium">
-        <Loader2 className="h-6 w-6 animate-spin text-outly-accent mr-2" /> Loading settings...
-      </div>
-    );
+    return <OutlyPageLoader message="Synchronizing Outly Profile & Settings..." />;
   }
 
   return (
