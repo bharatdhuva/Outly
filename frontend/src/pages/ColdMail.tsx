@@ -277,20 +277,7 @@ export default function ColdMailPage() {
         seen.add(p);
         return true;
       });
-    let cleaned = uniqueParas.join("\n\n");
-    // Ensure MSU reference
-    if (!/MSU Baroda|Maharaja Sayajirao University|MSU/i.test(cleaned)) {
-      const msuLine = "I’m a 3rd-year Computer Science student at MSU Baroda, Vadodara.";
-      // Try to insert after first occurrence of 'Bharat Dhuva' intro
-      const introMatch = cleaned.match(/(I[’']?m Bharat Dhuva[^\n]*\n?)/i);
-      if (introMatch) {
-        const idx = cleaned.indexOf(introMatch[0]) + introMatch[0].length;
-        cleaned = cleaned.slice(0, idx) + "\n" + msuLine + cleaned.slice(idx);
-      } else {
-        cleaned = cleaned + "\n" + msuLine;
-      }
-    }
-    return cleaned;
+    return uniqueParas.join("\n\n");
   }
 
   return (
@@ -362,7 +349,7 @@ export default function ColdMailPage() {
                       <Label className="text-xs font-semibold text-foreground/80">Company Name *</Label>
                       <Input
                         required
-                        placeholder="e.g. Resilient Tech"
+                        placeholder="e.g. OpenAI"
                         className="h-10 text-xs rounded-xl"
                         value={newCompany.company_name}
                         onChange={(e) =>
@@ -375,7 +362,7 @@ export default function ColdMailPage() {
                       <Input
                         required
                         type="email"
-                        placeholder="sagar@resilient.tech"
+                        placeholder="sam@openai.com"
                         className="h-10 text-xs rounded-xl"
                         value={newCompany.hr_email}
                         onChange={(e) =>
@@ -389,7 +376,7 @@ export default function ColdMailPage() {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-foreground/80">Target Person Name</Label>
                       <Input
-                        placeholder="e.g. Sagar Vora"
+                        placeholder="e.g. Sam Altman"
                         className="h-10 text-xs rounded-xl"
                         value={newCompany.target_person_name || ""}
                         onChange={(e) =>
@@ -400,7 +387,7 @@ export default function ColdMailPage() {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-foreground/80">Target Role</Label>
                       <Input
-                        placeholder="e.g. Managing Partner / CTO"
+                        placeholder="e.g. CEO & Co-founder"
                         className="h-10 text-xs rounded-xl"
                         value={newCompany.target_person_role || ""}
                         onChange={(e) =>
@@ -414,7 +401,7 @@ export default function ColdMailPage() {
                     <Label className="text-xs font-semibold text-foreground/80">Website URL (optional)</Label>
                     <Input
                       type="url"
-                      placeholder="https://company.com"
+                      placeholder="https://openai.com"
                       className="h-10 text-xs rounded-xl"
                       value={newCompany.website_url || ""}
                       onChange={(e) =>
@@ -427,7 +414,7 @@ export default function ColdMailPage() {
                     <Label className="text-xs font-semibold text-foreground/80">Personalization Hook / Note (optional)</Label>
                     <Textarea
                       rows={2}
-                      placeholder="e.g. Building open-source ERP tools and scaling dev ops."
+                      placeholder="e.g. Impressed by OpenAI's commitment to AGI and developer tooling."
                       className="text-xs rounded-xl resize-none min-h-[70px]"
                       value={newCompany.personalization_hook || ""}
                       onChange={(e) =>

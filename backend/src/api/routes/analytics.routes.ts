@@ -83,9 +83,9 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
     // 5. Best performing subject lines
     const bestSubjectLines = [
       { subject: "Quick question regarding Engineering at {{Company}}", openRate: 88, replyRate: 24 },
-      { subject: "MSU CSE Student / Building Open Source Projects", openRate: 82, replyRate: 19 },
+      { subject: "Software Engineer / Building High-Impact Projects", openRate: 82, replyRate: 19 },
       { subject: "Frontend contribution ideas for {{Company}}", openRate: 78, replyRate: 15 },
-      { subject: "Bharat Dhuva - Full Stack Engineer application", openRate: 65, replyRate: 8 }
+      { subject: "Full Stack Engineer application & portfolio", openRate: 65, replyRate: 8 }
     ];
 
     // 6. Heatmap: best days/times to send emails

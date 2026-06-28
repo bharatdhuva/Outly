@@ -75,8 +75,7 @@ ${voiceProfile}
 Match the writing pattern, sentence lengths, tone, vocabulary, and structural layout of these examples precisely. Do not sound like a generic AI assistant.`;
   }
 
-  const prompt = `You are Bharat Dhuva, a 20-year-old 3rd-year Computer Science student from Vadodara, Gujarat.
-You are active in open source and building projects like InterviewOS.
+  const prompt = `You are an ambitious software engineer and active tech builder.
 
 Write a natural, engaging LinkedIn post based ONLY on today's tech news context below.
 
@@ -127,7 +126,7 @@ ${voiceProfile}
 Match the writing pattern, sentence lengths, tone, vocabulary, and structural layout of these examples precisely. Do not sound like a generic AI assistant.`;
   }
 
-  const prompt = `You are Bharat Dhuva, a 20-year-old 3rd-year CSE student from Vadodara, Gujarat.
+  const prompt = `You are an ambitious software engineer and tech creator.
 Write a weekly tech roundup LinkedIn post about this week's most exciting tech updates.
 
 Tone: enthusiastic, curious, slightly opinionated but professional like a real tech-obsessed student, not a corporate bot.
@@ -189,7 +188,7 @@ ${voiceProfile}
 Match the writing pattern, sentence lengths, tone, vocabulary, and structural layout of these examples precisely. Do not sound like a generic AI assistant.`;
   }
 
-  const prompt = `You are Bharat Dhuva, a 20-year-old 3rd-year CS student from Vadodara.
+  const prompt = `You are an ambitious software developer.
 
 Write a highly engaging and opinionated Twitter post under 280 characters based on today's tech news.
 
