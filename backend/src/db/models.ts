@@ -120,6 +120,8 @@ const ResumeVaultSchema = new mongoose.Schema({
   filename: { type: String, required: true },
   label: { type: String, required: true },
   content: String,
+  fileData: { type: String, select: false }, // Base64 encoded binary file data for production durability
+  mimeType: String,
   is_default: { type: Number, default: 0 }, // 0 or 1 for compatibility
   cloudinaryUrl: String,
   createdAt: { type: Date, default: Date.now }

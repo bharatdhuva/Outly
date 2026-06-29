@@ -24,15 +24,21 @@ if (isConfigured) {
  * @param folder The folder in Cloudinary to upload to
  * @returns The secure URL of the uploaded file, or null if Cloudinary is not configured or fails
  */
+import path from "path";
+
 export async function uploadToCloudinary(filePath: string, folder = "resumes"): Promise<string | null> {
   if (!isConfigured) {
     return null;
   }
 
   try {
+    const ext = path.extname(filePath).toLowerCase();
+    const isDocument = [".pdf", ".docx", ".doc", ".txt", ".rtf"].includes(ext);
+    const resource_type = isDocument ? "raw" : "auto";
+
     const result = await cloudinary.uploader.upload(filePath, {
       folder,
-      resource_type: "auto",
+      resource_type,
       access_mode: "public",
     });
     return result.secure_url;

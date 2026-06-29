@@ -102,6 +102,8 @@ export interface ResumeVaultItem {
   filename: string;
   label: string;
   content: string | null;
+  fileData?: string;
+  mimeType?: string;
   is_default: number;
   cloudinaryUrl?: string;
   createdAt: Date;
@@ -422,7 +424,7 @@ export const resumeVaultQueries = {
 
   getById: async (id: string, userId?: string): Promise<ResumeVaultItem | undefined> => {
     const query = userId ? { _id: id, userId } : { _id: id };
-    const doc = await ResumeVaultModel.findOne(query);
+    const doc = await ResumeVaultModel.findOne(query).select("+fileData");
     return mapDoc<ResumeVaultItem>(doc) || undefined;
   },
 

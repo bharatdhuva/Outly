@@ -77,21 +77,39 @@ router.get("/:id/file", async (req: AuthenticatedRequest, res: Response) => {
       return res.download(filePath, item.filename);
     }
 
-    // 2. Secondary: Proxy stream from Cloudinary with proper headers
+    // 2. Secondary: If fileData (Base64 binary stream) exists in DB, serve directly
+    if (item.fileData) {
+      const buffer = Buffer.from(item.fileData, "base64");
+      let mimeType = item.mimeType;
+      if (!mimeType) {
+        if (ext === ".pdf") mimeType = "application/pdf";
+        else if (ext === ".docx") mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        else if (ext === ".txt") mimeType = "text/plain";
+        else mimeType = "application/octet-stream";
+      }
+      res.setHeader("Content-Type", mimeType);
+      res.setHeader("Content-Length", buffer.length);
+      res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(item.filename)}"`);
+      return res.end(buffer);
+    }
+
+    // 3. Tertiary: Proxy stream from Cloudinary with proper headers if valid
     if (item.cloudinaryUrl) {
       try {
         const streamRes = await axios.get(item.cloudinaryUrl, { responseType: "stream" });
-        if (ext === ".pdf") res.setHeader("Content-Type", "application/pdf");
-        else if (ext === ".docx") res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        else if (ext === ".txt") res.setHeader("Content-Type", "text/plain");
-        res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(item.filename)}"`);
-        return streamRes.data.pipe(res);
+        if (streamRes.status === 200) {
+          if (ext === ".pdf") res.setHeader("Content-Type", "application/pdf");
+          else if (ext === ".docx") res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+          else if (ext === ".txt") res.setHeader("Content-Type", "text/plain");
+          res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(item.filename)}"`);
+          return streamRes.data.pipe(res);
+        }
       } catch (streamErr) {
         logger.warn("Failed to stream from Cloudinary", { error: String(streamErr) });
       }
     }
 
-    // 3. Fallback for text content
+    // 4. Fallback for text content
     if (item.content) {
       res.setHeader("Content-Type", "text/plain");
       res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(item.filename.replace(/\.(pdf|docx)$/i, '.txt'))}"`);
@@ -168,6 +186,16 @@ router.post("/upload", upload.single("file"), checkResumeLimit, async (req: Auth
       return res.status(400).json({ error: "Unsupported file type. Please upload a .txt, .pdf, or .docx file." });
     }
 
+    // Read raw binary file buffer for database persistence
+    const fileBuffer = fs.readFileSync(tempFilePath);
+    const base64Data = fileBuffer.toString("base64");
+    let mimeType = req.file.mimetype;
+    if (!mimeType || mimeType === "application/octet-stream") {
+      if (ext === ".pdf") mimeType = "application/pdf";
+      else if (ext === ".docx") mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      else if (ext === ".txt") mimeType = "text/plain";
+    }
+
     // Upload to Cloudinary (optional)
     const cloudinaryUrl = await uploadToCloudinary(tempFilePath, `outly/resumes/${req.user.id}`);
 
@@ -180,6 +208,8 @@ router.post("/upload", upload.single("file"), checkResumeLimit, async (req: Auth
       filename: originalName,
       label: label,
       content: text,
+      fileData: base64Data,
+      mimeType: mimeType,
       is_default: isDefault,
       cloudinaryUrl: cloudinaryUrl || undefined
     });
