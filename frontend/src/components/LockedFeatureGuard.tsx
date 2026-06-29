@@ -65,7 +65,7 @@ export default function LockedFeatureGuard({
 
       let orderData;
       try {
-        orderData = await api.payment.createOrder(1900, "INR");
+        orderData = await api.payment.createOrder(100, "INR");
       } catch (err: any) {
         toast({
           title: "Order Creation Failed",
@@ -245,7 +245,7 @@ export default function LockedFeatureGuard({
             ) : (
               <>
                 <ShieldCheck className="h-4 w-4" />
-                <span>Start 7-Day Trial @ ₹19/- Now</span>
+                <span>Start 7-Day Trial @ ₹1/- Now</span>
               </>
             )}
           </Button>
