@@ -47,8 +47,6 @@ router.get("/stats", async (req: AuthenticatedRequest, res: Response) => {
     res.json({
       mailsSent,
       replies,
-      linkedinPosts: 0,
-      twitterPosts: 0,
       mailsToday,
       mailsThisWeek,
       repliesThisWeek,

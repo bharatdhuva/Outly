@@ -5,7 +5,6 @@ import {
   CheckCircle,
   Clock,
   FileText,
-  Linkedin,
   Loader2,
   Mail as MailIcon,
   MessageSquare,
@@ -38,17 +37,10 @@ const emptySettings: AppSettings = {
   experience: "",
   phone: "",
   resume_drive_file_id: "",
-  weekly_post_enabled: "true",
-  daily_linkedin_draft_enabled: "true",
   max_emails_per_day: "20",
-  max_applies_per_session: "15",
-  weekly_post_day: "Monday",
-  weekly_post_time: "09:00 AM IST",
   daily_summary_time: "08:00 PM IST",
-  linkedin_headline: "Career Autopilot",
   sender_email: "",
   gmailConfigured: false,
-  linkedinSessionValid: false,
   whatsappConfigured: false,
 };
 
@@ -61,14 +53,8 @@ function getEditableSettingsPayload(form: AppSettings) {
     experience: form.experience,
     phone: form.phone,
     resume_drive_file_id: form.resume_drive_file_id,
-    weekly_post_enabled: form.weekly_post_enabled,
-    daily_linkedin_draft_enabled: form.daily_linkedin_draft_enabled,
     max_emails_per_day: form.max_emails_per_day,
-    max_applies_per_session: form.max_applies_per_session,
-    weekly_post_day: form.weekly_post_day,
-    weekly_post_time: form.weekly_post_time,
     daily_summary_time: form.daily_summary_time,
-    linkedin_headline: form.linkedin_headline,
   };
 }
 
@@ -390,15 +376,6 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground/80">LinkedIn Tagline</label>
-                  <Input 
-                    value={form.linkedin_headline} 
-                    onChange={(e) => updateField("linkedin_headline", e.target.value)} 
-                    placeholder="e.g. Full Stack Engineer | React & Node.js"
-                    className="h-10 text-xs rounded-xl"
-                  />
-                </div>
 
                 <div className="space-y-2 pt-2">
                   <label className="text-xs font-semibold text-foreground/80">Connected Sender Email</label>

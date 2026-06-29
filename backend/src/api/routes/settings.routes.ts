@@ -2,7 +2,6 @@ import { Router, Response } from "express";
 import { settingsQueries } from "../../db/queries.js";
 import { sendWhatsApp, isWhatsAppConfigured } from "../../notifications/whatsapp.js";
 import { isGmailConfigured } from "../../automation/coldmail/mailSender.js";
-import { hasValidSession } from "../../automation/linkedin/session.js";
 import { downloadResumeToTemp } from "../../drive/googleDrive.js";
 import { env } from "../../config/env.js";
 import { getEditableSettings } from "../../config/appSettings.js";
@@ -24,7 +23,6 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
       ...mergedSettings,
       sender_email: env.GMAIL_USER || req.user.email || "",
       gmailConfigured: isGmailConfigured(),
-      linkedinSessionValid: hasValidSession(),
       whatsappConfigured: await isWhatsAppConfigured(req.user.id),
     });
   } catch (e: any) {
@@ -47,7 +45,7 @@ const handleSettingsUpdate = async (req: AuthenticatedRequest, res: Response) =>
     }
 
     for (const [key, value] of Object.entries(targetSettings)) {
-      if (key && key !== "sender_email" && key !== "gmailConfigured" && key !== "linkedinSessionValid" && key !== "whatsappConfigured") {
+      if (key && key !== "sender_email" && key !== "gmailConfigured" && key !== "whatsappConfigured") {
         await settingsQueries.set(req.user.id, key, String(value ?? ""));
       }
     }

@@ -6,6 +6,7 @@ import { env } from "../../config/env.js";
 import { User } from "../../db/models.js";
 import { connectDB } from "../../db/connection.js";
 import { sendUpgradeMail } from "../../automation/coldmail/mailSender.js";
+import { logger } from "../../lib/logger.js";
 
 const router = Router();
 
@@ -13,7 +14,7 @@ function getRazorpayInstance() {
   const key_id = (process.env.RAZORPAY_KEY_ID || env.RAZORPAY_KEY_ID || "").trim();
   const key_secret = (process.env.RAZORPAY_KEY_SECRET || env.RAZORPAY_KEY_SECRET || "").trim();
 
-  console.log(`[Razorpay] Credentials check -> Key ID: ${key_id ? key_id.substring(0, 8) + "..." : "MISSING"}, Secret: ${key_secret ? key_secret.substring(0, 8) + "..." : "MISSING"}`);
+  logger.info(`[Razorpay] Credentials check -> Key ID: ${key_id ? key_id.substring(0, 8) + "..." : "MISSING"}, Secret: ${key_secret ? key_secret.substring(0, 8) + "..." : "MISSING"}`);
 
   if (!key_id || !key_secret) {
     throw new Error("Razorpay credentials (RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET) are missing in environment variables.");

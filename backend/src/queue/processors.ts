@@ -1,11 +1,9 @@
 import { Job } from "bull";
 import { mailQueue } from "./mailQueue.js";
 import { followUpQueue } from "./followUpQueue.js";
-import { tweetQueue } from "./tweetQueue.js";
 import { sendColdMail, sendFollowUpMail } from "../automation/coldmail/mailSender.js";
-import { publishTwitterPost } from "../automation/twitter/tweetPublisher.js";
 import { env } from "../config/env.js";
-import { companyQueries, twitterQueries } from "../db/queries.js";
+import { companyQueries } from "../db/queries.js";
 import { sendWhatsApp } from "../notifications/whatsapp.js";
 import { logger } from "../lib/logger.js";
 
@@ -58,19 +56,4 @@ followUpQueue.process(async (job: Job<{ companyId: string, subject: string, body
   const delaySec = randomBetween(env.MAIL_DELAY_MIN_SECONDS, env.MAIL_DELAY_MAX_SECONDS);
   logger.info(`Waiting ${delaySec}s before next follow-up`, { source: "mail", userId: company.userId });
   await new Promise((r) => setTimeout(r, delaySec * 1000));
-});
-
-// Tweet publisher processor
-tweetQueue.process(async (job: Job<{ dbId: string }>) => {
-  const { dbId } = job.data;
-  
-  const tweet = await twitterQueries.getById(dbId);
-  if (!tweet) return;
-
-  const success = await publishTwitterPost(dbId);
-  if (success) {
-    await sendWhatsApp(`🐦 Successfully sent dynamic Twitter post!`, tweet.userId);
-  } else {
-    await sendWhatsApp(`⚠️ Twitter post failed! Connect to dashboard to view logs.`, tweet.userId, true);
-  }
 });

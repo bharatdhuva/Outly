@@ -1,8 +1,6 @@
 import { 
   User, 
   Company as CompanyModel, 
-  LinkedInPost as LinkedInPostModel, 
-  TwitterPost as TwitterPostModel, 
   NotificationLog as NotificationLogModel, 
   Setting as SettingModel, 
   ActivityLog as ActivityLogModel, 
@@ -56,31 +54,6 @@ export interface Company {
   createdAt: Date;
 }
 
-export interface LinkedInPost {
-  id: string;
-  userId: string;
-  content: string;
-  news_sources: string;
-  status: string;
-  posted_at: Date | null;
-  linkedin_post_url: string | null;
-  createdAt: Date;
-}
-
-export interface TwitterPost {
-  id: string;
-  userId: string;
-  content: string;
-  type: 'single' | 'thread';
-  status: string;
-  posted_at: Date | null;
-  twitter_post_id: string | null;
-  impressions: number;
-  likes: number;
-  replies: number;
-  error_message: string | null;
-  createdAt: Date;
-}
 
 export interface Application {
   id: string;
@@ -222,102 +195,6 @@ export const companyQueries = {
       status: 'replied',
       reply_detected_at: { $gte: sevenDaysAgo }
     });
-  },
-};
-
-export const postQueries = {
-  getAll: async (userId: string): Promise<LinkedInPost[]> => {
-    const docs = await LinkedInPostModel.find({ userId }).sort({ createdAt: -1 });
-    return mapDocs<LinkedInPost>(docs);
-  },
-
-  getById: async (id: string, userId?: string): Promise<LinkedInPost | null> => {
-    const query = userId ? { _id: id, userId } : { _id: id };
-    const doc = await LinkedInPostModel.findOne(query);
-    return mapDoc<LinkedInPost>(doc);
-  },
-
-  insert: async (userId: string, post: any): Promise<LinkedInPost> => {
-    const doc = new LinkedInPostModel({
-      userId,
-      ...post
-    });
-    await doc.save();
-    return mapDoc<LinkedInPost>(doc)!;
-  },
-
-  update: async (id: string, post: Partial<any>, userId?: string): Promise<LinkedInPost | null> => {
-    const query = userId ? { _id: id, userId } : { _id: id };
-    const doc = await LinkedInPostModel.findOneAndUpdate(
-      query,
-      { $set: post },
-      { new: true }
-    );
-    return mapDoc<LinkedInPost>(doc);
-  },
-
-  updateStatus: async (id: string, status: string, extra?: any, userId?: string): Promise<LinkedInPost | null> => {
-    const updateData: any = { status };
-    if (extra?.posted_at) updateData.posted_at = extra.posted_at;
-    if (extra?.linkedin_post_url) updateData.linkedin_post_url = extra.linkedin_post_url;
-    
-    const query = userId ? { _id: id, userId } : { _id: id };
-    const doc = await LinkedInPostModel.findOneAndUpdate(
-      query,
-      { $set: updateData },
-      { new: true }
-    );
-    return mapDoc<LinkedInPost>(doc);
-  },
-
-  countPosted: async (userId: string): Promise<number> => {
-    return await LinkedInPostModel.countDocuments({ userId, status: 'posted' });
-  },
-
-  delete: async (id: string, userId?: string): Promise<any> => {
-    const query = userId ? { _id: id, userId } : { _id: id };
-    return await LinkedInPostModel.deleteOne(query);
-  },
-};
-
-export const twitterQueries = {
-  getAll: async (userId: string, limit = 50): Promise<TwitterPost[]> => {
-    const docs = await TwitterPostModel.find({ userId }).sort({ createdAt: -1 }).limit(limit);
-    return mapDocs<TwitterPost>(docs);
-  },
-
-  getById: async (id: string, userId?: string): Promise<TwitterPost | null> => {
-    const query = userId ? { _id: id, userId } : { _id: id };
-    const doc = await TwitterPostModel.findOne(query);
-    return mapDoc<TwitterPost>(doc);
-  },
-
-  insert: async (userId: string, tweet: any): Promise<TwitterPost> => {
-    const doc = new TwitterPostModel({
-      userId,
-      ...tweet
-    });
-    await doc.save();
-    return mapDoc<TwitterPost>(doc)!;
-  },
-
-  update: async (id: string, tweet: Partial<any>, userId?: string): Promise<TwitterPost | null> => {
-    const query = userId ? { _id: id, userId } : { _id: id };
-    const doc = await TwitterPostModel.findOneAndUpdate(
-      query,
-      { $set: tweet },
-      { new: true }
-    );
-    return mapDoc<TwitterPost>(doc);
-  },
-
-  countPosted: async (userId: string): Promise<number> => {
-    return await TwitterPostModel.countDocuments({ userId, status: 'posted' });
-  },
-
-  delete: async (id: string, userId?: string): Promise<any> => {
-    const query = userId ? { _id: id, userId } : { _id: id };
-    return await TwitterPostModel.deleteOne(query);
   },
 };
 

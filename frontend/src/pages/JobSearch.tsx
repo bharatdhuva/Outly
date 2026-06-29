@@ -27,7 +27,6 @@ const jobBoards = [
   { id: "cutshort", name: "Cutshort", badge: "AI Tech Matching", domain: "cutshort.io" },
   { id: "indeed", name: "Indeed", badge: "Global Listings", domain: "indeed.com" },
   { id: "glassdoor", name: "Glassdoor", badge: "Salaries & Reviews", domain: "glassdoor.com" },
-  { id: "unstop", name: "Unstop", badge: "Campus & Challenges", domain: "unstop.org" },
 ];
 
 function BrandLogo({ domain, name }: { domain: string; name: string }) {

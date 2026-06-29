@@ -41,34 +41,6 @@ const CompanySchema = new mongoose.Schema({
 });
 export const Company = mongoose.model("Company", CompanySchema);
 
-// 3. LinkedIn Post Model
-const LinkedInPostSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  content: String,
-  news_sources: String,
-  status: { type: String, enum: ["draft", "approved", "posted", "failed"], default: "draft" },
-  posted_at: Date,
-  linkedin_post_url: String,
-  createdAt: { type: Date, default: Date.now }
-});
-export const LinkedInPost = mongoose.model("LinkedInPost", LinkedInPostSchema);
-
-// 4. Twitter Post Model
-const TwitterPostSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  content: String,
-  type: { type: String, enum: ["single", "thread"], default: "single" },
-  status: { type: String, enum: ["draft", "approved", "posted", "failed"], default: "draft" },
-  posted_at: Date,
-  twitter_post_id: String,
-  impressions: { type: Number, default: 0 },
-  likes: { type: Number, default: 0 },
-  replies: { type: Number, default: 0 },
-  error_message: String,
-  createdAt: { type: Date, default: Date.now }
-});
-export const TwitterPost = mongoose.model("TwitterPost", TwitterPostSchema);
-
 // 5. Notification Log Model
 const NotificationLogSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },

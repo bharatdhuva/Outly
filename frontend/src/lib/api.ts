@@ -71,15 +71,9 @@ export const api = {
     stats: () => fetchApi<{
       mailsSent: number;
       replies: number;
-      jobsApplied: number;
-      linkedinPosts: number;
-      twitterPosts: number;
       mailsToday: number;
-      jobsToday: number;
       replyRate: number;
       maxEmailsPerDay: number;
-      linkedinMode: string;
-      nextWeeklyPostLabel: string;
       savedCount?: number;
       appliedCount?: number;
       interviewCount?: number;
@@ -95,12 +89,7 @@ export const api = {
       fetchApi<{
         redis: boolean;
         gmail: boolean;
-        linkedin: boolean;
         whatsapp: boolean;
-        weeklyPostEnabled: boolean;
-        dailyLinkedInDraftEnabled: boolean;
-        linkedinMode: string;
-        nextWeeklyPostLabel: string;
       }>(
         "/dashboard/system-status"
       ),
@@ -145,37 +134,6 @@ export const api = {
     delete: (id: string) => fetchApi(`/coldmail/companies/${id}`, { method: "DELETE" }),
     skip: (id: string) => fetchApi(`/coldmail/skip/${id}`, { method: "POST" }),
   },
-  linkedin: {
-    scanJobs: (keywords: string, location: string) =>
-      fetchApi<{ jobs: Job[]; count: number }>("/linkedin/scan-jobs", {
-        method: "POST",
-        body: JSON.stringify({ keywords, location }),
-      }),
-    jobs: () => fetchApi<Job[]>("/linkedin/jobs"),
-    apply: (id: string) => fetchApi(`/linkedin/apply/${id}`, { method: "POST" }),
-    applyAll: () => fetchApi<{ queued: number }>("/linkedin/apply-all", { method: "POST" }),
-    skipJob: (id: string) => fetchApi(`/linkedin/skip-job/${id}`, { method: "POST" }),
-    posts: () => fetchApi<Post[]>("/linkedin/posts"),
-    generatePost: () =>
-      fetchApi<{ id: string; content: string; newsSources: NewsItem[] }>("/linkedin/generate-post", {
-        method: "POST",
-      }),
-    generateDraft: () =>
-      fetchApi<{ id: string; content: string; charCount: number; newsSources: NewsItem[] }>("/linkedin/generate-draft", {
-        method: "POST",
-      }),
-    generateWeekly: () =>
-      fetchApi<{ id: string; content: string; charCount: number; newsSources: NewsItem[] }>("/linkedin/generate-weekly-post", {
-        method: "POST",
-      }),
-    updatePost: (id: string, data: { content?: string; status?: string }) =>
-      fetchApi(`/linkedin/posts/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
-    markPosted: (id: string) => fetchApi<{ ok: boolean }>(`/linkedin/mark-posted/${id}`, { method: "POST" }),
-    publishPost: (id: string) => fetchApi<{ ok: boolean; url?: string }>(`/linkedin/publish-post/${id}`, { method: "POST" }),
-    setWeeklyPost: (enabled: boolean) =>
-      fetchApi(`/linkedin/settings/weekly-post`, { method: "PATCH", body: JSON.stringify({ enabled }) }),
-    deletePost: (id: string) => fetchApi<{ ok: boolean }>(`/linkedin/posts/${id}`, { method: "DELETE" }),
-  },
   settings: {
     get: () => fetchApi<AppSettings>("/settings"),
     set: (key: string, value: string) =>
@@ -188,17 +146,6 @@ export const api = {
   logs: {
     recent: (filter?: string, search?: string) =>
       fetchApi<LogEntry[]>(`/logs/recent?filter=${filter ?? "all"}&search=${search ?? ""}`),
-  },
-  twitter: {
-    posts: () => fetchApi<TwitterPost[]>("/twitter/posts"),
-    generate: (type: "single" | "thread", topic?: string) =>
-      fetchApi<{ success: boolean; dbId: string }>("/twitter/generate", {
-        method: "POST",
-        body: JSON.stringify({ type, topic }),
-      }),
-    update: (id: string, data: Partial<TwitterPost>) =>
-      fetchApi(`/twitter/posts/${id}`, { method: "PUT", body: JSON.stringify(data) }),
-    delete: (id: string) => fetchApi<{ success: boolean }>(`/twitter/posts/${id}`, { method: "DELETE" }),
   },
   ats: {
     score: (resume: string, jd: string) =>
@@ -455,32 +402,11 @@ export interface AppSettings {
   experience: string;
   phone: string;
   resume_drive_file_id: string;
-  weekly_post_enabled: string;
-  daily_linkedin_draft_enabled: string;
   max_emails_per_day: string;
-  max_applies_per_session: string;
-  weekly_post_day: string;
-  weekly_post_time: string;
   daily_summary_time: string;
-  linkedin_headline: string;
   sender_email: string;
   gmailConfigured: boolean;
-  linkedinSessionValid: boolean;
   whatsappConfigured: boolean;
-}
-
-export interface TwitterPost {
-  id: string;
-  content: string;
-  type: "single" | "thread";
-  status: string;
-  posted_at: string | null;
-  twitter_post_id: string | null;
-  impressions: number;
-  likes: number;
-  replies: number;
-  error_message: string | null;
-  created_at: string;
 }
 
 export interface EvaluationResult {

@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import { env } from "../config/env.js";
-import { companyQueries, postQueries } from "../db/queries.js";
+import { companyQueries } from "../db/queries.js";
 import { User as UserModel } from "../db/models.js";
 import { sendWhatsApp } from "../notifications/whatsapp.js";
 import { logger } from "../lib/logger.js";
@@ -20,15 +20,11 @@ export function scheduleDailySummary(): void {
           const mailsSent = await companyQueries.countMailSent(userId);
           const mailsToday = await companyQueries.countMailsSentToday(userId);
           const replies = await companyQueries.countReplies(userId);
-          const posts = await postQueries.getAll(userId);
-          const latestPost = posts[0];
-          const postStatus = latestPost?.status === "posted" ? "✅ Published" : "❌ Not published";
 
           const msg = `📧 Outly Daily Report
 Mails sent today: ${mailsToday}
 Total mails sent: ${mailsSent}
-Replies received: ${replies}
-LinkedIn post: ${postStatus}`;
+Replies received: ${replies}`;
 
           await sendWhatsApp(msg, userId);
         } catch (err) {
