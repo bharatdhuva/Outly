@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import Onboarding from "./pages/Onboarding";
 import ColdMail from "./pages/ColdMail";
+import ContentScheduler from "./pages/ContentScheduler";
 import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
 import NotFound from "./pages/NotFound";
@@ -43,6 +44,7 @@ const App = () => (
                 <Routes>
                   <Route path="/onboarding" element={<PageTransition><Onboarding /></PageTransition>} />
                   <Route path="/cold-mail" element={<PageTransition><ColdMail /></PageTransition>} />
+                  <Route path="/content-scheduler" element={<PageTransition><ContentScheduler /></PageTransition>} />
                   <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
                   <Route path="/logs" element={<PageTransition><Logs /></PageTransition>} />
                   <Route path="/resume-tailor" element={<PageTransition><ResumeTailorPage /></PageTransition>} />
