@@ -15,13 +15,17 @@ export const setGlobalLoading = (loading: boolean) => {
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const [animating, setAnimating] = useState(true);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    setAnimating(true);
+    const timer = setTimeout(() => setAnimating(false), 350);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   return (
-    <div key={location.pathname} className="w-full flex-1 animate-page-enter">
+    <div key={location.pathname} className={`w-full flex-1 ${animating ? "animate-page-enter" : ""}`}>
       <style>{`
         @keyframes page-enter {
           0% {
