@@ -1,14 +1,22 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Allow main web crawlers
 User-agent: *
 Allow: /
+Allow: /pricing
+Allow: /support
+Allow: /login
+
+# Disallow authenticated dashboard dynamic application routes from indexing
+Disallow: /onboarding
+Disallow: /cold-mail
+Disallow: /content-scheduler
+Disallow: /settings
+Disallow: /logs
+Disallow: /resume-tailor
+Disallow: /resume-vault
+Disallow: /ats-score
+Disallow: /applications
+Disallow: /job-search
+Disallow: /analytics
+
+# Sitemap XML Location
+Sitemap: https://outly.app/sitemap.xml
