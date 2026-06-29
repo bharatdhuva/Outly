@@ -242,7 +242,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[#fafafa] text-outly-dark flex flex-col font-sans">
       
       {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-      <header className="sticky top-0 z-[100] w-full border-b border-[#e8e2d5] bg-white/95 backdrop-blur-md shadow-sm shrink-0 select-none">
+      <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#e8e2d5] bg-white/95 backdrop-blur-md shadow-sm shrink-0 select-none">
         <div className="flex h-16 w-full items-center justify-between px-8 sm:px-10 lg:px-12">
           
           {/* Left: Brand Logo */}
@@ -897,7 +897,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
-      <main className="flex-1 w-full flex flex-col min-h-0 overflow-x-hidden">
+      <main className="flex-1 w-full flex flex-col min-h-0 pt-16">
         {children}
       </main>
 
