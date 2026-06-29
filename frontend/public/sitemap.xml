@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Home / Landing Page -->
   <url>
-    <loc>https://outly.app/</loc>
+    <loc>https://www.outly.online/</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -10,7 +10,7 @@
 
   <!-- Pricing Page -->
   <url>
-    <loc>https://outly.app/pricing</loc>
+    <loc>https://www.outly.online/pricing</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -18,7 +18,7 @@
 
   <!-- Support / Help Page -->
   <url>
-    <loc>https://outly.app/support</loc>
+    <loc>https://www.outly.online/support</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -26,7 +26,7 @@
 
   <!-- Login Page -->
   <url>
-    <loc>https://outly.app/login</loc>
+    <loc>https://www.outly.online/login</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

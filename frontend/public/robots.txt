@@ -19,4 +19,4 @@ Disallow: /job-search
 Disallow: /analytics
 
 # Sitemap XML Location
-Sitemap: https://outly.app/sitemap.xml
+Sitemap: https://www.outly.online/sitemap.xml
