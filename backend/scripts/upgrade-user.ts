@@ -33,11 +33,9 @@ async function upgradeOnUri(uri: string, name: string) {
 }
 
 async function run() {
-  const localUri = "mongodb://localhost:27017/outly";
-  const atlasUri = "mongodb+srv://developerbharat05_db_user:Outly2026Bharat@outly-databasse.vghqsbl.mongodb.net/outly?retryWrites=true&w=majority&appName=Outly-databasse";
+  const mongoUri = process.env.MONGODB_URI || env.MONGODB_URI || "mongodb://localhost:27017/outly";
   
-  await upgradeOnUri(localUri, "Local MongoDB");
-  await upgradeOnUri(atlasUri, "Atlas MongoDB");
+  await upgradeOnUri(mongoUri, "Target MongoDB");
   process.exit(0);
 }
 

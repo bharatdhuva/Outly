@@ -48,7 +48,7 @@ export const env = {
   YOUR_WHATSAPP_NUMBER: process.env.YOUR_WHATSAPP_NUMBER ?? "",
 
   NEWS_API_KEY: process.env.NEWS_API_KEY ?? "",
-  RAPIDAPI_KEY: process.env.RAPIDAPI_KEY ?? "1b67c05546msh5be6577efeb69cdp1f9858jsn6c581c858238",
+  RAPIDAPI_KEY: process.env.RAPIDAPI_KEY ?? "",
 
   REDIS_URL: process.env.REDIS_URL ?? "redis://localhost:6379",
 
