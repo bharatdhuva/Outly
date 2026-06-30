@@ -88,16 +88,6 @@ export default function JobSearchPage() {
     setIsLimitExceeded(isLocked);
   }, [userData]);
 
-  useEffect(() => {
-    if (settings) {
-      if (settings.target_roles) {
-        setScrapeRole(settings.target_roles.split(",")[0]?.trim() || settings.target_roles);
-      }
-      if (settings.target_cities) {
-        setScrapeLocation(settings.target_cities.split(",")[0]?.trim() || settings.target_cities);
-      }
-    }
-  }, [settings]);
   
   // Track which job IDs have been added during this session
   const [trackedJobIds, setTrackedJobIds] = useState<Record<string, boolean>>({});
