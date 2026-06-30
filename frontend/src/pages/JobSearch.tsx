@@ -14,8 +14,18 @@ import {
   ExternalLink,
   PlusCircle,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Lock
 } from "lucide-react";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 import LockedFeatureGuard from "@/components/LockedFeatureGuard";
 
@@ -58,10 +68,25 @@ export default function JobSearchPage() {
   // Search/Scraper State with smart defaults
   const [scrapeRole, setScrapeRole] = useState("Backend Engineer");
   const [scrapeLocation, setScrapeLocation] = useState("Bengaluru");
-  const [scrapeExperience, setScrapeExperience] = useState("Mid-level");
   const [isScraping, setIsScraping] = useState(false);
   const [scrapedJobs, setScrapedJobs] = useState<any[]>([]);
   const [isLiveScrape, setIsLiveScrape] = useState(false);
+
+  const [isLimitExceeded, setIsLimitExceeded] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+
+  const { data: userData } = useQuery({
+    queryKey: ["user"],
+    queryFn: api.auth.me,
+  });
+
+  // Load user-specific daily limit status from localStorage
+  useEffect(() => {
+    const userPrefix = userData?.user?.id || "anonymous";
+    const storageKey = `job_search_limit_reached_${userPrefix}`;
+    const isLocked = localStorage.getItem(storageKey) === "true";
+    setIsLimitExceeded(isLocked);
+  }, [userData]);
 
   useEffect(() => {
     if (settings) {
@@ -70,12 +95,6 @@ export default function JobSearchPage() {
       }
       if (settings.target_cities) {
         setScrapeLocation(settings.target_cities.split(",")[0]?.trim() || settings.target_cities);
-      }
-      if (settings.experience) {
-        const expLower = settings.experience.toLowerCase();
-        if (expLower.includes("senior")) setScrapeExperience("Senior-level");
-        else if (expLower.includes("mid") || expLower.includes("year")) setScrapeExperience("Mid-level");
-        else if (expLower.includes("entry") || expLower.includes("student") || expLower.includes("fresher")) setScrapeExperience("Entry-level");
       }
     }
   }, [settings]);
@@ -105,6 +124,10 @@ export default function JobSearchPage() {
 
   const handleScrapeJobs = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLimitExceeded) {
+      setShowLimitModal(true);
+      return;
+    }
     if (!scrapeRole.trim()) {
       toast({
         variant: "destructive",
@@ -116,19 +139,29 @@ export default function JobSearchPage() {
 
     setIsScraping(true);
     try {
-      const res = await api.scraper.jobs(scrapeRole, scrapeLocation, scrapeExperience);
+      const res = await api.scraper.jobs(scrapeRole, scrapeLocation, "");
       setScrapedJobs(res.jobs);
       setIsLiveScrape(res.isLive);
       toast({
         title: "Search Complete",
         description: `Found ${res.jobs.length} relevant listings from top boards.`,
       });
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Search Failed",
-        description: String(err),
-      });
+    } catch (err: any) {
+      const errStr = String(err);
+      const isLimitError = errStr.includes("LIMIT_JOB_SEARCH_EXCEEDED") || errStr.toLowerCase().includes("limit reached");
+
+      if (isLimitError) {
+        setIsLimitExceeded(true);
+        setShowLimitModal(true);
+        const userPrefix = userData?.user?.id || "anonymous";
+        localStorage.setItem(`job_search_limit_reached_${userPrefix}`, "true");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Search Failed",
+          description: errStr,
+        });
+      }
     } finally {
       setIsScraping(false);
     }
@@ -193,7 +226,7 @@ export default function JobSearchPage() {
           Filter Parameters
         </h2>
         
-        <form onSubmit={handleScrapeJobs} className="grid gap-4 md:grid-cols-4 items-end text-xs font-medium">
+        <form onSubmit={handleScrapeJobs} className="grid gap-4 md:grid-cols-3 items-end text-xs font-medium">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
               <Briefcase className="h-3.5 w-3.5 text-primary" /> Target Role
@@ -219,30 +252,24 @@ export default function JobSearchPage() {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5 text-primary" /> Experience Level
-            </label>
-            <select
-              value={scrapeExperience}
-              onChange={(e) => setScrapeExperience(e.target.value)}
-              className="w-full text-xs font-semibold rounded-lg border border-border bg-white p-2 outline-none h-9 focus:border-primary shadow-sm cursor-pointer"
-            >
-              <option value="Entry-level">Entry-level</option>
-              <option value="Mid-level">Mid-level</option>
-              <option value="Senior-level">Senior-level</option>
-            </select>
-          </div>
-
           <Button 
             type="submit" 
             disabled={isScraping} 
-            className="h-9 w-full bg-outly-accent hover:bg-outly-accent/90 text-white font-bold tracking-wide rounded-lg uppercase shadow-sm active:scale-[0.98] transition-all gap-1.5"
+            className={`h-9 w-full font-bold tracking-wide rounded-lg uppercase shadow-sm active:scale-[0.98] transition-all gap-1.5 ${
+              isLimitExceeded 
+                ? "bg-amber-500 hover:bg-amber-500/90 text-white" 
+                : "bg-outly-accent hover:bg-outly-accent/90 text-white"
+            }`}
           >
             {isScraping ? (
               <>
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 Searching...
+              </>
+            ) : isLimitExceeded ? (
+              <>
+                <Lock className="h-3.5 w-3.5" />
+                Limit Reached (3/3)
               </>
             ) : (
               <>
@@ -379,6 +406,31 @@ export default function JobSearchPage() {
           </div>
         )}
       </div>
+
+      {/* Limit Exceeded Dialog Modal */}
+      <Dialog open={showLimitModal} onOpenChange={setShowLimitModal}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-6 font-sans text-center">
+          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+              <Lock className="w-6 h-6 shrink-0" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-foreground">Daily Limit Reached (3/3)</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              Your search tier is limited to 3 job searches per day. Please try again tomorrow.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-6 justify-center">
+            <Button
+              variant="outline"
+              onClick={() => setShowLimitModal(false)}
+              className="w-full sm:w-auto border-border text-xs font-medium h-10 rounded-full hover:bg-secondary active:scale-[0.98] transition"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       </div>
     </LockedFeatureGuard>

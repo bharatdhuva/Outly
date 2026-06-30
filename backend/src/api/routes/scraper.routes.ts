@@ -3,6 +3,8 @@ import axios from "axios";
 import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
+import { ActivityLog } from "../../db/models.js";
+import { activityQueries } from "../../db/queries.js";
 
 const router = Router();
 
@@ -62,6 +64,28 @@ router.post("/jobs", async (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ error: "Role/title search parameter is required." });
   }
 
+  // Enforce rate limit: 3 job searches per day per user (Pro and Free alike)
+  try {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const count = await ActivityLog.countDocuments({
+      userId: req.user.id,
+      type: "job_search",
+      createdAt: { $gte: startOfToday }
+    });
+
+    if (count >= 3) {
+      return res.status(403).json({
+        error: "Daily job search limit reached.",
+        code: "LIMIT_JOB_SEARCH_EXCEEDED",
+        message: "You are limited to 3 job searches per day."
+      });
+    }
+  } catch (err) {
+    logger.error("Error checking job search limit:", err);
+  }
+
   // Define target career sites/publishers
   const sources = ["naukri", "instahyre", "wellfound"];
 
@@ -91,6 +115,13 @@ router.post("/jobs", async (req: AuthenticatedRequest, res: Response) => {
 
     const results = await Promise.all(searchPromises);
     const allJobs = results.flat();
+
+    // Log the successful search activity
+    try {
+      await activityQueries.add(req.user.id, "job_search", `Searched jobs for role: ${role}`);
+    } catch (err) {
+      logger.error("Error saving job search activity log:", err);
+    }
 
     // Map the JSearch response schema to the format expected by the frontend
     const mappedJobs = allJobs.map((job: any) => {
