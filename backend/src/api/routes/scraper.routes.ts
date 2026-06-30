@@ -112,7 +112,7 @@ router.post("/jobs", async (req: AuthenticatedRequest, res: Response) => {
       }
 
       // Build target query
-      const query = `${expTerm}${role}${locationTerm} via ${source}`;
+      const query = `${expTerm}${role}${locationTerm} ${source}`;
       return fetchSourceWithRetry(query, isRemoteSearch);
     });
 
