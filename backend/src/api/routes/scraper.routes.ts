@@ -19,7 +19,7 @@ async function fetchSourceWithRetry(
   delayMs = 1200
 ): Promise<any[]> {
   try {
-    const response = await axios.get("https://jsearch.p.rapidapi.com/search", {
+    const response = await axios.get("https://jsearch.p.rapidapi.com/search-v2", {
       params: {
         query,
         page: 1,
@@ -34,9 +34,12 @@ async function fetchSourceWithRetry(
       timeout: 20000, // 20 seconds timeout to handle crawler delay
     });
 
-    if (response.data && Array.isArray(response.data.data)) {
-      logger.info(`JSearch fetched ${response.data.data.length} results for query: "${query}" (remote: ${isRemoteSearch})`, { source: "scraper" });
-      return response.data.data;
+    if (response.data && response.data.data) {
+      const jobs = Array.isArray(response.data.data) ? response.data.data : response.data.data.jobs;
+      if (Array.isArray(jobs)) {
+        logger.info(`JSearch fetched ${jobs.length} results for query: "${query}" (remote: ${isRemoteSearch})`, { source: "scraper" });
+        return jobs;
+      }
     }
     return [];
   } catch (err: any) {
