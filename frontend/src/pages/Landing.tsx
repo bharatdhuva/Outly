@@ -455,28 +455,28 @@ export default function Landing() {
     };
     window.addEventListener("scroll", handleScroll);
 
-    // Hero loading entrance animations
+    // Hero loading entrance animations (Reshuffled: Calendar -> Draft -> Nudge -> Meeting)
     const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 1 } });
     tl.fromTo(".hero-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 0.2)
       .fromTo(".hero-title", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, 0.4)
       .fromTo(".hero-subtitle", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 0.6)
       .fromTo(".hero-buttons", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 0.8)
       .fromTo(".hero-meta", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 1.0)
-      .fromTo(cardNudgeRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: 1, duration: 1 }, 1.0)
-      .fromTo(cardBriefRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: -1, duration: 1 }, 1.1)
-      .fromTo(cardCalRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: 2, duration: 1 }, 1.2)
-      .fromTo(cardMeetingRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: -1, duration: 1 }, 1.3)
-      .fromTo(cardDraftRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: -2, duration: 1 }, 1.4);
+      .fromTo(cardCalRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: 2, duration: 1 }, 1.0)
+      .fromTo(cardDraftRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: -2, duration: 1 }, 1.1)
+      .fromTo(cardNudgeRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: 1, duration: 1 }, 1.2)
+      .fromTo(cardBriefRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: -1, duration: 1 }, 1.25)
+      .fromTo(cardMeetingRef.current, { opacity: 0, y: 30, rotation: 0 }, { opacity: 1, y: 0, rotation: -1, duration: 1 }, 1.3);
 
-    // Continuous floating orbits
+    // Continuous floating orbits (Reshuffled rhythm: delays, durations, directions)
     gsap.to(cardNudgeRef.current, {
-      y: -6,
-      rotation: 0.5,
-      duration: 3.5,
+      y: -8,
+      rotation: 1.5,
+      duration: 3.2,
       repeat: -1,
       yoyo: true,
       ease: "sine.inOut",
-      delay: 0.1
+      delay: 0.3
     });
 
     gsap.to(cardBriefRef.current, {
@@ -490,33 +490,33 @@ export default function Landing() {
     });
 
     gsap.to(cardCalRef.current, {
+      y: 8,
+      rotation: 2,
+      duration: 4.0,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      delay: 0.1
+    });
+
+    gsap.to(cardMeetingRef.current, {
+      y: -10,
+      rotation: -2,
+      duration: 3.6,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      delay: 0.5
+    });
+
+    gsap.to(cardDraftRef.current, {
       y: 10,
-      rotation: 3,
-      duration: 4.5,
+      rotation: 2,
+      duration: 4.4,
       repeat: -1,
       yoyo: true,
       ease: "sine.inOut",
       delay: 0.2
-    });
-
-    gsap.to(cardMeetingRef.current, {
-      y: 6,
-      rotation: 1,
-      duration: 4.2,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-      delay: 0.4
-    });
-
-    gsap.to(cardDraftRef.current, {
-      y: -8,
-      rotation: -3.5,
-      duration: 3.8,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-      delay: 0.8
     });
 
     let isCancelled = false;
@@ -1069,7 +1069,7 @@ export default function Landing() {
               className="absolute z-25 cursor-grab hidden sm:block"
               style={{
                 left: "8%",
-                bottom: "10%",
+                bottom: "22%",
                 transform: `translate3d(${offsets.draft.x}px, ${offsets.draft.y}px, 0)`,
                 transition: draggingCard === 'draft' ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
