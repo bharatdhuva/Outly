@@ -973,18 +973,18 @@ export default function Landing() {
             
             {/* Concentric Orbits Background */}
             <div className="absolute inset-0 hidden sm:flex items-center justify-center pointer-events-none overflow-hidden z-0">
-              <div className="w-[280px] h-[280px] rounded-full border border-outly-dark/5 absolute"></div>
-              <div className="w-[440px] h-[440px] rounded-full border border-outly-dark/5 absolute"></div>
-              <div className="w-[600px] h-[600px] rounded-full border border-outly-dark/5 absolute"></div>
-              <div className="w-[760px] h-[760px] rounded-full border border-outly-dark/5 absolute"></div>
+              <div className="w-[280px] h-[280px] rounded-full border border-outly-dark/15 absolute"></div>
+              <div className="w-[440px] h-[440px] rounded-full border border-outly-dark/15 absolute"></div>
+              <div className="w-[600px] h-[600px] rounded-full border border-outly-dark/15 absolute"></div>
+              <div className="w-[760px] h-[760px] rounded-full border border-outly-dark/15 absolute"></div>
             </div>
 
             {/* Draggable Parent for Nudge Card */}
             <div 
               className="absolute z-40 cursor-grab hidden sm:block"
               style={{
-                left: "15%",
-                top: "-2%",
+                left: "22%",
+                top: "12%",
                 transform: `translate3d(${offsets.nudge.x}px, ${offsets.nudge.y}px, 0)`,
                 transition: draggingCard === 'nudge' ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
@@ -1010,8 +1010,8 @@ export default function Landing() {
             <div 
               className="absolute z-10 cursor-grab hidden sm:block"
               style={{
-                right: "5%",
-                top: "5%",
+                right: "12%",
+                top: "15%",
                 transform: `translate3d(${offsets.cal.x}px, ${offsets.cal.y}px, 0)`,
                 transition: draggingCard === 'cal' ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
@@ -1045,7 +1045,7 @@ export default function Landing() {
             <div 
               className="absolute z-30 cursor-grab hidden sm:block"
               style={{
-                right: "2%",
+                right: "8%",
                 top: "45%",
                 transform: `translate3d(${offsets.meeting.x}px, ${offsets.meeting.y}px, 0)`,
                 transition: draggingCard === 'meeting' ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
@@ -1068,8 +1068,8 @@ export default function Landing() {
             <div 
               className="absolute z-25 cursor-grab hidden sm:block"
               style={{
-                left: "8%",
-                bottom: "22%",
+                left: "16%",
+                bottom: "30%",
                 transform: `translate3d(${offsets.draft.x}px, ${offsets.draft.y}px, 0)`,
                 transition: draggingCard === 'draft' ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
