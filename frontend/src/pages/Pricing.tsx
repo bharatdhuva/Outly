@@ -326,7 +326,7 @@ export default function Pricing() {
               ₹99
             </span>
             <span className="text-white/60 text-xs font-medium">
-              start 7-day trial
+              one-time fee
             </span>
           </div>
 
@@ -349,7 +349,7 @@ export default function Pricing() {
             </li>
             <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
               <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
-              Get hired faster with AI — 7-day trial @ ₹1/-
+              Get hired faster with AI — Lifetime access @ ₹1/-
             </li>
           </ul>
 
@@ -370,7 +370,7 @@ export default function Pricing() {
                   <span>Processing your order...</span>
                 </>
               ) : (
-                <span>Start 7-Day Trial @ ₹1/-</span>
+                <span>Get Lifetime Access @ ₹1/-</span>
               )}
             </button>
           )}
@@ -381,7 +381,7 @@ export default function Pricing() {
       {/* ℹ️ SYSTEM SCALABILITY TESTING NOTICE */}
       <div className="mt-8 p-3.5 rounded-2xl bg-secondary/30 border border-border/50 max-w-lg mx-auto text-center flex items-center justify-center gap-2 text-xs text-muted-foreground font-medium">
         <Info className="w-4 h-4 text-outly-accent shrink-0" />
-        <span>Note: ₹1 trial pricing is currently active for project scalability &amp; live load testing.</span>
+        <span>Note: ₹1 one-time launch pricing is currently active for project scalability &amp; live load testing.</span>
       </div>
 
     </div>
