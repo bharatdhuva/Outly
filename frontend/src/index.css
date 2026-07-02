@@ -67,6 +67,10 @@
     @apply border-border;
   }
 
+  html {
+    scrollbar-gutter: stable;
+  }
+
   html, body {
     @apply bg-background text-foreground font-sans antialiased overflow-x-hidden max-w-full;
   }
@@ -75,21 +79,21 @@
     font-family: 'Rubik', sans-serif;
   }
 
-  ::-webkit-scrollbar {
+  :not(html):not(body)::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
 
-  ::-webkit-scrollbar-track {
+  :not(html):not(body)::-webkit-scrollbar-track {
     background: hsl(216 33% 96%);
   }
 
-  ::-webkit-scrollbar-thumb {
+  :not(html):not(body)::-webkit-scrollbar-thumb {
     background: hsl(220 18% 78%);
     border-radius: 3px;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
+  :not(html):not(body)::-webkit-scrollbar-thumb:hover {
     background: hsl(245 78% 58% / 0.55);
   }
 }

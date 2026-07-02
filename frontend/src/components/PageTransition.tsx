@@ -30,18 +30,16 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         @keyframes page-enter {
           0% {
             opacity: 0.15;
-            transform: translateY(6px);
             filter: blur(2px);
           }
           100% {
             opacity: 1;
-            transform: translateY(0);
             filter: blur(0);
           }
         }
         .animate-page-enter {
           animation: page-enter 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-          will-change: transform, opacity, filter;
+          will-change: opacity, filter;
         }
       `}</style>
       {children}

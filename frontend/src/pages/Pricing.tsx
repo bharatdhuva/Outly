@@ -13,12 +13,7 @@ export default function Pricing() {
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("outly_premium_user") === "true");
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap";
-    document.head.appendChild(link);
-  }, []);
+
 
   useEffect(() => {
     // 3 days in milliseconds

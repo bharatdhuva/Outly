@@ -441,12 +441,6 @@ export default function Landing() {
 
   // ─── SCROLL & LOAD EFFECTS ───
   useEffect(() => {
-    // Load Google Font: Rubik dynamically for the landing page
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap";
-    document.head.appendChild(link);
-
     document.title = "Outly - Your Career, Already Sorted";
     
     // Scroll header styling
@@ -546,7 +540,6 @@ export default function Landing() {
       window.removeEventListener("scroll", handleScroll);
       clearTimeout(startTypingTimer);
       clearTimeout(typeTimer);
-      document.head.removeChild(link);
     };
   }, []);
 
