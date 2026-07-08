@@ -4,7 +4,7 @@ import { usePageTransition } from "../components/PageTransition";
 import { Eye, EyeOff } from "lucide-react";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
-import logoTransparent from "../assets/brand/logo_transparent.png";
+import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import { api } from "../lib/api";
 import { useToast } from "../hooks/use-toast";
 
@@ -267,9 +267,8 @@ export default function Login() {
         </div>
 
         {/* Logo Header */}
-        <div className="flex items-center gap-1 font-bold text-2xl tracking-tight z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigateTo("/")}>
-          <img src={logoTransparent} alt="Outly Logo" className="w-10 h-10 object-contain" />
-          <span className="text-outly-logo">Outly</span>
+        <div className="flex items-center z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigateTo("/")}>
+          <img src={logoTransparent} alt="Outly Logo" className="h-8 w-auto object-contain" />
         </div>
 
         {/* Sliding Text Container */}
@@ -330,9 +329,8 @@ export default function Login() {
         <div ref={formWrapperRef} className="w-full max-w-[420px] flex flex-col justify-center will-change-transform py-12 lg:py-16 lg:min-h-[620px]">
 
           {/* Mobile Logo */}
-          <div className="flex items-center gap-1 font-bold text-xl tracking-tight lg:hidden mb-8 self-start cursor-pointer" onClick={() => navigate("/")}>
-            <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 object-contain" />
-            <span className="text-outly-logo">Outly</span>
+          <div className="flex items-center lg:hidden mb-8 self-start cursor-pointer" onClick={() => navigate("/")}>
+            <img src={logoTransparent} alt="Outly Logo" className="h-6 w-auto object-contain" />
           </div>
 
           {/* Form Header Titles */}

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import logoTransparent from "@/assets/brand/logo_transparent.png";
+import logoTransparent from "@/assets/brand/outly_your_career_at_peak.png";
 import {
   ScrollText,
   Settings as SettingsIcon,
@@ -247,9 +247,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           
           {/* Left: Brand Logo */}
           <div className="flex h-full items-center gap-12">
-            <Link to="/onboarding" className="flex h-full -translate-y-px items-center gap-1 font-bold text-xl leading-none tracking-tight hover:opacity-90 transition-opacity">
-              <img src={logoTransparent} alt="Outly Logo" className="h-8 w-8 -translate-y-px object-contain" />
-              <span className="text-outly-logo leading-none">Outly</span>
+            <Link to="/onboarding" className="flex h-full -translate-y-px items-center hover:opacity-90 transition-opacity">
+              <img src={logoTransparent} alt="Outly Logo" className="h-7 w-auto -translate-y-px object-contain" />
             </Link>
 
             {/* Middle: Desktop Links & Dropdowns */}

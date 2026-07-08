@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
-import logoTransparent from "../assets/brand/logo_transparent.png";
+import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import {
   LineChart,
   Line,
@@ -277,16 +277,16 @@ export default function Landing() {
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent, cardKey: keyof typeof offsets) => {
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    
+
     setDraggingCard(cardKey);
-    
+
     const startX = clientX - offsets[cardKey].x;
     const startY = clientY - offsets[cardKey].y;
-    
+
     const handleDragMove = (moveEvent: MouseEvent | TouchEvent) => {
       const currentX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX;
       const currentY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : moveEvent.clientY;
-      
+
       setOffsets(prev => ({
         ...prev,
         [cardKey]: {
@@ -295,7 +295,7 @@ export default function Landing() {
         }
       }));
     };
-    
+
     const handleDragEnd = () => {
       setDraggingCard(null);
       document.removeEventListener('mousemove', handleDragMove);
@@ -303,7 +303,7 @@ export default function Landing() {
       document.removeEventListener('touchmove', handleDragMove);
       document.removeEventListener('touchend', handleDragEnd);
     };
-    
+
     document.addEventListener('mousemove', handleDragMove);
     document.addEventListener('mouseup', handleDragEnd);
     document.addEventListener('touchmove', handleDragMove);
@@ -364,10 +364,10 @@ export default function Landing() {
   useEffect(() => {
     // 3 days in milliseconds: 3 * 24 * 60 * 60 * 1000 = 259200000 ms
     const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
-    
+
     // Check if target date is already in localStorage
     let targetTime = localStorage.getItem("outly_launch_offer_target");
-    
+
     if (!targetTime) {
       const newTarget = Date.now() + THREE_DAYS_MS;
       localStorage.setItem("outly_launch_offer_target", newTarget.toString());
@@ -418,12 +418,12 @@ export default function Landing() {
       const headerOffset = 95; // Account for the sticky header height + safety padding
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      
+
       window.scrollTo({
         top: offsetPosition,
         behavior: "smooth"
       });
-      
+
       // Update hash without browser jumping
       window.history.pushState(null, "", `#${sectionId}`);
     }
@@ -442,7 +442,7 @@ export default function Landing() {
   // ─── SCROLL & LOAD EFFECTS ───
   useEffect(() => {
     document.title = "Outly - Your Career, Already Sorted";
-    
+
     // Scroll header styling
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -514,10 +514,10 @@ export default function Landing() {
     });
 
     let isCancelled = false;
-    
+
     // Clear and reset state on mount to avoid HMR overlaps
     setHeroTypedText("");
-    
+
     const targetText = "3 active applications. Spotify interview scheduled. Recruiter outreach draft ready.";
     let typeIndex = 0;
     let typeTimer: NodeJS.Timeout;
@@ -548,7 +548,7 @@ export default function Landing() {
   // Tab switching
   const handleTabSwitch = (tab: "brief" | "inbox" | "calendar" | "vault") => {
     if (activeTab === tab) return;
-    
+
     const panel = document.getElementById("showcase-panel-wrapper");
     if (panel) {
       gsap.to(panel, {
@@ -557,7 +557,7 @@ export default function Landing() {
         duration: 0.15,
         onComplete: () => {
           setActiveTab(tab);
-          gsap.fromTo(panel, 
+          gsap.fromTo(panel,
             { opacity: 0, y: -10 },
             { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" }
           );
@@ -572,7 +572,7 @@ export default function Landing() {
   const handleSelectEmail = (emailId: "priya" | "atlas" | "openai") => {
     setMobileInboxView("detail");
     if (activeEmailId === emailId || isTyping) return;
-    
+
     const detail = document.getElementById("inbox-detail-container");
     if (detail) {
       gsap.to(detail, {
@@ -602,13 +602,13 @@ export default function Landing() {
 
     const email = emails[activeEmailId];
     if (!email) return;
-    
+
     const draftText = email.drafts[suggestionIndex];
-    
+
     setAutopilotDraftActive(true);
     setAutopilotTypedText("");
     setIsTyping(true);
-    
+
     let index = 0;
     const interval = setInterval(() => {
       if (index < draftText.length) {
@@ -681,7 +681,7 @@ export default function Landing() {
                 setEmails((prev) => {
                   const updated = { ...prev };
                   delete updated[activeEmailId];
-                  
+
                   // Pick next remaining thread
                   const remainingKeys = Object.keys(updated) as Array<"priya" | "atlas" | "openai">;
                   if (remainingKeys.length > 0) {
@@ -695,7 +695,7 @@ export default function Landing() {
               }
             });
           }
-          
+
           // Reset plane
           gsap.set(plane, { x: 0, y: 0, opacity: 1, scale: 1, delay: 0.5 });
         }
@@ -786,7 +786,7 @@ export default function Landing() {
     e.preventDefault();
     const jobId = e.dataTransfer.getData("jobId");
     const sourceStage = e.dataTransfer.getData("sourceStage") as "applied" | "interviewing" | "offer";
-    
+
     if (!jobId || !sourceStage || sourceStage === targetStage) return;
 
     // Find the job in the source stage
@@ -880,43 +880,41 @@ export default function Landing() {
 
   return (
     <div className="bg-outly-cream text-outly-dark font-sans selection:bg-outly-accent/20 min-h-screen">
-      
+
       {/* HEADER */}
-      <header className={`fixed top-0 left-0 right-0 z-[100] w-full transition-all duration-300 ${
-        scrolled 
-          ? "bg-outly-cream/95 backdrop-blur-lg border-b border-outly-border shadow-md py-3.5" 
-          : "bg-outly-cream/90 backdrop-blur-md border-b border-outly-border/40 py-4 sm:py-5"
-      }`}>
+      <header className={`fixed top-0 left-0 right-0 z-[100] w-full transition-all duration-300 ${scrolled
+        ? "bg-outly-cream/95 backdrop-blur-lg border-b border-outly-border shadow-md py-3.5"
+        : "bg-outly-cream/90 backdrop-blur-md border-b border-outly-border/40 py-4 sm:py-5"
+        }`}>
         <div className="max-w-7xl mx-auto px-6 sm:px-8 grid grid-cols-2 md:grid-cols-3 items-center">
-          
+
           {/* Left: Logo */}
           <div className="flex justify-start">
-            <div className="flex items-center gap-1 font-bold text-xl sm:text-2xl tracking-tight cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-              <img src={logoTransparent} alt="Outly Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
-              <span className="text-outly-logo">Outly</span>
+            <div className="flex items-center cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              <img src={logoTransparent} alt="Outly Logo" className="h-6 sm:h-8 w-auto object-contain" />
             </div>
           </div>
-          
+
           <nav className="hidden md:flex items-center justify-center gap-8 font-schibsted text-[17px] font-medium text-[#4E4638]">
             <a className="hover:text-outly-dark transition cursor-pointer" href="#features" onClick={(e) => handleScrollToSection(e, "features")}>Features</a>
             <a className="hover:text-outly-dark transition cursor-pointer" href="#demo" onClick={(e) => handleScrollToSection(e, "demo")}>How it Works</a>
             <a className="hover:text-outly-dark transition cursor-pointer" href="#pricing" onClick={(e) => handleScrollToSection(e, "pricing")}>Pricing</a>
           </nav>
-          
+
           {/* Right: Buttons */}
           <div className="flex items-center justify-end gap-2 sm:gap-4">
             <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="border border-outly-border px-3 sm:px-6 py-1.5 sm:py-2 rounded-full font-sans text-[13px] sm:text-[16px] font-medium text-outly-dark hover:bg-outly-border/20 hover:border-outly-dark/40 active:scale-[0.98] transition-all duration-200 text-center cursor-pointer">
               {isLoggedIn ? "Dashboard" : "Sign in"}
             </button>
           </div>
-          
+
         </div>
       </header>
 
       {/* HERO SECTION */}
       <main className="relative overflow-hidden pt-24 sm:pt-32 pb-12 sm:pb-24">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 grid md:grid-cols-12 gap-8 sm:gap-12 items-center">
-          
+
           {/* Left Column: Hero Text */}
           <div className="md:col-span-6 z-10 hero-text-container">
             <div className="flex items-center gap-4 mb-4 sm:mb-8 hero-tag opacity-0 text-[9px] sm:text-[10px] font-bold tracking-[0.2em] uppercase select-none">
@@ -925,28 +923,28 @@ export default function Landing() {
                 Careers + Automation + AI
               </span>
             </div>
-            
+
             <h1 className="text-3xl sm:text-5xl md:text-[72px] font-medium tracking-tight mb-5 sm:mb-8 leading-[1.05] text-left hero-title opacity-0">
               Your career,<br />already <span className="relative inline-block italic-serif text-outly-accent">
                 sorted.
                 {/* Hand-drawn animated underline SVG */}
                 <svg className="absolute left-0 -bottom-2 sm:-bottom-4 w-full h-[10px] sm:h-[14px] overflow-visible" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
-                  <path 
-                    d="M 4 9 Q 50 3 100 8 T 196 7" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="7" 
+                  <path
+                    d="M 4 9 Q 50 3 100 8 T 196 7"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="7"
                     strokeLinecap="round"
                     className="animate-drawline"
                   />
                 </svg>
               </span>
             </h1>
-            
+
             <p className="text-base sm:text-lg md:text-xl text-outly-dark/60 mb-6 sm:mb-10 max-w-full sm:max-w-lg text-left leading-relaxed font-medium hero-subtitle opacity-0">
               Outly automates your job hunt so you don't have to. Personalized outreach, resume tailoring, and interview prep in one place.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-6 justify-start hero-buttons opacity-0">
               <button onClick={() => navigateTo(isLoggedIn ? "/onboarding" : "/login")} className="w-full sm:w-auto bg-outly-accent text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-sans text-[14px] sm:text-[16px] font-medium hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-outly-accent/25 cursor-pointer">
                 {isLoggedIn ? "Go to Dashboard" : "Get started — it's free"}
@@ -963,7 +961,7 @@ export default function Landing() {
 
           {/* Right Column: Interactive Floating Cards */}
           <div className="hidden md:flex md:col-span-6 relative h-auto sm:h-[360px] md:h-[520px] w-full flex items-center justify-center z-10 select-none">
-            
+
             {/* Concentric Orbits Background */}
             <div className="absolute inset-0 hidden sm:flex items-center justify-center pointer-events-none overflow-hidden z-0">
               <div className="w-[280px] h-[280px] rounded-full border border-outly-dark/15 absolute"></div>
@@ -973,7 +971,7 @@ export default function Landing() {
             </div>
 
             {/* Draggable Parent for Nudge Card */}
-            <div 
+            <div
               className="absolute z-40 cursor-grab hidden sm:block"
               style={{
                 left: "22%",
@@ -984,11 +982,10 @@ export default function Landing() {
               onMouseDown={(e) => handleDragStart(e, 'nudge')}
               onTouchStart={(e) => handleDragStart(e, 'nudge')}
             >
-              <div 
+              <div
                 ref={cardNudgeRef}
-                className={`bg-outly-dark text-white rounded-full px-5 py-2.5 flex items-center gap-3 shadow-lg select-none transition-shadow duration-300 border border-white/10 ${
-                  draggingCard === 'nudge' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
-                }`}
+                className={`bg-outly-dark text-white rounded-full px-5 py-2.5 flex items-center gap-3 shadow-lg select-none transition-shadow duration-300 border border-white/10 ${draggingCard === 'nudge' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
+                  }`}
               >
                 <span className="text-amber-400 text-sm">🔔</span>
                 <span className="text-[11px] font-semibold tracking-wide">
@@ -1000,7 +997,7 @@ export default function Landing() {
 
 
             {/* Draggable Parent for Calendar Card */}
-            <div 
+            <div
               className="absolute z-10 cursor-grab hidden sm:block"
               style={{
                 right: "12%",
@@ -1011,11 +1008,10 @@ export default function Landing() {
               onMouseDown={(e) => handleDragStart(e, 'cal')}
               onTouchStart={(e) => handleDragStart(e, 'cal')}
             >
-              <div 
-                ref={cardCalRef} 
-                className={`w-56 bg-white rounded-xl shadow-lg border border-outly-border p-4 transform rotate-2 select-none transition-shadow duration-300 ${
-                  draggingCard === 'cal' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
-                }`}
+              <div
+                ref={cardCalRef}
+                className={`w-56 bg-white rounded-xl shadow-lg border border-outly-border p-4 transform rotate-2 select-none transition-shadow duration-300 ${draggingCard === 'cal' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
+                  }`}
               >
                 <div className="flex justify-between items-center mb-3 text-[9px] font-bold text-outly-dark/30 tracking-widest uppercase">
                   <span>April</span>
@@ -1035,7 +1031,7 @@ export default function Landing() {
             </div>
 
             {/* Draggable Parent for 1:1 Meeting Card */}
-            <div 
+            <div
               className="absolute z-30 cursor-grab hidden sm:block"
               style={{
                 right: "8%",
@@ -1046,11 +1042,10 @@ export default function Landing() {
               onMouseDown={(e) => handleDragStart(e, 'meeting')}
               onTouchStart={(e) => handleDragStart(e, 'meeting')}
             >
-              <div 
+              <div
                 ref={cardMeetingRef}
-                className={`w-[220px] bg-white rounded-xl shadow-md border-l-4 border-teal-500 border border-outly-border p-3.5 transform -rotate-1 select-none transition-shadow duration-300 ${
-                  draggingCard === 'meeting' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
-                }`}
+                className={`w-[220px] bg-white rounded-xl shadow-md border-l-4 border-teal-500 border border-outly-border p-3.5 transform -rotate-1 select-none transition-shadow duration-300 ${draggingCard === 'meeting' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
+                  }`}
               >
                 <div className="text-xs font-bold text-outly-dark">Stripe Interview</div>
                 <div className="text-[10px] font-semibold text-outly-dark/50 mt-1">Scheduled for 2:30 PM — calendar synced</div>
@@ -1058,7 +1053,7 @@ export default function Landing() {
             </div>
 
             {/* Draggable Parent for Draft Card */}
-            <div 
+            <div
               className="absolute z-25 cursor-grab hidden sm:block"
               style={{
                 left: "16%",
@@ -1069,11 +1064,10 @@ export default function Landing() {
               onMouseDown={(e) => handleDragStart(e, 'draft')}
               onTouchStart={(e) => handleDragStart(e, 'draft')}
             >
-              <div 
-                ref={cardDraftRef} 
-                className={`w-64 bg-white rounded-xl shadow-md border border-outly-border p-4 transform rotate-1 select-none transition-shadow duration-300 ${
-                  draggingCard === 'draft' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
-                }`}
+              <div
+                ref={cardDraftRef}
+                className={`w-64 bg-white rounded-xl shadow-md border border-outly-border p-4 transform rotate-1 select-none transition-shadow duration-300 ${draggingCard === 'draft' ? 'cursor-grabbing shadow-2xl scale-[1.02]' : ''
+                  }`}
               >
                 <div className="flex items-center gap-1.5 mb-2">
                   <span className="text-[9px] font-bold uppercase tracking-widest text-outly-accent">+ Draft Ready</span>
@@ -1108,9 +1102,8 @@ export default function Landing() {
         <div className="flex justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 border-b border-outly-border pb-3 max-w-lg mx-auto">
           <button
             onClick={() => setInfoTab("about")}
-            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${
-              infoTab === "about" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
-            }`}
+            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${infoTab === "about" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
+              }`}
           >
             What is Outly?
             {infoTab === "about" && (
@@ -1119,9 +1112,8 @@ export default function Landing() {
           </button>
           <button
             onClick={() => setInfoTab("features")}
-            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${
-              infoTab === "features" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
-            }`}
+            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${infoTab === "features" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
+              }`}
           >
             Core Features
             {infoTab === "features" && (
@@ -1130,9 +1122,8 @@ export default function Landing() {
           </button>
           <button
             onClick={() => setInfoTab("why-us")}
-            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${
-              infoTab === "why-us" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
-            }`}
+            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${infoTab === "why-us" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
+              }`}
           >
             Why Choose Us?
             {infoTab === "why-us" && (
@@ -1293,7 +1284,7 @@ export default function Landing() {
           </h2>
         </div>
         <div ref={featuresGridRef} className="grid md:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
-          
+
           {/* Card 1 */}
           <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-100 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50 overflow-hidden">
@@ -1364,26 +1355,24 @@ export default function Landing() {
               Outly is built around a simple idea: the tool is free. Your data is our key, so it always stays private and secure — or let us handle the cloud setup and pay one calm price.
             </p>
           </div>
-          
+
           {/* Pricing Switcher Controls */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 bg-white border border-outly-border p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-soft shrink-0">
-            
+
             {/* Currency switcher */}
             <div className="flex items-center gap-2 select-none">
               <span className="text-xs font-bold text-outly-dark/40">Currency:</span>
               <div className="flex bg-outly-cream border border-outly-border rounded-lg p-0.5">
                 <button
-                  className={`px-2.5 py-1 text-[9px] font-bold rounded transition-all ${
-                    currency === "INR" ? "bg-white text-outly-dark shadow-sm" : "text-outly-dark/40"
-                  }`}
+                  className={`px-2.5 py-1 text-[9px] font-bold rounded transition-all ${currency === "INR" ? "bg-white text-outly-dark shadow-sm" : "text-outly-dark/40"
+                    }`}
                   onClick={() => changePricingCurrency("INR")}
                 >
                   INR (₹)
                 </button>
                 <button
-                  className={`px-2.5 py-1 text-[9px] font-bold rounded transition-all ${
-                    currency === "USD" ? "bg-white text-outly-dark shadow-sm" : "text-outly-dark/40"
-                  }`}
+                  className={`px-2.5 py-1 text-[9px] font-bold rounded transition-all ${currency === "USD" ? "bg-white text-outly-dark shadow-sm" : "text-outly-dark/40"
+                    }`}
                   onClick={() => changePricingCurrency("USD")}
                 >
                   USD ($)
@@ -1392,9 +1381,9 @@ export default function Landing() {
             </div>
           </div>
         </div>
-        
+
         <div className="grid md:grid-cols-2 gap-6 items-stretch max-w-4xl mx-auto">
-          
+
           {/* Outly Free Card */}
           <div className="bg-white rounded-3xl p-5 md:p-6 shadow-soft border border-outly-border flex flex-col hover:border-outly-accent/20 transition-all duration-300">
             <div className="mb-3">
@@ -1434,7 +1423,7 @@ export default function Landing() {
             </div>
             <button onClick={() => navigateTo("/login")} className="w-full border-2 border-outly-border hover:border-outly-dark/40 py-2.5 rounded-full font-sans text-xs md:text-sm font-bold hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 text-center select-none block cursor-pointer">Start free</button>
           </div>
-          
+
           {/* Outly Cloud Card */}
           <div className="bg-foreground rounded-3xl p-5 md:p-6 text-white flex flex-col relative overflow-hidden shadow-xl shadow-outly-accent/10 border border-outly-accent/20 hover:shadow-outly-accent/20 transition-all duration-500">
             <div className="mb-3 flex flex-wrap gap-2 items-center justify-between">
@@ -1486,7 +1475,7 @@ export default function Landing() {
             <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-2.5 rounded-full font-sans text-xs md:text-sm font-bold hover:brightness-115 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-outly-accent/25 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
           </div>
         </div>
-        
+
         {/* Security Alert Note */}
         <div className="mt-8 sm:mt-16 bg-white rounded-[20px] sm:rounded-[32px] p-5 sm:p-8 max-w-2xl mx-auto flex gap-4 sm:gap-6 items-center border border-outly-border shadow-soft">
           <div className="w-10 h-10 sm:w-14 sm:h-14 bg-[#5e7d5e]/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-[#5e7d5e] shrink-0 border border-[#5e7d5e]/20">
@@ -1529,12 +1518,11 @@ export default function Landing() {
       {/* FOOTER */}
       <footer className="bg-white py-12 border-t border-outly-border/50 font-sans">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 flex flex-col md:flex-row justify-between items-center gap-8">
-          
+
           {/* Brand Logo & Copyright */}
           <div className="flex flex-col items-center md:items-start gap-1">
-            <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-              <img src={logoTransparent} alt="Outly Logo" className="w-6 h-6 object-contain" />
-              <span className="text-outly-logo">Outly</span>
+            <div className="flex items-center">
+              <img src={logoTransparent} alt="Outly Logo" className="h-10 w-auto object-contain" />
             </div>
             <p className="text-[11px] font-medium text-outly-dark/40 mt-1">
               © 2026 Outly. All rights reserved.

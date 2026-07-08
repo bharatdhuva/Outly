@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logoIcon from "@/assets/brand/logo_light.png";
+import logoNew from "@/assets/brand/outly_your_career_at_peak.png";
 import assistanceGif from "@/assets/integrations/whatsapp_icon.gif";
 import gmailPng from "@/assets/integrations/gmail_icon.png";
 import imageCopy3Png from "@/assets/integrations/profile_card_icon.png";
@@ -153,12 +154,8 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                   padding: "14px 20px",
                 }}
               >
-                <div className="flex items-center gap-1.5">
-                  <img src={logoIcon} alt="Outly logo" className="h-8 w-8 shrink-0 object-contain" />
-                  <div className="flex items-end gap-1">
-                    <span className="brand-wordmark text-[2rem] leading-none text-outly-accent">Outly</span>
-                    <span className="mb-0.5 h-3 w-3 rounded-full bg-primary shadow-[0_0_18px_hsl(24_95%_53%/0.7)]" />
-                  </div>
+                <div className="flex items-center">
+                  <img src={logoNew} alt="Outly logo" className="h-8 w-auto shrink-0 object-contain" />
                 </div>
                 <div style={{ width: 1, height: 28, background: "rgba(255,255,255,0.1)" }} />
                 <div className="flex flex-col">

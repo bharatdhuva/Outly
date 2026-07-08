@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Check, Info, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
-import logoTransparent from "../assets/brand/logo_transparent.png";
+import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import { api } from "@/lib/api";
 
 export default function Pricing() {

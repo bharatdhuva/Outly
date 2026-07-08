@@ -4,7 +4,7 @@ import { Lock, Sparkles, Check, ArrowRight, ShieldCheck, Zap, Loader2 } from "lu
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
-import logoTransparent from "@/assets/brand/logo_transparent.png";
+import logoTransparent from "@/assets/brand/outly_your_career_at_peak.png";
 import confetti from "canvas-confetti";
 
 const loadRazorpayScript = () => {
