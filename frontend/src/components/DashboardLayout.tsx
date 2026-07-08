@@ -907,7 +907,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           {activeGuide && guidesData[activeGuide] && (
             <>
               <DialogHeader className="space-y-2 border-b border-outly-border pb-4 text-left">
-                <DialogTitle className="text-xl font-bold text-outly-dark font-rubik leading-tight">
+                <DialogTitle className="text-xl font-bold text-outly-dark font-sans leading-tight">
                   {guidesData[activeGuide].title}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-outly-dark/50 font-medium">

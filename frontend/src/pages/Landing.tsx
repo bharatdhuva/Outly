@@ -879,7 +879,7 @@ export default function Landing() {
   const priceData = pricingMatrix[currency];
 
   return (
-    <div className="bg-outly-cream text-outly-dark font-['Rubik',sans-serif] selection:bg-outly-accent/20 min-h-screen">
+    <div className="bg-outly-cream text-outly-dark font-sans selection:bg-outly-accent/20 min-h-screen">
       
       {/* HEADER */}
       <header className={`fixed top-0 left-0 right-0 z-[100] w-full transition-all duration-300 ${

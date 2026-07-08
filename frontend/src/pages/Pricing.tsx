@@ -247,11 +247,11 @@ export default function Pricing() {
   };
 
   return (
-    <div className="flex-1 py-4 md:py-6 px-4 max-w-5xl mx-auto flex flex-col items-center justify-center font-['Rubik',sans-serif]">
+    <div className="flex-1 py-4 md:py-6 px-4 max-w-5xl mx-auto flex flex-col items-center justify-center font-sans">
 
       {/* Page Header - Landing Page Hero Style */}
       <div className="text-center max-w-2xl mb-6 md:mb-8 select-none flex flex-col items-center">
-        <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-3 text-foreground font-['Rubik',sans-serif]">
+        <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-3 text-foreground font-sans">
           Outly Cloud <span className="italic-serif text-outly-accent font-normal">Pricing</span>
         </h1>
         <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
@@ -265,7 +265,7 @@ export default function Pricing() {
           <div className="mb-3">
             <span className="bg-muted text-muted-foreground text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">YOUR DATA IS OUR KEY</span>
           </div>
-          <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight font-['Rubik',sans-serif]">Outly <span className="italic-serif text-muted-foreground font-normal">Free</span></h3>
+          <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight font-sans">Outly <span className="italic-serif text-muted-foreground font-normal">Free</span></h3>
           <p className="text-xs text-muted-foreground mb-4">Complete privacy. Your data stays yours, and is never sold.</p>
 
           <div className="flex items-baseline gap-2 mb-4 select-none">
@@ -310,7 +310,7 @@ export default function Pricing() {
             </span>
           </div>
 
-          <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight font-['Rubik',sans-serif]">Outly <span className="italic-serif text-outly-accent font-normal">Cloud</span></h3>
+          <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight font-sans">Outly <span className="italic-serif text-outly-accent font-normal">Cloud</span></h3>
           <p className="text-xs text-white/60 mb-4">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
 
           <div className="flex items-baseline gap-2.5 mb-4 select-none">

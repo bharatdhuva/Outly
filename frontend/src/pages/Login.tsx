@@ -251,7 +251,7 @@ export default function Login() {
   const currentSlide = promoSlides[activeSlide];
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#F2EBDD] font-['Rubik',sans-serif]">
+    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#F2EBDD] font-sans">
 
       {/* LEFT PANEL: Branding & Sliding Promo (100% identical in both Sign Up and Login) */}
       <div className="hidden lg:flex w-1/2 bg-[#F2EBDD] p-12 lg:p-16 flex-col justify-between relative overflow-hidden select-none sticky top-0 h-screen shrink-0">

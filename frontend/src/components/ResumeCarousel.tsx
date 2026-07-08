@@ -21,7 +21,7 @@ export default function ResumeCarousel() {
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center w-full h-[490px] sm:h-[570px] max-w-[460px] mx-auto select-none overflow-visible font-['Rubik',sans-serif]">
+    <div className="relative flex flex-col items-center justify-center w-full h-[490px] sm:h-[570px] max-w-[460px] mx-auto select-none overflow-visible font-sans">
       
       {/* Outly #2DC08D Vibrant Ambient Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(45,192,141,0.22),transparent_68%)] rounded-full blur-3xl -z-10 pointer-events-none" />
