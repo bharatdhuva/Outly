@@ -5,7 +5,7 @@ import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkResumeLimit } from "../../middleware/limits.js";
 import { uploadToCloudinary } from "../../lib/cloudinary.js";
-import multer from "multer";
+import { uploadResume } from "../../middleware/upload.js";
 import path from "path";
 import fs from "fs";
 import axios from "axios";
@@ -29,11 +29,6 @@ try {
 }
 
 const router = Router();
-const uploadDir = path.join(env.DATA_DIR, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-const upload = multer({ dest: uploadDir });
 
 // Protect all routes with authentication
 router.use(requireAuth);
@@ -123,7 +118,7 @@ router.get("/:id/file", async (req: AuthenticatedRequest, res: Response) => {
 });
 
 // POST upload and parse new resume
-router.post("/upload", upload.single("file"), checkResumeLimit, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/upload", uploadResume.single("file"), checkResumeLimit, async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded." });
   }

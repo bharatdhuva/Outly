@@ -1,7 +1,5 @@
 import { Router, Response } from "express";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { uploadCSV } from "../../middleware/upload.js";
 import {
   companyQueries,
   activityQueries,
@@ -14,13 +12,9 @@ import { mailQueue } from "../../queue/mailQueue.js";
 import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkColdMailLimit } from "../../middleware/limits.js";
+import fs from "fs";
 
 const router = Router();
-const uploadDir = path.join(env.DATA_DIR, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-const upload = multer({ dest: uploadDir });
 
 // Protect all routes
 router.use(requireAuth);
@@ -93,7 +87,7 @@ router.post("/companies", checkColdMailLimit, async (req: AuthenticatedRequest, 
   }
 });
 
-router.post("/upload-csv", upload.single("file"), async (req: AuthenticatedRequest, res: Response) => {
+router.post("/upload-csv", uploadCSV.single("file"), async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
   if (!req.user) {
     if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);

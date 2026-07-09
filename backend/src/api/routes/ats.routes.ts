@@ -5,7 +5,7 @@ import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkAtsLimit } from "../../middleware/limits.js";
 import { activityQueries } from "../../db/queries.js";
-import multer from "multer";
+import { uploadResume } from "../../middleware/upload.js";
 import path from "path";
 import fs from "fs";
 import axios from "axios";
@@ -29,11 +29,6 @@ const router = Router();
 
 // Protect all ATS routes with authentication
 router.use(requireAuth);
-const uploadDir = path.join(env.DATA_DIR, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-const upload = multer({ dest: uploadDir });
 
 // Helper to extract content wrapped in custom tags
 function extractTagContent(text: string, tag: string): string {
@@ -304,7 +299,7 @@ ${resume}`;
 
 
 // POST parse uploaded file to plain text
-router.post("/parse-file", upload.single("file"), async (req: AuthenticatedRequest, res: Response) => {
+router.post("/parse-file", uploadResume.single("file"), async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded." });
   }
