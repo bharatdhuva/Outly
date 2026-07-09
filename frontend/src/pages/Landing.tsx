@@ -891,7 +891,7 @@ export default function Landing() {
           {/* Left: Logo */}
           <div className="flex justify-start">
             <div className="flex items-center cursor-pointer select-none" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-              <img src={logoTransparent} alt="Outly Logo" className="h-6 sm:h-8 w-auto object-contain" />
+              <img src={logoTransparent} alt="Outly Logo" className="h-5 sm:h-6 w-auto object-contain" />
             </div>
           </div>
 
@@ -1522,7 +1522,7 @@ export default function Landing() {
           {/* Brand Logo & Copyright */}
           <div className="flex flex-col items-center md:items-start gap-1">
             <div className="flex items-center">
-              <img src={logoTransparent} alt="Outly Logo" className="h-7 md:h-10 w-auto object-contain" />
+              <img src={logoTransparent} alt="Outly Logo" className="h-5 md:h-7 w-auto object-contain" />
             </div>
             <p className="text-[11px] font-medium text-outly-dark/40 mt-1">
               © 2026 Outly. All rights reserved.
