@@ -19,6 +19,4 @@ dist-ssr
 # Logs & Data
 logs
 *.log
-data/
-backend/data/uploads
-backend/data/resumes
+backend/data/
