@@ -65,12 +65,36 @@ export default function JobSearchPage() {
     queryFn: api.settings.get,
   });
 
-  // Search/Scraper State with smart defaults
-  const [scrapeRole, setScrapeRole] = useState("Backend Engineer");
-  const [scrapeLocation, setScrapeLocation] = useState("Bengaluru");
+  // Search/Scraper State with smart defaults loaded from sessionStorage
+  const [scrapeRole, setScrapeRole] = useState(() => sessionStorage.getItem("job_search_role") || "Backend Engineer");
+  const [scrapeLocation, setScrapeLocation] = useState(() => sessionStorage.getItem("job_search_location") || "Bengaluru");
   const [isScraping, setIsScraping] = useState(false);
-  const [scrapedJobs, setScrapedJobs] = useState<any[]>([]);
-  const [isLiveScrape, setIsLiveScrape] = useState(false);
+  const [scrapedJobs, setScrapedJobs] = useState<any[]>(() => {
+    try {
+      const stored = sessionStorage.getItem("job_search_results");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isLiveScrape, setIsLiveScrape] = useState(() => sessionStorage.getItem("job_search_is_live") === "true");
+
+  // Synchronize state to sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem("job_search_role", scrapeRole);
+  }, [scrapeRole]);
+
+  useEffect(() => {
+    sessionStorage.setItem("job_search_location", scrapeLocation);
+  }, [scrapeLocation]);
+
+  useEffect(() => {
+    sessionStorage.setItem("job_search_results", JSON.stringify(scrapedJobs));
+  }, [scrapedJobs]);
+
+  useEffect(() => {
+    sessionStorage.setItem("job_search_is_live", String(isLiveScrape));
+  }, [isLiveScrape]);
 
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);

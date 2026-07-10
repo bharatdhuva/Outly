@@ -18,12 +18,14 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
 
     // Load defaults and override with user-specific database settings
     const mergedSettings = await getEditableSettings(req.user.id);
+    const hasWhatsAppNumber = !!mergedSettings.phone;
+    const whatsappConfigured = !!(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && hasWhatsAppNumber);
 
     res.json({
       ...mergedSettings,
       sender_email: env.GMAIL_USER || req.user.email || "",
       gmailConfigured: isGmailConfigured(),
-      whatsappConfigured: await isWhatsAppConfigured(req.user.id),
+      whatsappConfigured,
     });
   } catch (e: any) {
     res.status(500).json({ error: e?.message || String(e) });

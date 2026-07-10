@@ -205,6 +205,18 @@ export const settingsQueries = {
     return doc?.value ?? undefined;
   },
 
+  getAllForUser: async (userId: string): Promise<Record<string, string>> => {
+    if (!userId) return {};
+    const docs = await SettingModel.find({ userId });
+    const acc: Record<string, string> = {};
+    for (const doc of docs) {
+      if (doc.key) {
+        acc[doc.key] = doc.value ?? "";
+      }
+    }
+    return acc;
+  },
+
   set: async (userId: string, key: string, value: string): Promise<any> => {
     if (!userId || !key) return null;
     return await SettingModel.findOneAndUpdate(

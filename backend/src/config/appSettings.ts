@@ -28,9 +28,10 @@ export async function getEditableSetting(userId: string, key: EditableSettingKey
 
 export async function getEditableSettings(userId: string): Promise<Record<EditableSettingKey, string>> {
   const acc = {} as Record<EditableSettingKey, string>;
+  const userSettings = await settingsQueries.getAllForUser(userId);
   for (const currentKey of Object.keys(editableSettingDefaults)) {
     const key = currentKey as EditableSettingKey;
-    acc[key] = await getEditableSetting(userId, key);
+    acc[key] = userSettings[key] ?? editableSettingDefaults[key];
   }
   return acc;
 }
