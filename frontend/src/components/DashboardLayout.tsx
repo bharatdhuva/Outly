@@ -142,7 +142,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   // Pricing & Razorpay Billing states
   const [isPremium, setIsPremium] = useState(false);
-  const [showMobileDesktopNotice, setShowMobileDesktopNotice] = useState(false);
 
   useEffect(() => {
     if (userData?.user?.plan) {
@@ -150,16 +149,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       localStorage.setItem("outly_premium_user", String(userData.user.plan === "pro"));
     }
   }, [userData]);
-
-  useEffect(() => {
-    if (token) {
-      const isMobile = window.innerWidth < 768;
-      const dismissed = sessionStorage.getItem("outly_mobile_desktop_dismissed");
-      if (isMobile && !dismissed) {
-        setShowMobileDesktopNotice(true);
-      }
-    }
-  }, [token]);
 
   useEffect(() => {
     const checkPremiumStatus = () => {
@@ -927,51 +916,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </DialogContent>
       </Dialog>
 
-      {/* ─── MOBILE DESKTOP RECOMMENDATION POPUP ─── */}
-      {showMobileDesktopNotice && (
-        <div className="fixed bottom-4 left-4 right-4 z-50 md:hidden animate-slide-up select-none">
-          <div className="bg-card border border-border shadow-2xl rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden backdrop-blur-md">
-            <div className="flex items-start gap-3">
-              <div className="h-9 w-9 rounded-xl bg-outly-accent/10 text-outly-accent flex items-center justify-center shrink-0 mt-0.5 border border-outly-accent/20">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                  <line x1="8" y1="21" x2="16" y2="21"></line>
-                  <line x1="12" y1="17" x2="12" y2="21"></line>
-                </svg>
-              </div>
-              <div className="flex-1 pr-2">
-                <h4 className="text-xs font-bold text-foreground">Switch to Desktop View</h4>
-                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed font-medium">
-                  For the best experience and full features, we recommend accessing Outly on a Desktop or Laptop browser.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowMobileDesktopNotice(false);
-                  sessionStorage.setItem("outly_mobile_desktop_dismissed", "true");
-                }}
-                className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted transition cursor-pointer"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="flex justify-end pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowMobileDesktopNotice(false);
-                  sessionStorage.setItem("outly_mobile_desktop_dismissed", "true");
-                }}
-                className="w-full text-center rounded-xl bg-outly-accent text-white text-[11px] font-bold py-2.5 px-4 shadow-sm hover:brightness-110 transition active:scale-95 cursor-pointer uppercase tracking-wider"
-              >
-                Got It
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
     </div>
   );
