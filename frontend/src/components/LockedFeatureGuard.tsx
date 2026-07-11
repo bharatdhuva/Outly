@@ -201,7 +201,7 @@ export default function LockedFeatureGuard({
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[350px] border-border bg-white p-5 shadow-2xl rounded-2xl text-center space-y-4 relative select-none">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[350px] border-border bg-white p-5 shadow-2xl rounded-2xl text-center space-y-4 select-none">
           
           {/* Prominent top-right Close button */}
           <div className="absolute right-3 top-3">
