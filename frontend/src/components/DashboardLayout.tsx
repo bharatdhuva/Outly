@@ -116,6 +116,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [activeDropdown, setActiveDropdown] = useState<"resumes" | "jobs" | "tools" | null>(null);
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
   const dropdownCloseTimer = useRef<number | null>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileProfileMenuRef = useRef<HTMLDivElement>(null);
 
   // 1. Enforce authentication checking
   const token = localStorage.getItem("outly_token");
@@ -177,7 +179,27 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setActiveDropdown(null);
+    setProfileMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const clickedOutsideDesktop = !profileMenuRef.current || !profileMenuRef.current.contains(target);
+      const clickedOutsideMobile = !mobileProfileMenuRef.current || !mobileProfileMenuRef.current.contains(target);
+
+      if (clickedOutsideDesktop && clickedOutsideMobile) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    if (profileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileMenuOpen]);
 
   useEffect(() => {
     return () => {
@@ -608,7 +630,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-4">
             
             {/* Desktop Profile Info & Logout Dropdown */}
-            <div className="relative hidden md:block">
+            <div className="relative hidden md:block" ref={profileMenuRef}>
               <button 
                 onClick={() => setProfileMenuOpen(prev => !prev)}
                 className="flex items-center gap-2.5 select-none hover:opacity-85 transition focus:outline-none cursor-pointer py-1.5 px-2.5 rounded-xl hover:bg-black/5"
@@ -619,9 +641,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {profileMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-[110]" onClick={() => setProfileMenuOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
@@ -676,12 +696,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       Sign Out
                     </button>
                   </div>
-                </>
               )}
             </div>
 
             {/* Mobile Profile Avatar Trigger & Dropdown */}
-            <div className="relative md:hidden">
+            <div className="relative md:hidden" ref={mobileProfileMenuRef}>
               <button
                 onClick={() => setProfileMenuOpen(prev => !prev)}
                 type="button"
@@ -692,9 +711,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {profileMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-[110]" onClick={() => setProfileMenuOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
@@ -751,7 +768,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       Sign Out
                     </button>
                   </div>
-                </>
               )}
             </div>
           </div>

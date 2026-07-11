@@ -549,13 +549,17 @@ export default function AtsScorePage() {
         </div>
 
         {/* ─── RIGHT COLUMN: THE INTERACTIVE DASHBOARD CARD ─── */}
-        <div className={`lg:col-span-6 relative flex items-center justify-center w-full ${!result ? "hidden lg:flex" : "flex"}`}>
+        <div className="lg:col-span-6 relative flex items-center justify-center w-full">
           
           {/* Background glowing mesh radial effect */}
           <div className="absolute inset-0 bg-outly-accent/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>
           
           {/* Browser Frame Mockup Container */}
-          <div className="relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-2xl overflow-hidden flex flex-col z-10 select-none h-auto md:h-[600px] min-h-[500px]">
+          <div className={`relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-2xl overflow-hidden flex flex-col z-10 select-none transition-all duration-300 ${
+            (!result && !showScanLoader)
+              ? "h-[180px] min-h-[180px] md:h-[600px] md:min-h-[500px]"
+              : "h-auto md:h-[600px] min-h-[500px]"
+          }`}>
             
             {/* Browser Header Bar */}
             <div className="bg-secondary/40 border-b border-border/60 px-4 py-3 flex items-center justify-between">
@@ -905,18 +909,18 @@ export default function AtsScorePage() {
 
             {/* ─── MOCK DEMO CARD BLUR OVERLAY ─── */}
             {!result && (
-              <div className="absolute inset-0 bg-white/75 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-6 text-center select-none transition-all duration-300">
-                <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center mb-3">
-                  <Lock className="w-6 h-6 text-success animate-pulse shrink-0" />
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-30 flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none transition-all duration-300">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-success/10 flex items-center justify-center mb-2 sm:mb-3">
+                  <Lock className="w-4 h-4 sm:w-6 sm:h-6 text-success animate-pulse shrink-0" />
                 </div>
-                <h3 className="text-sm sm:text-base font-bold text-foreground mb-1">Upload to Unlock Complete Report</h3>
-                <p className="text-[11px] sm:text-xs text-muted-foreground max-w-xs leading-relaxed mb-5">
+                <h3 className="text-xs sm:text-base font-bold text-foreground mb-0.5 sm:mb-1">Upload to Unlock Complete Report</h3>
+                <p className="text-[10px] sm:text-xs text-muted-foreground max-w-xs leading-relaxed mb-3 sm:mb-5 hidden sm:block">
                   Upload your resume or select a sample from your vault to unlock the comprehensive 27-point ATS scoring report.
                 </p>
                 <div className="flex items-center gap-3">
                   <Button 
                     onClick={() => document.getElementById("resume-upload-input")?.click()}
-                    className="bg-success hover:bg-success/95 text-white text-xs font-bold px-5 py-2 rounded-lg shadow-sm transition h-9 shrink-0"
+                    className="bg-success hover:bg-success/95 text-white text-[10px] sm:text-xs font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-lg shadow-sm transition h-8 sm:h-9 shrink-0"
                   >
                     Upload Resume
                   </Button>
@@ -926,7 +930,7 @@ export default function AtsScorePage() {
                       const select = document.getElementById("vault-select-trigger") as HTMLSelectElement;
                       if (select) select.focus();
                     }}
-                    className="bg-muted hover:bg-muted/90 text-foreground text-xs font-bold px-4 py-2 rounded-lg border border-border h-9"
+                    className="bg-muted hover:bg-muted/90 text-foreground text-[10px] sm:text-xs font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-border h-8 sm:h-9"
                   >
                     Choose Vault
                   </Button>
