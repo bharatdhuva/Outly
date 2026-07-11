@@ -549,7 +549,7 @@ export default function AtsScorePage() {
         </div>
 
         {/* ─── RIGHT COLUMN: THE INTERACTIVE DASHBOARD CARD ─── */}
-        <div className="lg:col-span-6 relative flex items-center justify-center w-full">
+        <div className={`lg:col-span-6 relative flex items-center justify-center w-full ${!result ? "hidden lg:flex" : "flex"}`}>
           
           {/* Background glowing mesh radial effect */}
           <div className="absolute inset-0 bg-outly-accent/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>

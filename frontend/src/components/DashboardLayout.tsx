@@ -620,8 +620,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
               {profileMenuOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setProfileMenuOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-50 py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                  <div className="fixed inset-0 z-[110]" onClick={() => setProfileMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
@@ -693,8 +693,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
               {profileMenuOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setProfileMenuOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-50 py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                  <div className="fixed inset-0 z-[110]" onClick={() => setProfileMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
