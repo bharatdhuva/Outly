@@ -457,9 +457,9 @@ export default function AtsScorePage() {
                   <Button 
                     type="button"
                     disabled={parsingFile}
-                    className="bg-success hover:bg-success/90 text-white text-xs font-bold tracking-wider px-6 py-4 rounded-lg shadow-sm uppercase active:scale-[0.98] transition h-10 shrink-0 gap-2"
+                    className="bg-outly-accent hover:brightness-110 text-white text-xs font-bold tracking-normal px-5 py-2.5 rounded-full shadow-md shadow-outly-accent/15 active:scale-[0.98] transition h-9 shrink-0 gap-1.5 cursor-pointer max-w-full truncate"
                   >
-                    {parsingFile && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {parsingFile && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                     {parsingFile ? "Uploading..." : "Upload Your Resume"}
                   </Button>
 
@@ -944,11 +944,11 @@ export default function AtsScorePage() {
                 <p className="text-[10px] sm:text-xs text-muted-foreground max-w-xs leading-relaxed mb-3 sm:mb-5 hidden sm:block">
                   Upload your resume or select a sample from your vault to unlock the comprehensive 27-point ATS scoring report.
                 </p>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full justify-center max-w-[200px] sm:max-w-none">
                   <Button 
                     onClick={() => document.getElementById("resume-upload-input")?.click()}
                     disabled={parsingFile}
-                    className="bg-success hover:bg-success/95 text-white text-[10px] sm:text-xs font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-lg shadow-sm transition h-8 sm:h-9 shrink-0 gap-1.5"
+                    className="w-full sm:w-auto bg-outly-accent hover:brightness-110 text-white text-[11px] font-bold px-5 py-2 rounded-full shadow-md shadow-outly-accent/15 transition h-8.5 shrink-0 gap-1.5 cursor-pointer max-w-full truncate"
                   >
                     {parsingFile && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                     {parsingFile ? "Uploading..." : "Upload Resume"}
@@ -959,7 +959,7 @@ export default function AtsScorePage() {
                       const select = document.getElementById("vault-select-trigger") as HTMLSelectElement;
                       if (select) select.focus();
                     }}
-                    className="bg-muted hover:bg-muted/90 text-foreground text-[10px] sm:text-xs font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-border h-8 sm:h-9"
+                    className="w-full sm:w-auto bg-muted hover:bg-muted/90 text-foreground text-[11px] font-bold px-5 py-2 rounded-full border border-border h-8.5 cursor-pointer"
                   >
                     Choose Vault
                   </Button>

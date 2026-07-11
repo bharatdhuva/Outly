@@ -3,15 +3,24 @@ import { Download, FileText, Loader2, AlertCircle } from "lucide-react";
 
 const loadPdfJs = () => {
   return new Promise<any>((resolve) => {
-    if ((window as any).pdfjsLib) {
-      resolve((window as any).pdfjsLib);
+    const existingLib = (window as any).pdfjsLib;
+    if (existingLib && existingLib.version && existingLib.version.startsWith("3.")) {
+      resolve(existingLib);
       return;
     }
+    
+    // Clear out any conflicting or older versions (e.g. from Chrome extensions)
+    if (existingLib) {
+      delete (window as any).pdfjsLib;
+    }
+
     const script = document.createElement("script");
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
     script.onload = () => {
       const pdfjsLib = (window as any).pdfjsLib;
-      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      if (pdfjsLib) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
       resolve(pdfjsLib);
     };
     document.body.appendChild(script);
@@ -177,7 +186,7 @@ export default function PdfViewer({
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[380px] bg-secondary/15 rounded-xl border border-border/60 p-2 overflow-hidden">
+    <div className="relative w-full h-full flex flex-col items-center justify-center bg-secondary/15 rounded-xl border border-border/60 p-2 overflow-hidden">
       {loading && (
         <div className="flex flex-col items-center justify-center p-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -206,8 +215,8 @@ export default function PdfViewer({
       {/* The actual PDF container */}
       <div
         ref={containerRef}
-        className={`w-full flex-1 flex flex-col items-center overflow-y-auto max-h-[520px] custom-scrollbar p-2 ${
-          loading || error ? "hidden" : "block"
+        className={`w-full flex-1 flex flex-col items-center overflow-y-auto max-h-[460px] custom-scrollbar p-2 ${
+          loading || error ? "hidden" : "flex flex-col items-center"
         }`}
       />
     </div>

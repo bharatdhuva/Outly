@@ -332,7 +332,7 @@ export default function ResumeTailorPage() {
         </div>
 
         {/* Right Input: Resume Source */}
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[320px] md:h-[460px] text-left">
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col min-h-[460px] text-left">
           
           <div className="flex justify-between items-center border-b border-border/40 pb-3 mb-4">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -436,17 +436,17 @@ export default function ResumeTailorPage() {
                 </Button>
               </div>
 
-              <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
+              <div className="flex-1 min-h-[360px] overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
                 {resumeFile && resumeFile.type === "application/pdf" ? (
-                  <div className="flex-1 min-h-0 flex flex-col">
+                  <div className="flex-1 flex flex-col min-h-[360px]">
                     <PdfViewer file={resumeFile} />
                   </div>
                 ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
-                  <div className="flex-1 min-h-0 flex flex-col">
+                  <div className="flex-1 flex flex-col min-h-[360px]">
                     <PdfViewer url={api.resume.getFileUrl(Number(selectedVaultId))} />
                   </div>
                 ) : (
-                  <div className="flex-1 overflow-y-auto p-3.5 text-left max-h-[380px]">
+                  <div className="flex-1 overflow-y-auto p-3.5 text-left max-h-[360px]">
                     <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-foreground/80">{resumeText}</pre>
                   </div>
                 )}
@@ -457,22 +457,21 @@ export default function ResumeTailorPage() {
       </div>
 
       {/* Action Submit Area (Below inputs) */}
-      <div className="flex justify-between items-center rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
+      <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-3 sm:gap-4 rounded-xl border border-border bg-card p-3 sm:p-4 shadow-[var(--shadow-card)]">
         <span className="text-[11px] font-bold text-muted-foreground">Tailored live by Outly AI</span>
         <Button
-          size="lg"
-          className="bg-outly-accent hover:bg-outly-accent/95 text-white px-8 font-bold tracking-wider rounded-lg shadow-sm uppercase active:scale-[0.98] transition-all gap-2 h-11"
+          className="w-full sm:w-auto max-w-[220px] bg-outly-accent hover:brightness-110 text-white px-5 font-bold tracking-normal rounded-full shadow-md shadow-outly-accent/15 active:scale-[0.98] transition-all gap-1.5 h-9 text-xs cursor-pointer"
           onClick={handleTailor}
           disabled={tailoring || !resumeText || !jobDesc.trim()}
         >
           {tailoring ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Tailoring Resume...
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Tailoring...
             </>
           ) : (
             <>
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-3.5 w-3.5" />
               Tailor Resume
             </>
           )}
