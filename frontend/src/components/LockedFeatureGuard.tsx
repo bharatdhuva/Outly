@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, Sparkles, Check, ArrowRight, ShieldCheck, Zap, Loader2 } from "lucide-react";
+import { Lock, Sparkles, Check, ArrowRight, ShieldCheck, Zap, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
@@ -201,86 +201,60 @@ export default function LockedFeatureGuard({
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[480px] border-primary/40 bg-card/95 backdrop-blur-xl p-6 sm:p-8 shadow-2xl rounded-3xl relative text-center space-y-5">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[350px] border-border bg-white p-5 shadow-2xl rounded-2xl text-center space-y-4 relative select-none">
+          
+          {/* Prominent top-right Close button */}
+          <div className="absolute right-3 top-3">
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="p-1.5 rounded-full text-muted-foreground hover:bg-slate-100 hover:text-foreground transition cursor-pointer"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
           {/* Lock Icon Badge */}
-          <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 text-primary shadow-inner">
-            <Lock className="h-8 w-8 stroke-[2.2]" />
-            <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
-              <Sparkles className="h-3 w-3" />
-            </span>
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20 shadow-sm mt-1">
+            <Lock className="h-4.5 w-4.5 stroke-[2.2]" />
           </div>
 
           {/* Title & Description */}
-          <div className="space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-extrabold uppercase tracking-wider">
-              <Zap className="h-3 w-3" /> PRO AUTOMATION MODULE LOCKED
-            </span>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-              Unlock Full Access to {featureTitle}
+          <div className="space-y-1.5 text-center">
+            <h2 className="text-base font-bold text-foreground leading-snug">
+              Unlock {featureTitle}
             </h2>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
-              {description || `This feature requires an active Outly Cloud Plan. Pay & upgrade via Razorpay to unlock automated cold emailing, job search algorithms, and application tracking on autopilot!`}
+            <p className="text-[11.5px] text-muted-foreground leading-relaxed px-1">
+              Outly's advanced search engine and automation tools require a Cloud Plan. Get started with our trial below.
             </p>
           </div>
 
-          {/* Value Checklist */}
-          <div className="rounded-2xl bg-secondary/30 border border-border/60 p-4 text-left space-y-2.5">
-            <div className="flex items-center gap-2.5 text-xs font-semibold text-foreground">
-              <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                <Check className="h-3.5 w-3.5 stroke-[3]" />
-              </div>
-              <span>Unlimited Automated Cold Mail & Recruiter Outreach</span>
-            </div>
-            <div className="flex items-center gap-2.5 text-xs font-semibold text-foreground">
-              <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                <Check className="h-3.5 w-3.5 stroke-[3]" />
-              </div>
-              <span>Real-Time Job Match Finder & Auto-Tracker</span>
-            </div>
-            <div className="flex items-center gap-2.5 text-xs font-semibold text-foreground">
-              <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                <Check className="h-3.5 w-3.5 stroke-[3]" />
-              </div>
-              <span>Verified Recruiter Email Discovery & Priority AI Queue</span>
-            </div>
-          </div>
-
           {/* Action Buttons */}
-          <div className="pt-1 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="pt-1.5 flex flex-col gap-2.5">
             <Button
               onClick={handleRazorpayPayment}
               disabled={isProcessingPayment}
-              className="w-full sm:w-auto gap-2 bg-primary text-primary-foreground hover:brightness-110 rounded-full px-6 py-3 font-extrabold text-xs h-11 shadow-lg shadow-primary/25 cursor-pointer transition-all active:scale-[0.98]"
+              className="w-full bg-primary text-white hover:brightness-105 rounded-full font-bold text-[11.5px] h-9.5 shadow-sm cursor-pointer transition-all active:scale-[0.98]"
             >
               {isProcessingPayment ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Processing Order...</span>
-                </>
+                <Loader2 className="h-4 w-4 animate-spin mx-auto" />
               ) : (
-                <>
-                  <ShieldCheck className="h-4 w-4" />
-                  <span>Start 7-Day Trial @ ₹1/- Now</span>
-                </>
+                "Start 7-Day Trial @ ₹1"
               )}
             </Button>
 
-            <Button
-              variant="outline"
+            <button
+              type="button"
               onClick={() => {
                 setShowModal(false);
                 navigate("/pricing");
               }}
-              className="w-full sm:w-auto gap-1.5 rounded-full px-5 py-3 font-semibold text-xs h-11 border-border text-foreground hover:bg-secondary cursor-pointer"
+              className="w-full text-[11px] font-bold text-primary hover:underline h-8 cursor-pointer text-center"
             >
-              <span>View Pricing Plans</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
+              View pricing plans &rarr;
+            </button>
           </div>
-
-          <p className="text-[10px] text-muted-foreground/80 flex items-center justify-center gap-1">
-            <span>🔒 256-Bit Encrypted Secure Razorpay Checkout</span>
-          </p>
         </DialogContent>
       </Dialog>
     </>

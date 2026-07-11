@@ -106,6 +106,46 @@ function StatusIndicator({
   );
 }
 
+function SettingsSkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-8 space-y-8 animate-pulse pb-16">
+      {/* Header Skeleton */}
+      <div className="space-y-3 text-left">
+        <div className="h-5 w-20 bg-slate-200 rounded-full" />
+        <div className="h-9 w-64 bg-slate-200 rounded-xl" />
+        <div className="h-4 w-96 max-w-full bg-slate-100 rounded-lg" />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Card 1 Skeleton */}
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 sm:p-6 space-y-6">
+          <div className="h-4 w-40 bg-slate-200 rounded-lg pb-2 border-b border-slate-100" />
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="space-y-1.5">
+                <div className="h-3 w-20 bg-slate-100 rounded" />
+                <div className="h-9 w-full bg-slate-50 border border-slate-100 rounded-xl" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Card 2 Skeleton */}
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 sm:p-6 space-y-6 flex flex-col justify-between">
+          <div className="space-y-6">
+            <div className="h-4 w-40 bg-slate-200 rounded-lg pb-2 border-b border-slate-100" />
+            <div className="space-y-2">
+              <div className="h-3 w-32 bg-slate-100 rounded" />
+              <div className="h-14 w-full bg-slate-50 border border-slate-100 rounded-xl" />
+            </div>
+          </div>
+          <div className="h-10 w-32 bg-slate-200 rounded-full self-end mt-4" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -275,7 +315,7 @@ export default function SettingsPage() {
   };
 
   if (isLoading) {
-    return <DotLottieLoader message="Loading Outly Settings..." />;
+    return <SettingsSkeleton />;
   }
 
   return (
