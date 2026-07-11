@@ -549,17 +549,17 @@ export default function AtsScorePage() {
         </div>
 
         {/* ─── RIGHT COLUMN: THE INTERACTIVE DASHBOARD CARD ─── */}
-        <div className="lg:col-span-6 relative flex items-center justify-center">
+        <div className="lg:col-span-6 relative flex items-center justify-center w-full">
           
           {/* Background glowing mesh radial effect */}
           <div className="absolute inset-0 bg-outly-accent/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>
           
           {/* Browser Frame Mockup Container */}
-          <div className="relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-2xl overflow-hidden flex flex-col z-10 select-none h-[600px]">
+          <div className="relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-2xl overflow-hidden flex flex-col z-10 select-none h-auto md:h-[600px] min-h-[500px]">
             
             {/* Browser Header Bar */}
             <div className="bg-secondary/40 border-b border-border/60 px-4 py-3 flex items-center justify-between">
-              <div class="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-destructive/80"></div>
                 <div className="w-2.5 h-2.5 rounded-full bg-warning/80"></div>
                 <div className="w-2.5 h-2.5 rounded-full bg-success/80"></div>
@@ -572,10 +572,10 @@ export default function AtsScorePage() {
             </div>
 
             {/* Main Score Dashboard Layout */}
-            <div className="grid grid-cols-12 flex-1 h-[calc(100%-44px)]">
+            <div className="flex flex-col md:grid md:grid-cols-12 flex-1 h-auto md:h-[calc(100%-44px)]">
               
               {/* Left Panel: Score circular dial & category selector buttons (5/12 cols) */}
-              <div className="col-span-5 border-r border-border/60 p-4 bg-secondary/10 flex flex-col justify-between h-full overflow-y-auto">
+              <div className="col-span-12 md:col-span-5 border-b md:border-b-0 md:border-r border-border/60 p-4 bg-secondary/10 flex flex-col justify-between h-auto md:h-full overflow-y-auto">
                 
                 <div className="space-y-4">
                   <span className="text-[11px] font-bold text-foreground/80 tracking-tight block">Resume Score</span>
@@ -671,7 +671,7 @@ export default function AtsScorePage() {
               </div>
 
               {/* Right Panel: Detailed Checklist items of active category (7/12 cols) */}
-              <div className="col-span-7 p-5 bg-white overflow-y-auto h-full flex flex-col justify-between text-left">
+              <div className="col-span-12 md:col-span-7 p-5 bg-white overflow-y-auto h-auto md:h-full flex flex-col justify-between text-left">
                 
                 <div className="space-y-4">
                   {/* Render content dynamically based on active category */}
@@ -741,8 +741,8 @@ export default function AtsScorePage() {
                     <div className="space-y-4 animate-slide-in">
                       <div className="flex justify-between items-center border-b border-border pb-3">
                         <div>
-                          <h4 class="text-xs font-extrabold text-foreground uppercase tracking-wider">Format &amp; Density</h4>
-                          <p class="text-[9px] text-muted-foreground mt-0.5">Audits spacing, layout margins, fonts, and lengths.</p>
+                          <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Format &amp; Density</h4>
+                          <p className="text-[9px] text-muted-foreground mt-0.5">Audits spacing, layout margins, fonts, and lengths.</p>
                         </div>
                         <span className="text-xs font-bold text-warning">{formatScore}%</span>
                       </div>
@@ -786,8 +786,8 @@ export default function AtsScorePage() {
                     <div className="space-y-4 animate-slide-in">
                       <div className="flex justify-between items-center border-b border-border pb-3">
                         <div>
-                          <h4 class="text-xs font-extrabold text-foreground uppercase tracking-wider">Style &amp; Grammar</h4>
-                          <p class="text-[9px] text-muted-foreground mt-0.5">Scans action verb ratios, redundant phrases, and buzzwords.</p>
+                          <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Style &amp; Grammar</h4>
+                          <p className="text-[9px] text-muted-foreground mt-0.5">Scans action verb ratios, redundant phrases, and buzzwords.</p>
                         </div>
                         <span className="text-xs font-bold text-warning">{styleScore}%</span>
                       </div>
@@ -816,8 +816,8 @@ export default function AtsScorePage() {
                     <div className="space-y-4 animate-slide-in">
                       <div className="flex justify-between items-center border-b border-border pb-3">
                         <div>
-                          <h4 class="text-xs font-extrabold text-foreground uppercase tracking-wider">Section Anchors</h4>
-                          <p class="text-[9px] text-muted-foreground mt-0.5">Confirms presence of standard CV structural blocks.</p>
+                          <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Section Anchors</h4>
+                          <p className="text-[9px] text-muted-foreground mt-0.5">Confirms presence of standard CV structural blocks.</p>
                         </div>
                         <span className="text-xs font-bold text-success">{sectionsScore}%</span>
                       </div>
@@ -851,8 +851,8 @@ export default function AtsScorePage() {
                     <div className="space-y-4 animate-slide-in">
                       <div className="flex justify-between items-center border-b border-border pb-3">
                         <div>
-                          <h4 class="text-xs font-extrabold text-foreground uppercase tracking-wider">Role Alignment</h4>
-                          <p class="text-[9px] text-muted-foreground mt-0.5">Grades seniority progression, titles, and match quality.</p>
+                          <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Role Alignment</h4>
+                          <p className="text-[9px] text-muted-foreground mt-0.5">Grades seniority progression, titles, and match quality.</p>
                         </div>
                         <span className="text-xs font-bold text-warning">{rolesScore}%</span>
                       </div>

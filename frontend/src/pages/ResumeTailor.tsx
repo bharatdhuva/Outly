@@ -315,7 +315,7 @@ export default function ResumeTailorPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
         
         {/* Left Input: Job Description */}
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[460px] text-left space-y-4">
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[320px] md:h-[460px] text-left space-y-4">
           <div className="flex justify-between items-center border-b border-border/40 pb-3">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
               <FileText className="h-4.5 w-4.5 text-outly-accent" />
@@ -332,7 +332,7 @@ export default function ResumeTailorPage() {
         </div>
 
         {/* Right Input: Resume Source */}
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[460px] text-left">
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[320px] md:h-[460px] text-left">
           
           <div className="flex justify-between items-center border-b border-border/40 pb-3 mb-4">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -498,7 +498,7 @@ export default function ResumeTailorPage() {
           
           {/* Left Panel: Tailored Resume preview panel (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[600px] text-left">
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[380px] md:h-[600px] text-left">
               <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-border/40 pb-3">
                 <div>
                   <h3 className="text-[15px] font-bold text-foreground flex items-center gap-2">

@@ -19,6 +19,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Pricing from "./pages/Pricing";
 import Support from "./pages/Support";
+import MobileHub from "./pages/MobileHub";
 import { PageTransition, GlobalPageTransitionInterceptor } from "./components/PageTransition";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,9 @@ const App = () => (
                   <Route path="/analytics" element={<PageTransition><Analytics /></PageTransition>} />
                   <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
                   <Route path="/support" element={<PageTransition><Support /></PageTransition>} />
+                  <Route path="/resumes" element={<PageTransition><MobileHub category="resumes" /></PageTransition>} />
+                  <Route path="/jobs" element={<PageTransition><MobileHub category="jobs" /></PageTransition>} />
+                  <Route path="/tools" element={<PageTransition><MobileHub category="tools" /></PageTransition>} />
                   <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
                 </Routes>
               </DashboardLayout>

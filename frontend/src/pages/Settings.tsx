@@ -279,7 +279,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
+    <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
       
       {/* Hero text header */}
       <div className="space-y-3 text-left">
@@ -304,7 +304,7 @@ export default function SettingsPage() {
         <div className="grid gap-6 lg:grid-cols-2">
           
           {/* Profile & Target Career Context */}
-          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-5">
+          <div className="rounded-2xl border border-border bg-white p-4 sm:p-6 shadow-sm space-y-5">
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
               <User className="h-4 w-4 text-outly-accent" />
               <h2 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/80">
@@ -366,7 +366,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Integrations & Account */}
-          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-5 flex flex-col justify-between">
+          <div className="rounded-2xl border border-border bg-white p-4 sm:p-6 shadow-sm space-y-5 flex flex-col justify-between">
             <div className="space-y-5">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
                 <FileText className="h-4 w-4 text-outly-accent" />
@@ -379,7 +379,7 @@ export default function SettingsPage() {
 
                 <div className="space-y-2 pt-2">
                   <label className="text-xs font-semibold text-foreground/80">Connected Sender Email</label>
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 overflow-hidden">
                     <div className="flex items-center gap-2">
                       <MailIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="font-mono text-xs font-semibold text-foreground">

@@ -16,7 +16,8 @@ import {
   HelpCircle,
   Briefcase,
   Wrench,
-  User
+  User,
+  Search
 } from "lucide-react";
 import {
   Dialog,
@@ -60,10 +61,55 @@ const pageTitles: Record<string, string> = {
   "/support": "Support & Help"
 };
 
+function PlanStatusAvatar({
+  isPremium,
+  profilePic,
+  fullName,
+  initials,
+  sizeClass = "h-8 w-8 text-[11px]",
+  innerBorderClass = "border-2 border-white",
+  plainBorderClass = "border border-primary/10"
+}: {
+  isPremium: boolean;
+  profilePic?: string | null;
+  fullName: string;
+  initials: string;
+  sizeClass?: string;
+  innerBorderClass?: string;
+  plainBorderClass?: string;
+}) {
+  if (isPremium) {
+    return (
+      <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-[#ff4e50] via-[#f9d423] to-[#2dc08d] shadow-sm flex items-center justify-center shrink-0 transition-transform duration-200">
+        <div className={`relative ${sizeClass} overflow-hidden rounded-full bg-primary font-bold text-primary-foreground shrink-0 shadow-inner ${innerBorderClass}`}>
+          {profilePic ? (
+            <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              {initials}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`relative ${sizeClass} overflow-hidden rounded-full bg-primary font-bold text-primary-foreground shrink-0 shadow-inner ${plainBorderClass}`}>
+      {profilePic ? (
+        <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center">
+          {initials}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   
   // Hover states for desktop dropdowns
@@ -141,7 +187,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }, [pageTitle]);
 
   useEffect(() => {
-    setMobileMenuOpen(false);
     setActiveDropdown(null);
   }, [location.pathname]);
 
@@ -573,83 +618,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           {/* Right Side: Profile initials & Logout CTA */}
           <div className="flex items-center gap-4">
             
-            {/* Upgrade button (visible if not premium) */}
-            {!isPremium ? (
-              <button
-                onClick={handleUpgradeClick}
-                type="button"
-                className="premium-upgrade-btn h-9 px-3.5 gap-2 text-[#0b132b] flex items-center justify-center rounded-full shrink-0 hidden md:flex"
-              >
-                <div className="premium-sparkle-group w-5 h-5 shrink-0">
-                  <svg className="premium-sparkle-svg w-full h-full" viewBox="0 0 100 100">
-                    <defs>
-                      <linearGradient id="nav-grad-top-left" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#2dc08d" />
-                        <stop offset="100%" stopColor="#19cc95" />
-                      </linearGradient>
-                      <linearGradient id="nav-grad-top-right" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#34d399" />
-                        <stop offset="100%" stopColor="#10b981" />
-                      </linearGradient>
-                      <linearGradient id="nav-grad-bottom-right" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#059669" />
-                        <stop offset="100%" stopColor="#047857" />
-                      </linearGradient>
-                      <linearGradient id="nav-grad-bottom-left" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#10b981" />
-                        <stop offset="100%" stopColor="#065f46" />
-                      </linearGradient>
-                    </defs>
- 
-                    <g className="premium-small-sparkle-1">
-                      <path d="M 80 25 L 80 15 C 80 21 77 25 71 25 Z" fill="url(#nav-grad-top-left)" />
-                      <path d="M 80 25 L 89 25 C 83 25 80 21 80 15 Z" fill="url(#nav-grad-top-right)" />
-                      <path d="M 80 25 L 80 35 C 80 29 83 25 89 25 Z" fill="url(#nav-grad-bottom-right)" />
-                      <path d="M 80 25 L 71 25 C 77 25 80 29 80 35 Z" fill="url(#nav-grad-bottom-left)" />
-                    </g>
- 
-                    <g className="premium-small-sparkle-2">
-                      <path d="M 20 75 L 20 67 C 20 72 17 75 12 75 Z" fill="url(#nav-grad-top-left)" />
-                      <path d="M 20 75 L 28 75 C 23 75 20 72 20 67 Z" fill="url(#nav-grad-top-right)" />
-                      <path d="M 20 75 L 20 83 C 20 78 23 75 28 75 Z" fill="url(#nav-grad-bottom-right)" />
-                      <path d="M 20 75 L 12 75 C 17 75 20 78 20 83 Z" fill="url(#nav-grad-bottom-left)" />
-                    </g>
- 
-                    <g className="premium-main-sparkle">
-                      <path d="M 50 50 L 50 10 C 50 32 32 50 10 50 Z" fill="url(#nav-grad-top-left)" />
-                      <path d="M 50 50 L 90 50 C 68 50 50 32 50 10 Z" fill="url(#nav-grad-top-right)" />
-                      <path d="M 50 50 L 50 90 C 50 68 68 50 90 50 Z" fill="url(#nav-grad-bottom-right)" />
-                      <path d="M 50 50 L 10 50 C 32 50 50 68 50 90 Z" fill="url(#nav-grad-bottom-left)" />
-                    </g>
-                  </svg>
-                </div>
-                <span className="text-[11px] font-bold tracking-wider uppercase text-[#0b132b]">Upgrade</span>
-                <svg className="premium-arrow-icon w-3.5 h-3.5 text-[#0b132b]" viewBox="0 0 24 24">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
-            ) : (
-              <div className="inline-flex items-center justify-center rounded-xl bg-outly-accent/10 border border-outly-accent/20 text-[10px] font-bold tracking-wider uppercase py-1.5 px-3 text-outly-accent select-none gap-1 hidden md:inline-flex">
-                <Sparkles className="h-3.5 w-3.5 fill-outly-accent/20" />
-                <span>Cloud Plan</span>
-              </div>
-            )}
-
             {/* Desktop Profile Info & Logout Dropdown */}
             <div className="relative hidden md:block">
               <button 
                 onClick={() => setProfileMenuOpen(prev => !prev)}
                 className="flex items-center gap-2.5 select-none hover:opacity-85 transition focus:outline-none cursor-pointer py-1.5 px-2.5 rounded-xl hover:bg-black/5"
               >
-                <div className="relative h-8 w-8 overflow-hidden rounded-full border border-primary/10 shadow-sm shrink-0">
-                  {profilePic ? (
-                    <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-primary text-[11px] font-bold text-primary-foreground">
-                      {initials}
-                    </div>
-                  )}
-                </div>
+                <PlanStatusAvatar isPremium={isPremium} profilePic={profilePic} fullName={fullName} initials={initials} />
                 <span className="text-[12px] font-bold text-foreground max-w-[120px] truncate">{fullName}</span>
                 <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform duration-200 ${profileMenuOpen ? "rotate-180" : ""}`} />
               </button>
@@ -661,6 +636,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
+                    {!isPremium && (
+                      <button 
+                        onClick={() => {
+                          setProfileMenuOpen(false);
+                          navigate("/pricing");
+                        }}
+                        className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
+                        Upgrade to Pro
+                      </button>
+                    )}
                     <button 
                       onClick={() => {
                         setProfileMenuOpen(false);
@@ -697,151 +684,72 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            {/* Mobile Profile Avatar Trigger (opens side drawer) */}
-            <button
-              onClick={() => setMobileMenuOpen(prev => !prev)}
-              type="button"
-              className="md:hidden flex items-center justify-center focus:outline-none cursor-pointer rounded-full overflow-hidden border border-primary/10 shadow-sm shrink-0"
-              aria-label="Open profile menu"
-            >
-              <div className="relative h-8 w-8 overflow-hidden rounded-full shrink-0">
-                {profilePic ? (
-                  <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-primary text-[11px] font-bold text-primary-foreground">
-                    {initials}
-                  </div>
-                )}
-              </div>
-            </button>
-          </div>
-          </div>
-
-            {/* ─── MOBILE PREMIUM SIDE DRAWER ─── */}
-        <div className={`md:hidden fixed inset-0 z-[150] transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
-          {/* Backdrop Overlay */}
-          <div 
-            className="absolute inset-0 bg-black/40 transition-opacity duration-300"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          
-          {/* Right Drawer Panel */}
-          <div className={`absolute top-0 right-0 bottom-0 w-[290px] sm:w-[330px] bg-[#FAF6EE] border-l border-[#e8e2d5] shadow-2xl flex flex-col justify-between transition-transform duration-300 ease-in-out select-none p-6 ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
-            
-            {/* Header: User Profile Info */}
-            <div className="flex items-center justify-between border-b border-[#e8e2d5] pb-4">
-              <div className="flex items-center gap-3">
-                <div className="relative h-10 w-10 overflow-hidden rounded-full border border-primary/10 bg-primary text-xs font-bold text-primary-foreground shrink-0 shadow-inner">
-                  {profilePic ? (
-                    <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      {initials}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <p className="font-bold text-sm text-foreground leading-none">{fullName}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1 font-medium">Workspace Active</p>
-                </div>
-              </div>
-              <button 
-                type="button"
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-black/5 transition"
-                aria-label="Close menu"
-              >
-                <X className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </div>
-
-            {/* Middle: Plan Status & Navigation Links */}
-            <div className="flex-1 py-6 flex flex-col gap-6 overflow-y-auto">
-              {/* Cloud Plan / Upgrade Status */}
-              <div className="px-1 flex flex-col gap-2">
-                <div className="text-[9px] font-extrabold text-muted-foreground/60 uppercase tracking-[0.15em] mb-1">
-                  Membership
-                </div>
-                {isPremium ? (
-                  <div className="inline-flex items-center justify-center rounded-xl bg-outly-accent/10 border border-outly-accent/20 text-[10px] font-bold tracking-wider uppercase py-2 px-3 text-outly-accent select-none gap-1.5 self-start shadow-sm">
-                    <Sparkles className="h-3.5 w-3.5 fill-outly-accent/20" />
-                    <span>Cloud Plan</span>
-                  </div>
-                ) : (
-                  <button
-                    onClick={(e) => {
-                      setMobileMenuOpen(false);
-                      handleUpgradeClick(e);
-                    }}
-                    type="button"
-                    className="premium-upgrade-btn h-10 w-full gap-2 text-[#0b132b] flex items-center justify-center rounded-xl shrink-0 font-bold text-[11px] tracking-wider uppercase shadow-md transition-all active:scale-[0.98]"
-                  >
-                    <Sparkles className="h-3.5 w-3.5 text-[#0b132b]" />
-                    <span>Upgrade to Pro</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Navigation Group */}
-              <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-extrabold text-muted-foreground/60 uppercase tracking-[0.15em] mb-2 px-1">
-                  Navigation
-                </div>
-
-                <Link
-                  to="/settings"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 rounded-xl p-3 text-xs font-bold uppercase tracking-wider transition duration-150 ${
-                    location.pathname === "/settings" 
-                      ? "bg-primary/10 text-primary font-extrabold" 
-                      : "text-outly-dark/70 hover:bg-black/5"
-                  }`}
-                >
-                  <SettingsIcon className="h-4 w-4" />
-                  <span>Settings</span>
-                </Link>
-
-                <Link
-                  to="/pricing"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 rounded-xl p-3 text-xs font-bold uppercase tracking-wider transition duration-150 ${
-                    location.pathname === "/pricing" 
-                      ? "bg-primary/10 text-primary font-extrabold" 
-                      : "text-outly-dark/70 hover:bg-black/5"
-                  }`}
-                >
-                  <Sparkles className="h-4 w-4 text-amber-500 fill-amber-500/10" />
-                  <span>Pricing</span>
-                </Link>
-
-                <Link
-                  to="/support"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 rounded-xl p-3 text-xs font-bold uppercase tracking-wider transition duration-150 ${
-                    location.pathname === "/support" 
-                      ? "bg-primary/10 text-primary font-extrabold" 
-                      : "text-outly-dark/70 hover:bg-black/5"
-                  }`}
-                >
-                  <HelpCircle className="h-4 w-4 text-outly-accent" />
-                  <span>Support</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Bottom: Sign Out Action */}
-            <div className="border-t border-[#e8e2d5] pt-4 mt-auto">
+            {/* Mobile Profile Avatar Trigger & Dropdown */}
+            <div className="relative md:hidden">
               <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  handleLogout();
-                }}
+                onClick={() => setProfileMenuOpen(prev => !prev)}
                 type="button"
-                className="w-full flex items-center justify-center rounded-xl bg-destructive/10 text-destructive text-xs font-bold py-3.5 uppercase tracking-wider hover:bg-destructive/15 active:scale-[0.98] transition gap-2"
+                className="flex items-center justify-center focus:outline-none cursor-pointer shrink-0"
+                aria-label="Open profile menu"
               >
-                <LogOut className="h-4 w-4" />
-                Sign Out
+                <PlanStatusAvatar isPremium={isPremium} profilePic={profilePic} fullName={fullName} initials={initials} />
               </button>
+
+              {profileMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setProfileMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-50 py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                    <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
+                      {fullName}
+                    </div>
+                    
+                    {!isPremium && (
+                      <button 
+                        onClick={() => {
+                          setProfileMenuOpen(false);
+                          navigate("/pricing");
+                        }}
+                        className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
+                        Upgrade to Pro
+                      </button>
+                    )}
+
+                    <button 
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        navigate("/settings");
+                      }}
+                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
+                    >
+                      <SettingsIcon className="h-3.5 w-3.5" />
+                      Settings
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        navigate("/support");
+                      }}
+                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
+                    >
+                      <HelpCircle className="h-3.5 w-3.5 text-outly-accent" />
+                      Support &amp; Help
+                    </button>
+                    <div className="h-px bg-[#e8e2d5] my-1" />
+                    <button 
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full text-left text-xs font-semibold text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      Sign Out
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -857,21 +765,29 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         
         {/* Tab 1: Resumes */}
         <Link 
-          to="/resume-vault"
-          className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-[11px] font-semibold"
+          to="/resumes"
+          className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
         >
           {(() => {
-            const isActive = location.pathname === "/resume-vault" || 
+            const isActive = location.pathname === "/resumes" ||
+                             location.pathname === "/resume-vault" || 
                              location.pathname === "/resume-tailor" || 
                              location.pathname === "/ats-score" || 
                              location.pathname.startsWith("/resume-");
             return (
               <>
-                <ScrollText className={`h-[21px] w-[21px] transition-colors duration-200 ${isActive ? "text-primary" : "text-outly-dark/40"}`} />
-                <span className={`mt-1 transition-colors duration-200 ${isActive ? "text-primary font-bold" : "text-outly-dark/50"}`}>Resumes</span>
-                {isActive && (
-                  <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
-                )}
+                <div className={`px-5 py-1 rounded-full transition-all duration-200 border ${
+                  isActive 
+                    ? "bg-primary/15 text-primary border-primary/5 shadow-[0_2px_8px_rgba(45,192,141,0.12)]" 
+                    : "bg-transparent text-outly-dark/40 border-transparent"
+                }`}>
+                  <ScrollText className="h-5 w-5 transition-colors duration-200" />
+                </div>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${
+                  isActive ? "font-bold text-primary" : "font-medium text-outly-dark/50"
+                }`}>
+                  Resumes
+                </span>
               </>
             );
           })()}
@@ -879,20 +795,28 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         {/* Tab 2: Jobs */}
         <Link 
-          to="/applications"
-          className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-[11px] font-semibold"
+          to="/jobs"
+          className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
         >
           {(() => {
-            const isActive = location.pathname === "/applications" || 
+            const isActive = location.pathname === "/jobs" ||
+                             location.pathname === "/applications" || 
                              location.pathname === "/job-search" || 
                              location.pathname === "/analytics";
             return (
               <>
-                <Briefcase className={`h-[21px] w-[21px] transition-colors duration-200 ${isActive ? "text-primary" : "text-outly-dark/40"}`} />
-                <span className={`mt-1 transition-colors duration-200 ${isActive ? "text-primary font-bold" : "text-outly-dark/50"}`}>Jobs</span>
-                {isActive && (
-                  <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
-                )}
+                <div className={`px-5 py-1 rounded-full transition-all duration-200 border ${
+                  isActive 
+                    ? "bg-primary/15 text-primary border-primary/5 shadow-[0_2px_8px_rgba(45,192,141,0.12)]" 
+                    : "bg-transparent text-outly-dark/40 border-transparent"
+                }`}>
+                  <Briefcase className="h-5 w-5 transition-colors duration-200" />
+                </div>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${
+                  isActive ? "font-bold text-primary" : "font-medium text-outly-dark/50"
+                }`}>
+                  Jobs
+                </span>
               </>
             );
           })()}
@@ -900,20 +824,28 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         {/* Tab 3: Tools */}
         <Link 
-          to="/cold-mail"
-          className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-[11px] font-semibold"
+          to="/tools"
+          className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
         >
           {(() => {
-            const isActive = location.pathname === "/cold-mail" || 
+            const isActive = location.pathname === "/tools" ||
+                             location.pathname === "/cold-mail" || 
                              location.pathname === "/content-scheduler" || 
                              location.pathname === "/logs";
             return (
               <>
-                <Wrench className={`h-[21px] w-[21px] transition-colors duration-200 ${isActive ? "text-primary" : "text-outly-dark/40"}`} />
-                <span className={`mt-1 transition-colors duration-200 ${isActive ? "text-primary font-bold" : "text-outly-dark/50"}`}>Tools</span>
-                {isActive && (
-                  <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
-                )}
+                <div className={`px-5 py-1 rounded-full transition-all duration-200 border ${
+                  isActive 
+                    ? "bg-primary/15 text-primary border-primary/5 shadow-[0_2px_8px_rgba(45,192,141,0.12)]" 
+                    : "bg-transparent text-outly-dark/40 border-transparent"
+                }`}>
+                  <Wrench className="h-5 w-5 transition-colors duration-200" />
+                </div>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${
+                  isActive ? "font-bold text-primary" : "font-medium text-outly-dark/50"
+                }`}>
+                  Tools
+                </span>
               </>
             );
           })()}
@@ -922,7 +854,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         {/* Tab 4: Profile */}
         <Link 
           to="/settings"
-          className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-[11px] font-semibold"
+          className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
         >
           {(() => {
             const isActive = location.pathname === "/settings" || 
@@ -930,11 +862,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                              location.pathname === "/support";
             return (
               <>
-                <User className={`h-[21px] w-[21px] transition-colors duration-200 ${isActive ? "text-primary" : "text-outly-dark/40"}`} />
-                <span className={`mt-1 transition-colors duration-200 ${isActive ? "text-primary font-bold" : "text-outly-dark/50"}`}>Profile</span>
-                {isActive && (
-                  <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
-                )}
+                <div className={`px-5 py-1 rounded-full transition-all duration-200 border ${
+                  isActive 
+                    ? "bg-primary/15 text-primary border-primary/5 shadow-[0_2px_8px_rgba(45,192,141,0.12)]" 
+                    : "bg-transparent text-outly-dark/40 border-transparent"
+                }`}>
+                  <User className="h-5 w-5 transition-colors duration-200" />
+                </div>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${
+                  isActive ? "font-bold text-primary" : "font-medium text-outly-dark/50"
+                }`}>
+                  Profile
+                </span>
               </>
             );
           })()}
