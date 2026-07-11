@@ -13,7 +13,10 @@ import {
   KeyRound,
   Sparkles,
   Calendar,
-  HelpCircle
+  HelpCircle,
+  Briefcase,
+  Wrench,
+  User
 } from "lucide-react";
 import {
   Dialog,
@@ -575,7 +578,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <button
                 onClick={handleUpgradeClick}
                 type="button"
-                className="premium-upgrade-btn h-9 px-3.5 gap-2 text-[#0b132b] flex items-center justify-center rounded-full shrink-0"
+                className="premium-upgrade-btn h-9 px-3.5 gap-2 text-[#0b132b] flex items-center justify-center rounded-full shrink-0 hidden md:flex"
               >
                 <div className="premium-sparkle-group w-5 h-5 shrink-0">
                   <svg className="premium-sparkle-svg w-full h-full" viewBox="0 0 100 100">
@@ -626,7 +629,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </svg>
               </button>
             ) : (
-              <div className="inline-flex items-center justify-center rounded-xl bg-outly-accent/10 border border-outly-accent/20 text-[10px] font-bold tracking-wider uppercase py-1.5 px-3 text-outly-accent select-none gap-1">
+              <div className="inline-flex items-center justify-center rounded-xl bg-outly-accent/10 border border-outly-accent/20 text-[10px] font-bold tracking-wider uppercase py-1.5 px-3 text-outly-accent select-none gap-1 hidden md:inline-flex">
                 <Sparkles className="h-3.5 w-3.5 fill-outly-accent/20" />
                 <span>Cloud Plan</span>
               </div>
@@ -694,211 +697,249 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            {/* Mobile menu button */}
+            {/* Mobile Profile Avatar Trigger (opens side drawer) */}
             <button
               onClick={() => setMobileMenuOpen(prev => !prev)}
               type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground md:hidden shadow-sm"
-              aria-label="Toggle Menu"
+              className="md:hidden flex items-center justify-center focus:outline-none cursor-pointer rounded-full overflow-hidden border border-primary/10 shadow-sm shrink-0"
+              aria-label="Open profile menu"
             >
-              {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            </button>
-          </div>
-
-        </div>
-
-        {/* ─── MOBILE RESPONSIVE NAVIGATION DRAWER ─── */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card px-4 py-5 space-y-5 animate-slide-up shadow-inner select-none max-h-[85vh] overflow-y-auto">
-            
-            <div className="flex items-center gap-3 border-b border-border pb-4 select-none">
-              <div className="relative flex h-10 w-10 overflow-hidden rounded-full border border-border/40 bg-primary text-xs font-bold text-primary-foreground">
+              <div className="relative h-8 w-8 overflow-hidden rounded-full shrink-0">
                 {profilePic ? (
                   <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center">
+                  <div className="flex h-full w-full items-center justify-center bg-primary text-[11px] font-bold text-primary-foreground">
                     {initials}
                   </div>
                 )}
               </div>
-              <div>
-                <p className="font-bold text-sm text-foreground leading-none">{fullName}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Workspace Session Active</p>
+            </button>
+          </div>
+
+            {/* ─── MOBILE PREMIUM SIDE DRAWER ─── */}
+        <div className={`md:hidden fixed inset-0 z-[150] transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+          {/* Backdrop Overlay */}
+          <div 
+            className="absolute inset-0 bg-black/40 transition-opacity duration-300"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          
+          {/* Right Drawer Panel */}
+          <div className={`absolute top-0 right-0 bottom-0 w-[290px] sm:w-[330px] bg-[#FAF6EE] border-l border-[#e8e2d5] shadow-2xl flex flex-col justify-between transition-transform duration-300 ease-in-out select-none p-6 ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
+            
+            {/* Header: User Profile Info */}
+            <div className="flex items-center justify-between border-b border-[#e8e2d5] pb-4">
+              <div className="flex items-center gap-3">
+                <div className="relative h-10 w-10 overflow-hidden rounded-full border border-primary/10 bg-primary text-xs font-bold text-primary-foreground shrink-0 shadow-inner">
+                  {profilePic ? (
+                    <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      {initials}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="font-bold text-sm text-foreground leading-none">{fullName}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 font-medium">Workspace Active</p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-black/5 transition"
+                aria-label="Close menu"
+              >
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Middle: Plan Status & Navigation Links */}
+            <div className="flex-1 py-6 flex flex-col gap-6 overflow-y-auto">
+              {/* Cloud Plan / Upgrade Status */}
+              <div className="px-1 flex flex-col gap-2">
+                <div className="text-[9px] font-extrabold text-muted-foreground/60 uppercase tracking-[0.15em] mb-1">
+                  Membership
+                </div>
+                {isPremium ? (
+                  <div className="inline-flex items-center justify-center rounded-xl bg-outly-accent/10 border border-outly-accent/20 text-[10px] font-bold tracking-wider uppercase py-2 px-3 text-outly-accent select-none gap-1.5 self-start shadow-sm">
+                    <Sparkles className="h-3.5 w-3.5 fill-outly-accent/20" />
+                    <span>Cloud Plan</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      setMobileMenuOpen(false);
+                      handleUpgradeClick(e);
+                    }}
+                    type="button"
+                    className="premium-upgrade-btn h-10 w-full gap-2 text-[#0b132b] flex items-center justify-center rounded-xl shrink-0 font-bold text-[11px] tracking-wider uppercase shadow-md transition-all active:scale-[0.98]"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 text-[#0b132b]" />
+                    <span>Upgrade to Pro</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Navigation Group */}
+              <div className="flex flex-col gap-1">
+                <div className="text-[9px] font-extrabold text-muted-foreground/60 uppercase tracking-[0.15em] mb-2 px-1">
+                  Navigation
+                </div>
+
+                <Link
+                  to="/settings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 rounded-xl p-3 text-xs font-bold uppercase tracking-wider transition duration-150 ${
+                    location.pathname === "/settings" 
+                      ? "bg-primary/10 text-primary font-extrabold" 
+                      : "text-outly-dark/70 hover:bg-black/5"
+                  }`}
+                >
+                  <SettingsIcon className="h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
+
+                <Link
+                  to="/pricing"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 rounded-xl p-3 text-xs font-bold uppercase tracking-wider transition duration-150 ${
+                    location.pathname === "/pricing" 
+                      ? "bg-primary/10 text-primary font-extrabold" 
+                      : "text-outly-dark/70 hover:bg-black/5"
+                  }`}
+                >
+                  <Sparkles className="h-4 w-4 text-amber-500 fill-amber-500/10" />
+                  <span>Pricing</span>
+                </Link>
+
+                <Link
+                  to="/support"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 rounded-xl p-3 text-xs font-bold uppercase tracking-wider transition duration-150 ${
+                    location.pathname === "/support" 
+                      ? "bg-primary/10 text-primary font-extrabold" 
+                      : "text-outly-dark/70 hover:bg-black/5"
+                  }`}
+                >
+                  <HelpCircle className="h-4 w-4 text-outly-accent" />
+                  <span>Support</span>
+                </Link>
               </div>
             </div>
 
-            {/* Collapsible Accordion Menus */}
-            <Accordion type="single" collapsible className="w-full space-y-1">
-              
-              {/* ACCORDION ITEM: RESUMES */}
-              <AccordionItem value="resumes" className="border-b border-border/55">
-                <AccordionTrigger className="text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground py-3 hover:no-underline">
-                  Resumes
-                </AccordionTrigger>
-                <AccordionContent className="pb-3 pt-1 space-y-2.5">
-                  <Link to="/ats-score" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="8 12 11 15 16 9" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">ATS Resume Checker</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Evaluate resume compatibility</span>
-                    </div>
-                  </Link>
-                  <Link to="/resume-tailor" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                        <line x1="12" y1="22.08" x2="12" y2="12" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Tailor Resume</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Tailor your CV for target jobs</span>
-                    </div>
-                  </Link>
-                  <Link to="/resume-vault" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <line x1="3" y1="9" x2="21" y2="9" />
-                        <line x1="9" y1="21" x2="9" y2="9" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Resume Vault</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Manage saved resumes</span>
-                    </div>
-                  </Link>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* ACCORDION ITEM: JOBS */}
-              <AccordionItem value="jobs" className="border-b border-border/55">
-                <AccordionTrigger className="text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground py-3 hover:no-underline">
-                  Jobs
-                </AccordionTrigger>
-                <AccordionContent className="pb-3 pt-1 space-y-2.5">
-                  <Link to="/applications" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <circle cx="12" cy="12" r="6" />
-                        <circle cx="12" cy="12" r="2" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Job Tracker</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Visual Kanban pipeline</span>
-                    </div>
-                  </Link>
-                  <Link to="/job-search" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-                        <line x1="9" y1="22" x2="9" y2="16" />
-                        <line x1="9" y1="16" x2="15" y2="16" />
-                        <line x1="15" y1="16" x2="15" y2="22" />
-                        <line x1="9" y1="8" x2="9.01" y2="8" />
-                        <line x1="15" y1="8" x2="15.01" y2="8" />
-                        <line x1="9" y1="12" x2="9.01" y2="12" />
-                        <line x1="15" y1="12" x2="15.01" y2="12" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Job Search</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Find matches and track</span>
-                    </div>
-                  </Link>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* ACCORDION ITEM: TOOLS */}
-              <AccordionItem value="tools" className="border-b border-border/55">
-                <AccordionTrigger className="text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground py-3 hover:no-underline">
-                  Tools
-                </AccordionTrigger>
-                <AccordionContent className="pb-3 pt-1 space-y-2.5">
-                  <Link to="/cold-mail" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                        <polyline points="22,6 12,13 2,6" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Cold Mail</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Automate email outreach</span>
-                    </div>
-                  </Link>
-                  <Link to="/content-scheduler" className="flex items-center gap-3.5 rounded-xl bg-muted/20 border border-border/40 p-2.5 hover:bg-muted/50">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                      <Calendar className="w-4 h-4 text-outly-accent" />
-                    </div>
-                    <div>
-                      <span className="block text-[11.5px] font-bold text-foreground">Content Post Scheduler</span>
-                      <span className="block text-[9.5px] text-muted-foreground mt-0.5">Automate and queue posts</span>
-                    </div>
-                  </Link>
-                </AccordionContent>
-              </AccordionItem>
-
-            </Accordion>
-
-            {/* Standalone Mobile Links: SETTINGS, PRICING & SUPPORT */}
-            <div className="flex flex-col w-full mb-4">
-              <Link
-                to="/settings"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between text-xs font-bold uppercase tracking-wider py-3.5 border-b border-border/55 hover:no-underline transition duration-200 ${
-                  location.pathname === "/settings" ? "text-primary font-extrabold" : "text-muted-foreground hover:text-foreground"
-                }`}
+            {/* Bottom: Sign Out Action */}
+            <div className="border-t border-[#e8e2d5] pt-4 mt-auto">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                type="button"
+                className="w-full flex items-center justify-center rounded-xl bg-destructive/10 text-destructive text-xs font-bold py-3.5 uppercase tracking-wider hover:bg-destructive/15 active:scale-[0.98] transition gap-2"
               >
-                <span>Settings</span>
-                <span className="text-[10px] text-muted-foreground/60">→</span>
-              </Link>
-              <Link
-                to="/pricing"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between text-xs font-bold uppercase tracking-wider py-3.5 border-b border-border/55 hover:no-underline transition duration-200 ${
-                  location.pathname === "/pricing" ? "text-primary font-extrabold" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <span>Pricing</span>
-                <span className="text-[10px] text-muted-foreground/60">→</span>
-              </Link>
-              <Link
-                to="/support"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between text-xs font-bold uppercase tracking-wider py-3.5 border-b border-border/55 hover:no-underline transition duration-200 ${
-                  location.pathname === "/support" ? "text-primary font-extrabold" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <span>Support</span>
-                <span className="text-[10px] text-muted-foreground/60">→</span>
-              </Link>
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </button>
             </div>
-
-            <button
-              onClick={handleLogout}
-              type="button"
-              className="w-full flex items-center justify-center rounded-xl bg-foreground text-background text-xs font-bold py-3.5 uppercase tracking-wider hover:bg-foreground/90 active:scale-[0.98] transition gap-2"
-            >
-              <LogOut className="h-4 w-4 text-primary" />
-              Sign Out from Outly
-            </button>
           </div>
-        )}
+        </div>
       </header>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
-      <main className="flex-1 w-full flex flex-col min-h-0 pt-16">
+      <main className="flex-1 w-full flex flex-col min-h-0 pt-16 pb-20 md:pb-0">
         {children}
       </main>
+
+      {/* ─── MOBILE BOTTOM TAB BAR ─── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] h-16 bg-white border-t border-[#e8e2d5] flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
+        
+        {/* Tab 1: Resumes */}
+        <Link 
+          to="/resume-vault"
+          className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-[11px] font-semibold"
+        >
+          {(() => {
+            const isActive = location.pathname === "/resume-vault" || 
+                             location.pathname === "/resume-tailor" || 
+                             location.pathname === "/ats-score" || 
+                             location.pathname.startsWith("/resume-");
+            return (
+              <>
+                <ScrollText className={`h-[21px] w-[21px] transition-colors duration-200 ${isActive ? "text-primary" : "text-outly-dark/40"}`} />
+                <span className={`mt-1 transition-colors duration-200 ${isActive ? "text-primary font-bold" : "text-outly-dark/50"}`}>Resumes</span>
+                {isActive && (
+                  <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
+                )}
+              </>
+            );
+          })()}
+        </Link>
+
+        {/* Tab 2: Jobs */}
+        <Link 
+          to="/applications"
+          className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-[11px] font-semibold"
+        >
+          {(() => {
+            const isActive = location.pathname === "/applications" || 
+                             location.pathname === "/job-search" || 
+                             location.pathname === "/analytics";
+            return (
+              <>
+                <Briefcase className={`h-[21px] w-[21px] transition-colors duration-200 ${isActive ? "text-primary" : "text-outly-dark/40"}`} />
+                <span className={`mt-1 transition-colors duration-200 ${isActive ? "text-primary font-bold" : "text-outly-dark/50"}`}>Jobs</span>
+                {isActive && (
+                  <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
+                )}
+              </>
+            );
+          })()}
+        </Link>
+
+        {/* Tab 3: Tools */}
+        <Link 
+          to="/cold-mail"
+          className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-[11px] font-semibold"
+        >
+          {(() => {
+            const isActive = location.pathname === "/cold-mail" || 
+                             location.pathname === "/content-scheduler" || 
+                             location.pathname === "/logs";
+            return (
+              <>
+                <Wrench className={`h-[21px] w-[21px] transition-colors duration-200 ${isActive ? "text-primary" : "text-outly-dark/40"}`} />
+                <span className={`mt-1 transition-colors duration-200 ${isActive ? "text-primary font-bold" : "text-outly-dark/50"}`}>Tools</span>
+                {isActive && (
+                  <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
+                )}
+              </>
+            );
+          })()}
+        </Link>
+
+        {/* Tab 4: Profile */}
+        <Link 
+          to="/settings"
+          className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-[11px] font-semibold"
+        >
+          {(() => {
+            const isActive = location.pathname === "/settings" || 
+                             location.pathname === "/pricing" || 
+                             location.pathname === "/support";
+            return (
+              <>
+                <User className={`h-[21px] w-[21px] transition-colors duration-200 ${isActive ? "text-primary" : "text-outly-dark/40"}`} />
+                <span className={`mt-1 transition-colors duration-200 ${isActive ? "text-primary font-bold" : "text-outly-dark/50"}`}>Profile</span>
+                {isActive && (
+                  <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
+                )}
+              </>
+            );
+          })()}
+        </Link>
+
+      </div>
 
       {/* ─── INTERACTIVE EDUCATIONAL GUIDE DIALOG (ENHANCV STYLE) ─── */}
       <Dialog open={activeGuide !== null} onOpenChange={(open) => { if (!open) setActiveGuide(null); }}>
