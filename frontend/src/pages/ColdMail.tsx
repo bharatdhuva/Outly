@@ -339,12 +339,12 @@ export default function ColdMailPage() {
               <DialogTrigger asChild>
                 <Button variant="outline" className="gap-2 border-border shadow-sm rounded-full px-5 py-2.5 font-semibold text-sm h-11">
                   <Plus className="h-4 w-4 text-outly-accent" />
-                  Add Lead Manually
+                  Add Company Data
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[500px] border-border bg-card rounded-2xl p-6">
                 <DialogHeader className="space-y-1">
-                  <DialogTitle className="text-xl font-bold text-foreground">Add New Lead</DialogTitle>
+                  <DialogTitle className="text-xl font-bold text-foreground">Add Company Data</DialogTitle>
                   <p className="text-xs text-muted-foreground">
                     Enter target company & contact details. Sender details are pulled automatically from your profile settings.
                   </p>
@@ -436,28 +436,14 @@ export default function ColdMailPage() {
                       onClick={handleCreateClick}
                       disabled={createMutation.isPending}
                     >
-                      {createMutation.isPending ? "Adding Lead..." : "Add Lead"}
+                      {createMutation.isPending ? "Adding Company..." : "Add Company"}
                     </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
             </Dialog>
 
-            {mainMode === "manual" && (
-              <Button
-                size="sm"
-                className="gap-2 bg-outly-accent text-white hover:brightness-110 shadow-md shadow-outly-accent/20 rounded-full px-6 py-2.5 font-semibold text-sm h-11 cursor-pointer"
-                onClick={() => handleGenerateCheck(() => generateMutation.mutate())}
-                disabled={generateMutation.isPending}
-              >
-                {generateMutation.isPending ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="h-4 w-4" />
-                )}
-                {generateMutation.isPending ? "Generating Mails..." : "Auto-Generate Emails"}
-              </Button>
-            )}
+
           </div>
         </div>
 
@@ -533,7 +519,7 @@ export default function ColdMailPage() {
           <div className="border-b border-border px-6 py-4 bg-slate-50/50">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/70">Lead Pipeline</h3>
+                <h3 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/70">Company Pipeline</h3>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button
@@ -563,9 +549,9 @@ export default function ColdMailPage() {
             {companies.length === 0 ? (
               <div className="p-16 text-center text-muted-foreground">
                 <Building2 className="mx-auto mb-3 h-12 w-12 text-muted-foreground/30" />
-                <p className="font-semibold text-foreground text-base">No leads found</p>
+                <p className="font-semibold text-foreground text-base">No company data found</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Add a target company lead manually to start your outreach campaign
+                  Add target company data manually to start your outreach campaign
                 </p>
               </div>
             ) : (

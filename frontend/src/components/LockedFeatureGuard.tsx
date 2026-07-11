@@ -201,61 +201,68 @@ export default function LockedFeatureGuard({
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[350px] border-border bg-white p-5 shadow-2xl rounded-2xl text-center select-none overflow-hidden">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[350px] bg-transparent p-0 shadow-2xl rounded-2xl select-none overflow-hidden border-none">
           
-          {/* Top Premium Accent Border Line */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
+          {/* Animated AMOLED Border Outer Wrapper */}
+          <div className="relative w-full rounded-2xl p-[1.5px] overflow-hidden bg-slate-200">
+            {/* Rotating conic gradient light */}
+            <div className="absolute inset-[-500%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2DC08D_0%,#E6B800_25%,#ff4e50_50%,#2dc08d_75%,#2DC08D_100%)]" />
 
-          {/* Lock Icon Badge */}
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 shadow-inner text-primary mt-3">
-            <Lock className="h-6 w-6 stroke-[2]" />
-          </div>
+            {/* Inner Content Card */}
+            <div className="relative bg-white rounded-[15px] p-5 text-center flex flex-col gap-4 overflow-hidden">
+              
+              {/* Lock Icon Badge */}
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 shadow-inner text-primary mt-3">
+                <Lock className="h-6 w-6 stroke-[2]" />
+              </div>
 
-          {/* Title & Description */}
-          <div className="space-y-2 text-center pt-1">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-extrabold uppercase tracking-wider">
-              PRO MODULE LOCKED
-            </span>
-            <h2 className="text-lg font-extrabold text-foreground tracking-tight">
-              Unlock {featureTitle}
-            </h2>
-            <p className="text-[11.5px] text-muted-foreground leading-relaxed px-1 font-medium">
-              Outly's advanced search algorithms, auto-apply engines, and priority outreach queues require a Cloud Plan subscription.
-            </p>
-          </div>
+              {/* Title & Description */}
+              <div className="space-y-2 text-center pt-1">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-extrabold uppercase tracking-wider">
+                  PRO MODULE LOCKED
+                </span>
+                <h2 className="text-lg font-extrabold text-foreground tracking-tight">
+                  Unlock {featureTitle}
+                </h2>
+                <p className="text-[11.5px] text-muted-foreground leading-relaxed px-1 font-medium">
+                  Outly's advanced search algorithms, auto-apply engines, and priority outreach queues require a Cloud Plan subscription.
+                </p>
+              </div>
 
-          {/* Action Buttons */}
-          <div className="pt-2 flex flex-col gap-2">
-            <Button
-              onClick={handleRazorpayPayment}
-              disabled={isProcessingPayment}
-              className="w-full bg-gradient-to-r from-primary to-[#25a97b] text-white hover:brightness-105 rounded-full font-bold text-[11.5px] h-10 shadow-md shadow-primary/25 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
-            >
-              {isProcessingPayment ? (
-                <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-              ) : (
-                <>
-                  <Sparkles className="h-3.5 w-3.5 fill-white/10" />
-                  <span>Get Lifetime Access @ ₹1</span>
-                </>
-              )}
-            </Button>
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-col gap-2">
+                <Button
+                  onClick={handleRazorpayPayment}
+                  disabled={isProcessingPayment}
+                  className="w-full bg-gradient-to-r from-primary to-[#25a97b] text-white hover:brightness-105 rounded-full font-bold text-[11.5px] h-10 shadow-md shadow-primary/25 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
+                >
+                  {isProcessingPayment ? (
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                  ) : (
+                    <>
+                      <Sparkles className="h-3.5 w-3.5 fill-white/10" />
+                      <span>Get Lifetime Access @ ₹1</span>
+                    </>
+                  )}
+                </Button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setShowModal(false);
-                navigate("/pricing");
-              }}
-              className="w-full text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors h-8 cursor-pointer text-center mt-0.5"
-            >
-              View pricing plans &rarr;
-            </button>
-          </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false);
+                    navigate("/pricing");
+                  }}
+                  className="w-full text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors h-8 cursor-pointer text-center mt-0.5"
+                >
+                  View pricing plans &rarr;
+                </button>
+              </div>
 
-          {/* Secure Checkout Footer */}
-          <div className="text-[9.5px] text-muted-foreground/60 border-t border-slate-100 pt-3 mt-4 flex items-center justify-center gap-1 font-medium select-none">
-            <span>🔒 Secured by 256-bit Razorpay Gateway</span>
+              {/* Secure Checkout Footer */}
+              <div className="text-[9.5px] text-muted-foreground/60 border-t border-slate-100 pt-3 mt-2 flex items-center justify-center gap-1 font-medium select-none">
+                <span>🔒 Secured by 256-bit Razorpay Gateway</span>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
