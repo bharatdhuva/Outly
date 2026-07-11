@@ -123,9 +123,9 @@ export default function SupportPage() {
 
           <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed">
             <div className="p-4 rounded-2xl bg-secondary/30 border border-border/50 space-y-1">
-              <p className="font-bold text-foreground">How does the ₹1 trial plan work?</p>
+              <p className="font-bold text-foreground">How does the ₹1 lifetime plan work?</p>
               <p className="text-muted-foreground text-[11px]">
-                You get 7 full days of unrestricted access to all AI tools. Nominal ₹1 pricing is for server scalability verification.
+                You get lifetime unrestricted access to all AI tools. Nominal ₹1 pricing is for server scalability verification.
               </p>
             </div>
 

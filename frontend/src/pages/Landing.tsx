@@ -150,7 +150,7 @@ const pricingMatrix = {
     freeMeta: "forever — you only pay your AI provider",
     pro: "₹1",
     proSlashed: "₹99",
-    proDuration: "start 7-day trial"
+    proDuration: "lifetime access"
   },
   USD: {
     symbol: "$",
@@ -158,7 +158,7 @@ const pricingMatrix = {
     freeMeta: "forever — you only pay your AI provider",
     pro: "$0.99",
     proSlashed: "$4.99",
-    proDuration: "one-time payment"
+    proDuration: "lifetime access"
   }
 };
 
@@ -1469,7 +1469,7 @@ export default function Landing() {
                 <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                   <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
-                Get hired faster with AI — 7-day trial @ ₹1/-
+                Get hired faster with AI — lifetime access @ ₹1/-
               </li>
             </ul>
             <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-2.5 rounded-full font-sans text-xs md:text-sm font-bold hover:brightness-115 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-outly-accent/25 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>

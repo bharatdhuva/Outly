@@ -236,7 +236,7 @@ export default function LockedFeatureGuard({
               ) : (
                 <>
                   <Sparkles className="h-3.5 w-3.5 fill-white/10" />
-                  <span>Start 7-Day Trial @ ₹1</span>
+                  <span>Get Lifetime Access @ ₹1</span>
                 </>
               )}
             </Button>
