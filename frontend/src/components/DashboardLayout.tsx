@@ -775,7 +775,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
-      <main className="flex-1 w-full flex flex-col min-h-0 pb-20 md:pb-0">
+      <main className="flex-1 w-full flex flex-col min-h-0 md:pb-0">
         {children}
       </main>
 

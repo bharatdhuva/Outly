@@ -456,9 +456,11 @@ export default function AtsScorePage() {
 
                   <Button 
                     type="button"
-                    className="bg-success hover:bg-success/90 text-white text-xs font-bold tracking-wider px-6 py-4 rounded-lg shadow-sm uppercase active:scale-[0.98] transition h-10 shrink-0"
+                    disabled={parsingFile}
+                    className="bg-success hover:bg-success/90 text-white text-xs font-bold tracking-wider px-6 py-4 rounded-lg shadow-sm uppercase active:scale-[0.98] transition h-10 shrink-0 gap-2"
                   >
-                    Upload Your Resume
+                    {parsingFile && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {parsingFile ? "Uploading..." : "Upload Your Resume"}
                   </Button>
 
                   {/* Inline Vault Resume Selector */}
@@ -555,8 +557,8 @@ export default function AtsScorePage() {
           <div className="absolute inset-0 bg-outly-accent/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>
           
           {/* Browser Frame Mockup Container */}
-          <div className={`relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-2xl overflow-hidden flex flex-col z-10 select-none transition-all duration-300 ${
-            (!result && !showScanLoader)
+          <div className={`relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-xl overflow-hidden flex flex-col z-10 select-none transition-all duration-300 ${
+            !result
               ? "h-[180px] min-h-[180px] md:h-[600px] md:min-h-[500px]"
               : "h-auto md:h-[600px] min-h-[500px]"
           }`}>
@@ -945,9 +947,11 @@ export default function AtsScorePage() {
                 <div className="flex items-center gap-3">
                   <Button 
                     onClick={() => document.getElementById("resume-upload-input")?.click()}
-                    className="bg-success hover:bg-success/95 text-white text-[10px] sm:text-xs font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-lg shadow-sm transition h-8 sm:h-9 shrink-0"
+                    disabled={parsingFile}
+                    className="bg-success hover:bg-success/95 text-white text-[10px] sm:text-xs font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-lg shadow-sm transition h-8 sm:h-9 shrink-0 gap-1.5"
                   >
-                    Upload Resume
+                    {parsingFile && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    {parsingFile ? "Uploading..." : "Upload Resume"}
                   </Button>
                   <Button 
                     variant="outline" 
@@ -965,17 +969,17 @@ export default function AtsScorePage() {
 
             {/* ─── SCANNING LOADER OVERLAY ─── */}
             {showScanLoader && (
-              <div className="absolute inset-0 bg-white/95 z-40 flex flex-col items-center justify-center p-6 text-center select-none animate-fade-in">
-                <div className="space-y-4 w-full max-w-xs">
+              <div className="absolute inset-0 bg-white/95 z-40 flex flex-col items-center justify-center p-4 text-center select-none animate-fade-in">
+                <div className="space-y-3 w-full max-w-[210px]">
                   {/* Spinning Circle */}
-                  <div className="relative w-12 h-12 mx-auto">
-                    <div className="absolute inset-0 border-4 border-success/10 rounded-full"></div>
-                    <div className="absolute inset-0 border-4 border-t-success rounded-full animate-spin"></div>
+                  <div className="relative w-8 h-8 mx-auto">
+                    <div className="absolute inset-0 border-3 border-success/10 rounded-full"></div>
+                    <div className="absolute inset-0 border-3 border-t-success rounded-full animate-spin"></div>
                   </div>
                   
-                  <div className="space-y-1">
-                    <h3 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Outly AI Engine</h3>
-                    <p className="text-[11px] text-muted-foreground">{scanStatus}</p>
+                  <div className="space-y-0.5">
+                    <h3 className="text-[10px] font-extrabold text-foreground uppercase tracking-wider">Outly AI Engine</h3>
+                    <p className="text-[9px] text-muted-foreground leading-normal min-h-[26px]">{scanStatus}</p>
                   </div>
                   
                   {/* Custom Progress Bar */}

@@ -120,7 +120,7 @@ export default function MobileHub({ category }: MobileHubProps) {
   const currentHub = categoryDetails[category];
 
   return (
-    <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full select-none pb-24 font-sans text-outly-dark animate-fade-in text-left">
+    <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full select-none pb-8 font-sans text-outly-dark animate-fade-in text-left">
       <style>{`
         .glowing-bg-mesh {
           background:

@@ -11,7 +11,7 @@ export default function OverviewPage() {
   }, []);
 
   return (
-    <div className="relative flex-1 min-h-screen w-full select-none overflow-x-clip pb-12 font-sans text-outly-dark">
+    <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full select-none overflow-x-clip pb-12 font-sans text-outly-dark">
       <style>{`
         .glowing-bg-mesh {
           background:
@@ -118,7 +118,7 @@ export default function OverviewPage() {
         }
       `}</style>
 
-      <div className="glowing-bg-mesh absolute inset-0 -z-10 min-h-screen w-full" />
+      <div className="glowing-bg-mesh absolute inset-0 -z-10 w-full" />
 
       <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-6 py-6 sm:px-8 lg:grid-cols-12 lg:gap-16 lg:pt-14 lg:pb-12">
         <div className="flex flex-col justify-center space-y-9 text-left lg:col-span-6">
