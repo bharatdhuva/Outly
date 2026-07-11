@@ -257,7 +257,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     api.auth.logout();
-    navigate("/login");
+    navigate("/");
   };
 
   const openDropdown = (dropdown: "resumes" | "jobs" | "tools") => {
