@@ -715,6 +715,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </div>
             </button>
           </div>
+          </div>
 
             {/* ─── MOBILE PREMIUM SIDE DRAWER ─── */}
         <div className={`md:hidden fixed inset-0 z-[150] transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
