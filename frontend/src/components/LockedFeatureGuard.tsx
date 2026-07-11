@@ -201,46 +201,43 @@ export default function LockedFeatureGuard({
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[350px] border-border bg-white p-5 shadow-2xl rounded-2xl text-center space-y-4 select-none">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[350px] border-border bg-white p-5 shadow-2xl rounded-2xl text-center select-none overflow-hidden">
           
-          {/* Prominent top-right Close button */}
-          <div className="absolute right-3 top-3">
-            <button
-              type="button"
-              onClick={() => setShowModal(false)}
-              className="p-1.5 rounded-full text-muted-foreground hover:bg-slate-100 hover:text-foreground transition cursor-pointer"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+          {/* Top Premium Accent Border Line */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
 
           {/* Lock Icon Badge */}
-          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20 shadow-sm mt-1">
-            <Lock className="h-4.5 w-4.5 stroke-[2.2]" />
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 shadow-inner text-primary mt-3">
+            <Lock className="h-6 w-6 stroke-[2]" />
           </div>
 
           {/* Title & Description */}
-          <div className="space-y-1.5 text-center">
-            <h2 className="text-base font-bold text-foreground leading-snug">
+          <div className="space-y-2 text-center pt-1">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-extrabold uppercase tracking-wider">
+              PRO MODULE LOCKED
+            </span>
+            <h2 className="text-lg font-extrabold text-foreground tracking-tight">
               Unlock {featureTitle}
             </h2>
-            <p className="text-[11.5px] text-muted-foreground leading-relaxed px-1">
-              Outly's advanced search engine and automation tools require a Cloud Plan. Get started with our trial below.
+            <p className="text-[11.5px] text-muted-foreground leading-relaxed px-1 font-medium">
+              Outly's advanced search algorithms, auto-apply engines, and priority outreach queues require a Cloud Plan subscription.
             </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-1.5 flex flex-col gap-2.5">
+          <div className="pt-2 flex flex-col gap-2">
             <Button
               onClick={handleRazorpayPayment}
               disabled={isProcessingPayment}
-              className="w-full bg-primary text-white hover:brightness-105 rounded-full font-bold text-[11.5px] h-9.5 shadow-sm cursor-pointer transition-all active:scale-[0.98]"
+              className="w-full bg-gradient-to-r from-primary to-[#25a97b] text-white hover:brightness-105 rounded-full font-bold text-[11.5px] h-10 shadow-md shadow-primary/25 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
             >
               {isProcessingPayment ? (
                 <Loader2 className="h-4 w-4 animate-spin mx-auto" />
               ) : (
-                "Start 7-Day Trial @ ₹1"
+                <>
+                  <Sparkles className="h-3.5 w-3.5 fill-white/10" />
+                  <span>Start 7-Day Trial @ ₹1</span>
+                </>
               )}
             </Button>
 
@@ -250,10 +247,15 @@ export default function LockedFeatureGuard({
                 setShowModal(false);
                 navigate("/pricing");
               }}
-              className="w-full text-[11px] font-bold text-primary hover:underline h-8 cursor-pointer text-center"
+              className="w-full text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors h-8 cursor-pointer text-center mt-0.5"
             >
               View pricing plans &rarr;
             </button>
+          </div>
+
+          {/* Secure Checkout Footer */}
+          <div className="text-[9.5px] text-muted-foreground/60 border-t border-slate-100 pt-3 mt-4 flex items-center justify-center gap-1 font-medium select-none">
+            <span>🔒 Secured by 256-bit Razorpay Gateway</span>
           </div>
         </DialogContent>
       </Dialog>
