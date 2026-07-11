@@ -636,7 +636,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
-                    {!isPremium && (
+                    {isPremium ? (
+                      <div className="px-3 py-2.5 border-b border-[#e8e2d5] bg-primary/5 flex items-center gap-2 select-none">
+                        <Sparkles className="h-3.5 w-3.5 fill-primary/10 text-primary animate-pulse" />
+                        <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
+                          Cloud Pro Active
+                        </span>
+                      </div>
+                    ) : (
                       <button 
                         onClick={() => {
                           setProfileMenuOpen(false);
@@ -703,7 +710,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       {fullName}
                     </div>
                     
-                    {!isPremium && (
+                    {isPremium ? (
+                      <div className="px-3 py-2.5 border-b border-[#e8e2d5] bg-primary/5 flex items-center gap-2 select-none">
+                        <Sparkles className="h-3.5 w-3.5 fill-primary/10 text-primary animate-pulse" />
+                        <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
+                          Cloud Pro Active
+                        </span>
+                      </div>
+                    ) : (
                       <button 
                         onClick={() => {
                           setProfileMenuOpen(false);
