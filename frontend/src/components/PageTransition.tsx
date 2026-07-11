@@ -15,31 +15,28 @@ export const setGlobalLoading = (loading: boolean) => {
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const [animating, setAnimating] = useState(true);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    setAnimating(true);
-    const timer = setTimeout(() => setAnimating(false), 350);
-    return () => clearTimeout(timer);
+    // Snap scroll to top immediately to prevent stuttery page shifts
+    window.scrollTo(0, 0);
   }, [location.pathname]);
 
   return (
-    <div key={location.pathname} className={`w-full flex-1 ${animating ? "animate-page-enter" : ""}`}>
+    <div key={location.pathname} className="w-full flex-1 animate-page-enter">
       <style>{`
         @keyframes page-enter {
           0% {
-            opacity: 0.15;
-            filter: blur(2px);
+            opacity: 0;
+            transform: translateY(8px);
           }
           100% {
             opacity: 1;
-            filter: blur(0);
+            transform: translateY(0);
           }
         }
         .animate-page-enter {
-          animation: page-enter 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-          will-change: opacity, filter;
+          animation: page-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          will-change: opacity, transform;
         }
       `}</style>
       {children}
