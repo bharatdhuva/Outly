@@ -562,17 +562,17 @@ export default function AtsScorePage() {
           }`}>
             
             {/* Browser Header Bar */}
-            <div className="bg-secondary/40 border-b border-border/60 px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-destructive/80"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-warning/80"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-success/80"></div>
+            <div className="bg-secondary/40 border-b border-border/60 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-destructive/80"></div>
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-warning/80"></div>
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-success/80"></div>
               </div>
-              <div className="bg-white border border-border/50 rounded-md text-[10px] font-bold text-muted-foreground/60 px-6 py-0.5 tracking-tight flex items-center gap-1.5 select-none">
-                <Lock className="w-2.5 h-2.5 text-success shrink-0" />
-                <span>ats.outly.online/checker/live</span>
+              <div className="bg-white border border-border/50 rounded-md text-[9px] sm:text-[10px] font-bold text-muted-foreground/60 px-3 sm:px-6 py-0.5 tracking-tight flex items-center gap-1.5 select-none max-w-[140px] xs:max-w-none truncate">
+                <Lock className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-success shrink-0" />
+                <span className="truncate">ats.outly.online</span>
               </div>
-              <div className="w-10"></div>
+              <div className="w-8 sm:w-10"></div>
             </div>
 
             {/* Main Score Dashboard Layout */}
@@ -623,50 +623,75 @@ export default function AtsScorePage() {
                 <div className="space-y-1.5 pt-4 border-t border-border/50">
                   <button
                     onClick={() => setActiveCategory("content")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition duration-200 ${
-                      activeCategory === "content" ? "bg-white border border-border shadow-sm" : "hover:bg-white/50 border border-transparent"
+                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
+                      activeCategory === "content" 
+                        ? "bg-white border border-border shadow-sm pl-3.5" 
+                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
                     }`}
                   >
+                    {activeCategory === "content" && (
+                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
+                    )}
                     <span className={`text-[11px] font-bold ${activeCategory === "content" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Content</span>
                     <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(contentScore)}`}>{contentScore}%</span>
                   </button>
 
                   <button
                     onClick={() => setActiveCategory("format")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition duration-200 ${
-                      activeCategory === "format" ? "bg-white border border-border shadow-sm" : "hover:bg-white/50 border border-transparent"
+                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
+                      activeCategory === "format" 
+                        ? "bg-white border border-border shadow-sm pl-3.5" 
+                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
                     }`}
                   >
+                    {activeCategory === "format" && (
+                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
+                    )}
                     <span className={`text-[11px] font-bold ${activeCategory === "format" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Format & Density</span>
                     <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(formatScore)}`}>{formatScore}%</span>
                   </button>
 
                   <button
                     onClick={() => setActiveCategory("style")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition duration-200 ${
-                      activeCategory === "style" ? "bg-white border border-border shadow-sm" : "hover:bg-white/50 border border-transparent"
+                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
+                      activeCategory === "style" 
+                        ? "bg-white border border-border shadow-sm pl-3.5" 
+                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
                     }`}
                   >
+                    {activeCategory === "style" && (
+                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
+                    )}
                     <span className={`text-[11px] font-bold ${activeCategory === "style" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Style</span>
                     <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(styleScore)}`}>{styleScore}%</span>
                   </button>
 
                   <button
                     onClick={() => setActiveCategory("sections")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition duration-200 ${
-                      activeCategory === "sections" ? "bg-white border border-border shadow-sm" : "hover:bg-white/50 border border-transparent"
+                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
+                      activeCategory === "sections" 
+                        ? "bg-white border border-border shadow-sm pl-3.5" 
+                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
                     }`}
                   >
+                    {activeCategory === "sections" && (
+                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
+                    )}
                     <span className={`text-[11px] font-bold ${activeCategory === "sections" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Sections</span>
                     <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(sectionsScore)}`}>{sectionsScore}%</span>
                   </button>
 
                   <button
                     onClick={() => setActiveCategory("roles")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition duration-200 ${
-                      activeCategory === "roles" ? "bg-white border border-border shadow-sm" : "hover:bg-white/50 border border-transparent"
+                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
+                      activeCategory === "roles" 
+                        ? "bg-white border border-border shadow-sm pl-3.5" 
+                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
                     }`}
                   >
+                    {activeCategory === "roles" && (
+                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
+                    )}
                     <span className={`text-[11px] font-bold ${activeCategory === "roles" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Roles</span>
                     <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(rolesScore)}`}>{rolesScore}%</span>
                   </button>
@@ -680,7 +705,7 @@ export default function AtsScorePage() {
                 <div className="space-y-4">
                   {/* Render content dynamically based on active category */}
                   {activeCategory === "content" && (
-                    <div className="space-y-4 animate-slide-in">
+                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
                       <div className="flex justify-between items-center border-b border-border pb-3">
                         <div>
                           <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Content Audits</h4>
@@ -742,7 +767,7 @@ export default function AtsScorePage() {
                   )}
 
                   {activeCategory === "format" && (
-                    <div className="space-y-4 animate-slide-in">
+                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
                       <div className="flex justify-between items-center border-b border-border pb-3">
                         <div>
                           <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Format &amp; Density</h4>
@@ -787,7 +812,7 @@ export default function AtsScorePage() {
                   )}
 
                   {activeCategory === "style" && (
-                    <div className="space-y-4 animate-slide-in">
+                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
                       <div className="flex justify-between items-center border-b border-border pb-3">
                         <div>
                           <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Style &amp; Grammar</h4>
@@ -817,7 +842,7 @@ export default function AtsScorePage() {
                   )}
 
                   {activeCategory === "sections" && (
-                    <div className="space-y-4 animate-slide-in">
+                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
                       <div className="flex justify-between items-center border-b border-border pb-3">
                         <div>
                           <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Section Anchors</h4>
@@ -852,7 +877,7 @@ export default function AtsScorePage() {
                   )}
 
                   {activeCategory === "roles" && (
-                    <div className="space-y-4 animate-slide-in">
+                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
                       <div className="flex justify-between items-center border-b border-border pb-3">
                         <div>
                           <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Role Alignment</h4>

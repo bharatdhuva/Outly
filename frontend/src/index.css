@@ -68,33 +68,37 @@
   }
 
   html {
+    overflow-y: auto;
     scrollbar-gutter: stable;
   }
 
   html, body {
-    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden max-w-full;
+    @apply bg-background text-foreground font-sans antialiased;
+    overflow-x: clip;
+    width: 100%;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  :not(html):not(body)::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
   }
 
-  :not(html):not(body)::-webkit-scrollbar-track {
-    background: hsl(216 33% 96%);
+  ::-webkit-scrollbar-track {
+    background: #FAF6EE;
   }
 
-  :not(html):not(body)::-webkit-scrollbar-thumb {
-    background: hsl(220 18% 78%);
-    border-radius: 3px;
+  ::-webkit-scrollbar-thumb {
+    background: rgba(78, 70, 56, 0.25);
+    border-radius: 9999px;
+    border: 3px solid #FAF6EE;
   }
 
-  :not(html):not(body)::-webkit-scrollbar-thumb:hover {
-    background: hsl(245 78% 58% / 0.55);
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(78, 70, 56, 0.4);
   }
 }
 
@@ -1412,6 +1416,16 @@
 
 html {
   scroll-behavior: smooth !important;
+  overflow-y: auto !important;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(78, 70, 56, 0.25) #FAF6EE;
+}
+
+body {
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
 }
 
 @keyframes drawline {

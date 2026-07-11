@@ -204,9 +204,9 @@ export default function LockedFeatureGuard({
         <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[350px] bg-transparent p-0 shadow-2xl rounded-2xl select-none overflow-hidden border-none">
           
           {/* Animated AMOLED Border Outer Wrapper */}
-          <div className="relative w-full rounded-2xl p-[1.5px] overflow-hidden bg-slate-200">
+          <div className="relative w-full rounded-2xl p-[1.5px] overflow-hidden bg-slate-200 isolate">
             {/* Rotating conic gradient light */}
-            <div className="absolute inset-[-500%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2DC08D_0%,#E6B800_25%,#ff4e50_50%,#2dc08d_75%,#2DC08D_100%)]" />
+            <div className="absolute inset-[-150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2DC08D_0%,#E6B800_25%,#ff4e50_50%,#2dc08d_75%,#2DC08D_100%)]" />
 
             {/* Inner Content Card */}
             <div className="relative bg-white rounded-[15px] p-5 text-center flex flex-col gap-4 overflow-hidden">

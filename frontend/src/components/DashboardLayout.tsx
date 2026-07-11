@@ -298,10 +298,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-outly-dark flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fafafa] text-outly-dark flex flex-col font-sans overflow-x-clip">
       
       {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-      <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#e8e2d5] bg-white/95 backdrop-blur-md shadow-sm shrink-0 select-none">
+      <header className="sticky top-0 z-[100] w-full border-b border-[#e8e2d5] bg-white/95 backdrop-blur-md shadow-sm shrink-0 select-none">
         <div className="flex h-16 w-full items-center justify-between px-8 sm:px-10 lg:px-12">
           
           {/* Left: Brand Logo */}
@@ -311,7 +311,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </Link>
 
             {/* Middle: Desktop Links & Dropdowns */}
-            <nav className="hidden h-full items-center gap-8 font-['Inter',system-ui,sans-serif] md:flex">
+            <nav className="hidden h-full items-center gap-8 font-['Poppins',system-ui,sans-serif] md:flex">
               
               {/* Dropdown 1: RESUMES */}
               <div 
@@ -775,12 +775,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
-      <main className="flex-1 w-full flex flex-col min-h-0 pt-16 pb-20 md:pb-0">
+      <main className="flex-1 w-full flex flex-col min-h-0 pb-20 md:pb-0">
         {children}
       </main>
 
       {/* ─── MOBILE BOTTOM TAB BAR ─── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] h-16 bg-white border-t border-[#e8e2d5] flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
+      <div className="md:hidden sticky bottom-0 z-[100] w-full h-16 bg-white border-t border-[#e8e2d5] flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
         
         {/* Tab 1: Resumes */}
         <Link 

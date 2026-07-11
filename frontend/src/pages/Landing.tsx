@@ -879,10 +879,10 @@ export default function Landing() {
   const priceData = pricingMatrix[currency];
 
   return (
-    <div className="bg-outly-cream text-outly-dark font-sans selection:bg-outly-accent/20 min-h-screen">
+    <div className="bg-outly-cream text-outly-dark font-sans selection:bg-outly-accent/20 min-h-screen overflow-x-clip">
 
       {/* HEADER */}
-      <header className={`fixed top-0 left-0 right-0 z-[100] w-full transition-all duration-300 ${scrolled
+      <header className={`sticky top-0 z-[100] w-full transition-all duration-300 ${scrolled
         ? "bg-outly-cream/95 backdrop-blur-lg border-b border-outly-border shadow-md py-3.5"
         : "bg-outly-cream/90 backdrop-blur-md border-b border-outly-border/40 py-4 sm:py-5"
         }`}>
@@ -912,7 +912,7 @@ export default function Landing() {
       </header>
 
       {/* HERO SECTION */}
-      <main className="relative overflow-hidden pt-24 sm:pt-32 pb-12 sm:pb-24">
+      <main className="relative overflow-hidden pt-8 sm:pt-14 pb-12 sm:pb-24">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 grid md:grid-cols-12 gap-8 sm:gap-12 items-center">
 
           {/* Left Column: Hero Text */}
