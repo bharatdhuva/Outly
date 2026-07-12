@@ -6,6 +6,7 @@ import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkAtsLimit } from "../../middleware/limits.js";
 import { activityQueries } from "../../db/queries.js";
 import { uploadResume } from "../../middleware/upload.js";
+import { validateResumeText, validateJobDescriptionText } from "../../lib/resumeValidator.js";
 import path from "path";
 import fs from "fs";
 import axios from "axios";
@@ -51,11 +52,22 @@ function extractTagList(text: string, tag: string): string[] {
 function parseGeminiResponse(text: string, isScore: boolean) {
   try {
     const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-    return JSON.parse(cleaned);
+    const parsed = JSON.parse(cleaned);
+    if (isScore && parsed) {
+      if (parsed.is_valid_resume !== undefined) {
+        parsed.isValidResume = (parsed.is_valid_resume === true || parsed.is_valid_resume === "true");
+      }
+      if (parsed.isValidResume === undefined) {
+        parsed.isValidResume = true;
+      }
+    }
+    return parsed;
   } catch (e) {
     logger.info("JSON parsing failed, falling back to XML tag parsing", { error: String(e), source: "ats" });
     if (isScore) {
       const score = parseInt(extractTagContent(text, "score"), 10) || 0;
+      const isValidResumeVal = extractTagContent(text, "is_valid_resume").toLowerCase();
+      const isValidResume = isValidResumeVal === "" ? true : (isValidResumeVal === "true");
       const skills_match = parseInt(extractTagContent(text, "skills_match"), 10) || 0;
       const experience_match = parseInt(extractTagContent(text, "experience_match"), 10) || 0;
       const formatting_readability = parseInt(extractTagContent(text, "formatting_readability"), 10) || 0;
@@ -71,6 +83,7 @@ function parseGeminiResponse(text: string, isScore: boolean) {
 
       return {
         score,
+        isValidResume,
         breakdown: {
           skills_match,
           experience_match,
@@ -119,22 +132,23 @@ async function evaluateWithClaude(resume: string, jd: string | undefined, apiKey
     prompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
 Analyze the provided resume against the job description below.
 Perform a strict and highly accurate evaluation. Return a JSON object with:
-1. "score": Overall score from 0 to 100 based on key metrics.
-2. "breakdown": An object containing:
+1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
+2. "score": Overall score from 0 to 100 based on key metrics (must be 0 if isValidResume is false).
+3. "breakdown": An object containing (all must be 0 if isValidResume is false):
    - "skills_match": Score 0-100 of how well the skills match.
    - "experience_match": Score 0-100 of how well the years of experience and seniority align.
    - "formatting_readability": Score 0-100 of structural suitability (penalize headers, footers, multi-column layouts, graphics, complex styling).
    - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
-3. "matched_keywords": An array of technical/hard skills and tools found in both.
-4. "missing_keywords": An object containing arrays:
+4. "matched_keywords": An array of technical/hard skills and tools found in both.
+5. "missing_keywords": An object containing arrays:
    - "hard_skills": Crucial technologies, programming languages, or domain expertise in the JD but missing from the resume.
    - "soft_skills": Interpersonal, leadership, or execution-style terms from the JD missing from the resume.
    - "tools_technologies": Frameworks, platforms, tools (e.g., Redis, Git, Docker, JIRA) from the JD missing from the resume.
-5. "experience_analysis": An object containing:
+6. "experience_analysis": An object containing:
    - "seniority_match": A string ("Good" | "Fair" | "Poor") rating.
    - "comments": A brief summary of seniority match (e.g., "Resume shows 3 years React, JD asks for 5 years Senior SDE").
-6. "formatting_issues": An array of strings outlining potential ATS readability issues (e.g., "Detected complex formatting or columns", "Ensure email is in the main body").
-7. "suggestions": An array of 3-5 high-impact, actionable changes (e.g., "Add Redis under technical skills", "Rephrase React bullet point to include performance metrics").
+7. "formatting_issues": An array of strings outlining potential ATS readability issues (e.g., "Detected complex formatting or columns", "Ensure email is in the main body").
+8. "suggestions": An array of 3-5 high-impact, actionable changes (e.g., "Add Redis under technical skills", "Rephrase React bullet point to include performance metrics"). If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
 
 Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
 
@@ -149,22 +163,23 @@ Perform a comprehensive audit of the provided resume *without* matching it to a 
 Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
 
 Return a JSON object with:
-1. "score": General ATS readiness score from 0 to 100.
-2. "breakdown": An object containing:
+1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
+2. "score": General ATS readiness score from 0 to 100 (must be 0 if isValidResume is false).
+3. "breakdown": An object containing (all must be 0 if isValidResume is false):
    - "skills_match": Score 0-100 indicating depth and layout of technical skills.
    - "experience_match": Score 0-100 evaluating the structure, formatting, and relevance of work history.
    - "formatting_readability": Score 0-100 of structural suitability for ATS scanners (penalize multi-columns, tables, graphics, contact info in headers).
    - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
-3. "matched_keywords": An array of the primary technical/hard skills, tools, and methodologies detected in the resume.
-4. "missing_keywords": An object containing arrays:
+4. "matched_keywords": An array of the primary technical/hard skills, tools, and methodologies detected in the resume.
+5. "missing_keywords": An object containing arrays:
    - "hard_skills": Crucial industry-standard technologies or skills related to the candidate's target field (inferred from the resume) that are currently missing or could be added.
    - "soft_skills": Interpersonal or execution-oriented keywords standard for this domain that are missing.
    - "tools_technologies": Essential tools, platforms, or systems commonly expected in this role that are missing.
-5. "experience_analysis": An object containing:
+6. "experience_analysis": An object containing:
    - "seniority_match": A string ("Good" | "Fair" | "Poor") representing the clarity of the candidate's experience progression.
    - "comments": A brief summary of the experience layout and career progression.
-6. "formatting_issues": An array of strings outlining potential ATS readability bottlenecks found in the resume (e.g., "Found multi-column layout", "Contact details in header/footer", "Non-standard section headers").
-7. "suggestions": An array of 3-5 high-impact, actionable improvements to make the resume beat automated filters.
+7. "formatting_issues": An array of strings outlining potential ATS readability bottlenecks found in the resume (e.g., "Found multi-column layout", "Contact details in header/footer", "Non-standard section headers").
+8. "suggestions": An array of 3-5 high-impact, actionable improvements to make the resume beat automated filters. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
 
 Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
 
@@ -213,22 +228,23 @@ async function scoreWithGroq(resume: string, jd: string | undefined, apiKey: str
     prompt = `You are an expert Applicant Tracking System (ATS) evaluator and recruiter.
 Analyze the provided resume against the job description below.
 Perform a strict and highly accurate evaluation. Return a JSON object with:
-1. "score": Overall score from 0 to 100 based on key metrics.
-2. "breakdown": An object containing:
+1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
+2. "score": Overall score from 0 to 100 based on key metrics (must be 0 if isValidResume is false).
+3. "breakdown": An object containing (all must be 0 if isValidResume is false):
    - "skills_match": Score 0-100 of how well the skills match.
    - "experience_match": Score 0-100 of how well the years of experience and seniority align.
    - "formatting_readability": Score 0-100 of structural suitability.
    - "impact_metrics": Score 0-100 assessing achievements and action verbs.
-3. "matched_keywords": An array of technical/hard skills and tools found in both.
-4. "missing_keywords": An object containing arrays:
+4. "matched_keywords": An array of technical/hard skills and tools found in both.
+5. "missing_keywords": An object containing arrays:
    - "hard_skills": Crucial technologies or domain expertise missing from the resume.
    - "soft_skills": Interpersonal or execution terms missing.
    - "tools_technologies": Frameworks, platforms, tools missing.
-5. "experience_analysis": An object containing:
+6. "experience_analysis": An object containing:
    - "seniority_match": A string ("Good" | "Fair" | "Poor") rating.
    - "comments": A brief summary of seniority match.
-6. "formatting_issues": An array of strings outlining potential ATS readability issues.
-7. "suggestions": An array of 3-5 high-impact, actionable changes.
+7. "formatting_issues": An array of strings outlining potential ATS readability issues.
+8. "suggestions": An array of 3-5 high-impact, actionable changes. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
 
 Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
 
@@ -241,22 +257,23 @@ ${jd}`;
     prompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
 Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
 Return a JSON object with:
-1. "score": General ATS readiness score from 0 to 100.
-2. "breakdown": An object containing:
+1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
+2. "score": General ATS readiness score from 0 to 100 (must be 0 if isValidResume is false).
+3. "breakdown": An object containing (all must be 0 if isValidResume is false):
    - "skills_match": Score 0-100.
    - "experience_match": Score 0-100.
    - "formatting_readability": Score 0-100.
    - "impact_metrics": Score 0-100.
-3. "matched_keywords": An array of technical/hard skills, tools, and methodologies.
-4. "missing_keywords": An object containing arrays:
+4. "matched_keywords": An array of technical/hard skills, tools, and methodologies.
+5. "missing_keywords": An object containing arrays:
    - "hard_skills": Crucial industry-standard technologies or skills missing.
    - "soft_skills": Interpersonal keywords missing.
    - "tools_technologies": Essential tools/platforms missing.
-5. "experience_analysis": An object containing:
+6. "experience_analysis": An object containing:
    - "seniority_match": A string ("Good" | "Fair" | "Poor") rating.
    - "comments": A brief summary of experience layout.
-6. "formatting_issues": An array of strings.
-7. "suggestions": An array of 3-5 high-impact improvements.
+7. "formatting_issues": An array of strings.
+8. "suggestions": An array of 3-5 high-impact improvements. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
 
 Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
 
@@ -368,6 +385,42 @@ router.post("/score", checkAtsLimit, async (req: AuthenticatedRequest, res: Resp
     return res.status(400).json({ error: "Resume is required." });
   }
 
+  // Scan and validate that the content is a resume
+  const validation = validateResumeText(resume);
+  if (!validation.isValid) {
+    return res.json({
+      score: 0,
+      isValidResume: false,
+      error: validation.error || "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume.",
+      breakdown: {
+        skills_match: 0,
+        experience_match: 0,
+        formatting_readability: 0,
+        impact_metrics: 0
+      },
+      matched_keywords: [],
+      missing_keywords: {
+        hard_skills: [],
+        soft_skills: [],
+        tools_technologies: []
+      },
+      experience_analysis: {
+        seniority_match: "Poor",
+        comments: "The uploaded document is not a valid resume/CV."
+      },
+      formatting_issues: ["The document structure is invalid for resume analysis."],
+      suggestions: ["Please upload a valid resume/CV containing standard sections like Experience, Education, or Skills."]
+    });
+  }
+
+  // Validate Job Description if provided
+  if (jd && jd.trim()) {
+    const jdValidation = validateJobDescriptionText(jd);
+    if (!jdValidation.isValid) {
+      return res.status(400).json({ error: jdValidation.error });
+    }
+  }
+
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -389,9 +442,12 @@ router.post("/score", checkAtsLimit, async (req: AuthenticatedRequest, res: Resp
       geminiPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
 Analyze the provided resume against the job description below.
 
+CRITICAL VALIDATION: First, verify if the provided document is actually a resume/CV. If the document is NOT a resume/CV (for example, it is a cover letter, letter of recommendation, certificate, tax document, invoice, ID card, book, recipe, or other non-resume text), you must set the overall score and all breakdown scores to 0, and set the <is_valid_resume> value to false.
+
 CRITICAL: You MUST use Google Search to do an internet search for this role/company on Twitter/X, Reddit, and career-related sites to understand the latest trends, skills, and discussions. Integrate this grounded web search context into your evaluation.
 
 Perform a strict and highly accurate evaluation. You must wrap the sections of your response in the following XML-like tags:
+- Wrap a boolean value (true or false) in <is_valid_resume>...</is_valid_resume> indicating if the document is actually a valid resume/CV.
 - Wrap the overall score (0 to 100) in <score>...</score>
 - Wrap the skills match score (0 to 100) in <skills_match>...</skills_match>
 - Wrap the experience match score (0 to 100) in <experience_match>...</experience_match>
@@ -436,22 +492,23 @@ ${jd}`;
       fallbackPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and recruiter.
 Analyze the provided resume against the job description below.
 Perform a strict and highly accurate evaluation. Return a JSON object with:
-1. "score": Overall score from 0 to 100 based on key metrics.
-2. "breakdown": An object containing:
+1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
+2. "score": Overall score from 0 to 100 based on key metrics (must be 0 if isValidResume is false).
+3. "breakdown": An object containing (all must be 0 if isValidResume is false):
    - "skills_match": Score 0-100 of how well the skills match.
    - "experience_match": Score 0-100 of how well the years of experience and seniority align.
    - "formatting_readability": Score 0-100 of structural suitability (penalize headers, footers, multi-column layouts, graphics, complex styling).
    - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
-3. "matched_keywords": An array of technical/hard skills and tools found in both.
-4. "missing_keywords": An object containing arrays:
+4. "matched_keywords": An array of technical/hard skills and tools found in both.
+5. "missing_keywords": An object containing arrays:
    - "hard_skills": Crucial technologies, programming languages, or domain expertise in the JD but missing from the resume.
    - "soft_skills": Interpersonal, leadership, or execution-style terms from the JD missing from the resume.
    - "tools_technologies": Frameworks, platforms, tools (e.g., Redis, Git, Docker, JIRA) from the JD missing from the resume.
-5. "experience_analysis": An object containing:
+6. "experience_analysis": An object containing:
    - "seniority_match": A string ("Good" | "Fair" | "Poor") rating.
    - "comments": A brief summary of seniority match (e.g., "Resume shows 3 years React, JD asks for 5 years Senior SDE").
-6. "formatting_issues": An array of strings outlining potential ATS readability issues (e.g., "Detected complex formatting or columns", "Ensure email is in the main body").
-7. "suggestions": An array of 3-5 high-impact, actionable changes (e.g., "Add Redis under technical skills", "Rephrase React bullet point to include performance metrics").
+7. "formatting_issues": An array of strings outlining potential ATS readability issues (e.g., "Detected complex formatting or columns", "Ensure email is in the main body").
+8. "suggestions": An array of 3-5 high-impact, actionable changes. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
 
 Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
 
@@ -464,11 +521,14 @@ ${jd}`;
       geminiPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
 Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
 
+CRITICAL VALIDATION: First, verify if the provided document is actually a resume/CV. If the document is NOT a resume/CV (for example, it is a cover letter, letter of recommendation, certificate, tax document, invoice, ID card, book, recipe, or other non-resume text), you must set the overall score and all breakdown scores to 0, and set the <is_valid_resume> value to false.
+
 CRITICAL: You MUST use Google Search to do an internet search for this candidate's target field/role on Twitter/X, Reddit, and career-related sites to understand the latest trends, skills, and discussions. Integrate this grounded web search context into your evaluation.
 
 Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
 
 You must wrap the sections of your response in the following XML-like tags:
+- Wrap a boolean value (true or false) in <is_valid_resume>...</is_valid_resume> indicating if the document is actually a valid resume/CV.
 - Wrap the overall score (0 to 100) in <score>...</score>
 - Wrap the skills match score (0 to 100) in <skills_match>...</skills_match>
 - Wrap the experience match score (0 to 100) in <experience_match>...</experience_match>
@@ -511,22 +571,23 @@ Perform a comprehensive audit of the provided resume *without* matching it to a 
 Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
 
 Return a JSON object with:
-1. "score": General ATS readiness score from 0 to 100.
-2. "breakdown": An object containing:
+1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
+2. "score": General ATS readiness score from 0 to 100 (must be 0 if isValidResume is false).
+3. "breakdown": An object containing (all must be 0 if isValidResume is false):
    - "skills_match": Score 0-100 indicating depth and layout of technical skills.
    - "experience_match": Score 0-100 evaluating the structure, formatting, and relevance of work history.
    - "formatting_readability": Score 0-100 of structural suitability for ATS scanners (penalize multi-columns, tables, graphics, contact info in headers).
    - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
-3. "matched_keywords": An array of the primary technical/hard skills, tools, and methodologies detected in the resume.
-4. "missing_keywords": An object containing arrays:
+4. "matched_keywords": An array of the primary technical/hard skills, tools, and methodologies detected in the resume.
+5. "missing_keywords": An object containing arrays:
    - "hard_skills": Crucial industry-standard technologies or skills related to the candidate's target field (inferred from the resume) that are currently missing or could be added.
    - "soft_skills": Interpersonal or execution-oriented keywords standard for this domain that are missing.
    - "tools_technologies": Essential tools, platforms, or systems commonly expected in this role that are missing.
-5. "experience_analysis": An object containing:
+6. "experience_analysis": An object containing:
    - "seniority_match": A string ("Good" | "Fair" | "Poor") representing the clarity of the candidate's experience progression.
    - "comments": A brief summary of the experience layout and career progression.
-6. "formatting_issues": An array of strings outlining potential ATS readability bottlenecks found in the resume (e.g., "Found multi-column layout", "Contact details in header/footer", "Non-standard section headers").
-7. "suggestions": An array of 3-5 high-impact, actionable improvements to make the resume beat automated filters.
+7. "formatting_issues": An array of strings outlining potential ATS readability bottlenecks found in the resume (e.g., "Found multi-column layout", "Contact details in header/footer", "Non-standard section headers").
+8. "suggestions": An array of 3-5 high-impact, actionable improvements to make the resume beat automated filters. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
 
 Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
 
@@ -740,8 +801,21 @@ router.post("/tailor", checkAtsLimit, async (req: AuthenticatedRequest, res: Res
   if (!resume) {
     return res.status(400).json({ error: "Resume content is required." });
   }
+
+  // Scan and validate that the content is a resume
+  const validation = validateResumeText(resume);
+  if (!validation.isValid) {
+    return res.status(400).json({ error: validation.error });
+  }
+
   if (!jd) {
     return res.status(400).json({ error: "Job description is required." });
+  }
+
+  // Scan and validate that the content is a valid job description
+  const jdValidation = validateJobDescriptionText(jd);
+  if (!jdValidation.isValid) {
+    return res.status(400).json({ error: jdValidation.error });
   }
 
   if (!req.user) {

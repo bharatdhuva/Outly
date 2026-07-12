@@ -706,7 +706,50 @@ export default function AtsScorePage() {
             </div>
 
             {/* Main Score Dashboard Layout */}
-            <div className="flex flex-col md:grid md:grid-cols-12 flex-1 h-auto md:h-[calc(100%-44px)]">
+            {result && result.isValidResume === false ? (
+              /* Invalid Resume Error State */
+              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none bg-white animate-fade-in min-h-[400px]">
+                <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mb-4 text-destructive border border-destructive/20">
+                  <AlertTriangle className="w-7 h-7 shrink-0 animate-bounce" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2">Invalid Document Detected</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground max-w-sm leading-relaxed mb-6">
+                  {result.error || "The uploaded document does not appear to be a valid resume/CV. Outly AI scanned the file but could not identify standard sections or profile details."}
+                </p>
+                <div className="bg-secondary/40 border border-border/60 rounded-xl p-4 max-w-sm text-left space-y-3.5 w-full">
+                  <span className="block text-[11px] font-extrabold uppercase tracking-wider text-foreground">
+                    💡 Proper Resume Requirements:
+                  </span>
+                  <ul className="space-y-2 text-[11.5px] text-muted-foreground font-medium">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+                      <span>Must contain standard sections (e.g., <strong>Experience</strong>, <strong>Education</strong>, or <strong>Skills</strong>).</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+                      <span>Must include candidate contact info (e.g., email or phone number).</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+                      <span>Cannot be a tax form, invoice, receipt, ID card, or general article.</span>
+                    </li>
+                  </ul>
+                </div>
+                <Button 
+                  onClick={() => {
+                    setResult(null);
+                    setResume("");
+                    setResumeFile(null);
+                    setResumeFileName("");
+                    setSelectedVaultId("custom");
+                  }}
+                  className="mt-6 bg-outly-accent hover:brightness-110 text-white text-xs font-bold px-6 py-2.5 rounded-full shadow-md shadow-outly-accent/20 cursor-pointer transition active:scale-[0.97] h-9 shrink-0 gap-1.5"
+                >
+                  Upload a Different File
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col md:grid md:grid-cols-12 flex-1 h-auto md:h-[calc(100%-44px)]">
               
               {/* Left Panel: Score circular dial & category selector buttons (5/12 cols) */}
               <div className="col-span-12 md:col-span-5 border-b md:border-b-0 md:border-r border-border/60 p-4 bg-secondary/10 flex flex-col justify-between h-auto md:h-full overflow-y-auto">
@@ -984,19 +1027,31 @@ export default function AtsScorePage() {
                       <div className="space-y-2.5 pt-1">
                         <div className="flex justify-between items-center text-[11px] border-b border-border/40 pb-2">
                           <span className="font-bold text-foreground/80">Work Experience</span>
-                          <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
+                          {resume.toLowerCase().includes("experience") || resume.toLowerCase().includes("work") || resume.toLowerCase().includes("employment") || resume.toLowerCase().includes("history") ? (
+                            <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
+                          ) : (
+                            <span className="text-amber-600 font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
+                          )}
                         </div>
                         <div className="flex justify-between items-center text-[11px] border-b border-border/40 pb-2">
                           <span className="font-bold text-foreground/80">Education &amp; Credentials</span>
-                          <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
+                          {resume.toLowerCase().includes("education") || resume.toLowerCase().includes("academic") || resume.toLowerCase().includes("degree") || resume.toLowerCase().includes("university") || resume.toLowerCase().includes("college") || resume.toLowerCase().includes("school") ? (
+                            <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
+                          ) : (
+                            <span className="text-amber-600 font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
+                          )}
                         </div>
                         <div className="flex justify-between items-center text-[11px] border-b border-border/40 pb-2">
                           <span className="font-bold text-foreground/80">Key Projects</span>
-                          <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
+                          {resume.toLowerCase().includes("project") || resume.toLowerCase().includes("accomplishment") ? (
+                            <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
+                          ) : (
+                            <span className="text-amber-600 font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
+                          )}
                         </div>
                         <div className="flex justify-between items-center text-[11px] border-b border-border/40 pb-2">
                           <span className="font-bold text-foreground/80">Summary Profile</span>
-                          {resume.toLowerCase().includes("summary") || resume.toLowerCase().includes("profile") ? (
+                          {resume.toLowerCase().includes("summary") || resume.toLowerCase().includes("profile") || resume.toLowerCase().includes("objective") || resume.toLowerCase().includes("about me") ? (
                             <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
                           ) : (
                             <span className="text-amber-600 font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
@@ -1060,7 +1115,8 @@ export default function AtsScorePage() {
 
               </div>
 
-            </div>
+              </div>
+            )}
 
             {/* ─── MOCK DEMO CARD BLUR OVERLAY ─── */}
             {!result && (
@@ -1125,7 +1181,7 @@ export default function AtsScorePage() {
       </div>
 
       {/* Actionable suggestions list (Rendered only after live scan completes) */}
-      {result && result.suggestions && result.suggestions.length > 0 && (
+      {result && result.isValidResume !== false && result.suggestions && result.suggestions.length > 0 && (
         <section className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5 text-left max-w-4xl mx-auto animate-slide-up">
           <h3 className="text-[15px] font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-3">
             <Info className="h-5.5 w-5.5 text-primary shrink-0" />

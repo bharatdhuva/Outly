@@ -6,6 +6,7 @@ import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkResumeLimit } from "../../middleware/limits.js";
 import { uploadToCloudinary } from "../../lib/cloudinary.js";
 import { uploadResume } from "../../middleware/upload.js";
+import { validateResumeText } from "../../lib/resumeValidator.js";
 import path from "path";
 import fs from "fs";
 import axios from "axios";
@@ -179,6 +180,13 @@ router.post("/upload", uploadResume.single("file"), checkResumeLimit, async (req
     } else {
       fs.unlinkSync(tempFilePath);
       return res.status(400).json({ error: "Unsupported file type. Please upload a .txt, .pdf, or .docx file." });
+    }
+
+    // Validate that the parsed text is a resume
+    const validation = validateResumeText(text);
+    if (!validation.isValid) {
+      if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+      return res.status(400).json({ error: validation.error });
     }
 
     // Read raw binary file buffer for database persistence

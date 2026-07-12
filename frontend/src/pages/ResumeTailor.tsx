@@ -34,10 +34,64 @@ import {
   Sparkles
 } from "lucide-react";
 
+const validateResumeTextClient = (text: string): { isValid: boolean; error?: string } => {
+  if (!text || text.trim().length < 150) {
+    return {
+      isValid: false,
+      error: "The uploaded document is too short to be a valid resume."
+    };
+  }
+
+  const lowerText = text.toLowerCase();
+
+  // 1. Resume sections detection
+  const hasExperience = /experience|work\s+history|employment|professional\s+experience|professional\s+history|job\s+history/i.test(lowerText);
+  const hasEducation = /education|academic|university|college|degree|qualification/i.test(lowerText);
+  const hasSkills = /skills|technical\s+skills|expertise|technologies|core\s+competencies|competencies|programming\s+languages/i.test(lowerText);
+  const hasProjects = /projects|personal\s+projects|academic\s+projects|key\s+projects/i.test(lowerText);
+  const hasSummary = /summary|professional\s+summary|objective|career\s+objective|profile|about\s+me/i.test(lowerText);
+  const hasCertifications = /certifications|certificates|awards|interests/i.test(lowerText);
+
+  // 2. Contact info indicators
+  const hasEmail = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/i.test(lowerText);
+  const hasPhone = /(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/.test(lowerText);
+  const hasLinks = /linkedin\.com|github\.com/i.test(lowerText);
+  
+  const hasContactInfo = hasEmail || hasPhone || hasLinks || /email|phone|contact/i.test(lowerText);
+
+  // 3. Count matching major sections
+  let sectionMatchCount = 0;
+  if (hasExperience) sectionMatchCount++;
+  if (hasEducation) sectionMatchCount++;
+  if (hasSkills) sectionMatchCount++;
+  if (hasProjects) sectionMatchCount++;
+  if (hasSummary) sectionMatchCount++;
+  if (hasCertifications) sectionMatchCount++;
+
+  // 4. Non-resume markers
+  const isInvoiceOrReceipt = /invoice|bill\s+to|amount\s+due|payment\s+due|total\s+due|receipt|subtotal|tax\s+invoice|transaction\s+id/i.test(lowerText) && sectionMatchCount < 2;
+  const isTaxForm = /form\s+\d{4}|tax\s+return|internal\s+revenue|irs|w-2|form\s+w2|1040/i.test(lowerText) && sectionMatchCount < 2;
+  const isRecipe = /ingredients|instructions|cook\s+time|prep\s+time|servings|recipe/i.test(lowerText) && !hasExperience && !hasEducation;
+  const isGenericCode = /import\s+.*\s+from|const\s+.*=|function\s+.*\(|class\s+.*\s*\{/i.test(lowerText) && !hasExperience && !hasEducation && !hasSkills;
+
+  const meetsSectionRequirement = sectionMatchCount >= 2;
+  
+  if (!meetsSectionRequirement || !hasContactInfo || isInvoiceOrReceipt || isTaxForm || isRecipe || isGenericCode) {
+    return {
+      isValid: false,
+      error: "The uploaded file does not appear to be a resume/CV. Please upload a valid resume containing standard sections (e.g., Experience, Education, Skills, or Projects) and contact information."
+    };
+  }
+
+  return { isValid: true };
+};
+
 export default function ResumeTailorPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [isValidResume, setIsValidResume] = useState<boolean | null>(null);
+  const [resumeValidationError, setResumeValidationError] = useState<string | null>(null);
   const [jobDesc, setJobDesc] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeText, setResumeText] = useState<string | null>(null);
@@ -157,10 +211,26 @@ export default function ResumeTailorPage() {
     try {
       const parsed = await api.ats.parseFile(file);
       setResumeText(parsed.content);
+      const validation = validateResumeTextClient(parsed.content);
+      if (!validation.isValid) {
+        setIsValidResume(false);
+        setResumeValidationError(validation.error || null);
+      } else {
+        setIsValidResume(true);
+        setResumeValidationError(null);
+      }
     } catch (err) {
       try {
         const text = await file.text();
         setResumeText(text);
+        const validation = validateResumeTextClient(text);
+        if (!validation.isValid) {
+          setIsValidResume(false);
+          setResumeValidationError(validation.error || null);
+        } else {
+          setIsValidResume(true);
+          setResumeValidationError(null);
+        }
       } catch (innerErr) {
         toast({
           variant: "destructive",
@@ -169,6 +239,8 @@ export default function ResumeTailorPage() {
         });
         setResumeFile(null);
         setResumeText(null);
+        setIsValidResume(null);
+        setResumeValidationError(null);
       }
     } finally {
       clearInterval(progressInterval);
@@ -196,10 +268,20 @@ export default function ResumeTailorPage() {
     setSources([]);
     if (idStr === "custom") {
       setResumeText(null);
+      setIsValidResume(null);
+      setResumeValidationError(null);
     } else {
       const found = resumes.find(r => String(r.id) === idStr);
       if (found && found.content) {
         setResumeText(found.content);
+        const validation = validateResumeTextClient(found.content);
+        if (!validation.isValid) {
+          setIsValidResume(false);
+          setResumeValidationError(validation.error || null);
+        } else {
+          setIsValidResume(true);
+          setResumeValidationError(null);
+        }
       }
     }
   };
@@ -483,6 +565,8 @@ export default function ResumeTailorPage() {
                     setMatchedKeywords([]);
                     setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
                     setSources([]);
+                    setIsValidResume(null);
+                    setResumeValidationError(null);
                   }}
                 >
                   <X className="h-3.5 w-3.5" />
@@ -491,7 +575,37 @@ export default function ResumeTailorPage() {
               </div>
 
               <div className="flex-1 min-h-[360px] overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
-                {resumeFile && resumeFile.type === "application/pdf" ? (
+                {isValidResume === false ? (
+                  /* Invalid Resume Error State */
+                  <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none bg-white animate-fade-in">
+                    <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-3 text-destructive border border-destructive/20">
+                      <AlertTriangle className="w-6 h-6 shrink-0 animate-bounce" />
+                    </div>
+                    <h3 className="text-sm sm:text-base font-bold text-foreground mb-1">Invalid Document Detected</h3>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground max-w-sm leading-relaxed mb-4">
+                      {resumeValidationError || "The uploaded document does not appear to be a valid resume/CV."}
+                    </p>
+                    <div className="bg-secondary/40 border border-border/60 rounded-xl p-3.5 max-w-sm text-left space-y-2.5 w-full">
+                      <span className="block text-[10px] font-extrabold uppercase tracking-wider text-foreground">
+                        💡 Proper Resume Requirements:
+                      </span>
+                      <ul className="space-y-1.5 text-[10.5px] text-muted-foreground font-medium">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+                          <span>Must contain standard sections (e.g., <strong>Experience</strong>, <strong>Education</strong>, or <strong>Skills</strong>).</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+                          <span>Must include candidate contact info (e.g., email or phone number).</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+                          <span>Cannot be a tax form, invoice, receipt, ID card, or general article.</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                ) : resumeFile && resumeFile.type === "application/pdf" ? (
                   <div className="flex-1 flex flex-col min-h-[360px]">
                     <PdfViewer file={resumeFile} />
                   </div>
@@ -516,7 +630,7 @@ export default function ResumeTailorPage() {
         <Button
           className="w-full sm:w-auto max-w-[220px] bg-outly-accent hover:brightness-110 text-white px-5 font-bold tracking-normal rounded-full shadow-md shadow-outly-accent/15 active:scale-[0.98] transition-all gap-1.5 h-9 text-xs cursor-pointer"
           onClick={handleTailor}
-          disabled={tailoring || !resumeText || !jobDesc.trim()}
+          disabled={tailoring || !resumeText || !jobDesc.trim() || isValidResume === false}
         >
           {tailoring ? (
             <>
