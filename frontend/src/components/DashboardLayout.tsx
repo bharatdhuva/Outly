@@ -17,7 +17,8 @@ import {
   Briefcase,
   Wrench,
   User,
-  Search
+  Search,
+  Bell
 } from "lucide-react";
 import {
   Dialog,
@@ -107,6 +108,14 @@ function PlanStatusAvatar({
   );
 }
 
+interface NotificationItem {
+  id: string;
+  title: string;
+  description: string;
+  time: string;
+  read: boolean;
+}
+
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -118,6 +127,84 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const dropdownCloseTimer = useRef<number | null>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const mobileProfileMenuRef = useRef<HTMLDivElement>(null);
+
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const notificationMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("outly_notifications");
+      if (saved && saved !== "undefined") {
+        setNotifications(JSON.parse(saved));
+      } else {
+        const welcome: NotificationItem = {
+          id: "welcome",
+          title: "Welcome to Outly! 🎉",
+          description: "Upgrade to Pro to unlock unlimited resume tailoring, Job tracking & ATS checker.",
+          time: "Just now",
+          read: false
+        };
+        setNotifications([welcome]);
+        localStorage.setItem("outly_notifications", JSON.stringify([welcome]));
+      }
+    } catch (err) {
+      console.error("Failed to parse notifications:", err);
+      const welcome: NotificationItem = {
+        id: "welcome",
+        title: "Welcome to Outly! 🎉",
+        description: "Upgrade to Pro to unlock unlimited resume tailoring, Job tracking & ATS checker.",
+        time: "Just now",
+        read: false
+      };
+      setNotifications([welcome]);
+    }
+
+    const handleNewNotification = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const newItem: NotificationItem = {
+          id: Date.now().toString(),
+          title: customEvent.detail.title,
+          description: customEvent.detail.description,
+          time: "Just now",
+          read: false
+        };
+        setNotifications(prev => {
+          const updated = [newItem, ...prev];
+          localStorage.setItem("outly_notifications", JSON.stringify(updated));
+          return updated;
+        });
+      }
+    };
+
+    window.addEventListener("outly-notification", handleNewNotification);
+    return () => window.removeEventListener("outly-notification", handleNewNotification);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationMenuRef.current && !notificationMenuRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+    if (notificationsOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [notificationsOpen]);
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications(prev => {
+      const updated = prev.map(n => ({ ...n, read: true }));
+      localStorage.setItem("outly_notifications", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   // 1. Enforce authentication checking
   const token = localStorage.getItem("outly_token");
@@ -699,6 +786,60 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
+            {/* Mobile Notification Bell */}
+            <div className="relative md:hidden mr-1" ref={notificationMenuRef}>
+              <button
+                type="button"
+                className="relative p-2 text-zinc-500 active:scale-95 transition-all outline-none"
+                onClick={() => setNotificationsOpen(prev => !prev)}
+              >
+                <Bell className="h-[21px] w-[21px]" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white leading-none">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+              
+              {notificationsOpen && (
+                <div className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-white border border-zinc-100 font-sans shadow-[0_12px_36px_rgba(0,0,0,0.08)] z-[125] py-2.5 animate-in fade-in-0 zoom-in-95">
+                  <div className="px-4 pb-2 border-b border-zinc-50 flex items-center justify-between">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
+                    {unreadCount > 0 && (
+                      <button 
+                        onClick={markAllNotificationsAsRead}
+                        className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+                  <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
+                        No notifications yet
+                      </div>
+                    ) : (
+                      notifications.map(item => (
+                        <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
+                          {!item.read && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start gap-2">
+                              <span className="text-[12px] font-bold text-zinc-800 truncate">{item.title}</span>
+                              <span className="text-[9px] text-zinc-400 font-medium shrink-0">{item.time}</span>
+                            </div>
+                            <p className="text-[10.5px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Mobile Profile Avatar Trigger & Dropdown */}
             <div className="relative md:hidden" ref={mobileProfileMenuRef}>
               <button
@@ -795,15 +936,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                              location.pathname.startsWith("/resume-");
             return (
               <>
-                <div className={`px-5 py-1 rounded-full transition-all duration-200 border ${
-                  isActive 
-                    ? "bg-primary/15 text-primary border-primary/5 shadow-[0_2px_8px_rgba(45,192,141,0.12)]" 
-                    : "bg-transparent text-outly-dark/40 border-transparent"
+                <div className={`transition-all duration-200 ${
+                  isActive ? "text-[#f23c5d] scale-105" : "text-zinc-400/60"
                 }`}>
                   <ScrollText className="h-5 w-5 transition-colors duration-200" />
                 </div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-primary" : "font-medium text-outly-dark/50"
+                  isActive ? "font-bold text-[#f23c5d]" : "font-medium text-zinc-400/80"
                 }`}>
                   Resumes
                 </span>
@@ -824,15 +963,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                              location.pathname === "/analytics";
             return (
               <>
-                <div className={`px-5 py-1 rounded-full transition-all duration-200 border ${
-                  isActive 
-                    ? "bg-primary/15 text-primary border-primary/5 shadow-[0_2px_8px_rgba(45,192,141,0.12)]" 
-                    : "bg-transparent text-outly-dark/40 border-transparent"
+                <div className={`transition-all duration-200 ${
+                  isActive ? "text-[#f23c5d] scale-105" : "text-zinc-400/60"
                 }`}>
                   <Briefcase className="h-5 w-5 transition-colors duration-200" />
                 </div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-primary" : "font-medium text-outly-dark/50"
+                  isActive ? "font-bold text-[#f23c5d]" : "font-medium text-zinc-400/80"
                 }`}>
                   Jobs
                 </span>
@@ -853,15 +990,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                              location.pathname === "/logs";
             return (
               <>
-                <div className={`px-5 py-1 rounded-full transition-all duration-200 border ${
-                  isActive 
-                    ? "bg-primary/15 text-primary border-primary/5 shadow-[0_2px_8px_rgba(45,192,141,0.12)]" 
-                    : "bg-transparent text-outly-dark/40 border-transparent"
+                <div className={`transition-all duration-200 ${
+                  isActive ? "text-[#f23c5d] scale-105" : "text-zinc-400/60"
                 }`}>
                   <Wrench className="h-5 w-5 transition-colors duration-200" />
                 </div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-primary" : "font-medium text-outly-dark/50"
+                  isActive ? "font-bold text-[#f23c5d]" : "font-medium text-zinc-400/80"
                 }`}>
                   Tools
                 </span>
@@ -881,15 +1016,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                              location.pathname === "/support";
             return (
               <>
-                <div className={`px-5 py-1 rounded-full transition-all duration-200 border ${
-                  isActive 
-                    ? "bg-primary/15 text-primary border-primary/5 shadow-[0_2px_8px_rgba(45,192,141,0.12)]" 
-                    : "bg-transparent text-outly-dark/40 border-transparent"
+                <div className={`transition-all duration-200 ${
+                  isActive ? "text-[#f23c5d] scale-105" : "text-zinc-400/60"
                 }`}>
                   <User className="h-5 w-5 transition-colors duration-200" />
                 </div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-primary" : "font-medium text-outly-dark/50"
+                  isActive ? "font-bold text-[#f23c5d]" : "font-medium text-zinc-400/80"
                 }`}>
                   Profile
                 </span>

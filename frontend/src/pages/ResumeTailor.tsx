@@ -202,6 +202,12 @@ export default function ResumeTailorPage() {
         title: "Resume Tailored Successfully!",
         description: "The AI optimized version and keyword insights are ready.",
       });
+      window.dispatchEvent(new CustomEvent("outly-notification", {
+        detail: {
+          title: "Resume Tailored ✨",
+          description: "Your resume has been successfully tailored for the target job description."
+        }
+      }));
     } catch (err) {
       const errStr = String(err);
       const isLimitError = errStr.includes("LIMIT_ATS_EXCEEDED") || errStr.toLowerCase().includes("limit reached");

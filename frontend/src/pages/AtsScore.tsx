@@ -248,6 +248,12 @@ export default function AtsScorePage() {
       await new Promise(resolve => setTimeout(resolve, 800));
       
       setResult(data);
+      window.dispatchEvent(new CustomEvent("outly-notification", {
+        detail: {
+          title: "Resume Scanned 🔍",
+          description: `Your resume has been successfully scanned. ATS Match Score: ${data.score}/100.`
+        }
+      }));
       toast({
         title: "Scan Completed",
         description: `ATS Match Score: ${data.score}/100`,
