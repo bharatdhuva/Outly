@@ -33,62 +33,88 @@ import {
 export default function AtsScorePage() {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"general" | "targeted">(() => {
-    return (localStorage.getItem("ats_mode") as "general" | "targeted") || "general";
-  });
-  const [resume, setResume] = useState(() => {
-    return localStorage.getItem("ats_resume") || "";
-  });
+  const [mode, setMode] = useState<"general" | "targeted">("general");
+  const [resume, setResume] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [resumeFileName, setResumeFileName] = useState(() => {
-    return localStorage.getItem("ats_resume_file_name") || "";
-  });
-  const [jd, setJd] = useState(() => {
-    return localStorage.getItem("ats_jd") || "";
-  });
+  const [resumeFileName, setResumeFileName] = useState("");
+  const [jd, setJd] = useState("");
   const [loading, setLoading] = useState(false);
   const [parsingFile, setParsingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [result, setResult] = useState<EvaluationResult | null>(() => {
-    const saved = localStorage.getItem("ats_result");
-    return saved ? JSON.parse(saved) : null;
-  });
-  const [selectedVaultId, setSelectedVaultId] = useState(() => {
-    return localStorage.getItem("ats_selected_vault_id") || "custom";
-  });
+  const [result, setResult] = useState<EvaluationResult | null>(null);
+  const [selectedVaultId, setSelectedVaultId] = useState<string>("custom");
   const [isDragging, setIsDragging] = useState(false);
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
+  const [isStateLoaded, setIsStateLoaded] = useState(false);
+  const userEmail = userData?.user?.email || "anonymous";
+  const [prevUserEmail, setPrevUserEmail] = useState("anonymous");
+
+  // Reset loading flag if userEmail changes to prevent overwrites
+  if (userEmail !== prevUserEmail) {
+    setPrevUserEmail(userEmail);
+    setIsStateLoaded(false);
+  }
+
+  // Load state from localStorage on mount and when userEmail changes
   useEffect(() => {
-    localStorage.setItem("ats_mode", mode);
-  }, [mode]);
+    const loadedMode = (localStorage.getItem(`ats_mode_${userEmail}`) as "general" | "targeted") || "general";
+    const loadedResume = localStorage.getItem(`ats_resume_${userEmail}`) || "";
+    const loadedFileName = localStorage.getItem(`ats_resume_file_name_${userEmail}`) || "";
+    const loadedJd = localStorage.getItem(`ats_jd_${userEmail}`) || "";
+    
+    const savedResult = localStorage.getItem(`ats_result_${userEmail}`);
+    const loadedResult = savedResult ? JSON.parse(savedResult) : null;
+    
+    const loadedVaultId = localStorage.getItem(`ats_selected_vault_id_${userEmail}`) || "custom";
+
+    setMode(loadedMode);
+    setResume(loadedResume);
+    setResumeFileName(loadedFileName);
+    setJd(loadedJd);
+    setResult(loadedResult);
+    setSelectedVaultId(loadedVaultId);
+    
+    setIsStateLoaded(true);
+  }, [userEmail]);
+
+  // Sync state changes to localStorage (user-scoped)
+  useEffect(() => {
+    if (!isStateLoaded) return;
+    localStorage.setItem(`ats_mode_${userEmail}`, mode);
+  }, [mode, userEmail, isStateLoaded]);
 
   useEffect(() => {
-    localStorage.setItem("ats_resume", resume);
-  }, [resume]);
+    if (!isStateLoaded) return;
+    localStorage.setItem(`ats_resume_${userEmail}`, resume);
+  }, [resume, userEmail, isStateLoaded]);
 
   useEffect(() => {
-    localStorage.setItem("ats_resume_file_name", resumeFileName);
-  }, [resumeFileName]);
+    if (!isStateLoaded) return;
+    localStorage.setItem(`ats_resume_file_name_${userEmail}`, resumeFileName);
+  }, [resumeFileName, userEmail, isStateLoaded]);
 
   useEffect(() => {
-    localStorage.setItem("ats_jd", jd);
-  }, [jd]);
+    if (!isStateLoaded) return;
+    localStorage.setItem(`ats_jd_${userEmail}`, jd);
+  }, [jd, userEmail, isStateLoaded]);
 
   useEffect(() => {
+    if (!isStateLoaded) return;
     if (result) {
-      localStorage.setItem("ats_result", JSON.stringify(result));
+      localStorage.setItem(`ats_result_${userEmail}`, JSON.stringify(result));
     } else {
-      localStorage.removeItem("ats_result");
+      localStorage.removeItem(`ats_result_${userEmail}`);
     }
-  }, [result]);
+  }, [result, userEmail, isStateLoaded]);
 
   useEffect(() => {
-    localStorage.setItem("ats_selected_vault_id", selectedVaultId);
-  }, [selectedVaultId]);
+    if (!isStateLoaded) return;
+    localStorage.setItem(`ats_selected_vault_id_${userEmail}`, selectedVaultId);
+  }, [selectedVaultId, userEmail, isStateLoaded]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);

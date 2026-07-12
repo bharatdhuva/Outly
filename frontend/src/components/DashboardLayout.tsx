@@ -129,12 +129,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const mobileProfileMenuRef = useRef<HTMLDivElement>(null);
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notificationsLoadedEmail, setNotificationsLoadedEmail] = useState("");
+  const userEmail = userData?.user?.email || "anonymous";
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
 
+  // Sync state FROM localStorage once userEmail is loaded
   useEffect(() => {
+    if (token && !userData) return;
+    
+    const emailToLoad = userData?.user?.email || "anonymous";
     try {
-      const saved = localStorage.getItem("outly_notifications");
+      const saved = localStorage.getItem(`outly_notifications_${emailToLoad}`);
       if (saved && saved !== "undefined") {
         setNotifications(JSON.parse(saved));
       } else {
@@ -146,7 +152,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           read: false
         };
         setNotifications([welcome]);
-        localStorage.setItem("outly_notifications", JSON.stringify([welcome]));
+        localStorage.setItem(`outly_notifications_${emailToLoad}`, JSON.stringify([welcome]));
       }
     } catch (err) {
       console.error("Failed to parse notifications:", err);
@@ -159,6 +165,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       };
       setNotifications([welcome]);
     }
+    setNotificationsLoadedEmail(emailToLoad);
+  }, [userData?.user?.email, token]);
+
+  useEffect(() => {
+    if (notificationsLoadedEmail !== userEmail) return;
 
     const handleNewNotification = (e: Event) => {
       const customEvent = e as CustomEvent;
@@ -172,7 +183,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         };
         setNotifications(prev => {
           const updated = [newItem, ...prev];
-          localStorage.setItem("outly_notifications", JSON.stringify(updated));
+          localStorage.setItem(`outly_notifications_${userEmail}`, JSON.stringify(updated));
           return updated;
         });
       }
@@ -180,7 +191,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
     window.addEventListener("outly-notification", handleNewNotification);
     return () => window.removeEventListener("outly-notification", handleNewNotification);
-  }, []);
+  }, [userEmail, notificationsLoadedEmail]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -199,7 +210,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const markAllNotificationsAsRead = () => {
     setNotifications(prev => {
       const updated = prev.map(n => ({ ...n, read: true }));
-      localStorage.setItem("outly_notifications", JSON.stringify(updated));
+      localStorage.setItem(`outly_notifications_${userEmail}`, JSON.stringify(updated));
       return updated;
     });
   };

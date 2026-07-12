@@ -64,6 +64,7 @@ export const api = {
       }),
     logout: () => {
       localStorage.removeItem("outly_token");
+      localStorage.removeItem("outly_premium_user");
     }
   },
 
