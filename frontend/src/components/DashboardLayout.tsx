@@ -241,7 +241,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkPremiumStatus = () => {
-      setIsPremium(localStorage.getItem("outly_premium_user") === "true");
+      const isNowPremium = localStorage.getItem("outly_premium_user") === "true";
+      setIsPremium(isNowPremium);
+      
+      // Dispatch notification on upgrade success
+      if (isNowPremium) {
+        window.dispatchEvent(new CustomEvent("outly-notification", {
+          detail: {
+            title: "Upgraded to Pro! 🚀",
+            description: "Congratulations! You have successfully upgraded to Outly Pro. Unlimited resume tailoring, Job tracking & ATS scans are now active."
+          }
+        }));
+      }
     };
     window.addEventListener("storage", checkPremiumStatus);
     window.addEventListener("premium_upgrade", checkPremiumStatus);

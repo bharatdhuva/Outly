@@ -63,14 +63,26 @@ export default function OnboardingPage() {
 
           <div className="mt-10 flex max-w-lg flex-col items-stretch gap-4 sm:flex-row sm:items-center">
             <button
-              onClick={() => navigate("/ats-score")}
+              onClick={() => {
+                if (window.innerWidth < 768) {
+                  navigate("/resumes?tab=ats");
+                } else {
+                  navigate("/ats-score");
+                }
+              }}
               className="rounded-full bg-outly-accent px-8 py-4 font-sans text-[16px] font-medium text-white shadow-lg shadow-outly-accent/25 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer select-none text-center"
             >
               Check ATS Of Resume
             </button>
 
             <button
-              onClick={() => navigate("/resume-tailor")}
+              onClick={() => {
+                if (window.innerWidth < 768) {
+                  navigate("/resumes?tab=tailor");
+                } else {
+                  navigate("/resume-tailor");
+                }
+              }}
               className="rounded-full border border-outly-border bg-white px-8 py-4 font-sans text-[16px] font-medium text-outly-dark hover:border-outly-dark/40 hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 cursor-pointer select-none text-center"
             >
               Tailor Resume
