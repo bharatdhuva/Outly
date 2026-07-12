@@ -155,7 +155,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [notificationsLoadedEmail, setNotificationsLoadedEmail] = useState("");
   const userEmail = userData?.user?.email || "anonymous";
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const notificationMenuRef = useRef<HTMLDivElement>(null);
+  const desktopNotificationMenuRef = useRef<HTMLDivElement>(null);
+  const mobileNotificationMenuRef = useRef<HTMLDivElement>(null);
 
   // Sync state FROM localStorage once userEmail is loaded
   useEffect(() => {
@@ -218,7 +219,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (notificationMenuRef.current && !notificationMenuRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const clickedOutsideDesktop = !desktopNotificationMenuRef.current || !desktopNotificationMenuRef.current.contains(target);
+      const clickedOutsideMobile = !mobileNotificationMenuRef.current || !mobileNotificationMenuRef.current.contains(target);
+      if (clickedOutsideDesktop && clickedOutsideMobile) {
         setNotificationsOpen(false);
       }
     };
@@ -739,6 +743,60 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
           {/* Right Side: Profile initials & Logout CTA */}
           <div className="flex items-center gap-4">
+
+            {/* Desktop Notification Bell */}
+            <div className="relative hidden md:block" ref={desktopNotificationMenuRef}>
+              <button
+                type="button"
+                className="relative p-2 text-zinc-500 hover:text-outly-dark active:scale-95 transition-all outline-none"
+                onClick={() => setNotificationsOpen(prev => !prev)}
+              >
+                <Bell className="h-[19px] w-[19px]" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white leading-none">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+              
+              {notificationsOpen && (
+                <div className="absolute right-0 top-full mt-2.5 w-[300px] rounded-2xl bg-white border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2 animate-in fade-in-0 zoom-in-95">
+                  <div className="px-4 py-2 border-b border-zinc-100 flex items-center justify-between">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
+                    {unreadCount > 0 && (
+                      <button 
+                        onClick={markAllNotificationsAsRead}
+                        className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+                  <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
+                        No notifications yet
+                      </div>
+                    ) : (
+                      notifications.map(item => (
+                        <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
+                          {!item.read && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start gap-2">
+                              <span className="text-[11.5px] font-bold text-zinc-800 truncate">{item.title}</span>
+                              <span className="text-[8.5px] text-zinc-400 font-medium shrink-0">{item.time}</span>
+                            </div>
+                            <p className="text-[10px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             
             {/* Desktop Profile Info & Logout Dropdown */}
             <div className="relative hidden md:block" ref={profileMenuRef}>
@@ -811,7 +869,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Mobile Notification Bell */}
-            <div className="relative md:hidden mr-1" ref={notificationMenuRef}>
+            <div className="relative md:hidden mr-1" ref={mobileNotificationMenuRef}>
               <button
                 type="button"
                 className="relative p-2 text-zinc-500 active:scale-95 transition-all outline-none"
