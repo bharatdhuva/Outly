@@ -120,7 +120,30 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  
+
+  // 1. Enforce authentication checking
+  const token = localStorage.getItem("outly_token");
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [token, navigate]);
+
+  // 2. Fetch current user session
+  const { data: userData, error, isLoading } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: api.auth.me,
+    enabled: !!token,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (error) {
+      api.auth.logout();
+      navigate("/login");
+    }
+  }, [error, navigate]);
+
   // Hover states for desktop dropdowns
   const [activeDropdown, setActiveDropdown] = useState<"resumes" | "jobs" | "tools" | null>(null);
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
@@ -217,28 +240,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // 1. Enforce authentication checking
-  const token = localStorage.getItem("outly_token");
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-  }, [token, navigate]);
 
-  // 2. Fetch current user session
-  const { data: userData, error, isLoading } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: api.auth.me,
-    enabled: !!token,
-    retry: false,
-  });
-
-  useEffect(() => {
-    if (error) {
-      api.auth.logout();
-      navigate("/login");
-    }
-  }, [error, navigate]);
 
   // Pricing & Razorpay Billing states
   const [isPremium, setIsPremium] = useState(false);

@@ -33,6 +33,14 @@ import {
 export default function AtsScorePage() {
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Fetch current user session to get user specific details
+  const { data: userData } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: api.auth.me,
+    enabled: !!localStorage.getItem("outly_token"),
+  });
+
   const [mode, setMode] = useState<"general" | "targeted">("general");
   const [resume, setResume] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -180,12 +188,7 @@ export default function AtsScorePage() {
     }
   };
 
-  // Fetch current user session to get user specific details
-  const { data: userData } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: api.auth.me,
-    enabled: !!localStorage.getItem("outly_token"),
-  });
+
 
   // Load user-specific daily limit status from localStorage
   useEffect(() => {
