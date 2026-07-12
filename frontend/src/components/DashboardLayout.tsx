@@ -166,7 +166,28 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem(`outly_notifications_${emailToLoad}`);
       if (saved && saved !== "undefined") {
-        setNotifications(JSON.parse(saved));
+        let parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Deduplicate "Upgraded to Pro! 🚀" notifications
+          const seenProUpgrade = { value: false };
+          const cleaned = parsed.filter((n: NotificationItem) => {
+            if (n && n.title === "Upgraded to Pro! 🚀") {
+              if (seenProUpgrade.value) {
+                return false;
+              }
+              seenProUpgrade.value = true;
+            }
+            return true;
+          });
+          if (cleaned.length !== parsed.length) {
+            localStorage.setItem(`outly_notifications_${emailToLoad}`, JSON.stringify(cleaned));
+            setNotifications(cleaned);
+          } else {
+            setNotifications(parsed);
+          }
+        } else {
+          setNotifications([]);
+        }
       } else {
         const welcome: NotificationItem = {
           id: "welcome",
@@ -206,6 +227,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           read: false
         };
         setNotifications(prev => {
+          // Prevent duplicate "Upgraded to Pro! 🚀" notifications in state
+          if (customEvent.detail.title === "Upgraded to Pro! 🚀" && prev.some(n => n.title === "Upgraded to Pro! 🚀")) {
+            return prev;
+          }
           const updated = [newItem, ...prev];
           localStorage.setItem(`outly_notifications_${userEmail}`, JSON.stringify(updated));
           return updated;
@@ -257,18 +282,42 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }, [userData]);
 
   useEffect(() => {
-    const checkPremiumStatus = () => {
+    const checkPremiumStatus = (e?: Event) => {
+      // If it's a storage event, only respond if the key is "outly_premium_user"
+      if (e && e.type === "storage") {
+        const storageEvent = e as StorageEvent;
+        if (storageEvent.key !== "outly_premium_user") {
+          return;
+        }
+      }
+
       const isNowPremium = localStorage.getItem("outly_premium_user") === "true";
       setIsPremium(isNowPremium);
       
       // Dispatch notification on upgrade success
       if (isNowPremium) {
-        window.dispatchEvent(new CustomEvent("outly-notification", {
-          detail: {
-            title: "Upgraded to Pro! 🚀",
-            description: "Congratulations! You have successfully upgraded to Outly Pro. Unlimited resume tailoring, Job tracking & ATS scans are now active."
+        // Read current notifications to see if they already contain "Upgraded to Pro! 🚀"
+        const saved = localStorage.getItem(`outly_notifications_${userEmail}`);
+        let alreadyNotified = false;
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+              alreadyNotified = parsed.some((n: any) => n.title === "Upgraded to Pro! 🚀");
+            }
+          } catch (err) {
+            console.error(err);
           }
-        }));
+        }
+
+        if (!alreadyNotified) {
+          window.dispatchEvent(new CustomEvent("outly-notification", {
+            detail: {
+              title: "Upgraded to Pro! 🚀",
+              description: "Congratulations! You have successfully upgraded to Outly Pro. Unlimited resume tailoring, Job tracking & ATS scans are now active."
+            }
+          }));
+        }
       }
     };
     window.addEventListener("storage", checkPremiumStatus);
@@ -277,7 +326,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       window.removeEventListener("storage", checkPremiumStatus);
       window.removeEventListener("premium_upgrade", checkPremiumStatus);
     };
-  }, []);
+  }, [userEmail]);
 
   // Fetch settings from API to personalize the dashboard profile
   const { data: settings } = useQuery({
