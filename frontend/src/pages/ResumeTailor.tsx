@@ -43,8 +43,10 @@ export default function ResumeTailorPage() {
   const [resumeText, setResumeText] = useState<string | null>(null);
   const [selectedVaultId, setSelectedVaultId] = useState<string>("custom");
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [tailoredResult, setTailoredResult] = useState<string | null>(null);
   const [tailoring, setTailoring] = useState(false);
+  const [tailoringDots, setTailoringDots] = useState("...");
   const [copied, setCopied] = useState(false);
   const [savingToVault, setSavingToVault] = useState(false);
   const [matchedKeywords, setMatchedKeywords] = useState<string[]>([]);
@@ -59,6 +61,19 @@ export default function ResumeTailorPage() {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Animating tailoring dots loader
+  useEffect(() => {
+    let interval: number;
+    if (tailoring) {
+      let count = 0;
+      interval = window.setInterval(() => {
+        count = (count + 1) % 4;
+        setTailoringDots(".".repeat(count));
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [tailoring]);
 
   // Fetch resumes from vault
   const { data: resumes = [] } = useQuery({
@@ -123,10 +138,21 @@ export default function ResumeTailorPage() {
     setResumeFile(file);
     setSelectedVaultId("custom");
     setLoading(true);
+    setUploadProgress(0);
     setTailoredResult(null);
     setMatchedKeywords([]);
     setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
     setSources([]);
+
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 95) {
+          clearInterval(progressInterval);
+          return 95;
+        }
+        return prev + Math.floor(Math.random() * 12) + 6;
+      });
+    }, 150);
 
     try {
       const parsed = await api.ats.parseFile(file);
@@ -145,7 +171,12 @@ export default function ResumeTailorPage() {
         setResumeText(null);
       }
     } finally {
-      setLoading(false);
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      setTimeout(() => {
+        setLoading(false);
+        setUploadProgress(0);
+      }, 400);
     }
   };
 
@@ -302,10 +333,10 @@ export default function ResumeTailorPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
+    <div className="mx-auto w-full max-w-7xl px-6 py-4 sm:py-6 sm:px-8 space-y-5 sm:space-y-8 animate-fade-in pb-20">
       
       {/* Hero text header */}
-      <div className="space-y-3 text-left">
+      <div className="space-y-2 sm:space-y-3 text-left">
         <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
           RESUME TAILOR
         </span>
@@ -318,7 +349,7 @@ export default function ResumeTailorPage() {
       </div>
 
       {/* INPUT WORKSPACE (Side by Side columns) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8 items-stretch">
         
         {/* Left Input: Job Description */}
         <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[320px] md:h-[460px] text-left space-y-4">
@@ -349,7 +380,24 @@ export default function ResumeTailorPage() {
           </div>
 
           {loading ? (
-            <DotLottieLoader size={150} minHeight="min-h-[250px]" />
+            <div className="flex-1 border-2 border-dashed border-success/60 bg-[#fdfaf3]/50 p-6 text-center rounded-xl select-none flex flex-col items-center justify-center min-h-[250px] w-full">
+              <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center mb-4 text-success">
+                <UploadCloud className="w-6 h-6 animate-bounce shrink-0" />
+              </div>
+              <div className="w-full max-w-xs space-y-3">
+                <div className="flex justify-between items-center text-xs font-bold text-outly-dark">
+                  <span>Uploading resume...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-success rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-zinc-400 font-medium">Please wait while Outly processes your file...</p>
+              </div>
+            </div>
           ) : !resumeFile && selectedVaultId === "custom" ? (
             isLimitExceeded ? (
               <div className="flex-1 border-2 border-dashed border-border bg-secondary/35 rounded-xl flex flex-col items-center justify-center p-6 text-center select-none cursor-not-allowed">
@@ -473,7 +521,7 @@ export default function ResumeTailorPage() {
           {tailoring ? (
             <>
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Tailoring...
+              Tailoring{tailoringDots}
             </>
           ) : (
             <>
@@ -489,7 +537,7 @@ export default function ResumeTailorPage() {
         <div className="w-full bg-card border border-border rounded-2xl p-10 text-center shadow-[var(--shadow-card)] space-y-4 animate-pulse">
           <Loader2 className="h-9 w-9 animate-spin text-outly-accent mx-auto" />
           <div className="space-y-2 max-w-sm mx-auto">
-            <h3 className="text-base font-bold text-foreground">AI Tailoring in Progress...</h3>
+            <h3 className="text-base font-bold text-foreground">AI Tailoring in Progress{tailoringDots}</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Outly AI is parsing the job description, cross-referencing industry skill sets, and rewriting your resume points. This takes about 10-15 seconds.
             </p>
@@ -530,6 +578,20 @@ export default function ResumeTailorPage() {
                   >
                     <Download className="h-3.5 w-3.5" />
                     Download
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 h-8 px-3 text-[11px] border-border text-foreground hover:bg-secondary rounded-lg font-bold"
+                    onClick={handleSaveToVault}
+                    disabled={savingToVault}
+                  >
+                    {savingToVault ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Save className="h-3.5 w-3.5" />
+                    )}
+                    {savingToVault ? "Saving..." : "Save to Vault"}
                   </Button>
                 </div>
               </div>

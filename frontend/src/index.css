@@ -181,12 +181,12 @@
 
   .slider-mask::before {
     left: 0;
-    background: linear-gradient(to right, hsl(var(--background)) 0%, transparent 100%);
+    background: linear-gradient(to right, white 0%, transparent 100%);
   }
 
   .slider-mask::after {
     right: 0;
-    background: linear-gradient(to left, hsl(var(--background)) 0%, transparent 100%);
+    background: linear-gradient(to left, white 0%, transparent 100%);
   }
 
   .animate-marquee {

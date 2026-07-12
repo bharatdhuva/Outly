@@ -33,18 +33,68 @@ import {
 export default function AtsScorePage() {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"general" | "targeted">("general");
-  const [resume, setResume] = useState("");
+  const [mode, setMode] = useState<"general" | "targeted">(() => {
+    return (localStorage.getItem("ats_mode") as "general" | "targeted") || "general";
+  });
+  const [resume, setResume] = useState(() => {
+    return localStorage.getItem("ats_resume") || "";
+  });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [jd, setJd] = useState("");
+  const [resumeFileName, setResumeFileName] = useState(() => {
+    return localStorage.getItem("ats_resume_file_name") || "";
+  });
+  const [jd, setJd] = useState(() => {
+    return localStorage.getItem("ats_jd") || "";
+  });
   const [loading, setLoading] = useState(false);
   const [parsingFile, setParsingFile] = useState(false);
-  const [result, setResult] = useState<EvaluationResult | null>(null);
-  const [selectedVaultId, setSelectedVaultId] = useState<string>("custom");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [result, setResult] = useState<EvaluationResult | null>(() => {
+    const saved = localStorage.getItem("ats_result");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [selectedVaultId, setSelectedVaultId] = useState(() => {
+    return localStorage.getItem("ats_selected_vault_id") || "custom";
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    localStorage.setItem("ats_mode", mode);
+  }, [mode]);
+
+  useEffect(() => {
+    localStorage.setItem("ats_resume", resume);
+  }, [resume]);
+
+  useEffect(() => {
+    localStorage.setItem("ats_resume_file_name", resumeFileName);
+  }, [resumeFileName]);
+
+  useEffect(() => {
+    localStorage.setItem("ats_jd", jd);
+  }, [jd]);
+
+  useEffect(() => {
+    if (result) {
+      localStorage.setItem("ats_result", JSON.stringify(result));
+    } else {
+      localStorage.removeItem("ats_result");
+    }
+  }, [result]);
+
+  useEffect(() => {
+    localStorage.setItem("ats_selected_vault_id", selectedVaultId);
+  }, [selectedVaultId]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Interactive dashboard states
   const [activeCategory, setActiveCategory] = useState<"content" | "format" | "style" | "sections" | "roles">("content");
@@ -90,6 +140,7 @@ export default function AtsScorePage() {
   const handleVaultSelect = (idStr: string) => {
     setSelectedVaultId(idStr);
     setResumeFile(null); // Clear uploaded file when vault item is selected
+    setResumeFileName("");
     if (idStr === "custom") {
       setResume("");
       setResult(null);
@@ -155,7 +206,20 @@ export default function AtsScorePage() {
     }
 
     setResumeFile(file);
+    setResumeFileName(file.name);
     setParsingFile(true);
+    setUploadProgress(0);
+
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 95) {
+          clearInterval(progressInterval);
+          return 95;
+        }
+        return prev + Math.floor(Math.random() * 12) + 6;
+      });
+    }, 150);
+
     try {
       const data = await api.ats.parseFile(file);
       setResume(data.content);
@@ -175,11 +239,17 @@ export default function AtsScorePage() {
           description: "Could not parse or read this file format. Please upload .txt, .pdf, or .docx.",
         });
         setResumeFile(null);
+        setResumeFileName("");
         setResume("");
         setResult(null);
       }
     } finally {
-      setParsingFile(false);
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      setTimeout(() => {
+        setParsingFile(false);
+        setUploadProgress(0);
+      }, 400);
     }
   };
 
@@ -375,17 +445,17 @@ export default function AtsScorePage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-12 animate-fade-in pb-16">
+    <div className="mx-auto w-full max-w-7xl px-6 py-4 sm:py-6 sm:px-8 space-y-6 sm:space-y-12 animate-fade-in pb-20">
       
       {/* TWO COLUMN WORKSPACE GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16 items-start">
         
         {/* ─── LEFT COLUMN: HERO DESCRIPTIONS & INPUT OR RESUME VIEW ─── */}
-        <div className="lg:col-span-6 space-y-8 flex flex-col justify-center min-h-[480px]">
+        <div className="lg:col-span-6 space-y-4 sm:space-y-8 flex flex-col justify-center min-h-0 md:min-h-[480px]">
           
           {/* Hero text header */}
           {!result && (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
                 RESUME CHECKER
               </span>
@@ -398,16 +468,15 @@ export default function AtsScorePage() {
             </div>
           )}
 
-          {/* Dynamic Left Box: Shows Dotted Dropzone BEFORE scan, and Resume Viewer AFTER scan */}
           {!result ? (
             isLimitExceeded ? (
               /* Locked upload zone because limit is reached */
               <div 
-                className="border-2 border-dashed border-border bg-secondary/30 p-8 sm:p-10 text-center rounded-2xl select-none cursor-not-allowed"
+                className="border-2 border-dashed border-border bg-secondary/30 p-5 sm:p-10 text-center rounded-2xl select-none cursor-not-allowed"
               >
-                <div className="space-y-4 py-2">
-                  <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
-                    <Lock className="w-6 h-6 shrink-0" />
+                <div className="space-y-3 sm:space-y-4 py-2">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
+                    <Lock className="w-5 h-5 shrink-0" />
                   </div>
                   <div className="space-y-1.5">
                     <p className="text-[14px] sm:text-[15px] font-bold text-foreground">
@@ -429,6 +498,28 @@ export default function AtsScorePage() {
                   </Button>
                 </div>
               </div>
+            ) : (parsingFile || showScanLoader) ? (
+              /* Real Upload & Scan Progress loader */
+              <div className="border-2 border-dashed border-success/60 bg-[#fdfaf3]/50 p-5 sm:p-10 text-center rounded-2xl select-none flex flex-col items-center justify-center min-h-[220px] w-full animate-pulse">
+                <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center mb-4 text-success">
+                  <UploadCloud className="w-6 h-6 animate-bounce shrink-0" />
+                </div>
+                <div className="w-full max-w-xs space-y-3">
+                  <div className="flex justify-between items-center text-xs font-bold text-outly-dark">
+                    <span>{parsingFile ? "Uploading resume..." : "Outly AI is checking your document..."}</span>
+                    <span>{parsingFile ? uploadProgress : scanProgress}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-success rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${parsingFile ? uploadProgress : scanProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-zinc-400 font-medium min-h-[16px]">
+                    {parsingFile ? "Please wait while Outly processes your file..." : scanStatus}
+                  </p>
+                </div>
+              </div>
             ) : (
               /* Upload Dropzone Box with Dotted Border - supporting Drag and Drop */
               <div 
@@ -436,7 +527,7 @@ export default function AtsScorePage() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed p-8 sm:p-10 text-center rounded-2xl cursor-pointer select-none transition-all duration-200 ${
+                className={`border-2 border-dashed p-5 sm:p-10 text-center rounded-2xl cursor-pointer select-none transition-all duration-200 ${
                   isDragging 
                     ? "border-success bg-[#fdfaf3]/80 scale-[1.01]" 
                     : "border-success/35 hover:border-success bg-[#fdfaf3]/35 hover:bg-[#fdfaf3]/65"
@@ -450,7 +541,7 @@ export default function AtsScorePage() {
                   onChange={handleFileUpload}
                 />
                 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div className="space-y-1.5">
                     <p className="text-[14px] sm:text-[15px] font-bold text-foreground">
                       Drag & drop your resume here, or click to choose a file.
@@ -459,7 +550,7 @@ export default function AtsScorePage() {
                       PDF & DOCX only. Max 2MB file size.
                     </p>
                   </div>
-
+ 
                   <Button 
                     type="button"
                     disabled={parsingFile}
@@ -468,7 +559,7 @@ export default function AtsScorePage() {
                     {parsingFile && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                     {parsingFile ? "Uploading..." : "Upload Your Resume"}
                   </Button>
-
+ 
                   {/* Inline Vault Resume Selector */}
                   {resumes.length > 0 && (
                     <div className="flex flex-col items-center gap-1.5 pt-2 max-w-xs mx-auto" onClick={(e) => e.stopPropagation()}>
@@ -488,7 +579,7 @@ export default function AtsScorePage() {
                       </select>
                     </div>
                   )}
-
+ 
                   {/* Privacy terms guarantee (as requested) */}
                   <div className="text-muted-foreground/60 text-[11px] font-semibold flex items-center justify-center gap-1.5 pt-1">
                     <Lock className="w-3.5 h-3.5 shrink-0 text-muted-foreground/40" />
@@ -499,11 +590,11 @@ export default function AtsScorePage() {
             )
           ) : (
             /* Resume Preview Workspace (PDF or text block) after scan completes */
-            <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-[var(--shadow-card)] flex-1 flex flex-col min-h-[380px] animate-slide-up">
+            <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-[var(--shadow-card)] flex-1 flex flex-col min-h-0 md:min-h-[380px] animate-slide-up">
               <div className="mb-4 flex items-center justify-between gap-3 border-b border-border/40 pb-2.5">
                 <span className="truncate text-xs font-bold text-foreground flex items-center gap-1.5">
                   <FileText className="h-4 w-4 text-outly-accent shrink-0" />
-                  {resumeFile ? resumeFile.name : resumes.find(r => String(r.id) === selectedVaultId)?.label || "Vault Resume"}
+                  {resumeFile ? resumeFile.name : resumeFileName || resumes.find(r => String(r.id) === selectedVaultId)?.label || "Uploaded Resume"}
                 </span>
                 <Button
                   size="sm"
@@ -513,6 +604,7 @@ export default function AtsScorePage() {
                     setResult(null);
                     setResume("");
                     setResumeFile(null);
+                    setResumeFileName("");
                     setSelectedVaultId("custom");
                   }}
                 >
@@ -522,17 +614,17 @@ export default function AtsScorePage() {
               </div>
 
               {/* View PDF file or plain text */}
-              <div className="flex-1 min-h-[480px] overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
+              <div className="flex-1 min-h-[260px] md:min-h-[480px] overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
                 {resumeFile && resumeFile.type === "application/pdf" ? (
-                  <div className="flex-1 flex flex-col min-h-[480px]">
+                  <div className="flex-1 flex flex-col min-h-[260px] md:min-h-[480px]">
                     <PdfViewer file={resumeFile} />
                   </div>
                 ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
-                  <div className="flex-1 flex flex-col min-h-[480px]">
+                  <div className="flex-1 flex flex-col min-h-[260px] md:min-h-[480px]">
                     <PdfViewer url={api.resume.getFileUrl(Number(selectedVaultId))} />
                   </div>
                 ) : (
-                  <div className="flex-1 max-h-[480px] overflow-y-auto p-4 text-left">
+                  <div className="flex-1 max-h-[260px] md:max-h-[480px] overflow-y-auto p-4 text-left">
                     <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-foreground/80">{resume}</pre>
                   </div>
                 )}
@@ -557,7 +649,8 @@ export default function AtsScorePage() {
         </div>
 
         {/* ─── RIGHT COLUMN: THE INTERACTIVE DASHBOARD CARD ─── */}
-        <div className="lg:col-span-6 relative flex items-center justify-center w-full">
+        {!isLimitExceeded && (result || !isMobile) && (
+          <div className="lg:col-span-6 relative flex items-center justify-center w-full">
           
           {/* Background glowing mesh radial effect */}
           <div className="absolute inset-0 bg-outly-accent/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>
@@ -998,6 +1091,7 @@ export default function AtsScorePage() {
 
           </div>
         </div>
+      )}
 
       </div>
 
