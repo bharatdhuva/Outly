@@ -9,6 +9,7 @@ import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { connectDB } from "../../db/connection.js";
 import { sendWelcomeMail, sendUpgradeMail } from "../../automation/coldmail/mailSender.js";
+import { logger } from "../../lib/logger.js";
 
 const router = Router();
 
@@ -72,7 +73,7 @@ router.post("/signup", async (req, res) => {
     });
   } catch (error) {
     // Log full stack for diagnostics in production logs
-    console.error("Signup error:", error instanceof Error ? error.stack || error.message : error);
+    logger.error("Signup error:", { error: error instanceof Error ? error.stack || error.message : error });
 
     // Mongo duplicate key error (race or unique index violation)
     // Error code 11000 is returned by MongoDB for duplicate key
@@ -165,7 +166,7 @@ router.post("/google", async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Google login error:", error);
+    logger.error("Google login error:", { error: error instanceof Error ? error.stack || error.message : error });
     res.status(500).json({ error: "Failed to log in with Google." });
   }
 });
@@ -215,7 +216,7 @@ router.post("/login", async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Login error:", error);
+    logger.error("Login error:", { error: error instanceof Error ? error.stack || error.message : error });
     res.status(500).json({ error: "Failed to log in." });
   }
 });
