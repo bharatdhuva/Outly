@@ -129,6 +129,7 @@ export default function ResumeTailorPage() {
   const [unlockAtTime, setUnlockAtTime] = useState<string | null>(null);
   const [countdownText, setCountdownText] = useState("");
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync states to sessionStorage on changes
