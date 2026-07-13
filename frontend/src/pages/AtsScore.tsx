@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,6 +58,29 @@ export default function AtsScorePage() {
   const [countdownText, setCountdownText] = useState("");
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  const resultContainerRef = useRef<HTMLDivElement>(null);
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (result && isMobile) {
+      if (isInitialMount.current) {
+        isInitialMount.current = false;
+        return;
+      }
+      setTimeout(() => {
+        resultContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 250);
+    }
+  }, [result, isMobile]);
 
   const [isStateLoaded, setIsStateLoaded] = useState(false);
   const userEmail = userData?.user?.email || "anonymous";
@@ -732,7 +755,7 @@ export default function AtsScorePage() {
 
         {/* ─── RIGHT COLUMN: THE INTERACTIVE DASHBOARD CARD ─── */}
         {!isLimitExceeded && (result || !isMobile) && (
-          <div className="lg:col-span-6 relative flex items-center justify-center w-full">
+          <div ref={resultContainerRef} className="lg:col-span-6 relative flex items-center justify-center w-full scroll-mt-20">
           
           {/* Background glowing mesh radial effect */}
           <div className="absolute inset-0 bg-outly-accent/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>
