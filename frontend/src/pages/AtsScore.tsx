@@ -71,7 +71,7 @@ export default function AtsScorePage() {
   }, []);
 
   useEffect(() => {
-    if (result && isMobile) {
+    if (result) {
       if (isInitialMount.current) {
         isInitialMount.current = false;
         return;
@@ -80,7 +80,7 @@ export default function AtsScorePage() {
         resultContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 250);
     }
-  }, [result, isMobile]);
+  }, [result]);
 
   const [isStateLoaded, setIsStateLoaded] = useState(false);
   const userEmail = userData?.user?.email || "anonymous";
@@ -425,10 +425,18 @@ export default function AtsScorePage() {
           description: `Your resume has been successfully scanned. ATS Match Score: ${data.score}/100.`
         }
       }));
-      toast({
-        title: "Scan Completed",
-        description: `ATS Match Score: ${data.score}/100`,
-      });
+      if (data.isValidResume === false) {
+        toast({
+          variant: "destructive",
+          title: "Scan Failed",
+          description: "The uploaded document does not appear to be a valid resume.",
+        });
+      } else {
+        toast({
+          title: "Uploaded successfully",
+          description: `ATS Match Score: ${data.score}/100`,
+        });
+      }
     } catch (err) {
       clearInterval(statusTimer);
       clearInterval(progressTimer);

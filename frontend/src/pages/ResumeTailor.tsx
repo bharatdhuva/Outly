@@ -353,6 +353,10 @@ export default function ResumeTailorPage() {
         setIsValidResume(false);
         setResumeValidationError(validation.error || null);
       } else {
+        toast({
+          title: "Uploaded successfully",
+          description: `Successfully processed "${file.name}"`,
+        });
         setIsValidResume(true);
         setResumeValidationError(null);
       }
@@ -365,6 +369,10 @@ export default function ResumeTailorPage() {
           setIsValidResume(false);
           setResumeValidationError(validation.error || null);
         } else {
+          toast({
+            title: "Uploaded successfully",
+            description: `Successfully processed "${file.name}"`,
+          });
           setIsValidResume(true);
           setResumeValidationError(null);
         }
