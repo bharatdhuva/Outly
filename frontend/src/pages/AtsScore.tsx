@@ -54,6 +54,8 @@ export default function AtsScorePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [unlockAtTime, setUnlockAtTime] = useState<string | null>(null);
+  const [countdownText, setCountdownText] = useState("");
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
@@ -190,19 +192,61 @@ export default function AtsScorePage() {
 
 
 
-  // Load user-specific daily limit status from localStorage
+  // Helper to compute countdown text from an unlock ISO timestamp
+  const getCountdown = (unlockIso: string): string => {
+    const diff = new Date(unlockIso).getTime() - Date.now();
+    if (diff <= 0) return "";
+    const hrs = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    if (hrs > 0) return `${hrs}h ${mins}m`;
+    return `${mins}m`;
+  };
+
+  // Load user-specific limit status from localStorage (timestamp-based auto-expiry)
   useEffect(() => {
     const userPrefix = userData?.user?.email || "anonymous";
-    const storageKey = `ats_limit_reached_${userPrefix}`;
+    const storageKey = `ats_limit_unlock_${userPrefix}`;
     const isPro = userData?.user?.plan === "pro" || localStorage.getItem("outly_premium_user") === "true";
 
     if (isPro) {
       setIsLimitExceeded(false);
     } else {
-      const isLocked = localStorage.getItem(storageKey) === "true";
-      setIsLimitExceeded(isLocked);
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const unlockTime = new Date(stored).getTime();
+        if (Date.now() >= unlockTime) {
+          localStorage.removeItem(storageKey);
+          setIsLimitExceeded(false);
+          setUnlockAtTime(null);
+        } else {
+          setIsLimitExceeded(true);
+          setUnlockAtTime(stored);
+          setCountdownText(getCountdown(stored));
+        }
+      } else {
+        setIsLimitExceeded(false);
+      }
     }
   }, [userData]);
+
+  // Tick countdown every minute and auto-unlock when time passes
+  useEffect(() => {
+    if (!unlockAtTime) return;
+    const timer = setInterval(() => {
+      const diff = new Date(unlockAtTime).getTime() - Date.now();
+      if (diff <= 0) {
+        setIsLimitExceeded(false);
+        setUnlockAtTime(null);
+        setCountdownText("");
+        const userPrefix = userData?.user?.email || "anonymous";
+        localStorage.removeItem(`ats_limit_unlock_${userPrefix}`);
+        clearInterval(timer);
+      } else {
+        setCountdownText(getCountdown(unlockAtTime));
+      }
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, [unlockAtTime, userData]);
 
   // Handle file upload
   const handleDragOver = (e: React.DragEvent) => {
@@ -367,9 +411,13 @@ export default function AtsScorePage() {
       if (isLimitError) {
         setIsLimitExceeded(true);
         setShowLimitModal(true);
-        const userPrefix = userData?.user?.email || "anonymous";
-        localStorage.setItem(`ats_limit_reached_${userPrefix}`, "true");
-      } else {
+        const unlockIso = (err as any)?.data?.unlockAt || null;
+        if (unlockIso) {
+          setUnlockAtTime(unlockIso);
+          setCountdownText(getCountdown(unlockIso));
+          const userPrefix = userData?.user?.email || "anonymous";
+          localStorage.setItem(`ats_limit_unlock_${userPrefix}`, unlockIso);
+        }} else {
         const isAiError = errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404");
         if (isAiError) {
           setShowAiErrorModal(true);
@@ -509,10 +557,10 @@ export default function AtsScorePage() {
                   </div>
                   <div className="space-y-1.5">
                     <p className="text-[14px] sm:text-[15px] font-bold text-foreground">
-                      Daily Limit Reached (3/3)
+                      Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : " (3/3)"}
                     </p>
                     <p className="text-[11px] text-muted-foreground font-medium max-w-xs mx-auto leading-relaxed">
-                      You have checked 3 resumes today. Upgrade to Outly Pro for unlimited scans and deeper semantic matching.
+                      You've used 3 resume checks. {countdownText ? `Try again in ${countdownText}.` : "Upgrade to Outly Pro for unlimited scans and deeper semantic matching."}
                     </p>
                   </div>
                   <Button 

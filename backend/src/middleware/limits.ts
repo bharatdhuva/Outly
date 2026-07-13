@@ -67,7 +67,7 @@ export async function checkColdMailLimit(req: AuthenticatedRequest, res: Respons
   }
 }
 
-// 3. ATS check daily limit middleware
+// 3. ATS check limit middleware (6-hour rolling window)
 export async function checkAtsLimit(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -78,18 +78,22 @@ export async function checkAtsLimit(req: AuthenticatedRequest, res: Response, ne
   }
 
   try {
-    const startOfToday = getStartOfToday();
-    const count = await ActivityLogModel.countDocuments({
+    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    const checks = await ActivityLogModel.find({
       userId: req.user.id,
       type: "ats_check",
-      createdAt: { $gte: startOfToday }
-    });
+      createdAt: { $gte: sixHoursAgo }
+    }).sort({ createdAt: 1 }).limit(3).lean();
 
-    if (count >= 3) {
+    if (checks.length >= 3) {
+      // Unlock 6 hours after the oldest check in the window
+      const oldestCheck = checks[0];
+      const unlockAt = new Date(new Date(oldestCheck.createdAt).getTime() + 6 * 60 * 60 * 1000).toISOString();
       return res.status(403).json({
-        error: "Daily ATS check limit reached.",
+        error: "Resume check limit reached.",
         code: "LIMIT_ATS_EXCEEDED",
-        message: "Free tier is limited to 3 ATS checks per day. Please upgrade to Pro for unlimited checks."
+        message: "Free tier is limited to 3 ATS checks per 6 hours. Please upgrade to Pro for unlimited checks.",
+        unlockAt
       });
     }
     next();

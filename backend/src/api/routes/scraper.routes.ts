@@ -67,22 +67,25 @@ router.post("/jobs", async (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ error: "Role/title search parameter is required." });
   }
 
-  // Enforce rate limit: 3 job searches per day per user (Pro and Free alike)
+  // Enforce rate limit: 3 job searches per 12-hour rolling window (Pro and Free alike)
   try {
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
 
-    const count = await ActivityLog.countDocuments({
+    const searches = await ActivityLog.find({
       userId: req.user.id,
       type: "job_search",
-      createdAt: { $gte: startOfToday }
-    });
+      createdAt: { $gte: twelveHoursAgo }
+    }).sort({ createdAt: 1 }).limit(3).lean();
 
-    if (count >= 3) {
+    if (searches.length >= 3) {
+      // Unlock 12 hours after the oldest search in the window
+      const oldestSearch = searches[0];
+      const unlockAt = new Date(new Date(oldestSearch.createdAt).getTime() + 12 * 60 * 60 * 1000).toISOString();
       return res.status(403).json({
-        error: "Daily job search limit reached.",
+        error: "Job search limit reached.",
         code: "LIMIT_JOB_SEARCH_EXCEEDED",
-        message: "You are limited to 3 job searches per day."
+        message: "You are limited to 3 job searches per 12 hours.",
+        unlockAt
       });
     }
   } catch (err) {

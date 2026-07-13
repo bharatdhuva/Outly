@@ -98,19 +98,65 @@ export default function JobSearchPage() {
 
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [unlockAtTime, setUnlockAtTime] = useState<string | null>(null);
+  const [countdownText, setCountdownText] = useState("");
 
   const { data: userData } = useQuery({
     queryKey: ["user"],
     queryFn: api.auth.me,
   });
 
-  // Load user-specific daily limit status from localStorage
+  // Helper to compute countdown text from an unlock ISO timestamp
+  const getCountdown = (unlockIso: string): string => {
+    const diff = new Date(unlockIso).getTime() - Date.now();
+    if (diff <= 0) return "";
+    const hrs = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    if (hrs > 0) return `${hrs}h ${mins}m`;
+    return `${mins}m`;
+  };
+
+  // Load user-specific limit status from localStorage (timestamp-based auto-expiry)
   useEffect(() => {
     const userPrefix = userData?.user?.id || "anonymous";
-    const storageKey = `job_search_limit_reached_${userPrefix}`;
-    const isLocked = localStorage.getItem(storageKey) === "true";
-    setIsLimitExceeded(isLocked);
+    const storageKey = `job_search_limit_unlock_${userPrefix}`;
+    const stored = localStorage.getItem(storageKey);
+
+    if (stored) {
+      const unlockTime = new Date(stored).getTime();
+      if (Date.now() >= unlockTime) {
+        // Limit has expired — clear it
+        localStorage.removeItem(storageKey);
+        setIsLimitExceeded(false);
+        setUnlockAtTime(null);
+      } else {
+        setIsLimitExceeded(true);
+        setUnlockAtTime(stored);
+        setCountdownText(getCountdown(stored));
+      }
+    } else {
+      setIsLimitExceeded(false);
+    }
   }, [userData]);
+
+  // Tick countdown every minute and auto-unlock when time passes
+  useEffect(() => {
+    if (!unlockAtTime) return;
+    const timer = setInterval(() => {
+      const diff = new Date(unlockAtTime).getTime() - Date.now();
+      if (diff <= 0) {
+        setIsLimitExceeded(false);
+        setUnlockAtTime(null);
+        setCountdownText("");
+        const userPrefix = userData?.user?.id || "anonymous";
+        localStorage.removeItem(`job_search_limit_unlock_${userPrefix}`);
+        clearInterval(timer);
+      } else {
+        setCountdownText(getCountdown(unlockAtTime));
+      }
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, [unlockAtTime, userData]);
 
   
   // Track which job IDs have been added during this session
@@ -167,8 +213,13 @@ export default function JobSearchPage() {
       if (isLimitError) {
         setIsLimitExceeded(true);
         setShowLimitModal(true);
-        const userPrefix = userData?.user?.id || "anonymous";
-        localStorage.setItem(`job_search_limit_reached_${userPrefix}`, "true");
+        const unlockIso = (err as any)?.data?.unlockAt || null;
+        if (unlockIso) {
+          setUnlockAtTime(unlockIso);
+          setCountdownText(getCountdown(unlockIso));
+          const userPrefix = userData?.user?.id || "anonymous";
+          localStorage.setItem(`job_search_limit_unlock_${userPrefix}`, unlockIso);
+        }
       } else {
         toast({
           variant: "destructive",
@@ -283,7 +334,7 @@ export default function JobSearchPage() {
             ) : isLimitExceeded ? (
               <>
                 <Lock className="h-3.5 w-3.5" />
-                Limit Reached (3/3)
+                Limit Reached{countdownText ? ` · ${countdownText}` : " (3/3)"}
               </>
             ) : (
               <>
@@ -428,9 +479,9 @@ export default function JobSearchPage() {
             <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
               <Lock className="w-6 h-6 shrink-0" />
             </div>
-            <DialogTitle className="text-xl font-bold text-foreground">Daily Limit Reached (3/3)</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-foreground">Search Limit Reached (3/3)</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-              Your search tier is limited to 3 job searches per day. Please try again tomorrow.
+              You are limited to 3 job searches per 12 hours.{countdownText ? ` Unlocks in ${countdownText}.` : " Please try again later."}
             </DialogDescription>
           </DialogHeader>
           

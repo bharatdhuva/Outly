@@ -18,10 +18,12 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     let errorMsg = res.statusText || `Request failed (${res.status})`;
+    let errorData: any = null;
     try {
       const text = await res.text();
       try {
         const json = JSON.parse(text);
+        errorData = json;
         if (json && (json.error || json.message)) {
           errorMsg = json.error || json.message;
         } else if (text) {
@@ -33,7 +35,9 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
     } catch {
       // fallback to statusText
     }
-    throw new Error(errorMsg);
+    const err = new Error(errorMsg) as Error & { data?: any };
+    if (errorData) err.data = errorData;
+    throw err;
   }
   return res.json();
 }

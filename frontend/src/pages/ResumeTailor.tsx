@@ -110,9 +110,10 @@ export default function ResumeTailorPage() {
     tools_technologies: string[];
   }>({ hard_skills: [], soft_skills: [], tools_technologies: [] });
   const [sources, setSources] = useState<Array<{ title: string; url: string; domain: string }>>([]);
-  const [isDragging, setIsDragging] = useState(false);
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [unlockAtTime, setUnlockAtTime] = useState<string | null>(null);
+  const [countdownText, setCountdownText] = useState("");
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -142,19 +143,61 @@ export default function ResumeTailorPage() {
     enabled: !!localStorage.getItem("outly_token"),
   });
 
-  // Load user-specific daily limit status from localStorage
+  // Helper to compute countdown text from an unlock ISO timestamp
+  const getCountdown = (unlockIso: string): string => {
+    const diff = new Date(unlockIso).getTime() - Date.now();
+    if (diff <= 0) return "";
+    const hrs = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    if (hrs > 0) return `${hrs}h ${mins}m`;
+    return `${mins}m`;
+  };
+
+  // Load user-specific daily limit status from localStorage (6h timestamp-based auto-expiry)
   useEffect(() => {
     const userPrefix = userData?.user?.email || "anonymous";
-    const storageKey = `ats_limit_reached_${userPrefix}`;
+    const storageKey = `ats_limit_unlock_${userPrefix}`;
     const isPro = userData?.user?.plan === "pro" || localStorage.getItem("outly_premium_user") === "true";
 
     if (isPro) {
       setIsLimitExceeded(false);
     } else {
-      const isLocked = localStorage.getItem(storageKey) === "true";
-      setIsLimitExceeded(isLocked);
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const unlockTime = new Date(stored).getTime();
+        if (Date.now() >= unlockTime) {
+          localStorage.removeItem(storageKey);
+          setIsLimitExceeded(false);
+          setUnlockAtTime(null);
+        } else {
+          setIsLimitExceeded(true);
+          setUnlockAtTime(stored);
+          setCountdownText(getCountdown(stored));
+        }
+      } else {
+        setIsLimitExceeded(false);
+      }
     }
   }, [userData]);
+
+  // Tick countdown every minute and auto-unlock when time passes
+  useEffect(() => {
+    if (!unlockAtTime) return;
+    const timer = setInterval(() => {
+      const diff = new Date(unlockAtTime).getTime() - Date.now();
+      if (diff <= 0) {
+        setIsLimitExceeded(false);
+        setUnlockAtTime(null);
+        setCountdownText("");
+        const userPrefix = userData?.user?.email || "anonymous";
+        localStorage.removeItem(`ats_limit_unlock_${userPrefix}`);
+        clearInterval(timer);
+      } else {
+        setCountdownText(getCountdown(unlockAtTime));
+      }
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, [unlockAtTime, userData]);
 
   // Drag and Drop event handlers
   const handleDragOver = (e: React.DragEvent) => {
@@ -328,8 +371,13 @@ export default function ResumeTailorPage() {
       if (isLimitError) {
         setIsLimitExceeded(true);
         setShowLimitModal(true);
-        const userPrefix = userData?.user?.email || "anonymous";
-        localStorage.setItem(`ats_limit_reached_${userPrefix}`, "true");
+        const unlockIso = (err as any)?.data?.unlockAt || null;
+        if (unlockIso) {
+          setUnlockAtTime(unlockIso);
+          setCountdownText(getCountdown(unlockIso));
+          const userPrefix = userData?.user?.email || "anonymous";
+          localStorage.setItem(`ats_limit_unlock_${userPrefix}`, unlockIso);
+        }
       } else {
         const isAiError = errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404");
         if (isAiError) {
@@ -486,8 +534,8 @@ export default function ResumeTailorPage() {
                 <div className="space-y-4">
                   <Lock className="w-8 h-8 text-amber-600 mx-auto" />
                   <div className="space-y-1">
-                    <p className="text-[14px] font-bold text-foreground">Daily Limit Reached (3/3)</p>
-                    <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">Please upgrade to Pro for unlimited tailoring.</p>
+                    <p className="text-[14px] font-bold text-foreground">Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : " (3/3)"}</p>
+                    <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">You've used 3 resume tailoring/check attempts. {countdownText ? `Try again in ${countdownText}.` : "Please upgrade to Pro for unlimited tailoring."}</p>
                   </div>
                   <Button 
                     type="button"
@@ -853,9 +901,9 @@ export default function ResumeTailorPage() {
             <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
               <Lock className="w-6 h-6 shrink-0" />
             </div>
-            <DialogTitle className="text-xl font-bold text-foreground">Daily Limit Reached (3/3)</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-foreground">Limit Reached (3/3)</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-              Your free tier is limited to 3 ATS resume checks/tailoring checks per day. Upgrade to Outly Pro for unlimited checks, AI resume tailoring, and interview preparation guides.
+              Your free tier is limited to 3 ATS checks/tailoring checks per 6 hours.{countdownText ? ` Unlocks in ${countdownText}.` : " Please try again later or upgrade to Pro."}
             </DialogDescription>
           </DialogHeader>
           
