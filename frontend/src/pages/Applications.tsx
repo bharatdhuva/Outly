@@ -38,7 +38,9 @@ import {
   Briefcase,
   MapPin,
   HelpCircle,
-  Check
+  Check,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import LockedFeatureGuard from "@/components/LockedFeatureGuard";
 
@@ -58,6 +60,15 @@ export default function ApplicationsPage() {
   const [selectedApp, setSelectedApp] = useState<TrackerApplication | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [deleteAppTarget, setDeleteAppTarget] = useState<TrackerApplication | null>(null);
+
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [activeStageTab, setActiveStageTab] = useState<TrackerApplication["stage"]>("saved");
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // New Application form state
   const [newCompany, setNewCompany] = useState("");
@@ -212,6 +223,34 @@ export default function ApplicationsPage() {
         />
       </div>
 
+      {/* Mobile Stage Selector Tabs */}
+      {isMobile && (
+        <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none text-left">
+          {STAGES.map((s) => {
+            const stageAppsCount = filteredApps.filter((a) => a.stage === s.id).length;
+            const isActive = activeStageTab === s.id;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setActiveStageTab(s.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border shrink-0 transition-all ${
+                  isActive
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-white text-muted-foreground border-border hover:bg-slate-50"
+                }`}
+              >
+                <span>{s.label}</span>
+                <span className={`rounded-full px-1.5 py-0.25 text-[9px] ${
+                  isActive ? "bg-primary-foreground/20 text-primary-foreground" : "bg-slate-100 text-muted-foreground"
+                }`}>
+                  {stageAppsCount}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Kanban Board Grid */}
       {isLoading ? (
         <div className="flex justify-center py-20 bg-card border border-border rounded-2xl shadow-[var(--shadow-card)]">
@@ -220,6 +259,7 @@ export default function ApplicationsPage() {
       ) : (
         <div className="grid gap-5 md:grid-cols-5 items-start">
           {STAGES.map((stage) => {
+            if (isMobile && activeStageTab !== stage.id) return null;
             const stageApps = filteredApps.filter((a) => a.stage === stage.id);
             return (
               <div
@@ -287,6 +327,58 @@ export default function ApplicationsPage() {
                             )}
                           </div>
                         </div>
+
+                        {/* Quick Stage Mover for Mobile */}
+                        {isMobile && (
+                          <div 
+                            className="flex items-center justify-between mt-3 pt-2.5 border-t border-border/50 gap-2" 
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={stage.id === "saved"}
+                              className="h-7 w-7 rounded-lg border border-border hover:bg-slate-50 disabled:opacity-30 shrink-0"
+                              onClick={() => {
+                                const currentIndex = STAGES.findIndex(s => s.id === stage.id);
+                                if (currentIndex > 0) {
+                                  const prevStage = STAGES[currentIndex - 1].id;
+                                  updateMutation.mutate({ id: app.id, data: { stage: prevStage } });
+                                  toast({
+                                    title: "Stage Updated",
+                                    description: `Moved ${app.company} to ${prevStage.toUpperCase()}`,
+                                  });
+                                }
+                              }}
+                            >
+                              <ChevronLeft className="h-3.5 w-3.5 text-muted-foreground" />
+                            </Button>
+                            
+                            <span className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">
+                              Move Stage
+                            </span>
+
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={stage.id === "rejected"}
+                              className="h-7 w-7 rounded-lg border border-border hover:bg-slate-50 disabled:opacity-30 shrink-0"
+                              onClick={() => {
+                                const currentIndex = STAGES.findIndex(s => s.id === stage.id);
+                                if (currentIndex < STAGES.length - 1) {
+                                  const nextStage = STAGES[currentIndex + 1].id;
+                                  updateMutation.mutate({ id: app.id, data: { stage: nextStage } });
+                                  toast({
+                                    title: "Stage Updated",
+                                    description: `Moved ${app.company} to ${nextStage.toUpperCase()}`,
+                                  });
+                                }
+                              }}
+                            >
+                              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}

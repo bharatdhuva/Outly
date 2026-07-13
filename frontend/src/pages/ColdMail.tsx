@@ -12,6 +12,7 @@ import {
   Sparkles,
   RefreshCw,
   ChevronRight,
+  ChevronLeft,
   MessageSquare,
   Building2,
   User,
@@ -106,6 +107,22 @@ export default function ColdMailPage() {
   const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
   const [showSettingsPrompt, setShowSettingsPrompt] = useState(false);
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
+  
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024);
+  const [mobileDetailsOpen, setMobileDetailsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      // Auto-close details view if transitioning to desktop
+      if (!mobile) {
+        setMobileDetailsOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: api.settings.get,
@@ -495,7 +512,7 @@ export default function ColdMailPage() {
           <>
 
       {/* Stats row */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
           { label: "Pending", count: counts.pending, color: "text-warning bg-warning/10 border-warning/20" },
           { label: "Approved", count: counts.approved, color: "text-outly-accent bg-outly-accent/10 border-outly-accent/20" },
@@ -515,7 +532,8 @@ export default function ColdMailPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-3 rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col">
+        {(!isMobile || !mobileDetailsOpen) && (
+          <div className="lg:col-span-3 rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col">
           <div className="border-b border-border px-6 py-4 bg-slate-50/50">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -562,6 +580,9 @@ export default function ColdMailPage() {
                     key={company.id}
                     onClick={() => {
                       setSelected(company.id);
+                      if (isMobile) {
+                        setMobileDetailsOpen(true);
+                      }
                     }}
                     className={`flex w-full flex-wrap items-center gap-3 px-6 py-4 text-left transition-all hover:bg-slate-50 sm:flex-nowrap sm:gap-4 ${
                       selected === company.id
@@ -613,10 +634,22 @@ export default function ColdMailPage() {
             )}
           </div>
         </div>
+      )}
 
-        <div className="lg:col-span-2 space-y-4">
-          {selectedCompany ? (
-            <div className="space-y-6 rounded-2xl border border-border bg-white p-6 animate-slide-in shadow-sm">
+        {(!isMobile || mobileDetailsOpen) && (
+          <div className="lg:col-span-2 space-y-4">
+            {selectedCompany ? (
+              <div className="space-y-6 rounded-2xl border border-border bg-white p-6 animate-slide-in shadow-sm">
+                {isMobile && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1.5 text-xs font-semibold px-0 text-muted-foreground hover:text-foreground flex self-start"
+                    onClick={() => setMobileDetailsOpen(false)}
+                  >
+                    <ChevronLeft className="h-4 w-4" /> Back to list
+                  </Button>
+                )}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-foreground">
@@ -1037,7 +1070,8 @@ export default function ColdMailPage() {
               </div>
             </div>
           )}
-        </div>
+          </div>
+        )}
       </div>
       </>
       )}
