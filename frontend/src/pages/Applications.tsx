@@ -390,14 +390,14 @@ export default function ApplicationsPage() {
                     <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1 shrink-0" />
                     <div>
                       <p className="font-bold text-foreground/80">Added to Tracker</p>
-                      <p className="mt-0.5">{new Date(selectedApp.created_at).toLocaleString()}</p>
+                      <p className="mt-0.5">{selectedApp.createdAt ? new Date(selectedApp.createdAt).toLocaleString() : "N/A"}</p>
                     </div>
                   </div>
                   <div className="flex gap-2.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-success mt-1 shrink-0" />
                     <div>
                       <p className="font-bold text-foreground/80">Last Stage Updated</p>
-                      <p className="mt-0.5">{new Date(selectedApp.updated_at).toLocaleString()}</p>
+                      <p className="mt-0.5">{selectedApp.updatedAt ? new Date(selectedApp.updatedAt).toLocaleString() : "N/A"}</p>
                     </div>
                   </div>
                 </div>

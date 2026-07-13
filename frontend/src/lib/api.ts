@@ -191,12 +191,12 @@ export const api = {
   },
   applications: {
     list: () => fetchApi<TrackerApplication[]>("/applications"),
-    create: (data: Omit<TrackerApplication, "id" | "created_at" | "updated_at">) =>
+    create: (data: Omit<TrackerApplication, "id" | "createdAt" | "updatedAt">) =>
       fetchApi<{ success: boolean; id: string }>("/applications", {
         method: "POST",
         body: JSON.stringify(data),
       }),
-    update: (id: string, data: Partial<Omit<TrackerApplication, "id" | "created_at">>) =>
+    update: (id: string, data: Partial<Omit<TrackerApplication, "id" | "createdAt">>) =>
       fetchApi<{ success: boolean }>(`/applications/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),
@@ -329,8 +329,8 @@ export interface TrackerApplication {
   resume_version_used: string | null;
   notes: string | null;
   email_history: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Company {
