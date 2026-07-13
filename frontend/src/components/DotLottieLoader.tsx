@@ -21,7 +21,7 @@ interface DotLottieLoaderProps {
 }
 
 export function DotLottieLoader({
-  src = "https://lottie.host/f9db9402-abd5-4c78-89bd-d6de6e0405cd/F3ylcW82SW.lottie",
+  src = "https://lottie.host/72d3db58-8fab-47f9-9ec7-9fc366cc9398/T24BKHaoBZ.lottie",
   size = 200,
   message = "",
   minHeight = "min-h-[250px]",

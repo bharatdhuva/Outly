@@ -25,7 +25,6 @@ import {
   Download, 
   Save, 
   Check, 
-  AlertTriangle, 
   CheckCircle,
   Lock,
   RefreshCw,
@@ -710,8 +709,13 @@ export default function ResumeTailorPage() {
                 {isValidResume === false ? (
                   /* Invalid Resume Error State */
                   <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none bg-white animate-fade-in">
-                    <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-3 text-destructive border border-destructive/20">
-                      <AlertTriangle className="w-6 h-6 shrink-0 animate-bounce" />
+                    <div className="flex items-center justify-center mb-0.5">
+                      <dotlottie-wc
+                        src="https://lottie.host/11b02034-8246-4f8e-9e73-a1cd4138eb67/FlOkPtywgI.lottie"
+                        style={{ width: "110px", height: "110px" }}
+                        autoplay
+                        loop
+                      />
                     </div>
                     <h3 className="text-sm sm:text-base font-bold text-foreground mb-1">Invalid Document Detected</h3>
                     <p className="text-[11px] sm:text-xs text-muted-foreground max-w-sm leading-relaxed mb-4">

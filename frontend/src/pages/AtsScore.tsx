@@ -762,8 +762,13 @@ export default function AtsScorePage() {
             {result && result.isValidResume === false ? (
               /* Invalid Resume Error State */
               <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none bg-white animate-fade-in min-h-[400px]">
-                <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mb-4 text-destructive border border-destructive/20">
-                  <AlertTriangle className="w-7 h-7 shrink-0 animate-bounce" />
+                <div className="flex items-center justify-center mb-1">
+                  <dotlottie-wc
+                    src="https://lottie.host/11b02034-8246-4f8e-9e73-a1cd4138eb67/FlOkPtywgI.lottie"
+                    style={{ width: "130px", height: "130px" }}
+                    autoplay
+                    loop
+                  />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-foreground mb-2">Invalid Document Detected</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground max-w-sm leading-relaxed mb-6">

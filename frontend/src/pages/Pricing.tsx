@@ -5,6 +5,7 @@ import { Sparkles, Check, Info, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import { api } from "@/lib/api";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -12,6 +13,16 @@ export default function Pricing() {
   const [timeLeft, setTimeLeft] = useState("");
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("outly_premium_user") === "true");
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess]);
 
 
 
@@ -147,10 +158,7 @@ export default function Pricing() {
               origin: { y: 0.6 }
             });
 
-            toast({
-              title: "Upgrade Successful ✨",
-              description: "Welcome to Outly Cloud! Your account has been upgraded.",
-            });
+            setShowSuccess(true);
           } else {
             toast({
               title: "Payment Verification Failed",
@@ -378,6 +386,19 @@ export default function Pricing() {
         <Info className="w-4 h-4 text-outly-accent shrink-0" />
         <span>Note: ₹1 one-time launch pricing is currently active for project scalability &amp; live load testing.</span>
       </div>
+
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[380px] bg-white p-6 shadow-2xl rounded-[32px] border border-slate-100/50 select-none border-none flex items-center justify-center">
+          <div className="flex items-center justify-center bg-transparent pointer-events-none">
+            <dotlottie-wc
+              src="https://lottie.host/2fc0ba87-b5ce-4ef6-a1d1-17fe365e32e7/k9r7BJgSj1.lottie"
+              style={{ width: "330px", height: "330px" }}
+              autoplay
+              loop
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

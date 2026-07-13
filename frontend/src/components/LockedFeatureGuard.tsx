@@ -44,6 +44,17 @@ export default function LockedFeatureGuard({
   });
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+        setShowModal(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess]);
 
   useEffect(() => {
     const checkStatus = () => {
@@ -125,11 +136,7 @@ export default function LockedFeatureGuard({
                 origin: { y: 0.6 },
               });
 
-              toast({
-                title: "Upgrade Successful ✨",
-                description: `Welcome to Outly Cloud! ${featureTitle} is now fully unlocked.`,
-              });
-              setShowModal(false);
+              setShowSuccess(true);
             } else {
               toast({
                 title: "Payment Verification Failed",
@@ -200,70 +207,88 @@ export default function LockedFeatureGuard({
         {children}
       </div>
 
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[350px] bg-transparent p-0 shadow-2xl rounded-2xl select-none overflow-hidden border-none">
-          
-          {/* Animated AMOLED Border Outer Wrapper */}
-          <div className="relative w-full rounded-2xl p-[1.5px] overflow-hidden bg-slate-200 isolate">
-            {/* Rotating conic gradient light */}
-            <div className="absolute inset-[-150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2DC08D_0%,#E6B800_25%,#ff4e50_50%,#2dc08d_75%,#2DC08D_100%)]" />
+      <Dialog open={showModal} onOpenChange={(open) => {
+        if (!showSuccess) {
+          setShowModal(open);
+        }
+      }}>
+        <DialogContent className={`max-h-[90vh] overflow-y-auto w-[90%] select-none border-none transition-all duration-300 flex items-center justify-center ${
+          showSuccess 
+            ? "max-w-[380px] bg-white p-6 shadow-2xl rounded-[32px] border border-slate-100/50" 
+            : "max-w-[350px] bg-transparent p-0 shadow-none overflow-hidden rounded-2xl"
+        }`}>
+          {showSuccess ? (
+            <div className="flex items-center justify-center bg-transparent pointer-events-none">
+              <dotlottie-wc
+                src="https://lottie.host/2fc0ba87-b5ce-4ef6-a1d1-17fe365e32e7/k9r7BJgSj1.lottie"
+                style={{ width: "330px", height: "330px" }}
+                autoplay
+                loop
+              />
+            </div>
+          ) : (
+            /* Animated AMOLED Border Outer Wrapper */
+            <div className="relative w-full rounded-2xl p-[1.5px] overflow-hidden bg-slate-200 isolate shadow-2xl">
+              {/* Rotating conic gradient light */}
+              <div className="absolute inset-[-150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2DC08D_0%,#E6B800_25%,#ff4e50_50%,#2dc08d_75%,#2DC08D_100%)]" />
 
-            {/* Inner Content Card */}
-            <div className="relative bg-white rounded-[15px] p-5 text-center flex flex-col gap-4 overflow-hidden">
-              
-              {/* Lock Icon Badge */}
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 shadow-inner text-primary mt-3">
-                <Lock className="h-6 w-6 stroke-[2]" />
-              </div>
+              /* Inner Content Card */
+              <div className="relative bg-white rounded-[15px] p-5 text-center flex flex-col gap-4 overflow-hidden">
+                
+                {/* Lock Icon Badge */}
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 shadow-inner text-primary mt-3">
+                  <Lock className="h-6 w-6 stroke-[2]" />
+                </div>
 
-              {/* Title & Description */}
-              <div className="space-y-2 text-center pt-1">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-extrabold uppercase tracking-wider">
-                  PRO MODULE LOCKED
-                </span>
-                <h2 className="text-lg font-extrabold text-foreground tracking-tight">
-                  Unlock {featureTitle}
-                </h2>
-                <p className="text-[11.5px] text-muted-foreground leading-relaxed px-1 font-medium">
-                  Outly's advanced search algorithms, auto-apply engines, and priority outreach queues require a Cloud Plan subscription.
-                </p>
-              </div>
+                {/* Title & Description */}
+                <div className="space-y-2 text-center pt-1">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-extrabold uppercase tracking-wider">
+                    PRO MODULE LOCKED
+                  </span>
+                  <h2 className="text-lg font-extrabold text-foreground tracking-tight">
+                    Unlock {featureTitle}
+                  </h2>
+                  <p className="text-[11.5px] text-muted-foreground leading-relaxed px-1 font-medium">
+                    Outly's advanced search algorithms, auto-apply engines, and priority outreach queues require a Cloud Plan subscription.
+                  </p>
+                </div>
 
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-col gap-2">
-                <Button
-                  onClick={handleRazorpayPayment}
-                  disabled={isProcessingPayment}
-                  className="w-full bg-gradient-to-r from-primary to-[#25a97b] text-white hover:brightness-105 rounded-full font-bold text-[11.5px] h-10 shadow-md shadow-primary/25 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
-                >
-                  {isProcessingPayment ? (
-                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                  ) : (
-                    <>
-                      <Sparkles className="h-3.5 w-3.5 fill-white/10" />
-                      <span>Get Lifetime Access @ ₹1</span>
-                    </>
-                  )}
-                </Button>
+                {/* Action Buttons */}
+                <div className="pt-2 flex flex-col gap-2">
+                  <Button
+                    onClick={handleRazorpayPayment}
+                    disabled={isProcessingPayment}
+                    className="w-full bg-gradient-to-r from-primary to-[#25a97b] text-white hover:brightness-105 rounded-full font-bold text-[11.5px] h-10 shadow-md shadow-primary/25 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
+                  >
+                    {isProcessingPayment ? (
+                      <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                    ) : (
+                      <>
+                        <Sparkles className="h-3.5 w-3.5 fill-white/10" />
+                        <span>Get Lifetime Access @ ₹1</span>
+                      </>
+                    )}
+                  </Button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    navigate("/pricing");
-                  }}
-                  className="w-full text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors h-8 cursor-pointer text-center mt-0.5"
-                >
-                  View pricing plans &rarr;
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowModal(false);
+                      navigate("/pricing");
+                    }}
+                    className="w-full text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors h-8 cursor-pointer text-center mt-0.5"
+                  >
+                    View pricing plans &rarr;
+                  </button>
+                </div>
 
-              {/* Secure Checkout Footer */}
-              <div className="text-[9.5px] text-muted-foreground/60 border-t border-slate-100 pt-3 mt-2 flex items-center justify-center gap-1 font-medium select-none">
-                <span>🔒 Secured by 256-bit Razorpay Gateway</span>
+                {/* Secure Checkout Footer */}
+                <div className="text-[9.5px] text-muted-foreground/60 border-t border-slate-100 pt-3 mt-2 flex items-center justify-center gap-1 font-medium select-none">
+                  <span>🔒 Secured by 256-bit Razorpay Gateway</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
