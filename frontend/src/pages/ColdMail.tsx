@@ -31,13 +31,13 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { api, type Company } from "@/lib/api";
 import { toast } from "sonner";
 import {
-  
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -359,34 +359,35 @@ export default function ColdMailPage() {
                   Add Company Data
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[500px] border-border bg-card rounded-2xl p-6">
-                <DialogHeader className="space-y-1">
-                  <DialogTitle className="text-xl font-bold text-foreground">Add Company Data</DialogTitle>
-                  <p className="text-xs text-muted-foreground">
-                    Enter target company & contact details. Sender details are pulled automatically from your profile settings.
-                  </p>
+              <DialogContent className="w-[95%] max-w-[420px] border-border bg-card p-5 font-sans rounded-2xl">
+                <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-border/40 pb-3">
+                  <DialogTitle className="text-base font-bold text-foreground">Add Company Data</DialogTitle>
+                  <DialogDescription className="text-[11px] text-muted-foreground leading-none">
+                    Enter target company & contact details.
+                  </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleCreate} className="space-y-4 pt-3">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-foreground/80">Company Name *</Label>
-                      <Input
+                <form onSubmit={handleCreate} className="space-y-3.5 py-3 text-xs font-semibold">
+                  {/* Row 1: Company Name & Target Email */}
+                  <div className="grid grid-cols-2 gap-3.5">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Company Name *</label>
+                      <input
                         required
                         placeholder="e.g. OpenAI"
-                        className="h-10 text-xs rounded-xl"
+                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                         value={newCompany.company_name}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, company_name: e.target.value })
                         }
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-foreground/80">Target Email *</Label>
-                      <Input
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Target Email *</label>
+                      <input
                         required
                         type="email"
                         placeholder="sam@openai.com"
-                        className="h-10 text-xs rounded-xl"
+                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                         value={newCompany.hr_email}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, hr_email: e.target.value })
@@ -395,23 +396,24 @@ export default function ColdMailPage() {
                     </div>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-foreground/80">Target Person Name</Label>
-                      <Input
+                  {/* Row 2: Target Person Name & Target Role */}
+                  <div className="grid grid-cols-2 gap-3.5">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Contact Name</label>
+                      <input
                         placeholder="e.g. Sam Altman"
-                        className="h-10 text-xs rounded-xl"
+                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                         value={newCompany.target_person_name || ""}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, target_person_name: e.target.value })
                         }
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-foreground/80">Target Role</Label>
-                      <Input
-                        placeholder="e.g. CEO & Co-founder"
-                        className="h-10 text-xs rounded-xl"
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Target Role</label>
+                      <input
+                        placeholder="e.g. CEO"
+                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                         value={newCompany.target_person_role || ""}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, target_person_role: e.target.value })
@@ -420,12 +422,13 @@ export default function ColdMailPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-foreground/80">Website URL (optional)</Label>
-                    <Input
+                  {/* Row 3: Website URL */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Website URL (optional)</label>
+                    <input
                       type="url"
                       placeholder="https://openai.com"
-                      className="h-10 text-xs rounded-xl"
+                      className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                       value={newCompany.website_url || ""}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, website_url: e.target.value })
@@ -433,12 +436,13 @@ export default function ColdMailPage() {
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-foreground/80">Personalization Hook / Note (optional)</Label>
-                    <Textarea
+                  {/* Row 4: Personalization Hook / Note */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Personalization Hook / Note (optional)</label>
+                    <textarea
                       rows={2}
-                      placeholder="e.g. Impressed by OpenAI's commitment to AGI and developer tooling."
-                      className="text-xs rounded-xl resize-none min-h-[70px]"
+                      placeholder="e.g. Impressed by OpenAI's commitment to developer tooling."
+                      className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 resize-none min-h-[50px]"
                       value={newCompany.personalization_hook || ""}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, personalization_hook: e.target.value })
@@ -446,14 +450,21 @@ export default function ColdMailPage() {
                     />
                   </div>
 
-                  <DialogFooter className="pt-2">
+                  <DialogFooter className="flex flex-row gap-2.5 justify-end border-t border-border/40 pt-3 mt-3">
                     <Button
                       type="button"
-                      className="w-full bg-outly-accent text-white hover:brightness-110 rounded-full font-semibold h-10 text-sm shadow-md shadow-outly-accent/20 cursor-pointer"
-                      onClick={handleCreateClick}
-                      disabled={createMutation.isPending}
+                      variant="outline"
+                      className="flex-1 sm:flex-none border-border text-xs font-semibold h-9 rounded-lg hover:bg-secondary active:scale-[0.98] transition"
+                      onClick={() => setIsAdding(false)}
                     >
-                      {createMutation.isPending ? "Adding Company..." : "Add Company"}
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={createMutation.isPending}
+                      className="flex-1 sm:flex-none bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold h-9 rounded-lg shadow-xs active:scale-[0.98] transition-all"
+                    >
+                      {createMutation.isPending ? "Adding..." : "Add Company"}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -684,7 +695,7 @@ export default function ColdMailPage() {
                 )}
               </div>
 
-              <div className="grid gap-4 border-y border-border py-4 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-4 border-y border-border py-4">
                 <div className="space-y-1">
                    <p className="text-[10px] font-bold uppercase text-muted-foreground/60 flex items-center gap-1">
                     <User className="h-3 w-3" /> Target
@@ -906,7 +917,7 @@ export default function ColdMailPage() {
                             <Edit className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[700px]">
+                        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[700px]">
                           <DialogHeader>
                             <DialogTitle>Edit Mail & Details</DialogTitle>
                           </DialogHeader>
@@ -1043,7 +1054,7 @@ export default function ColdMailPage() {
                    </p>
                    <ChevronRight className="h-3 w-3 text-muted-foreground/30" />
                  </button>
-                 <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                  <div className="mt-3 grid grid-cols-2 gap-4">
                    <div className="space-y-1">
                       <p className="text-[9px] text-muted-foreground flex items-center gap-1">
                         <MapPin className="h-2.5 w-2.5" /> From

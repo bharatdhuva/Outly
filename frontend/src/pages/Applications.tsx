@@ -558,89 +558,93 @@ export default function ApplicationsPage() {
 
       {/* Add New Application Dialog Modal */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-6 font-sans">
-          <DialogHeader className="flex flex-col items-center text-center space-y-3 border-b border-border/40 pb-4">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <Building className="w-6 h-6 shrink-0" />
-            </div>
-            <DialogTitle className="text-lg font-bold text-foreground">Add New Application</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-              Track a new position in your applications pipeline.
+        <DialogContent className="w-[95%] max-w-[420px] border-border bg-card p-5 font-sans rounded-2xl">
+          <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-border/40 pb-3">
+            <DialogTitle className="text-base font-bold text-foreground">Add New Application</DialogTitle>
+            <DialogDescription className="text-[11px] text-muted-foreground leading-none">
+              Track a new position in your pipeline.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleAddSubmit} className="space-y-4 py-4 text-xs font-medium">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Company Name *</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Stripe"
-                className="w-full rounded-lg border border-border bg-white p-2.5 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-sm placeholder:text-muted-foreground/60"
-                value={newCompany}
-                onChange={(e) => setNewCompany(e.target.value)}
-              />
+          <form onSubmit={handleAddSubmit} className="space-y-3.5 py-3 text-xs font-semibold">
+            {/* Row 1: Company and Role */}
+            <div className="grid grid-cols-2 gap-3.5">
+              <div className="space-y-1">
+                <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Company *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Stripe"
+                  className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                  value={newCompany}
+                  onChange={(e) => setNewCompany(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Role / Position *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Engineer"
+                  className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                  value={newRole}
+                  onChange={(e) => setNewRole(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Role / Position *</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Software Engineer Intern"
-                className="w-full rounded-lg border border-border bg-white p-2.5 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-sm placeholder:text-muted-foreground/60"
-                value={newRole}
-                onChange={(e) => setNewRole(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Job Description URL</label>
+            {/* Row 2: Job Description URL */}
+            <div className="space-y-1">
+              <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Job Description URL</label>
               <input
                 type="url"
                 placeholder="e.g. https://careers.stripe.com/..."
-                className="w-full rounded-lg border border-border bg-white p-2.5 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-sm placeholder:text-muted-foreground/60"
+                className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                 value={newJdUrl}
                 onChange={(e) => setNewJdUrl(e.target.value)}
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Initial Stage</label>
-              <select
-                value={newStage}
-                onChange={(e) => setNewStage(e.target.value as any)}
-                className="w-full rounded-lg border border-border bg-white p-2.5 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-sm cursor-pointer"
-              >
-                {STAGES.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
+            {/* Row 3: Initial Stage & Resume Version */}
+            <div className="grid grid-cols-2 gap-3.5">
+              <div className="space-y-1">
+                <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Initial Stage</label>
+                <select
+                  value={newStage}
+                  onChange={(e) => setNewStage(e.target.value as any)}
+                  className="w-full rounded-lg border border-border bg-white p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs cursor-pointer h-9"
+                >
+                  {STAGES.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Resume Version</label>
+                <select
+                  value={newResumeUsed}
+                  onChange={(e) => setNewResumeUsed(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-white p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs cursor-pointer h-9"
+                >
+                  <option value="">Select Resume...</option>
+                  {resumes.map((r) => (
+                    <option key={r.id} value={String(r.id)}>
+                      {r.label} {r.is_default === 1 ? "(Default)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Resume Version</label>
-              <select
-                value={newResumeUsed}
-                onChange={(e) => setNewResumeUsed(e.target.value)}
-                className="w-full rounded-lg border border-border bg-white p-2.5 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-sm cursor-pointer"
-              >
-                <option value="">Select Resume...</option>
-                {resumes.map((r) => (
-                  <option key={r.id} value={String(r.id)}>
-                    {r.label} {r.is_default === 1 ? "(Default)" : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <DialogFooter className="flex flex-col sm:flex-row gap-2 justify-center border-t border-border/40 pt-4 mt-4">
+            <DialogFooter className="flex flex-row gap-2.5 justify-end border-t border-border/40 pt-3 mt-3">
               <Button 
                 type="button" 
                 variant="outline" 
-                className="w-full sm:w-auto border-border text-xs font-medium h-9 rounded-full hover:bg-secondary active:scale-[0.98] transition"
+                className="flex-1 sm:flex-none border-border text-xs font-semibold h-9 rounded-lg hover:bg-secondary active:scale-[0.98] transition"
                 onClick={() => setIsAddOpen(false)}
               >
                 Cancel
@@ -648,7 +652,7 @@ export default function ApplicationsPage() {
               <Button
                 type="submit"
                 disabled={createMutation.isPending}
-                className="w-full sm:w-auto bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-medium h-9 rounded-full shadow-sm active:scale-[0.98] transition-all"
+                className="flex-1 sm:flex-none bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold h-9 rounded-lg shadow-xs active:scale-[0.98] transition-all"
               >
                 {createMutation.isPending ? "Adding..." : "Add to Board"}
               </Button>
