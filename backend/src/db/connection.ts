@@ -50,6 +50,20 @@ export async function connectDB(): Promise<boolean> {
       console.log("✅ MongoDB connected successfully", {
         readyState: mongoose.connection.readyState,
       });
+
+      // Start a keep-alive interval to ping MongoDB every 10 minutes to prevent Atlas sleep
+      if (!(global as any).dbKeepAliveInterval) {
+        (global as any).dbKeepAliveInterval = setInterval(async () => {
+          if (mongoose.connection.readyState === 1) {
+            try {
+              await mongoose.connection.db?.admin().ping();
+            } catch (e) {
+              console.warn("Database keep-alive ping failed:", e);
+            }
+          }
+        }, 10 * 60 * 1000); // 10 minutes
+      }
+
       return true;
     } catch (err: any) {
       console.error("❌ MongoDB connection failed:", err?.message || err);

@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import { google } from "googleapis";
 import axios from "axios";
 import { env } from "../../config/env.js";
 import { companyQueries } from "../../db/queries.js";
@@ -43,6 +42,7 @@ async function sendViaBrevo(options: {
 async function getTransporter(): Promise<nodemailer.Transporter> {
   if (transporter) return transporter;
 
+  const { google } = await import("googleapis");
   const oauth2Client = new google.auth.OAuth2(
     env.GMAIL_CLIENT_ID,
     env.GMAIL_CLIENT_SECRET,
@@ -536,6 +536,7 @@ export async function createGmailDraft(companyId: string): Promise<boolean> {
   if (!company || !company.generated_subject || !company.generated_mail) return false;
 
   try {
+    const { google } = await import("googleapis");
     const oauth2Client = new google.auth.OAuth2(
       env.GMAIL_CLIENT_ID,
       env.GMAIL_CLIENT_SECRET,

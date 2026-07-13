@@ -3,7 +3,6 @@ import axios from "axios";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { google } from "googleapis";
 import { User } from "../../db/models.js";
 import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
@@ -249,8 +248,8 @@ router.get("/me", requireAuth, async (req: AuthenticatedRequest, res: Response) 
   }
 });
 
-// 4. MOCK UPGRADE ROUTE FOR TESTING
-router.get("/gmail/url", (req, res) => {
+router.get("/gmail/url", async (req, res) => {
+  const { google } = await import("googleapis");
   const oauth2Client = new google.auth.OAuth2(
     env.GMAIL_CLIENT_ID,
     env.GMAIL_CLIENT_SECRET,
@@ -274,6 +273,7 @@ router.get("/gmail/callback", async (req, res) => {
     const code = req.query.code as string;
     if (!code) return res.status(400).send("No code provided");
 
+    const { google } = await import("googleapis");
     const oauth2Client = new google.auth.OAuth2(
       env.GMAIL_CLIENT_ID,
       env.GMAIL_CLIENT_SECRET,
