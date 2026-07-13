@@ -188,7 +188,7 @@ export default function SettingsPage() {
         queryClient.invalidateQueries({ queryKey: ["settings"] }),
         queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
       ]);
-      toast({ title: "Settings saved", description: "Frontend and backend now use the updated values." });
+      toast({ title: "Settings updated!" });
     },
     onError: (error: any) => {
       toast({
