@@ -15,15 +15,6 @@ import { logger } from "./lib/logger.js";
 import { connectDB } from "./db/connection.js";
 
 async function main() {
-  // Connect to MongoDB first
-  logger.info(`Connecting to MongoDB at ${env.MONGODB_URI}...`, { source: "system" });
-  const connected = await connectDB();
-  if (!connected) {
-    logger.error("❌ Failed to connect to MongoDB", { source: "system" });
-    process.exit(1);
-  }
-  logger.info("✅ Connected to MongoDB successfully", { source: "system" });
-
   [
     env.DATA_DIR,
     env.LOGS_DIR,
@@ -36,10 +27,27 @@ async function main() {
     }
   });
 
+  // Start HTTP Server instantly
+  await startServer();
+  logger.info("Outly server started instantly — listening for connections", { source: "system" });
+
+  // Connect to MongoDB in the background
+  logger.info(`Connecting to MongoDB in the background at ${env.MONGODB_URI}...`, { source: "system" });
+  connectDB()
+    .then((connected) => {
+      if (connected) {
+        logger.info("✅ Connected to MongoDB successfully in background", { source: "system" });
+      } else {
+        logger.error("❌ Failed to connect to MongoDB in background", { source: "system" });
+      }
+    })
+    .catch((err) => {
+      logger.error("❌ MongoDB background connection error:", { error: err instanceof Error ? err.stack || err.message : String(err), source: "system" });
+    });
+
   scheduleDailySummary();
   scheduleFollowUpChecker();
   scheduleWeeklyReport();
-  await startServer();
 
   logger.info("Outly started — all services initialized", { source: "system" });
 }

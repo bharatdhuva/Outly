@@ -69,7 +69,6 @@ router.post("/create-order", async (req: Request, res: Response) => {
 // Endpoint: POST /api/verify-payment (and /verify-payment)
 router.post("/verify-payment", async (req: Request, res: Response) => {
   try {
-    await connectDB();
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
 
     if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
