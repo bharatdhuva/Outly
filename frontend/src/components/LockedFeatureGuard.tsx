@@ -194,7 +194,7 @@ export default function LockedFeatureGuard({
     }
   };
 
-  if (isPremium) {
+  if (isPremium && !showSuccess) {
     return <>{children}</>;
   }
 
