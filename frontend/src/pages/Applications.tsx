@@ -535,18 +535,25 @@ export default function ApplicationsPage() {
 
       {/* Add New Application Dialog Modal */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-6 font-sans">
-          <DialogHeader className="flex flex-col items-center text-center space-y-3 border-b border-border/40 pb-4">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <Building className="w-6 h-6 shrink-0" />
-            </div>
-            <DialogTitle className="text-lg font-bold text-foreground">Add New Application</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-              Track a new position in your applications pipeline.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-h-[92vh] sm:max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-0 font-sans">
+          {/* Mobile drag handle indicator */}
+          <div className="sm:hidden flex justify-center pt-3 pb-0">
+            <div className="w-10 h-1 rounded-full bg-border" />
+          </div>
+          
+          <div className="px-5 pt-3 sm:px-6 sm:pt-6">
+            <DialogHeader className="flex flex-col items-center text-center space-y-3 border-b border-border/40 pb-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <Building className="w-6 h-6 shrink-0" />
+              </div>
+              <DialogTitle className="text-lg font-bold text-foreground">Add New Application</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+                Track a new position in your applications pipeline.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <form onSubmit={handleAddSubmit} className="space-y-4 py-4 text-xs font-medium">
+          <form onSubmit={handleAddSubmit} className="space-y-4 px-5 pb-5 sm:px-6 sm:pb-6 text-xs font-medium">
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Company Name *</label>
               <input
@@ -613,7 +620,7 @@ export default function ApplicationsPage() {
               </select>
             </div>
 
-            <DialogFooter className="flex flex-col sm:flex-row gap-2 justify-center border-t border-border/40 pt-4 mt-4">
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 justify-center border-t border-border/40 pt-4 mt-4 pb-[env(safe-area-inset-bottom,0px)]">
               <Button 
                 type="button" 
                 variant="outline" 
