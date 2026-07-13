@@ -93,8 +93,12 @@ export default function ResumeTailorPage() {
   
   // Persistent states stored in sessionStorage
   const [isValidResume, setIsValidResume] = useState<boolean | null>(() => {
-    const val = sessionStorage.getItem("rt_isValidResume");
-    return val ? JSON.parse(val) : null;
+    try {
+      const val = sessionStorage.getItem("rt_isValidResume");
+      return val ? JSON.parse(val) : null;
+    } catch {
+      return null;
+    }
   });
   const [resumeValidationError, setResumeValidationError] = useState<string | null>(() => sessionStorage.getItem("rt_resumeValidationError"));
   const [jobDesc, setJobDesc] = useState(() => sessionStorage.getItem("rt_jobDesc") || "");
@@ -109,20 +113,32 @@ export default function ResumeTailorPage() {
   const [copied, setCopied] = useState(false);
   const [savingToVault, setSavingToVault] = useState(false);
   const [matchedKeywords, setMatchedKeywords] = useState<string[]>(() => {
-    const val = sessionStorage.getItem("rt_matchedKeywords");
-    return val ? JSON.parse(val) : [];
+    try {
+      const val = sessionStorage.getItem("rt_matchedKeywords");
+      return val ? JSON.parse(val) : [];
+    } catch {
+      return [];
+    }
   });
   const [missingKeywords, setMissingKeywords] = useState<string[] | {
     hard_skills: string[];
     soft_skills: string[];
     tools_technologies: string[];
   }>(() => {
-    const val = sessionStorage.getItem("rt_missingKeywords");
-    return val ? JSON.parse(val) : { hard_skills: [], soft_skills: [], tools_technologies: [] };
+    try {
+      const val = sessionStorage.getItem("rt_missingKeywords");
+      return val ? JSON.parse(val) : { hard_skills: [], soft_skills: [], tools_technologies: [] };
+    } catch {
+      return { hard_skills: [], soft_skills: [], tools_technologies: [] };
+    }
   });
   const [sources, setSources] = useState<Array<{ title: string; url: string; domain: string }>>(() => {
-    const val = sessionStorage.getItem("rt_sources");
-    return val ? JSON.parse(val) : [];
+    try {
+      const val = sessionStorage.getItem("rt_sources");
+      return val ? JSON.parse(val) : [];
+    } catch {
+      return [];
+    }
   });
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
@@ -727,7 +743,7 @@ export default function ResumeTailorPage() {
                   </div>
                 ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
                   <div className="flex-1 flex flex-col min-h-[360px]">
-                    <PdfViewer url={api.resume.getFileUrl(Number(selectedVaultId))} />
+                    <PdfViewer url={api.resume.getFileUrl(selectedVaultId)} />
                   </div>
                 ) : (
                   <div className="flex-1 overflow-y-auto p-3.5 text-left max-h-[360px]">

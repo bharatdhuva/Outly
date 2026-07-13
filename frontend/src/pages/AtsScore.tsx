@@ -77,7 +77,12 @@ export default function AtsScorePage() {
     const loadedJd = localStorage.getItem(`ats_jd_${userEmail}`) || "";
     
     const savedResult = localStorage.getItem(`ats_result_${userEmail}`);
-    const loadedResult = savedResult ? JSON.parse(savedResult) : null;
+    let loadedResult = null;
+    try {
+      loadedResult = savedResult ? JSON.parse(savedResult) : null;
+    } catch {
+      loadedResult = null;
+    }
     
     const loadedVaultId = localStorage.getItem(`ats_selected_vault_id_${userEmail}`) || "custom";
 
@@ -698,7 +703,7 @@ export default function AtsScorePage() {
                   </div>
                 ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
                   <div className="flex-1 flex flex-col min-h-[260px] md:min-h-[480px]">
-                    <PdfViewer url={api.resume.getFileUrl(Number(selectedVaultId))} />
+                    <PdfViewer url={api.resume.getFileUrl(selectedVaultId)} />
                   </div>
                 ) : (
                   <div className="flex-1 max-h-[260px] md:max-h-[480px] overflow-y-auto p-4 text-left">
