@@ -239,6 +239,20 @@ function buildHookCandidates(ctx: ScrapedContext, companyName: string): string[]
   ], 8);
 }
 
+async function findCompanyWebsite(companyName: string): Promise<string | null> {
+  try {
+    const { data } = await axios.get(`https://autocomplete.clearbit.com/v1/companies/suggest?query=${encodeURIComponent(companyName)}`, {
+      timeout: 5000,
+    });
+    if (data && data.length > 0 && data[0].domain) {
+      return `https://${data[0].domain}`;
+    }
+  } catch (e) {
+    logger.warn(`Clearbit autocomplete failed for ${companyName}`, { error: String(e), source: "scraper" });
+  }
+  return null;
+}
+
 export async function scrapeCompany(companyId: string): Promise<void> {
   const company = await companyQueries.getById(companyId);
   if (!company) return;
@@ -246,10 +260,19 @@ export async function scrapeCompany(companyId: string): Promise<void> {
   logger.info(`Starting research for ${company.company_name}...`, { source: "scraper" });
 
   const ctx: ScrapedContext = {};
+  let websiteUrl = company.website_url;
 
-  if (company.website_url) {
+  if (!websiteUrl) {
+    websiteUrl = await findCompanyWebsite(company.company_name);
+    if (websiteUrl) {
+      await companyQueries.update(companyId, { website_url: websiteUrl });
+      logger.info(`Resolved website URL for ${company.company_name} to ${websiteUrl}`, { source: "scraper" });
+    }
+  }
+
+  if (websiteUrl) {
     try {
-      const webCtx = await scrapeCompanyWebsite(company.website_url);
+      const webCtx = await scrapeCompanyWebsite(websiteUrl);
       Object.assign(ctx, webCtx);
       logger.info(`Website scraped for ${company.company_name}`, { source: "scraper" });
     } catch (e) {

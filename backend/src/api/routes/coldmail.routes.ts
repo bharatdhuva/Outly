@@ -10,6 +10,7 @@ import { scrapeCompany } from "../../automation/coldmail/companyScraper.js";
 import { generateMailForCompany } from "../../automation/coldmail/mailGenerator.js";
 import { mailQueue } from "../../queue/mailQueue.js";
 import { env } from "../../config/env.js";
+import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkColdMailLimit } from "../../middleware/limits.js";
 import fs from "fs";
@@ -50,7 +51,19 @@ router.get("/companies", async (req: AuthenticatedRequest, res: Response) => {
 router.post("/companies", checkColdMailLimit, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
-    const { company_name, website_url, hr_email } = req.body;
+    const { 
+      company_name, 
+      website_url, 
+      hr_email,
+      role,
+      target_person_name,
+      target_person_role,
+      key_skills,
+      experience_level,
+      sender_name,
+      sender_location,
+      personalization_hook
+    } = req.body;
     
     if (!company_name || !hr_email) {
       return res.status(400).json({ error: "Company name and HR email are required." });
@@ -60,25 +73,34 @@ router.post("/companies", checkColdMailLimit, async (req: AuthenticatedRequest, 
       company_name,
       website_url: website_url || null,
       hr_email,
-      role: "Software Development Engineer", // default
+      role: role || "Software Development Engineer",
       linkedin_url: null,
-      target_person_name: null,
-      target_person_role: null,
-      key_skills: null,
-      experience_level: null,
-      sender_name: null,
-      sender_location: null,
+      target_person_name: target_person_name || null,
+      target_person_role: target_person_role || null,
+      key_skills: key_skills || null,
+      experience_level: experience_level || null,
+      sender_name: sender_name || null,
+      sender_location: sender_location || null,
       status: "pending",
       scraped_context: null,
       generated_subject: null,
       generated_mail: null,
-      personalization_hook: null,
+      personalization_hook: personalization_hook || null,
       sent_at: null,
       reply_detected_at: null,
       followup_sent_at: null,
       followup_status: null,
       error_message: null,
       generated_variants_json: null
+    });
+
+    // Run scraper and AI generator in the background asynchronously
+    Promise.resolve().then(async () => {
+      try {
+        await generateMailForCompany(result.id, "gemini", "gemini-2.5-flash");
+      } catch (err) {
+        logger.error(`Background auto-generation failed for company ID ${result.id}`, { error: String(err), source: "coldmail" });
+      }
     });
     
     res.json({ id: result.id });
