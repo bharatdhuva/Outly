@@ -12,7 +12,6 @@ import Logs from "./pages/Logs";
 import NotFound from "./pages/NotFound";
 import ResumeTailorPage from "./pages/ResumeTailor";
 import AtsScore from "./pages/AtsScore";
-import TestPopup from "./pages/TestPopup";
 import Applications from "./pages/Applications";
 import JobSearch from "./pages/JobSearch";
 import Analytics from "./pages/Analytics";
@@ -76,8 +75,6 @@ const App = () => {
                     <Route path="/resume-tailor" element={<PageTransition><MobileRedirect to="/resumes?tab=tailor" element={<ResumeTailorPage />} /></PageTransition>} />
                     <Route path="/resume-vault" element={<PageTransition><MobileRedirect to="/resumes?tab=vault" element={<ResumeVault />} /></PageTransition>} />
                     <Route path="/ats-score" element={<PageTransition><MobileRedirect to="/resumes?tab=ats" element={<AtsScore />} /></PageTransition>} />
-                    <Route path="/test-popup" element={<PageTransition><TestPopup /></PageTransition>} />
-                    <Route path="/test_popup" element={<PageTransition><TestPopup /></PageTransition>} />
                     <Route path="/applications" element={<PageTransition><MobileRedirect to="/jobs?tab=tracker" element={<Applications />} /></PageTransition>} />
                     <Route path="/job-search" element={<PageTransition><MobileRedirect to="/jobs?tab=search" element={<JobSearch />} /></PageTransition>} />
 
