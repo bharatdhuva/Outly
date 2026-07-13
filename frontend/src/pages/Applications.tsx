@@ -119,13 +119,36 @@ export default function ApplicationsPage() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<TrackerApplication> }) =>
       api.applications.update(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ["applications"] });
+      const previousApps = queryClient.getQueryData<TrackerApplication[]>(["applications"]);
+      if (previousApps) {
+        queryClient.setQueryData<TrackerApplication[]>(
+          ["applications"],
+          previousApps.map((app) => (app.id === id ? { ...app, ...data } : app))
+        );
+      }
+      return { previousApps };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousApps) {
+        queryClient.setQueryData(["applications"], context.previousApps);
+      }
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: String(err),
+      });
+    },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["applications"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
       if (selectedApp?.id === variables.id) {
         const updated = apps.find((a) => a.id === variables.id);
         if (updated) setSelectedApp({ ...updated, ...variables.data });
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
     },
   });
 
@@ -535,25 +558,18 @@ export default function ApplicationsPage() {
 
       {/* Add New Application Dialog Modal */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-h-[92vh] sm:max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-0 font-sans">
-          {/* Mobile drag handle indicator */}
-          <div className="sm:hidden flex justify-center pt-3 pb-0">
-            <div className="w-10 h-1 rounded-full bg-border" />
-          </div>
-          
-          <div className="px-5 pt-3 sm:px-6 sm:pt-6">
-            <DialogHeader className="flex flex-col items-center text-center space-y-3 border-b border-border/40 pb-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <Building className="w-6 h-6 shrink-0" />
-              </div>
-              <DialogTitle className="text-lg font-bold text-foreground">Add New Application</DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-                Track a new position in your applications pipeline.
-              </DialogDescription>
-            </DialogHeader>
-          </div>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-6 font-sans">
+          <DialogHeader className="flex flex-col items-center text-center space-y-3 border-b border-border/40 pb-4">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <Building className="w-6 h-6 shrink-0" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-foreground">Add New Application</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              Track a new position in your applications pipeline.
+            </DialogDescription>
+          </DialogHeader>
 
-          <form onSubmit={handleAddSubmit} className="space-y-4 px-5 pb-5 sm:px-6 sm:pb-6 text-xs font-medium">
+          <form onSubmit={handleAddSubmit} className="space-y-4 py-4 text-xs font-medium">
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Company Name *</label>
               <input
@@ -620,7 +636,7 @@ export default function ApplicationsPage() {
               </select>
             </div>
 
-            <DialogFooter className="flex flex-col sm:flex-row gap-2 justify-center border-t border-border/40 pt-4 mt-4 pb-[env(safe-area-inset-bottom,0px)]">
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 justify-center border-t border-border/40 pt-4 mt-4">
               <Button 
                 type="button" 
                 variant="outline" 
