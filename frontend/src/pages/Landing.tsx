@@ -235,8 +235,12 @@ export default function Landing() {
   // ─── STATE MANAGEMENT ───
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem("outly_token"));
-  }, []);
+    const hasToken = !!localStorage.getItem("outly_token");
+    if (hasToken) {
+      navigateTo("/onboarding");
+    }
+    setIsLoggedIn(hasToken);
+  }, [navigateTo]);
 
   const [scrolled, setScrolled] = useState(false);
   const [visibleCards, setVisibleCards] = useState(false);

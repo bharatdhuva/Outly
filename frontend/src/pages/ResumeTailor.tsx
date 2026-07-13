@@ -147,6 +147,17 @@ export default function ResumeTailorPage() {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [mobileStep, setMobileStep] = useState(1);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Sync states to sessionStorage on changes
   useEffect(() => {
     sessionStorage.setItem("rt_jobDesc", jobDesc);
@@ -561,30 +572,46 @@ export default function ResumeTailorPage() {
         </p>
       </div>
 
-      {/* INPUT WORKSPACE (Side by Side columns) */}
+      {/* INPUT WORKSPACE (Side by Side columns / Mobile Wizard) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8 items-stretch">
         
         {/* Left Input: Job Description */}
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[320px] md:h-[460px] text-left space-y-4">
-          <div className="flex justify-between items-center border-b border-border/40 pb-3">
-            <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <FileText className="h-4.5 w-4.5 text-outly-accent" />
-              Job Description
-            </h2>
-            <span className="text-[10px] font-extrabold text-muted-foreground uppercase">Target Context</span>
+        {(!isMobile || mobileStep === 1) && (
+          <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[320px] md:h-[460px] text-left space-y-4 animate-fade-in">
+            <div className="flex justify-between items-center border-b border-border/40 pb-3">
+              <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="h-4.5 w-4.5 text-outly-accent" />
+                Job Description
+              </h2>
+              {isMobile ? (
+                <span className="text-[10px] font-extrabold text-outly-accent uppercase bg-outly-accent/5 px-2 py-0.5 rounded-full">Step 1 of 2</span>
+              ) : (
+                <span className="text-[10px] font-extrabold text-muted-foreground uppercase">Target Context</span>
+              )}
+            </div>
+            <Textarea
+              className="flex-1 resize-none rounded-xl border-border bg-white text-[13px] leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-success p-3.5"
+              placeholder="Paste the job description here..."
+              value={jobDesc}
+              onChange={(e) => setJobDesc(e.target.value)}
+            />
+            {isMobile && (
+              <Button
+                onClick={() => setMobileStep(2)}
+                disabled={jobDesc.trim().length < 15}
+                className="w-full bg-outly-accent hover:brightness-110 text-white font-bold tracking-normal rounded-full shadow-md active:scale-[0.98] transition-all h-9 text-xs cursor-pointer mt-2"
+              >
+                Next: Upload Resume &rarr;
+              </Button>
+            )}
           </div>
-          <Textarea
-            className="flex-1 resize-none rounded-xl border-border bg-white text-[13px] leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-success p-3.5"
-            placeholder="Paste the job description here..."
-            value={jobDesc}
-            onChange={(e) => setJobDesc(e.target.value)}
-          />
-        </div>
+        )}
 
         {/* Right Input: Resume Source */}
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col min-h-[460px] text-left">
-          
-          <div className="flex justify-between items-center border-b border-border/40 pb-3 mb-4">
+        {(!isMobile || mobileStep === 2) && (
+          <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col min-h-[460px] text-left animate-fade-in">
+            
+            <div className="flex justify-between items-center border-b border-border/40 pb-3 mb-4">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
               <FileText className="h-4.5 w-4.5 text-success" />
               Resume Source
@@ -698,6 +725,7 @@ export default function ResumeTailorPage() {
                     setSources([]);
                     setIsValidResume(null);
                     setResumeValidationError(null);
+                    setMobileStep(1);
                   }}
                 >
                   <X className="h-3.5 w-3.5" />
@@ -757,30 +785,45 @@ export default function ResumeTailorPage() {
               </div>
             </div>
           )}
+          {isMobile && (
+            <div className="mt-4 pt-3 border-t border-border/40">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setMobileStep(1)}
+                className="w-full font-bold text-xs rounded-full border-zinc-200 text-muted-foreground hover:bg-zinc-50 h-9 cursor-pointer"
+              >
+                &larr; Back to Job Description
+              </Button>
+            </div>
+          )}
         </div>
+        )}
       </div>
 
       {/* Action Submit Area (Below inputs) */}
-      <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-3 sm:gap-4 rounded-xl border border-border bg-card p-3 sm:p-4 shadow-[var(--shadow-card)]">
-        <span className="text-[11px] font-bold text-muted-foreground">Tailored live by Outly AI</span>
-        <Button
-          className="w-full sm:w-auto max-w-[220px] bg-outly-accent hover:brightness-110 text-white px-5 font-bold tracking-normal rounded-full shadow-md shadow-outly-accent/15 active:scale-[0.98] transition-all gap-1.5 h-9 text-xs cursor-pointer"
-          onClick={handleTailor}
-          disabled={tailoring || !resumeText || !jobDesc.trim() || isValidResume === false}
-        >
-          {tailoring ? (
-            <>
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Tailoring{tailoringDots}
-            </>
-          ) : (
-            <>
-              <RefreshCw className="h-3.5 w-3.5" />
-              Tailor Resume
-            </>
-          )}
-        </Button>
-      </div>
+      {(!isMobile || mobileStep === 2) && (
+        <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-3 sm:gap-4 rounded-xl border border-border bg-card p-3 sm:p-4 shadow-[var(--shadow-card)] animate-fade-in">
+          <span className="text-[11px] font-bold text-muted-foreground">Tailored live by Outly AI</span>
+          <Button
+            className="w-full sm:w-auto max-w-[220px] bg-outly-accent hover:brightness-110 text-white px-5 font-bold tracking-normal rounded-full shadow-md shadow-outly-accent/15 active:scale-[0.98] transition-all gap-1.5 h-9 text-xs cursor-pointer"
+            onClick={handleTailor}
+            disabled={tailoring || !resumeText || !jobDesc.trim() || isValidResume === false}
+          >
+            {tailoring ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Tailoring{tailoringDots}
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-3.5 w-3.5" />
+                Tailor Resume
+              </>
+            )}
+          </Button>
+        </div>
+      )}
 
       {/* TAILORING ANIMATED PROGRESS LOADER CARD */}
       {tailoring && (
