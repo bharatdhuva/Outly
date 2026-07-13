@@ -374,7 +374,7 @@ export default function ColdMailPage() {
                       <input
                         required
                         placeholder="e.g. OpenAI"
-                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                         value={newCompany.company_name}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, company_name: e.target.value })
@@ -387,7 +387,7 @@ export default function ColdMailPage() {
                         required
                         type="email"
                         placeholder="sam@openai.com"
-                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                         value={newCompany.hr_email}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, hr_email: e.target.value })
@@ -402,7 +402,7 @@ export default function ColdMailPage() {
                       <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Contact Name</label>
                       <input
                         placeholder="e.g. Sam Altman"
-                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                         value={newCompany.target_person_name || ""}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, target_person_name: e.target.value })
@@ -413,7 +413,7 @@ export default function ColdMailPage() {
                       <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Target Role</label>
                       <input
                         placeholder="e.g. CEO"
-                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                         value={newCompany.target_person_role || ""}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, target_person_role: e.target.value })
@@ -428,7 +428,7 @@ export default function ColdMailPage() {
                     <input
                       type="url"
                       placeholder="https://openai.com"
-                      className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                      className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                       value={newCompany.website_url || ""}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, website_url: e.target.value })
@@ -442,7 +442,7 @@ export default function ColdMailPage() {
                     <textarea
                       rows={2}
                       placeholder="e.g. Impressed by OpenAI's commitment to developer tooling."
-                      className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 resize-none min-h-[50px]"
+                      className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 resize-none min-h-[50px]"
                       value={newCompany.personalization_hook || ""}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, personalization_hook: e.target.value })
@@ -454,7 +454,7 @@ export default function ColdMailPage() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="flex-1 sm:flex-none border-border text-xs font-semibold h-9 rounded-lg hover:bg-secondary active:scale-[0.98] transition"
+                      className="flex-1 sm:flex-none border-border text-xs font-semibold h-9 rounded-full hover:bg-secondary active:scale-[0.98] transition"
                       onClick={() => setIsAdding(false)}
                     >
                       Cancel
@@ -462,7 +462,7 @@ export default function ColdMailPage() {
                     <Button
                       type="submit"
                       disabled={createMutation.isPending}
-                      className="flex-1 sm:flex-none bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold h-9 rounded-lg shadow-xs active:scale-[0.98] transition-all"
+                      className="flex-1 sm:flex-none bg-outly-accent hover:bg-outly-accent/90 text-white text-xs font-semibold h-9 rounded-full shadow-xs active:scale-[0.98] transition-all"
                     >
                       {createMutation.isPending ? "Adding..." : "Add Company"}
                     </Button>
