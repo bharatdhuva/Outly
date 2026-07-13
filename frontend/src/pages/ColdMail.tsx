@@ -1035,12 +1035,18 @@ export default function ColdMailPage() {
                         {loadingId === selectedCompany.id ? (
                           <>
                             <RefreshCw className="h-4 w-4 animate-spin shrink-0 text-white" />
-                            <span className="animate-fade-in text-[11px] font-bold text-white tracking-wide">{generationStep}</span>
+                            <span className="animate-fade-in text-[10px] font-bold text-white tracking-wide truncate">
+                              {isMobile && generationStep
+                                ? `${generationStep.split(" ")[0]} ${generationStep.split(" ")[1].slice(0, 11)}...`
+                                : generationStep}
+                            </span>
                           </>
                         ) : (
                           <>
                             <Sparkles className="h-4 w-4 text-white animate-bounce shrink-0" />
-                            <span className="font-bold text-xs tracking-wide">Auto-Generate Mail</span>
+                            <span className="font-bold text-xs tracking-wide">
+                              {isMobile ? "Generate" : "Auto-Generate Mail"}
+                            </span>
                           </>
                         )}
                       </Button>
