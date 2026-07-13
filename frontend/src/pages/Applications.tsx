@@ -63,6 +63,16 @@ export default function ApplicationsPage() {
 
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [activeStageTab, setActiveStageTab] = useState<TrackerApplication["stage"]>("saved");
+  const [localNotes, setLocalNotes] = useState("");
+
+  // Sync selectedApp notes to local state when active app changes
+  useEffect(() => {
+    if (selectedApp) {
+      setLocalNotes(selectedApp.notes || "");
+    } else {
+      setLocalNotes("");
+    }
+  }, [selectedApp?.id]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -205,6 +215,13 @@ export default function ApplicationsPage() {
       app.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleCloseDetails = () => {
+    if (selectedApp && localNotes !== (selectedApp.notes || "")) {
+      updateMutation.mutate({ id: selectedApp.id, data: { notes: localNotes } });
+    }
+    setSelectedApp(null);
+  };
 
   return (
     <LockedFeatureGuard featureTitle="Job Tracker & Application Scheduler">
@@ -420,14 +437,14 @@ export default function ApplicationsPage() {
       {/* Side Details Drawer */}
       {selectedApp && (
         <>
-          <div className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-xs" onClick={() => setSelectedApp(null)} />
+          <div className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-xs" onClick={handleCloseDetails} />
           <aside className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md border-l border-border bg-white p-6 shadow-2xl overflow-y-auto animate-slide-in text-left font-sans">
             <div className="flex items-center justify-between border-b border-border/40 pb-4 mb-5">
               <div>
                 <span className="text-[10px] font-extrabold text-primary uppercase tracking-wider block">Application Details</span>
                 <h2 className="text-[18px] font-bold text-foreground mt-1">{selectedApp.company}</h2>
               </div>
-              <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground" onClick={() => setSelectedApp(null)}>
+              <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground" onClick={handleCloseDetails}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -489,8 +506,13 @@ export default function ApplicationsPage() {
                 <Textarea
                   placeholder="Paste context, contacts, salary details, or next step timelines..."
                   className="min-h-[120px] rounded-xl border-border text-xs leading-relaxed p-3"
-                  value={selectedApp.notes || ""}
-                  onChange={(e) => updateMutation.mutate({ id: selectedApp.id, data: { notes: e.target.value } })}
+                  value={localNotes}
+                  onChange={(e) => setLocalNotes(e.target.value)}
+                  onBlur={() => {
+                    if (localNotes !== (selectedApp.notes || "")) {
+                      updateMutation.mutate({ id: selectedApp.id, data: { notes: localNotes } });
+                    }
+                  }}
                 />
               </div>
 
@@ -546,7 +568,7 @@ export default function ApplicationsPage() {
                   variant="outline" 
                   size="sm" 
                   className="h-8 text-[11px] font-semibold border-border text-foreground hover:bg-secondary rounded-lg"
-                  onClick={() => setSelectedApp(null)}
+                  onClick={handleCloseDetails}
                 >
                   Close
                 </Button>
