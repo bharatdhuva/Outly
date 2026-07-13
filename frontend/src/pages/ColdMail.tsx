@@ -80,11 +80,24 @@ const pipelineOrder = [
 export default function ColdMailPage() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [mainMode, setMainMode] = useState<"manual" | "csv">("manual");
+  
+  // Persistent states stored in sessionStorage
+  const [selected, setSelected] = useState<number | null>(() => {
+    const val = sessionStorage.getItem("cm_selected");
+    return val ? parseInt(val, 10) : null;
+  });
+  const [mainMode, setMainMode] = useState<"manual" | "csv">(() => {
+    const val = sessionStorage.getItem("cm_mainMode");
+    return (val as "manual" | "csv") || "manual";
+  });
   const [isAdding, setIsAdding] = useState(false);
-  const [activeTab, setActiveTab] = useState<"formal" | "casual" | "short">("formal");
-  const [showFollowUps, setShowFollowUps] = useState(false);
+  const [activeTab, setActiveTab] = useState<"formal" | "casual" | "short">(() => {
+    const val = sessionStorage.getItem("cm_activeTab");
+    return (val as "formal" | "casual" | "short") || "formal";
+  });
+  const [showFollowUps, setShowFollowUps] = useState<boolean>(() => {
+    return sessionStorage.getItem("cm_showFollowUps") === "true";
+  });
   const [companySize, setCompanySize] = useState<"startup" | "mid" | "large">("startup");
   const [newCompany, setNewCompany] = useState<Partial<Company>>({
     company_name: "",
@@ -110,7 +123,34 @@ export default function ColdMailPage() {
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024);
-  const [mobileDetailsOpen, setMobileDetailsOpen] = useState(false);
+  const [mobileDetailsOpen, setMobileDetailsOpen] = useState<boolean>(() => {
+    return sessionStorage.getItem("cm_mobileDetailsOpen") === "true";
+  });
+
+  // Sync states to sessionStorage on changes
+  useEffect(() => {
+    if (selected !== null) {
+      sessionStorage.setItem("cm_selected", selected.toString());
+    } else {
+      sessionStorage.removeItem("cm_selected");
+    }
+  }, [selected]);
+
+  useEffect(() => {
+    sessionStorage.setItem("cm_mainMode", mainMode);
+  }, [mainMode]);
+
+  useEffect(() => {
+    sessionStorage.setItem("cm_activeTab", activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    sessionStorage.setItem("cm_showFollowUps", showFollowUps ? "true" : "false");
+  }, [showFollowUps]);
+
+  useEffect(() => {
+    sessionStorage.setItem("cm_mobileDetailsOpen", mobileDetailsOpen ? "true" : "false");
+  }, [mobileDetailsOpen]);
 
   useEffect(() => {
     const handleResize = () => {

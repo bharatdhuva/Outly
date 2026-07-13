@@ -90,32 +90,99 @@ export default function ResumeTailorPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [isValidResume, setIsValidResume] = useState<boolean | null>(null);
-  const [resumeValidationError, setResumeValidationError] = useState<string | null>(null);
-  const [jobDesc, setJobDesc] = useState("");
+  
+  // Persistent states stored in sessionStorage
+  const [isValidResume, setIsValidResume] = useState<boolean | null>(() => {
+    const val = sessionStorage.getItem("rt_isValidResume");
+    return val ? JSON.parse(val) : null;
+  });
+  const [resumeValidationError, setResumeValidationError] = useState<string | null>(() => sessionStorage.getItem("rt_resumeValidationError"));
+  const [jobDesc, setJobDesc] = useState(() => sessionStorage.getItem("rt_jobDesc") || "");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [resumeText, setResumeText] = useState<string | null>(null);
-  const [selectedVaultId, setSelectedVaultId] = useState<string>("custom");
+  const [resumeText, setResumeText] = useState<string | null>(() => sessionStorage.getItem("rt_resumeText"));
+  const [selectedVaultId, setSelectedVaultId] = useState<string>(() => sessionStorage.getItem("rt_selectedVaultId") || "custom");
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [tailoredResult, setTailoredResult] = useState<string | null>(null);
+  const [tailoredResult, setTailoredResult] = useState<string | null>(() => sessionStorage.getItem("rt_tailoredResult"));
   const [tailoring, setTailoring] = useState(false);
   const [tailoringDots, setTailoringDots] = useState("...");
   const [copied, setCopied] = useState(false);
   const [savingToVault, setSavingToVault] = useState(false);
-  const [matchedKeywords, setMatchedKeywords] = useState<string[]>([]);
+  const [matchedKeywords, setMatchedKeywords] = useState<string[]>(() => {
+    const val = sessionStorage.getItem("rt_matchedKeywords");
+    return val ? JSON.parse(val) : [];
+  });
   const [missingKeywords, setMissingKeywords] = useState<string[] | {
     hard_skills: string[];
     soft_skills: string[];
     tools_technologies: string[];
-  }>({ hard_skills: [], soft_skills: [], tools_technologies: [] });
-  const [sources, setSources] = useState<Array<{ title: string; url: string; domain: string }>>([]);
+  }>(() => {
+    const val = sessionStorage.getItem("rt_missingKeywords");
+    return val ? JSON.parse(val) : { hard_skills: [], soft_skills: [], tools_technologies: [] };
+  });
+  const [sources, setSources] = useState<Array<{ title: string; url: string; domain: string }>>(() => {
+    const val = sessionStorage.getItem("rt_sources");
+    return val ? JSON.parse(val) : [];
+  });
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [unlockAtTime, setUnlockAtTime] = useState<string | null>(null);
   const [countdownText, setCountdownText] = useState("");
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync states to sessionStorage on changes
+  useEffect(() => {
+    sessionStorage.setItem("rt_jobDesc", jobDesc);
+  }, [jobDesc]);
+
+  useEffect(() => {
+    if (resumeText !== null) {
+      sessionStorage.setItem("rt_resumeText", resumeText);
+    } else {
+      sessionStorage.removeItem("rt_resumeText");
+    }
+  }, [resumeText]);
+
+  useEffect(() => {
+    sessionStorage.setItem("rt_selectedVaultId", selectedVaultId);
+  }, [selectedVaultId]);
+
+  useEffect(() => {
+    if (tailoredResult !== null) {
+      sessionStorage.setItem("rt_tailoredResult", tailoredResult);
+    } else {
+      sessionStorage.removeItem("rt_tailoredResult");
+    }
+  }, [tailoredResult]);
+
+  useEffect(() => {
+    sessionStorage.setItem("rt_matchedKeywords", JSON.stringify(matchedKeywords));
+  }, [matchedKeywords]);
+
+  useEffect(() => {
+    sessionStorage.setItem("rt_missingKeywords", JSON.stringify(missingKeywords));
+  }, [missingKeywords]);
+
+  useEffect(() => {
+    sessionStorage.setItem("rt_sources", JSON.stringify(sources));
+  }, [sources]);
+
+  useEffect(() => {
+    if (isValidResume !== null) {
+      sessionStorage.setItem("rt_isValidResume", JSON.stringify(isValidResume));
+    } else {
+      sessionStorage.removeItem("rt_isValidResume");
+    }
+  }, [isValidResume]);
+
+  useEffect(() => {
+    if (resumeValidationError !== null) {
+      sessionStorage.setItem("rt_resumeValidationError", resumeValidationError);
+    } else {
+      sessionStorage.removeItem("rt_resumeValidationError");
+    }
+  }, [resumeValidationError]);
 
   // Animating tailoring dots loader
   useEffect(() => {
