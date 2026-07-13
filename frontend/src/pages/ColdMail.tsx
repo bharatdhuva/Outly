@@ -102,6 +102,7 @@ export default function ColdMailPage() {
   const navigate = useNavigate();
   const [selectedModel, setSelectedModel] = useState<string>("gemini");
   const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [generationStep, setGenerationStep] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<Company>>({});
   const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
@@ -982,40 +983,66 @@ export default function ColdMailPage() {
                     <div className="flex w-full items-center gap-2">
                       <Button
                         size="sm"
-                        variant="outline"
-                        className="flex-1 gap-2 h-10 border-primary/30 hover:bg-primary/5 text-foreground font-semibold cursor-pointer"
+                        className="flex-1 gap-2 h-10 border-none bg-outly-accent hover:bg-outly-accent/95 text-white rounded-full font-semibold cursor-pointer transition-all duration-300 shadow-md hover:shadow-lg shadow-outly-accent/15"
                         disabled={loadingId === selectedCompany.id}
                         onClick={() => {
                           handleGenerateCheck(() => {
                             setLoadingId(selectedCompany.id);
-                            api.coldmail.scrape(selectedCompany.id).then(() => {
-                            api.coldmail.generate(selectedCompany.id, "gemini", "gemini-2.5-flash").then(() => {
-                              queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                              toast.success("Mail generated successfully");
-                              setLoadingId(null);
-                            }).catch((e) => {
-                              const errStr = String(e);
-                              if (errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404")) {
-                                setShowAiErrorModal(true);
-                              } else {
-                                toast.error(errStr);
+                            setGenerationStep("🔍 Researching Company Profile...");
+                            
+                            const steps = [
+                              "🌐 Crawling Website & Tech Stack...",
+                              "📰 Scanning Social Media & News...",
+                              "🧠 Personalizing AI Cover Letter...",
+                              "✨ Refining Cover Letter Drafts..."
+                            ];
+                            let stepIdx = 0;
+                            const interval = setInterval(() => {
+                              if (stepIdx < steps.length) {
+                                setGenerationStep(steps[stepIdx]);
+                                stepIdx++;
                               }
-                              queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+                            }, 2200);
+
+                            api.coldmail.scrape(selectedCompany.id).then(() => {
+                              api.coldmail.generate(selectedCompany.id, "gemini", "gemini-2.5-flash").then(() => {
+                                queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+                                toast.success("Mail generated successfully");
+                                clearInterval(interval);
+                                setLoadingId(null);
+                                setGenerationStep("");
+                              }).catch((e) => {
+                                const errStr = String(e);
+                                if (errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404")) {
+                                  setShowAiErrorModal(true);
+                                } else {
+                                  toast.error(errStr);
+                                }
+                                queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+                                clearInterval(interval);
+                                setLoadingId(null);
+                                setGenerationStep("");
+                              });
+                            }).catch((e) => {
+                              toast.error(String(e));
+                              clearInterval(interval);
                               setLoadingId(null);
+                              setGenerationStep("");
                             });
-                          }).catch((e) => {
-                            toast.error(String(e));
-                            setLoadingId(null);
                           });
-                        });
-                      }}
+                        }}
                       >
                         {loadingId === selectedCompany.id ? (
-                          <RefreshCw className="h-4 w-4 animate-spin" />
+                          <>
+                            <RefreshCw className="h-4 w-4 animate-spin shrink-0 text-white" />
+                            <span className="animate-fade-in text-[11px] font-bold text-white tracking-wide">{generationStep}</span>
+                          </>
                         ) : (
-                          <Sparkles className="h-4 w-4 text-primary" />
+                          <>
+                            <Sparkles className="h-4 w-4 text-white animate-bounce shrink-0" />
+                            <span className="font-bold text-xs tracking-wide">Auto-Generate Mail</span>
+                          </>
                         )}
-                        Auto-Generate Mail
                       </Button>
 
                       <Button
