@@ -225,7 +225,7 @@ export default function ApplicationsPage() {
 
       {/* Mobile Stage Selector Tabs */}
       {isMobile && (
-        <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none text-left">
+        <div className="flex overflow-x-auto gap-2 pb-1 text-left [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {STAGES.map((s) => {
             const stageAppsCount = filteredApps.filter((a) => a.stage === s.id).length;
             const isActive = activeStageTab === s.id;

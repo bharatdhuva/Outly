@@ -359,7 +359,7 @@ export default function ColdMailPage() {
                   Add Company Data
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] border-border bg-card rounded-2xl p-6">
+              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[500px] border-border bg-card rounded-2xl p-6">
                 <DialogHeader className="space-y-1">
                   <DialogTitle className="text-xl font-bold text-foreground">Add Company Data</DialogTitle>
                   <p className="text-xs text-muted-foreground">
@@ -584,50 +584,62 @@ export default function ColdMailPage() {
                         setMobileDetailsOpen(true);
                       }
                     }}
-                    className={`flex w-full flex-wrap items-center gap-3 px-6 py-4 text-left transition-all hover:bg-slate-50 sm:flex-nowrap sm:gap-4 ${
+                    className={`w-full px-5 py-4 text-left transition-all hover:bg-slate-50 border-l-4 ${
                       selected === company.id
-                        ? "bg-outly-accent/5 border-l-4 border-l-outly-accent"
-                        : ""
+                        ? "bg-outly-accent/5 border-l-outly-accent"
+                        : "border-l-transparent"
                     }`}
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 font-mono text-xs font-bold text-slate-700 shrink-0 overflow-hidden border border-slate-200">
-                      {company.company_name.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold text-foreground truncate">
-                          {company.company_name}
-                        </p>
-                        {company.website_url && (
-                           <ExternalLink className="h-3 w-3 text-muted-foreground/40" />
-                        )}
+                    {/* Top Row: Avatar, Info, Status, Delete */}
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 font-mono text-xs font-bold text-slate-700 shrink-0 overflow-hidden border border-slate-200">
+                        {company.company_name.slice(0, 2).toUpperCase()}
                       </div>
-                      <p className="text-xs text-muted-foreground truncate font-medium">
-                        {company.role}
-                      </p>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-bold text-foreground truncate">
+                            {company.company_name}
+                          </p>
+                          {company.website_url && (
+                             <ExternalLink className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate font-medium mt-0.5">
+                          {company.role}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <StatusBadge status={company.status} />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteTarget(company);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="order-4 flex items-center gap-1 sm:order-none">
-                      {pipelineOrder.map((_, si) => (
-                        <div
-                          key={si}
-                          className={`h-1.5 w-3 rounded-full ${si <= stepIdx ? "bg-outly-accent" : "bg-slate-200"}`}
-                        />
-                      ))}
+
+                    {/* Bottom Row: Pipeline indicators */}
+                    <div className="mt-3 flex items-center justify-between pl-13 pr-2">
+                      <div className="flex items-center gap-1">
+                        {pipelineOrder.map((_, si) => (
+                          <div
+                            key={si}
+                            className={`h-1.5 w-3 rounded-full ${si <= stepIdx ? "bg-outly-accent" : "bg-slate-200"}`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-muted-foreground font-semibold capitalize">
+                        {company.status.replace("_", " ")}
+                      </span>
                     </div>
-                    <div className="order-3 sm:order-none">
-                      <StatusBadge status={company.status} />
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="order-5 h-8 w-8 shrink-0 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-full sm:order-none"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleteTarget(company);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </button>
                 );
               })
