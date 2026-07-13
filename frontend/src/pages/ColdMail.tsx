@@ -862,8 +862,13 @@ export default function ColdMailPage() {
                         className="flex-1 gap-2.5 h-10 border-border bg-card hover:bg-secondary/40 text-foreground font-semibold shadow-sm cursor-pointer"
                         title="Open direct compose window in Gmail web app"
                         onClick={() => {
-                          const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(selectedCompany.hr_email)}&su=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(selectedCompany.generated_mail || "")}`;
-                          window.open(url, "_blank");
+                          if (isMobile) {
+                            const mailtoUrl = `mailto:${encodeURIComponent(selectedCompany.hr_email)}?subject=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(selectedCompany.generated_mail || "")}`;
+                            window.location.href = mailtoUrl;
+                          } else {
+                            const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(selectedCompany.hr_email)}&su=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(selectedCompany.generated_mail || "")}`;
+                            window.open(url, "_blank");
+                          }
                         }}
                       >
                         <GmailIcon />
