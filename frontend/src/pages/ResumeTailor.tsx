@@ -32,6 +32,7 @@ import {
   ExternalLink,
   Sparkles
 } from "lucide-react";
+import { FileUploadCard, UploadedFile } from "@/components/ui/file-upload-card";
 
 const validateResumeTextClient = (text: string): { isValid: boolean; error?: string } => {
   if (!text || text.trim().length < 150) {
@@ -106,6 +107,17 @@ export default function ResumeTailorPage() {
   const [selectedVaultId, setSelectedVaultId] = useState<string>(() => sessionStorage.getItem("rt_selectedVaultId") || "custom");
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  const uploadedFiles: UploadedFile[] = resumeFile
+    ? [
+        {
+          id: "tailor-resume-upload",
+          file: resumeFile,
+          progress: loading ? uploadProgress : 100,
+          status: loading ? "uploading" : "completed",
+        },
+      ]
+    : [];
   const [tailoredResult, setTailoredResult] = useState<string | null>(() => sessionStorage.getItem("rt_tailoredResult"));
   const [tailoring, setTailoring] = useState(false);
   const [tailoringDots, setTailoringDots] = useState("...");
@@ -410,6 +422,13 @@ export default function ResumeTailorPage() {
     }
   };
 
+  const handleFilesSelect = (selectedFiles: File[]) => {
+    const file = selectedFiles[0];
+    if (file) {
+      processResumeFile(file);
+    }
+  };
+
   const handleVaultSelect = (idStr: string) => {
     setSelectedVaultId(idStr);
     setResumeFile(null);
@@ -682,48 +701,40 @@ export default function ResumeTailorPage() {
                 </div>
               </div>
             ) : (
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`flex-1 border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none transition-all duration-200 ${
-                  isDragging 
-                    ? "border-success bg-[#fdfaf3]/80 scale-[1.01]" 
-                    : "border-success/35 hover:border-success bg-[#fdfaf3]/35 hover:bg-[#fdfaf3]/65"
-                }`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".txt,.pdf,.docx"
-                  className="hidden"
-                  onChange={handleFileUpload}
+              <div className="space-y-4 flex-1 flex flex-col">
+                <FileUploadCard
+                  files={uploadedFiles}
+                  onFilesChange={handleFilesSelect}
+                  onFileRemove={() => {
+                    setResumeFile(null);
+                    setResumeText(null);
+                    setSelectedVaultId("custom");
+                    setTailoredResult(null);
+                    setMatchedKeywords([]);
+                    setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
+                    setSources([]);
+                    setIsValidResume(null);
+                    setResumeValidationError(null);
+                    setMobileStep(1);
+                  }}
                 />
-                <div className="space-y-4">
-                  <UploadCloud className="h-8 w-8 text-success/70 mx-auto animate-bounce" />
-                  <div>
-                    <p className="text-[13px] font-bold text-foreground">Drag & drop your resume, or click to choose</p>
-                    <p className="text-[11px] text-muted-foreground mt-1">PDF, DOCX, TXT. Max 2MB.</p>
-                  </div>
 
-                  {resumes.length > 0 && (
-                    <div className="flex flex-col items-center gap-1.5 pt-1.5 max-w-xs mx-auto" onClick={(e) => e.stopPropagation()}>
-                      <select
-                        className="bg-white border border-border h-8 text-[11px] rounded-lg px-2.5 font-bold text-foreground/70 focus:outline-none focus:ring-1 focus:ring-success shadow-sm w-full cursor-pointer hover:border-success/50 transition"
-                        value={selectedVaultId}
-                        onChange={(e) => handleVaultSelect(e.target.value)}
-                      >
-                        <option value="custom">Or select from Vault...</option>
-                        {resumes.map((r) => (
-                          <option key={r.id} value={String(r.id)}>
-                            {r.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
+                {resumes.length > 0 && (
+                  <div className="flex flex-col items-center gap-1.5 pt-1.5 max-w-xs mx-auto" onClick={(e) => e.stopPropagation()}>
+                    <select
+                      className="bg-white border border-border h-8 text-[11px] rounded-lg px-2.5 font-bold text-foreground/70 focus:outline-none focus:ring-1 focus:ring-success shadow-sm w-full cursor-pointer hover:border-success/50 transition"
+                      value={selectedVaultId}
+                      onChange={(e) => handleVaultSelect(e.target.value)}
+                    >
+                      <option value="custom">Or select from Vault...</option>
+                      {resumes.map((r) => (
+                        <option key={r.id} value={String(r.id)}>
+                          {r.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             )
           ) : (

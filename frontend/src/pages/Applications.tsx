@@ -260,7 +260,7 @@ export default function ApplicationsPage() {
       setNewStage("saved");
       const defaultRes = resumes.find(r => r.is_default === 1);
       setNewResumeUsed(defaultRes ? String(defaultRes.id) : "");
-      toast({ title: "Success", description: "Application added successfully." });
+      toast({ title: "Stage Updated" });
     },
   });
 
@@ -306,7 +306,7 @@ export default function ApplicationsPage() {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
       setSelectedApp(null);
-      toast({ title: "Deleted", description: "Application removed from tracker." });
+      toast({ title: "Stage Updated" });
     },
   });
 
@@ -326,7 +326,6 @@ export default function ApplicationsPage() {
       updateMutation.mutate({ id, data: { stage: targetStage } });
       toast({
         title: "Stage Updated",
-        description: `Application moved to ${targetStage.toUpperCase()}`,
       });
     }
   };
@@ -552,7 +551,6 @@ export default function ApplicationsPage() {
                                   updateMutation.mutate({ id: app.id, data: { stage: prevStage } });
                                   toast({
                                     title: "Stage Updated",
-                                    description: `Moved ${app.company} to ${prevStage.toUpperCase()}`,
                                   });
                                 }
                               }}
@@ -576,7 +574,6 @@ export default function ApplicationsPage() {
                                   updateMutation.mutate({ id: app.id, data: { stage: nextStage } });
                                   toast({
                                     title: "Stage Updated",
-                                    description: `Moved ${app.company} to ${nextStage.toUpperCase()}`,
                                   });
                                 }
                               }}

@@ -364,8 +364,7 @@ export default function ContentScheduler() {
       setIsCreating(false);
       setNewTopic("");
       toast({
-        title: "✨ Scheduled Post Generated!",
-        description: "Your AI content post has been added to your daily scheduled queue.",
+        title: "Post Scheduled",
       });
     },
   });
@@ -388,7 +387,6 @@ export default function ContentScheduler() {
       setIsEditing(false);
       toast({
         title: "Post Updated",
-        description: "Your changes have been saved to the scheduled post.",
       });
     },
   });
@@ -408,7 +406,6 @@ export default function ContentScheduler() {
       setSelectedPost(null);
       toast({
         title: "Post Removed",
-        description: "Content post removed from your queue.",
       });
     },
   });
@@ -418,7 +415,6 @@ export default function ContentScheduler() {
     setIsPhoneModalOpen(false);
     toast({
       title: "WhatsApp Connected",
-      description: `Daily alerts will be sent to ${phoneInput}.`,
     });
   };
 

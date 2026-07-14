@@ -46,6 +46,7 @@ import {
   Edit2,
   Download
 } from "lucide-react";
+import { FileUploadCard, UploadedFile } from "@/components/ui/file-upload-card";
 
 export default function ResumeVaultPage() {
   const { toast } = useToast();
@@ -60,6 +61,17 @@ export default function ResumeVaultPage() {
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [resumeLabel, setResumeLabel] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  const uploadedFiles: UploadedFile[] = fileToUpload
+    ? [
+        {
+          id: "current-upload",
+          file: fileToUpload,
+          progress: isSaving ? 80 : 100,
+          status: isSaving ? "uploading" : "completed",
+        },
+      ]
+    : [];
 
   // Edit label state
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -196,6 +208,25 @@ export default function ResumeVaultPage() {
     setResumeLabel(baseName.split("_").join(" ").split("-").join(" "));
   };
 
+  const handleFilesSelect = (selectedFiles: File[]) => {
+    const file = selectedFiles[0];
+    if (!file) return;
+
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (ext !== "txt" && ext !== "pdf" && ext !== "docx") {
+      toast({
+        variant: "destructive",
+        title: "Unsupported File Format",
+        description: "Please upload a .pdf, .docx, or .txt file.",
+      });
+      return;
+    }
+
+    setFileToUpload(file);
+    const baseName = file.name.replace(/\.[^/.]+$/, "");
+    setResumeLabel(baseName.split("_").join(" ").split("-").join(" "));
+  };
+
   const handleSaveResume = async () => {
     if (!fileToUpload) return;
     if (!resumeLabel.trim()) {
@@ -270,28 +301,11 @@ export default function ResumeVaultPage() {
           </div>
 
           {/* Quick Uploader Dropzone */}
-          <div 
-            onClick={() => document.getElementById("vault-upload")?.click()}
-            className="border-2 border-dashed border-success/35 hover:border-success bg-[#fdfaf3]/35 hover:bg-[#fdfaf3]/65 p-6 text-center rounded-2xl cursor-pointer select-none transition duration-200"
-          >
-            <input
-              id="vault-upload"
-              type="file"
-              accept=".pdf,.docx,.txt"
-              className="hidden"
-              onChange={handleFileUpload}
-              onClick={(e) => {
-                (e.target as HTMLInputElement).value = "";
-              }}
-            />
-            <div className="space-y-2">
-              <UploadCloud className="h-6 w-6 text-success/70 mx-auto" />
-              <div>
-                <p className="text-[12px] font-bold text-foreground">Upload new version to Vault</p>
-                <p className="text-[9.5px] text-muted-foreground mt-0.5">PDF, DOCX, TXT. Max 2MB.</p>
-              </div>
-            </div>
-          </div>
+          <FileUploadCard
+            files={uploadedFiles}
+            onFilesChange={handleFilesSelect}
+            onFileRemove={() => setFileToUpload(null)}
+          />
 
           {/* Stored Versions List Card */}
           <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-[var(--shadow-card)] flex flex-col flex-1 min-h-[300px]">

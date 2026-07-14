@@ -228,8 +228,7 @@ export default function JobSearchPage() {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
       toast({
-        title: "Added to Tracker",
-        description: `Successfully added ${variables.role} at ${variables.company} under "Saved".`,
+        title: "Stage Updated",
       });
     },
     onError: (err) => {
@@ -248,8 +247,7 @@ export default function JobSearchPage() {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
       toast({
-        title: "Removed from Tracker",
-        description: "Successfully removed the job from your pipeline.",
+        title: "Stage Updated",
       });
     },
     onError: (err) => {
@@ -287,8 +285,7 @@ export default function JobSearchPage() {
       setScrapedJobs(res.jobs);
       setIsLiveScrape(res.isLive);
       toast({
-        title: "Search Complete",
-        description: `Found ${res.jobs.length} relevant listings from top boards.`,
+        title: "Job search updated",
       });
     } catch (err: any) {
       const errStr = String(err);

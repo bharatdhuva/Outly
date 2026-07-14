@@ -7,22 +7,22 @@
 
 @layer base {
   :root {
-    --background: 214 45% 98%;
+    --background: 40 46% 96%;
     --foreground: 223 47% 13%;
 
-    --card: 0 0% 100%;
+    --card: 40 35% 98.5%;
     --card-foreground: 223 47% 13%;
 
-    --popover: 0 0% 100%;
+    --popover: 40 35% 98.5%;
     --popover-foreground: 223 47% 13%;
 
     --primary: 159 62% 46%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 216 33% 97%;
+    --secondary: 40 33% 94%;
     --secondary-foreground: 223 47% 13%;
 
-    --muted: 216 33% 96%;
+    --muted: 40 33% 93%;
     --muted-foreground: 220 13% 46%;
 
     --accent: 159 62% 96%;
@@ -40,23 +40,23 @@
     --info: 217 91% 56%;
     --info-foreground: 0 0% 100%;
 
-    --border: 220 26% 90%;
-    --input: 220 26% 90%;
+    --border: 40 16% 82%;
+    --input: 40 16% 82%;
     --ring: 159 62% 46%;
 
     --radius: 0.625rem;
 
-    --sidebar-background: 0 0% 100%;
+    --sidebar-background: 40 35% 98.5%;
     --sidebar-foreground: 220 13% 46%;
     --sidebar-primary: 159 62% 46%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 159 62% 96%;
     --sidebar-accent-foreground: 159 62% 35%;
-    --sidebar-border: 220 26% 90%;
+    --sidebar-border: 40 16% 82%;
     --sidebar-ring: 159 62% 46%;
 
     --gradient-primary: linear-gradient(135deg, hsl(159 62% 46%), hsl(165 70% 40%));
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(216 33% 98%));
+    --gradient-card: linear-gradient(180deg, hsl(40 35% 99.5%), hsl(40 30% 97.5%));
     --shadow-glow: 0 10px 35px hsl(159 62% 46% / 0.15);
     --shadow-card: 0 18px 45px hsl(223 47% 13% / 0.08), 0 2px 8px hsl(223 47% 13% / 0.04);
   }
@@ -73,9 +73,17 @@
   }
 
   html, body {
-    @apply bg-background text-foreground font-sans antialiased;
+    background:
+      radial-gradient(circle at 90% 10%, rgba(25, 204, 149, 0.08), transparent 40%),
+      radial-gradient(circle at 10% 90%, rgba(89, 37, 220, 0.06), transparent 45%),
+      #FAF6EE;
+    @apply text-foreground font-sans antialiased;
     overflow-x: clip;
     width: 100%;
+  }
+
+  .bg-card {
+    box-shadow: 0 4px 20px -2px rgba(78, 56, 24, 0.08), 0 2px 8px -1px rgba(78, 56, 24, 0.04) !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -1550,4 +1558,14 @@ body {
     opacity: 0;
   }
 }
+
+@keyframes moveBackground {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 0% -1000%;
+  }
+}
+
 

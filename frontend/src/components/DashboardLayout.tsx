@@ -462,10 +462,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-outly-dark flex flex-col font-sans overflow-x-clip">
+    <div className="min-h-screen bg-transparent text-outly-dark flex flex-col font-sans overflow-x-clip">
       
       {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-      <header className="sticky top-0 z-[100] w-full border-b border-[#e8e2d5] bg-white/95 backdrop-blur-md shadow-sm shrink-0 select-none">
+      <header className="sticky top-0 z-[100] w-full border-b border-border/60 bg-background/90 backdrop-blur-md shadow-sm shrink-0 select-none">
         <div className="flex h-16 w-full items-center justify-between px-8 sm:px-10 lg:px-12">
           
           {/* Left: Brand Logo */}
@@ -1052,7 +1052,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* ─── MOBILE BOTTOM TAB BAR ─── */}
-      <div className="md:hidden sticky bottom-0 z-[100] w-full h-16 bg-white border-t border-[#e8e2d5] flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
+      <div className="md:hidden sticky bottom-0 z-[100] w-full h-16 bg-background/90 backdrop-blur-md border-t border-border/60 flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
         
         {/* Tab 1: Resumes */}
         <Link 

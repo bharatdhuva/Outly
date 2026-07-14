@@ -29,6 +29,7 @@ import {
   Lock,
   ChevronRight
 } from "lucide-react";
+import { FileUploadCard, UploadedFile } from "@/components/ui/file-upload-card";
 
 export default function AtsScorePage() {
   const { toast } = useToast();
@@ -53,6 +54,17 @@ export default function AtsScorePage() {
   const [selectedVaultId, setSelectedVaultId] = useState<string>("custom");
   const [isDragging, setIsDragging] = useState(false);
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
+
+  const uploadedFiles: UploadedFile[] = resumeFile
+    ? [
+        {
+          id: "ats-resume-upload",
+          file: resumeFile,
+          progress: parsingFile ? uploadProgress : 100,
+          status: parsingFile ? "uploading" : "completed",
+        },
+      ]
+    : [];
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [unlockAtTime, setUnlockAtTime] = useState<string | null>(null);
   const [countdownText, setCountdownText] = useState("");
@@ -367,6 +379,13 @@ export default function AtsScorePage() {
     }
   };
 
+  const handleFilesSelect = (selectedFiles: File[]) => {
+    const file = selectedFiles[0];
+    if (file) {
+      processResumeFile(file);
+    }
+  };
+
   // Trigger evaluation scan with loader simulation
   const triggerAtsScan = async (resumeText: string) => {
     if (isLimitExceeded) {
@@ -449,7 +468,6 @@ export default function AtsScorePage() {
       } else {
         toast({
           title: "Uploaded successfully",
-          description: `ATS Match Score: ${data.score}/100`,
         });
       }
     } catch (err) {
@@ -649,70 +667,42 @@ export default function AtsScorePage() {
                 </div>
               </div>
             ) : (
-              /* Upload Dropzone Box with Dotted Border - supporting Drag and Drop */
-              <div 
-                onClick={() => document.getElementById("resume-upload-input")?.click()}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed p-5 sm:p-10 text-center rounded-2xl cursor-pointer select-none transition-all duration-200 ${
-                  isDragging 
-                    ? "border-success bg-[#fdfaf3]/80 scale-[1.01]" 
-                    : "border-success/35 hover:border-success bg-[#fdfaf3]/35 hover:bg-[#fdfaf3]/65"
-                }`}
-              >
-                <input
-                  id="resume-upload-input"
-                  type="file"
-                  accept=".txt,.pdf,.docx"
-                  className="hidden"
-                  onChange={handleFileUpload}
+              <div className="space-y-4">
+                <FileUploadCard
+                  files={uploadedFiles}
+                  onFilesChange={handleFilesSelect}
+                  onFileRemove={() => {
+                    setResumeFile(null);
+                    setResumeFileName("");
+                    setResume("");
+                    setResult(null);
+                  }}
                 />
-                
-                <div className="space-y-3 sm:space-y-4">
-                  <div className="space-y-1.5">
-                    <p className="text-[14px] sm:text-[15px] font-bold text-foreground">
-                      Drag & drop your resume here, or click to choose a file.
-                    </p>
-                    <p className="text-[11px] text-muted-foreground font-medium">
-                      PDF & DOCX only. Max 2MB file size.
-                    </p>
+
+                {/* Inline Vault Resume Selector */}
+                {resumes.length > 0 && (
+                  <div className="flex flex-col items-center gap-1.5 pt-2 max-w-xs mx-auto" onClick={(e) => e.stopPropagation()}>
+                    <span className="text-[10px] font-extrabold uppercase text-muted-foreground">Or select from Vault</span>
+                    <select
+                      id="vault-select-trigger"
+                      className="bg-white border border-border h-8 text-[11px] rounded-lg px-2 font-bold text-foreground/70 focus:outline-none focus:ring-1 focus:ring-success shadow-sm w-full cursor-pointer hover:border-success/50 transition"
+                      value={selectedVaultId}
+                      onChange={(e) => handleVaultSelect(e.target.value)}
+                    >
+                      <option value="custom">Select a resume...</option>
+                      {resumes.map((r) => (
+                        <option key={r.id} value={String(r.id)}>
+                          {r.label} ({r.filename.split(".").pop()?.toUpperCase()})
+                        </option>
+                      ))}
+                    </select>
                   </div>
- 
-                  <Button 
-                    type="button"
-                    disabled={parsingFile}
-                    className="bg-outly-accent hover:brightness-110 text-white text-xs font-bold tracking-normal px-5 py-2.5 rounded-full shadow-md shadow-outly-accent/15 active:scale-[0.98] transition h-9 shrink-0 gap-1.5 cursor-pointer max-w-full truncate"
-                  >
-                    {parsingFile && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    {parsingFile ? "Uploading..." : "Upload Your Resume"}
-                  </Button>
- 
-                  {/* Inline Vault Resume Selector */}
-                  {resumes.length > 0 && (
-                    <div className="flex flex-col items-center gap-1.5 pt-2 max-w-xs mx-auto" onClick={(e) => e.stopPropagation()}>
-                      <span className="text-[10px] font-extrabold uppercase text-muted-foreground">Or select from Vault</span>
-                      <select
-                        id="vault-select-trigger"
-                        className="bg-white border border-border h-8 text-[11px] rounded-lg px-2 font-bold text-foreground/70 focus:outline-none focus:ring-1 focus:ring-success shadow-sm w-full cursor-pointer hover:border-success/50 transition"
-                        value={selectedVaultId}
-                        onChange={(e) => handleVaultSelect(e.target.value)}
-                      >
-                        <option value="custom">Select a resume...</option>
-                        {resumes.map((r) => (
-                          <option key={r.id} value={String(r.id)}>
-                            {r.label} ({r.filename.split(".").pop()?.toUpperCase()})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
- 
-                  {/* Privacy terms guarantee (as requested) */}
-                  <div className="text-muted-foreground/60 text-[11px] font-semibold flex items-center justify-center gap-1.5 pt-1">
-                    <Lock className="w-3.5 h-3.5 shrink-0 text-muted-foreground/40" />
-                    <span>Your resume and website data is completely safe.</span>
-                  </div>
+                )}
+
+                {/* Privacy terms guarantee (as requested) */}
+                <div className="text-muted-foreground/60 text-[11px] font-semibold flex items-center justify-center gap-1.5 pt-1">
+                  <Lock className="w-3.5 h-3.5 shrink-0 text-muted-foreground/40" />
+                  <span>Your resume and website data is completely safe.</span>
                 </div>
               </div>
             )
