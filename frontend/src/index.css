@@ -1556,4 +1556,40 @@ body {
   }
 }
 
+/* High performance scroll transitions (run completely on GPU) */
+.mobile-scroll-header {
+  height: 4rem; /* h-16 */
+}
+.mobile-scroll-header-inner {
+  height: 4rem; /* h-16 */
+}
+
+@media (max-width: 767px) {
+  body.scrolled-header .mobile-scroll-header {
+    height: 2.75rem !important; /* h-11 */
+  }
+  body.scrolled-header .mobile-scroll-header-inner {
+    height: 2.75rem !important; /* h-11 */
+  }
+  body.scrolled-header .mobile-scroll-logo {
+    width: 1.5rem !important; /* w-6 */
+    object-fit: cover !important;
+    object-position: left !important;
+  }
+  body.scrolled-header .mobile-scroll-bell {
+    width: 17px !important;
+    height: 17px !important;
+  }
+  body.scrolled-header .mobile-avatar {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    font-size: 9px !important;
+  }
+  
+  /* Sticky tabs in MobileHub.tsx transition tops smoothly on compositor */
+  body.scrolled-header .sticky-tabs-container {
+    top: 2.75rem !important; /* top-11 */
+  }
+}
+
 

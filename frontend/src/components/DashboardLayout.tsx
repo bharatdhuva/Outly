@@ -120,14 +120,22 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      const isScrolled = window.scrollY > 50;
+      if (isScrolled) {
+        document.body.classList.add("scrolled-header");
+      } else {
+        document.body.classList.remove("scrolled-header");
+      }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.body.classList.remove("scrolled-header");
+    };
   }, []);
 
   // 1. Enforce authentication checking
@@ -476,12 +484,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       {/* Header Spacer Wrapper to prevent layout shift */}
       <div className="h-16 w-full shrink-0 relative">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className={`fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#e8e2d5]/60 bg-[#FAF6EE]/85 backdrop-blur-md shadow-xs shrink-0 select-none transition-[height] duration-150 ease-out ${
-          scrolled ? "h-11 md:h-16" : "h-16"
-        }`}>
-        <div className={`flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 transition-[height] duration-150 ease-out ${
-          scrolled ? "h-11 md:h-16" : "h-16"
-        }`}>
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#e8e2d5]/60 bg-[#FAF6EE]/85 backdrop-blur-md shadow-xs shrink-0 select-none transition-[height] duration-150 ease-out h-16 mobile-scroll-header">
+        <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 transition-[height] duration-150 ease-out h-16 mobile-scroll-header-inner">
           
           {/* Left: Brand Logo */}
           <div className="flex h-full items-center gap-12">
@@ -489,9 +493,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <img 
                 src={logoTransparent} 
                 alt="Outly Logo" 
-                className={`h-[22px] md:h-7 -translate-y-px transition-[width,height] duration-150 ease-out ${
-                  scrolled ? "w-6 object-cover object-left md:w-auto md:object-contain" : "w-auto object-contain"
-                }`} 
+                className="h-[22px] md:h-7 -translate-y-px transition-[width,height] duration-150 ease-out w-auto object-contain mobile-scroll-logo"
               />
             </Link>
 
@@ -945,7 +947,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 className="relative p-2 text-zinc-500 active:scale-95 transition-all outline-none"
                 onClick={() => setNotificationsOpen(prev => !prev)}
               >
-                <Bell className={`transition-[width,height] duration-150 ease-out ${scrolled ? "h-[17px] w-[17px]" : "h-[21px] w-[21px]"}`} />
+                <Bell className="transition-[width,height] duration-150 ease-out h-[21px] w-[21px] mobile-scroll-bell" />
                 {unreadCount > 0 && (
                   <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white leading-none">
                     {unreadCount}
@@ -1005,7 +1007,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   profilePic={profilePic} 
                   fullName={fullName} 
                   initials={initials} 
-                  sizeClass={`transition-[width,height] duration-150 ease-out ${scrolled ? "h-6 w-6 text-[9px]" : "h-8 w-8 text-[11px]"}`}
+                  sizeClass="h-8 w-8 text-[11px] mobile-avatar transition-[width,height,font-size] duration-150 ease-out"
                 />
               </button>
 
