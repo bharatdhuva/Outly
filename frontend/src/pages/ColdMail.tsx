@@ -541,28 +541,22 @@ export default function ColdMailPage() {
             }`}
           >
             <span>CSV Bulk Import</span>
-            <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">
-              Coming Soon
-            </span>
           </button>
         </div>
 
         {mainMode === "csv" ? (
-          <div className="rounded-2xl border border-border bg-white p-12 text-center max-w-xl mx-auto my-8 shadow-sm">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 mb-4 border border-amber-500/20">
-              <Upload className="h-8 w-8" />
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 text-xs font-semibold mb-3 border border-amber-500/20">
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Feature In Development</span>
-            </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">CSV Bulk Outreach (Coming Soon)</h3>
-            <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed mb-6">
-              Automated CSV bulk import and multi-company campaign scheduling is coming soon. Use Manual Outreach to manage and personalize your leads.
+          <div className="w-full flex flex-col items-center justify-center mt-2 md:mt-6 mb-8 px-6 md:px-0">
+            <dotlottie-wc
+              src="https://lottie.host/675a6e97-8b37-4b95-925a-fe86629539f8/xtVl1jJ2z3.lottie"
+              style={{ width: 'min(92vw, 420px)', height: 'min(92vw, 420px)' }}
+              autoplay
+              loop
+            />
+            <h3 className="mt-6 text-2xl font-bold text-foreground">CSV Bulk Outreach</h3>
+            <p className="mt-2 text-sm text-muted-foreground max-w-2xl text-center leading-relaxed px-2">
+              We're polishing CSV import & campaign scheduling. Coming soon — streamlined bulk outreach to scale your campaigns.
             </p>
-            <Button disabled variant="outline" className="gap-2 cursor-not-allowed opacity-60 rounded-full">
-              <Upload className="h-4 w-4" /> Upload CSV (Locked)
-            </Button>
+            {/* Notify button removed per design — simple coming soon layout */}
           </div>
         ) : (
           <>
