@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Lock, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -58,6 +58,19 @@ export default function LimitReachedModal() {
       return () => clearTimeout(timer);
     }
   }, [showSuccess]);
+
+  // Clear any lingering success state when the route changes to avoid
+  // accidentally showing the payment animation on unrelated pages (e.g., Cold Mail).
+  const location = useLocation();
+  useEffect(() => {
+    if (showSuccess) {
+      setShowSuccess(false);
+    }
+    if (open) {
+      setOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   const handleRazorpayPayment = async () => {
     try {
