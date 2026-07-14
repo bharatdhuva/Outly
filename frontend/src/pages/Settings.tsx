@@ -388,7 +388,7 @@ export default function SettingsPage() {
                 <Input 
                   value={form.experience} 
                   onChange={(e) => updateField("experience", e.target.value)} 
-                  placeholder="e.g. 3rd year CS student at MSU Baroda"
+                  placeholder="e.g. 2 years in web development, CS graduate"
                   className="h-10 text-xs rounded-xl"
                 />
               </div>
