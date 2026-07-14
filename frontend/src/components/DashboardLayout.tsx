@@ -465,7 +465,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-transparent text-outly-dark flex flex-col font-sans overflow-x-clip">
       
       {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-      <header className="sticky top-0 z-[100] w-full border-b border-border/60 bg-background/90 backdrop-blur-md shadow-sm shrink-0 select-none">
+      <header className="sticky top-0 z-[100] w-full border-b border-[#e8e2d5]/60 bg-[#FAF6EE]/85 backdrop-blur-md shadow-xs shrink-0 select-none">
         <div className="flex h-16 w-full items-center justify-between px-8 sm:px-10 lg:px-12">
           
           {/* Left: Brand Logo */}
@@ -809,7 +809,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </button>
               
               {notificationsOpen && (
-                <div className="absolute right-0 top-full mt-2.5 w-[300px] rounded-2xl bg-white border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2 animate-in fade-in-0 zoom-in-95">
+                <div className="absolute right-0 top-full mt-2.5 w-[300px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2 animate-in fade-in-0 zoom-in-95">
                   <div className="px-4 py-2 border-b border-zinc-100 flex items-center justify-between">
                     <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
                     {unreadCount > 0 && (
@@ -933,7 +933,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </button>
               
               {notificationsOpen && (
-                <div className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-white border border-zinc-100 font-sans shadow-[0_12px_36px_rgba(0,0,0,0.08)] z-[125] py-2.5 animate-in fade-in-0 zoom-in-95">
+                <div className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2.5 animate-in fade-in-0 zoom-in-95">
                   <div className="px-4 pb-2 border-b border-zinc-50 flex items-center justify-between">
                     <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
                     {unreadCount > 0 && (
@@ -1052,7 +1052,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* ─── MOBILE BOTTOM TAB BAR ─── */}
-      <div className="md:hidden sticky bottom-0 z-[100] w-full h-16 bg-background/90 backdrop-blur-md border-t border-border/60 flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
+      <div className="md:hidden sticky bottom-0 z-[100] w-full h-16 bg-[#FAF6EE]/85 backdrop-blur-md border-t border-[#e8e2d5]/60 flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
         
         {/* Tab 1: Resumes */}
         <Link 
@@ -1166,7 +1166,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       {/* ─── INTERACTIVE EDUCATIONAL GUIDE DIALOG (ENHANCV STYLE) ─── */}
       <Dialog open={activeGuide !== null} onOpenChange={(open) => { if (!open) setActiveGuide(null); }}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[540px] border-outly-border bg-white rounded-2xl p-6 shadow-2xl select-none">
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[540px] border-outly-border bg-card rounded-2xl p-6 shadow-2xl select-none">
           {activeGuide && guidesData[activeGuide] && (
             <>
               <DialogHeader className="space-y-2 border-b border-outly-border pb-4 text-left">

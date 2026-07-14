@@ -174,27 +174,8 @@
     position: relative;
     overflow: hidden;
     width: 100%;
-  }
-
-  .slider-mask::before,
-  .slider-mask::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    width: 90px;
-    height: 100%;
-    z-index: 10;
-    pointer-events: none;
-  }
-
-  .slider-mask::before {
-    left: 0;
-    background: linear-gradient(to right, white 0%, transparent 100%);
-  }
-
-  .slider-mask::after {
-    right: 0;
-    background: linear-gradient(to left, white 0%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 90px, black calc(100% - 90px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 90px, black calc(100% - 90px), transparent 100%);
   }
 
   .animate-marquee {

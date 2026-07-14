@@ -79,27 +79,33 @@ function CompanyLogo({ company, source }: { company: string; source: string }) {
     }
   };
 
-  if (fallbackStage === 3) {
-    const initial = company.charAt(0).toUpperCase();
-    const colors = [
-      "bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", 
-      "bg-indigo-500", "bg-purple-500", "bg-pink-500", "bg-orange-500"
-    ];
-    const colorIdx = initial.charCodeAt(0) % colors.length;
+  const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (img.naturalWidth <= 1) {
+      handleErr();
+    }
+  };
+
+  // If fallbackStage is 3 (all URL fetches failed) or the company name is empty/invalid,
+  // render the beautiful Office/Building SVG icon.
+  if (fallbackStage === 3 || !cleaned) {
     return (
-      <div className={`w-10 h-10 rounded-full ${colors[colorIdx]} text-white flex items-center justify-center font-bold text-base shrink-0 shadow-sm uppercase`}>
-        {initial}
+      <div className="w-10 h-10 rounded-xl bg-[#FAF6EE] text-muted-foreground/70 border border-[#e8e2d5] flex items-center justify-center shrink-0 shadow-3xs">
+        <Building className="h-5 w-5 stroke-[1.8] text-outly-accent" />
       </div>
     );
   }
 
   return (
-    <img 
-      src={src} 
-      alt={company} 
-      className="h-10 w-10 object-contain shrink-0 mix-blend-multiply" 
-      onError={handleErr}
-    />
+    <div className="w-10 h-10 rounded-xl bg-white border border-[#e8e2d5]/60 flex items-center justify-center overflow-hidden shrink-0 shadow-3xs">
+      <img 
+        src={src} 
+        alt={company} 
+        className="h-8 w-8 object-contain shrink-0" 
+        onLoad={handleLoad}
+        onError={handleErr}
+      />
+    </div>
   );
 }
 
@@ -280,6 +286,7 @@ export default function JobSearchPage() {
     }
 
     setIsScraping(true);
+    setScrapedJobs([]);
     try {
       const res = await api.scraper.jobs(scrapeRole, scrapeLocation, "");
       setScrapedJobs(res.jobs);
@@ -392,7 +399,7 @@ export default function JobSearchPage() {
               placeholder="e.g. React Developer"
               value={scrapeRole}
               onChange={(e) => setScrapeRole(e.target.value)}
-              className="bg-white border-border text-xs h-9 focus-visible:ring-primary placeholder:text-muted-foreground/60 rounded-lg shadow-sm"
+              className="bg-card border-border text-xs h-9 focus-visible:ring-primary placeholder:text-muted-foreground/60 rounded-lg shadow-sm"
             />
           </div>
 
@@ -404,7 +411,7 @@ export default function JobSearchPage() {
               placeholder="e.g. Bengaluru / Remote"
               value={scrapeLocation}
               onChange={(e) => setScrapeLocation(e.target.value)}
-              className="bg-white border-border text-xs h-9 focus-visible:ring-primary placeholder:text-muted-foreground/60 rounded-lg shadow-sm"
+              className="bg-card border-border text-xs h-9 focus-visible:ring-primary placeholder:text-muted-foreground/60 rounded-lg shadow-sm"
             />
           </div>
 
@@ -477,7 +484,35 @@ export default function JobSearchPage() {
           )}
         </div>
 
-        {scrapedJobs.length === 0 ? (
+        {isScraping ? (
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((n) => (
+              <div 
+                key={n}
+                className="bg-card border border-border/50 rounded-[28px] p-6 shadow-xs min-h-[300px] flex flex-col justify-between animate-pulse"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 bg-secondary rounded-full" />
+                    <div className="w-16 h-6 bg-secondary rounded-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-secondary rounded w-3/4" />
+                    <div className="h-3 bg-secondary rounded w-1/2" />
+                  </div>
+                  <div className="space-y-1.5 pt-2">
+                    <div className="h-3 bg-secondary rounded w-5/6" />
+                    <div className="h-3 bg-secondary rounded w-4/5" />
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-border/40 flex items-center justify-between">
+                  <div className="h-3 bg-secondary rounded w-1/4" />
+                  <div className="h-6 bg-secondary rounded w-1/5" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : scrapedJobs.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center text-muted-foreground min-h-[300px] flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
             <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-muted-foreground mb-4 animate-pulse">
               <Search className="h-6 w-6" />
@@ -530,7 +565,7 @@ export default function JobSearchPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-white border border-border/50 rounded-[28px] p-6 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between min-h-[300px] text-left animate-pop-in space-y-5"
+                  className="bg-card border border-border/50 rounded-[28px] p-6 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between min-h-[300px] text-left animate-pop-in space-y-5"
                 >
                   <div className="space-y-4">
                     {/* Top Row: Circular Logo & Save/Saved button */}
@@ -555,7 +590,7 @@ export default function JobSearchPage() {
                         <button
                           onClick={() => handleTrackJob(job)}
                           disabled={trackJobMutation.isPending}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/80 text-[10.5px] font-bold text-muted-foreground bg-white hover:bg-secondary/40 active:scale-[0.97] transition-all cursor-pointer shadow-3xs"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/80 text-[10.5px] font-bold text-muted-foreground bg-card hover:bg-secondary/60 active:scale-[0.97] transition-all cursor-pointer shadow-3xs"
                         >
                           <Bookmark className="w-3.5 h-3.5 shrink-0" />
                           <span>Save</span>

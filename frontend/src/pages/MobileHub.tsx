@@ -95,9 +95,9 @@ export default function MobileHub({ category }: MobileHubProps) {
   }
 
   return (
-    <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full flex flex-col font-sans text-outly-dark animate-fade-in text-left bg-white">
+    <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full flex flex-col font-sans text-outly-dark animate-fade-in text-left bg-transparent">
       {/* Tab bar header */}
-      <div className="sticky top-16 z-30 bg-white border-b border-[#e8e2d5]/60 px-6 pt-3 select-none shadow-sm">
+      <div className="sticky top-16 z-30 bg-[#FAF6EE]/85 backdrop-blur-md border-b border-[#e8e2d5]/60 px-6 pt-3 select-none shadow-xs">
         <div 
           className="flex gap-6 overflow-x-auto -mx-6 px-6"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}

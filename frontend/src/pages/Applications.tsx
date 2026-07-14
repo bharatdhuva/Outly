@@ -94,27 +94,31 @@ function CompanyLogo({ company }: { company: string }) {
     }
   };
 
-  if (fallbackStage === 2) {
-    const initial = company.charAt(0).toUpperCase();
-    const colors = [
-      "bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", 
-      "bg-indigo-500", "bg-purple-500", "bg-pink-500", "bg-orange-500"
-    ];
-    const colorIdx = initial.charCodeAt(0) % colors.length;
+  const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (img.naturalWidth <= 1) {
+      handleErr();
+    }
+  };
+
+  if (fallbackStage === 2 || !cleaned) {
     return (
-      <div className={`w-8 h-8 rounded-full ${colors[colorIdx]} text-white flex items-center justify-center font-bold text-[11px] shrink-0 shadow-sm uppercase`}>
-        {initial}
+      <div className="w-8 h-8 rounded-lg bg-[#FAF6EE] text-muted-foreground/70 border border-[#e8e2d5] flex items-center justify-center shrink-0 shadow-3xs">
+        <Building className="h-4 w-4 stroke-[1.8] text-outly-accent" />
       </div>
     );
   }
 
   return (
-    <img 
-      src={src} 
-      alt={company} 
-      className="h-8 w-8 object-contain shrink-0 mix-blend-multiply" 
-      onError={handleErr}
-    />
+    <div className="w-8 h-8 rounded-lg bg-white border border-[#e8e2d5]/60 flex items-center justify-center overflow-hidden shrink-0 shadow-3xs">
+      <img 
+        src={src} 
+        alt={company} 
+        className="h-6 w-6 object-contain shrink-0" 
+        onLoad={handleLoad}
+        onError={handleErr}
+      />
+    </div>
   );
 }
 
@@ -324,9 +328,8 @@ export default function ApplicationsPage() {
     const id = e.dataTransfer.getData("text/plain");
     if (id) {
       updateMutation.mutate({ id, data: { stage: targetStage } });
-      toast({
-        title: "Stage Updated",
-      });
+      setActiveStageTab(targetStage);
+      toast({ title: "Stage Updated" });
     }
   };
 
@@ -467,7 +470,7 @@ export default function ApplicationsPage() {
                         draggable
                         onDragStart={(e) => handleDragStart(e, app.id)}
                         onClick={() => setSelectedApp(app)}
-                        className="group cursor-grab active:cursor-grabbing rounded-[24px] border border-border/50 bg-white p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-left animate-pop-in relative flex flex-col justify-between min-h-[180px] space-y-4"
+                        className="group cursor-grab active:cursor-grabbing rounded-[24px] border border-border/50 bg-card p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-left animate-pop-in relative flex flex-col justify-between min-h-[180px] space-y-4"
                       >
                         <div className="space-y-3">
                           {/* Top Row: Standalone Logo & Actions */}
@@ -549,9 +552,8 @@ export default function ApplicationsPage() {
                                 if (currentIndex > 0) {
                                   const prevStage = STAGES[currentIndex - 1].id;
                                   updateMutation.mutate({ id: app.id, data: { stage: prevStage } });
-                                  toast({
-                                    title: "Stage Updated",
-                                  });
+                                  setActiveStageTab(prevStage);
+                                  toast({ title: "Stage Updated" });
                                 }
                               }}
                             >
@@ -572,9 +574,8 @@ export default function ApplicationsPage() {
                                 if (currentIndex < STAGES.length - 1) {
                                   const nextStage = STAGES[currentIndex + 1].id;
                                   updateMutation.mutate({ id: app.id, data: { stage: nextStage } });
-                                  toast({
-                                    title: "Stage Updated",
-                                  });
+                                  setActiveStageTab(nextStage);
+                                  toast({ title: "Stage Updated" });
                                 }
                               }}
                             >
@@ -603,7 +604,7 @@ export default function ApplicationsPage() {
       {selectedApp && (
         <>
           <div className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-xs" onClick={handleCloseDetails} />
-          <aside className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md border-l border-border bg-white p-6 shadow-2xl overflow-y-auto animate-slide-in text-left font-sans">
+          <aside className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md border-l border-border bg-card p-6 shadow-2xl overflow-y-auto animate-slide-in text-left font-sans">
             <div className="flex items-center justify-between border-b border-border/40 pb-4 mb-5">
               <div>
                 <span className="text-[10px] font-extrabold text-primary uppercase tracking-wider block">Application Details</span>
@@ -762,7 +763,7 @@ export default function ApplicationsPage() {
                   type="text"
                   required
                   placeholder="e.g. Stripe"
-                  className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                  className="w-full rounded-lg border border-border bg-card p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                   value={newCompany}
                   onChange={(e) => setNewCompany(e.target.value)}
                 />
@@ -774,7 +775,7 @@ export default function ApplicationsPage() {
                   type="text"
                   required
                   placeholder="e.g. Engineer"
-                  className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                  className="w-full rounded-lg border border-border bg-card p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value)}
                 />
@@ -787,7 +788,7 @@ export default function ApplicationsPage() {
               <input
                 type="url"
                 placeholder="e.g. https://careers.stripe.com/..."
-                className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                className="w-full rounded-lg border border-border bg-card p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
                 value={newJdUrl}
                 onChange={(e) => setNewJdUrl(e.target.value)}
               />
@@ -800,7 +801,7 @@ export default function ApplicationsPage() {
                 <select
                   value={newStage}
                   onChange={(e) => setNewStage(e.target.value as any)}
-                  className="w-full rounded-lg border border-border bg-white p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs cursor-pointer h-9"
+                  className="w-full rounded-lg border border-border bg-card p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs cursor-pointer h-9"
                 >
                   {STAGES.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -815,7 +816,7 @@ export default function ApplicationsPage() {
                 <select
                   value={newResumeUsed}
                   onChange={(e) => setNewResumeUsed(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-white p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs cursor-pointer h-9"
+                  className="w-full rounded-lg border border-border bg-card p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs cursor-pointer h-9"
                 >
                   <option value="">Select Resume...</option>
                   {resumes.map((r) => (
@@ -850,17 +851,20 @@ export default function ApplicationsPage() {
 
       {/* DELETE APPLICATION ALERT DIALOG */}
       <AlertDialog open={!!deleteAppTarget} onOpenChange={(open) => !open && setDeleteAppTarget(null)}>
-        <AlertDialogContent className="border-border bg-card">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Application Card?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete <strong className="text-foreground">"{deleteAppTarget?.company} — {deleteAppTarget?.role}"</strong>? This action cannot be undone.
+        <AlertDialogContent className="border-border bg-card max-w-xs p-4 rounded-2xl gap-0">
+          <AlertDialogHeader className="pb-0 space-y-0">
+            <AlertDialogTitle className="sr-only">Delete confirmation</AlertDialogTitle>
+            <AlertDialogDescription className="flex items-center gap-2.5 text-sm font-semibold text-foreground">
+              <span className="flex items-center justify-center h-8 w-8 rounded-full bg-destructive/10 shrink-0">
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </span>
+              Delete this application?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
+          <div className="flex items-center gap-2 mt-4">
+            <AlertDialogCancel className="flex-1 h-9 rounded-xl text-xs font-semibold m-0">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
+              className="flex-1 h-9 rounded-xl text-xs font-semibold bg-destructive text-destructive-foreground hover:bg-destructive/90 m-0"
               onClick={() => {
                 if (deleteAppTarget) {
                   deleteMutation.mutate(deleteAppTarget.id);
@@ -869,9 +873,9 @@ export default function ApplicationsPage() {
                 }
               }}
             >
-              Delete Application
+              Delete
             </AlertDialogAction>
-          </AlertDialogFooter>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
 

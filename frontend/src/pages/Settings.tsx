@@ -118,7 +118,7 @@ function SettingsSkeleton() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Card 1 Skeleton */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 sm:p-6 space-y-6">
+        <div className="rounded-2xl border border-slate-100 bg-card p-4 sm:p-6 space-y-6">
           <div className="h-4 w-40 bg-slate-200 rounded-lg pb-2 border-b border-slate-100" />
           <div className="space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -131,7 +131,7 @@ function SettingsSkeleton() {
         </div>
 
         {/* Card 2 Skeleton */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 sm:p-6 space-y-6 flex flex-col justify-between">
+        <div className="rounded-2xl border border-slate-100 bg-card p-4 sm:p-6 space-y-6 flex flex-col justify-between">
           <div className="space-y-6">
             <div className="h-4 w-40 bg-slate-200 rounded-lg pb-2 border-b border-slate-100" />
             <div className="space-y-2">
@@ -344,7 +344,7 @@ export default function SettingsPage() {
         <div className="grid gap-6 lg:grid-cols-2">
           
           {/* Profile & Target Career Context */}
-          <div className="rounded-2xl border border-border bg-white p-4 sm:p-6 shadow-sm space-y-5">
+          <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm space-y-5">
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
               <User className="h-4 w-4 text-outly-accent" />
               <h2 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/80">
@@ -406,7 +406,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Integrations & Account */}
-          <div className="rounded-2xl border border-border bg-white p-4 sm:p-6 shadow-sm space-y-5 flex flex-col justify-between">
+          <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm space-y-5 flex flex-col justify-between">
             <div className="space-y-5">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
                 <FileText className="h-4 w-4 text-outly-accent" />
