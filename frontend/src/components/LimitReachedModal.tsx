@@ -181,7 +181,7 @@ export default function LimitReachedModal() {
     <Dialog open={open} onOpenChange={(val) => { if (!showSuccess) setOpen(val); }}>
       <DialogContent className={`max-h-[90vh] overflow-y-auto w-[90%] select-none border-none transition-all duration-300 flex items-center justify-center ${
         showSuccess 
-          ? "max-w-[380px] bg-white p-6 shadow-2xl rounded-[32px] border border-slate-100/50" 
+          ? "max-w-[380px] bg-card p-6 shadow-2xl rounded-[32px] border border-slate-100/50" 
           : "max-w-[350px] bg-transparent p-0 shadow-none overflow-hidden rounded-2xl"
       }`}>
         {showSuccess ? (
@@ -201,7 +201,7 @@ export default function LimitReachedModal() {
             <div className="absolute inset-[-150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2DC08D_0%,#E6B800_25%,#ff4e50_50%,#2dc08d_75%,#2DC08D_100%)]" />
 
             {/* Inner Content Card */}
-            <div className="relative bg-white rounded-[15px] p-5 text-center flex flex-col gap-4 overflow-hidden">
+            <div className="relative bg-card rounded-[15px] p-5 text-center flex flex-col gap-4 overflow-hidden">
               {/* Lock Badge */}
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 shadow-inner text-primary mt-3">
                 <Lock className="h-6 w-6 stroke-[2]" />

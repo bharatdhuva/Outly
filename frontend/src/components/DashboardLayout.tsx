@@ -498,7 +498,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 {activeDropdown === "resumes" && (
                   <div
-                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-white p-5 shadow-2xl animate-slide-up select-none"
+                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-card p-5 shadow-2xl animate-slide-up select-none"
                     onMouseEnter={() => openDropdown("resumes")}
                     onMouseLeave={scheduleDropdownClose}
                   >
@@ -617,7 +617,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 {activeDropdown === "jobs" && (
                   <div
-                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-white p-5 shadow-2xl animate-slide-up select-none"
+                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-card p-5 shadow-2xl animate-slide-up select-none"
                     onMouseEnter={() => openDropdown("jobs")}
                     onMouseLeave={scheduleDropdownClose}
                   >
@@ -723,7 +723,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 {activeDropdown === "tools" && (
                   <div
-                    className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-2xl border border-border bg-white p-5 shadow-2xl animate-slide-up select-none"
+                    className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-2xl border border-border bg-card p-5 shadow-2xl animate-slide-up select-none"
                     onMouseEnter={() => openDropdown("tools")}
                     onMouseLeave={scheduleDropdownClose}
                   >

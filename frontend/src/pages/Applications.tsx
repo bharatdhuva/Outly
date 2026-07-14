@@ -415,7 +415,7 @@ export default function ApplicationsPage() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border shrink-0 transition-all ${
                   isActive
                     ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-white text-muted-foreground border-border hover:bg-slate-50"
+                    : "bg-card text-muted-foreground border-border hover:bg-secondary"
                 }`}
               >
                 <span>{s.label}</span>
@@ -546,7 +546,7 @@ export default function ApplicationsPage() {
                               variant="ghost"
                               size="icon"
                               disabled={stage.id === "saved"}
-                              className="h-7 w-7 rounded-lg border border-border hover:bg-slate-50 disabled:opacity-30 shrink-0"
+                              className="h-7 w-7 rounded-lg border border-border hover:bg-secondary disabled:opacity-30 shrink-0"
                               onClick={() => {
                                 const currentIndex = STAGES.findIndex(s => s.id === stage.id);
                                 if (currentIndex > 0) {
@@ -568,7 +568,7 @@ export default function ApplicationsPage() {
                               variant="ghost"
                               size="icon"
                               disabled={stage.id === "rejected"}
-                              className="h-7 w-7 rounded-lg border border-border hover:bg-slate-50 disabled:opacity-30 shrink-0"
+                              className="h-7 w-7 rounded-lg border border-border hover:bg-secondary disabled:opacity-30 shrink-0"
                               onClick={() => {
                                 const currentIndex = STAGES.findIndex(s => s.id === stage.id);
                                 if (currentIndex < STAGES.length - 1) {

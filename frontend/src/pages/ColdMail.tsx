@@ -107,7 +107,7 @@ export default function ColdMailPage() {
     target_person_name: "",
     target_person_role: "",
     key_skills: "React, TypeScript, Node.js",
-    experience_level: "3rd year CS student",
+    experience_level: "",
     sender_name: "",
     sender_location: "",
     personalization_hook: "",
@@ -197,7 +197,7 @@ export default function ColdMailPage() {
       ...current,
       role: settings.target_role || current.role || "Software Development Engineer",
       key_skills: settings.skills || current.key_skills || "React, TypeScript, Node.js",
-      experience_level: settings.education || current.experience_level || "3rd year CS student",
+      experience_level: settings.experience || current.experience_level || "",
       sender_name: settings.full_name || current.sender_name || "",
       sender_location: settings.target_cities?.split(",")[0]?.trim() || current.sender_location || "",
     }));
@@ -214,18 +214,23 @@ export default function ColdMailPage() {
 
   const createMutation = useMutation({
     mutationFn: api.coldmail.create,
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["coldmail"] });
       setIsAdding(false);
+      // Auto-select the newly created company
+      if (data?.id) {
+        setSelected(typeof data.id === "string" ? parseInt(data.id, 10) : data.id);
+        if (isMobile) setMobileDetailsOpen(true);
+      }
       setNewCompany({
         company_name: "",
         website_url: "",
         hr_email: "",
-        role: "Software Development Engineer",
+        role: settings?.target_role || "Software Development Engineer",
         target_person_name: "",
         target_person_role: "",
         key_skills: settings?.skills || "React, TypeScript, Node.js",
-        experience_level: settings?.education || "3rd year CS student",
+        experience_level: settings?.experience || "",
         sender_name: settings?.full_name || "",
         sender_location: settings?.target_cities?.split(",")[0]?.trim() || "",
         personalization_hook: "",
@@ -635,7 +640,7 @@ export default function ColdMailPage() {
                         setMobileDetailsOpen(true);
                       }
                     }}
-                    className={`w-full px-5 py-4 text-left transition-all hover:bg-slate-50 border-l-4 ${
+                    className={`w-full px-5 py-4 text-left transition-all hover:bg-secondary border-l-4 ${
                       selected === company.id
                         ? "bg-outly-accent/5 border-l-outly-accent"
                         : "border-l-transparent"
