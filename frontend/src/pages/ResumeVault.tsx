@@ -512,34 +512,15 @@ export default function ResumeVaultPage() {
                 {/* Sub-tab Content Panel */}
                 <div className="flex-1 min-h-0 flex flex-col">
                   {activePreviewTab === "preview" ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 sm:p-8 rounded-xl border border-dashed border-border bg-secondary/10 gap-3">
-                      <div className="w-32 h-32 flex items-center justify-center">
-                        <dotlottie-wc
-                          src="https://lottie.host/1d29d8fb-2400-499c-9c05-f0baab68cc04/LASNuAcp8G.lottie"
-                          style={{ width: '120px', height: '120px' }}
-                          autoplay
-                          loop
-                        />
+                    selectedResume.filename.toLowerCase().endsWith(".pdf") ? (
+                      <div className="flex-1 flex flex-col min-h-[260px] md:min-h-[420px] border border-border rounded-xl overflow-hidden bg-secondary/5">
+                        <PdfViewer url={api.resume.getFileUrl(selectedResume.id)} />
                       </div>
-                      <h3 className="text-sm sm:text-base font-bold text-foreground">
-                        Working on Resume Preview
-                      </h3>
-                      <p className="text-[11px] sm:text-xs text-muted-foreground max-w-sm leading-relaxed">
-                        We are currently optimizing live inline document rendering. In the meantime, you can download your complete resume file directly below.
-                      </p>
-                      <Button
-                        onClick={() => handleDownloadResume(selectedResume.id, selectedResume.filename)}
-                        disabled={downloadingId === selectedResume.id}
-                        className="bg-outly-accent hover:bg-outly-accent/90 text-white font-bold text-xs h-10 px-6 rounded-xl gap-2 shadow-sm active:scale-[0.98] transition-all mt-2 cursor-pointer"
-                      >
-                        {downloadingId === selectedResume.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Download className="h-4 w-4" />
-                        )}
-                        <span>Download Resume File</span>
-                      </Button>
-                    </div>
+                    ) : (
+                      <div className="flex-1 overflow-y-auto p-4 text-left border border-border rounded-xl bg-secondary/5 max-h-[300px] sm:max-h-none">
+                        <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-foreground/80">{selectedResume.content}</pre>
+                      </div>
+                    )
                   ) : (
                     /* Applications linked list */
                     <div className="flex-1 overflow-y-auto pr-1">

@@ -82,9 +82,8 @@ export default function ColdMailPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Persistent states stored in sessionStorage
-  const [selected, setSelected] = useState<number | null>(() => {
-    const val = sessionStorage.getItem("cm_selected");
-    return val ? parseInt(val, 10) : null;
+  const [selected, setSelected] = useState<string | null>(() => {
+    return sessionStorage.getItem("cm_selected") || null;
   });
   const [mainMode, setMainMode] = useState<"manual" | "csv">(() => {
     const val = sessionStorage.getItem("cm_mainMode");
@@ -114,7 +113,7 @@ export default function ColdMailPage() {
   });
   const navigate = useNavigate();
   const [selectedModel, setSelectedModel] = useState<string>("gemini");
-  const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
   const [generationStep, setGenerationStep] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<Company>>({});
@@ -219,7 +218,7 @@ export default function ColdMailPage() {
       setIsAdding(false);
       // Auto-select the newly created company
       if (data?.id) {
-        setSelected(typeof data.id === "string" ? parseInt(data.id, 10) : data.id);
+        setSelected(String(data.id));
         if (isMobile) setMobileDetailsOpen(true);
       }
       setNewCompany({
@@ -274,7 +273,7 @@ export default function ColdMailPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.coldmail.delete(id),
+    mutationFn: (id: string) => api.coldmail.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coldmail"] });
       if (selected && companies.find((c: Company) => c.id === selected)) {
@@ -286,7 +285,7 @@ export default function ColdMailPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Company> }) =>
+    mutationFn: ({ id, data }: { id: string; data: Partial<Company> }) =>
       api.coldmail.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coldmail"] });
