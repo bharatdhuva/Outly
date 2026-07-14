@@ -20,3 +20,6 @@ dist-ssr
 logs
 *.log
 backend/data/
+
+# Local private automation implementations
+backend/src/automation/**/*.private.*

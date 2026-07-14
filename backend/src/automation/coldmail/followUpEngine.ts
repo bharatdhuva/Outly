@@ -1,5 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { env } from "../../config/env.js";
+import { logger } from "../../lib/logger.js";
 
 export interface FollowUpResponse {
   subject: string;
@@ -8,40 +7,17 @@ export interface FollowUpResponse {
 }
 
 export async function generateFollowUp(companyName: string, role: string, originalSubject: string): Promise<FollowUpResponse | null> {
-  const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-  const prompt = `You sent a cold email to ${companyName} 5 days ago about a ${role} internship.
-There was no reply. Write a short follow-up (60-80 words MAX).
-
-RULES:
-- Do NOT start with "Just following up" — that's boring and obvious
-- Come from a new angle: share a quick relevant insight, a new project update,
-  or a one-line observation about their product/tech
-- Reference that you emailed before in ONE line only
-- Tone: confident, not desperate
-- End with same soft CTA
-
-OUTPUT FORMAT (JSON, no markdown wrapper, exactly the JSON):
-{
-  "subject": "Re: ${originalSubject}",
-  "body": "...",
-  "new_angle": "what new angle you used"
-}`;
+  logger.info(`Generating follow up draft for ${companyName} (${role})...`);
 
   try {
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7 },
-    });
-    let text = result.response.text().trim();
-    if (text.startsWith("\`\`\`json")) text = text.replace("\`\`\`json", "");
-    if (text.startsWith("\`\`\`")) text = text.substring(3);
-    if (text.endsWith("\`\`\`")) text = text.slice(0, -3);
-
-    return JSON.parse(text.trim()) as FollowUpResponse;
-  } catch (error) {
-    console.error("Gemini follow-up generation failed:", error);
-    return null;
+    const privateModule = await import("./followUpEngine.private.js");
+    return await privateModule.generateFollowUp(companyName, role, originalSubject);
+  } catch (error: any) {
+    logger.warn(`Private followUp module not found, running sandbox fallback: ${error.message}`);
+    return {
+      subject: `Re: ${originalSubject}`,
+      body: `Hi there,\n\nI'm following up on my previous message regarding the ${role} position at ${companyName}. I'd love to schedule a brief call to discuss how my skill set matches your team's current needs.\n\nThanks,\nCandidate`,
+      new_angle: "Soft follow-up reinforcing technical alignment."
+    };
   }
 }

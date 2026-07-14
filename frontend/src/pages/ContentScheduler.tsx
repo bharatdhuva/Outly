@@ -304,9 +304,6 @@ export default function ContentScheduler() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [deliveryTime, setDeliveryTime] = useState<string>("09:00");
-  const [whatsappNumber, setWhatsappNumber] = useState<string>("+91 98765 43210");
-  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
-  const [phoneInput, setPhoneInput] = useState("+91 98765 43210");
 
   const [clockOpen, setClockOpen] = useState(false);
 
@@ -410,13 +407,7 @@ export default function ContentScheduler() {
     },
   });
 
-  const handleSavePhone = () => {
-    setWhatsappNumber(phoneInput);
-    setIsPhoneModalOpen(false);
-    toast({
-      title: "WhatsApp Connected",
-    });
-  };
+
 
   const formatDisplayTime = (tStr: string) => {
     const parts = tStr.split(":");
@@ -438,31 +429,7 @@ export default function ContentScheduler() {
         onSelectTime={(newTime) => setDeliveryTime(newTime)}
       />
 
-      {/* WhatsApp Phone Modal */}
-      <Dialog open={isPhoneModalOpen} onOpenChange={setIsPhoneModalOpen}>
-        <DialogContent className="sm:max-w-[400px] border-border bg-card rounded-2xl p-6">
-          <DialogHeader className="space-y-1 text-center sm:text-left">
-            <DialogTitle className="text-lg font-bold text-foreground">Update WhatsApp Number</DialogTitle>
-            <p className="text-xs text-muted-foreground">Receive daily content drafts directly on WhatsApp.</p>
-          </DialogHeader>
-          <div className="space-y-4 pt-3">
-            <Input
-              value={phoneInput}
-              onChange={(e) => setPhoneInput(e.target.value)}
-              placeholder="e.g. +91 98765 43210"
-              className="h-11 text-xs rounded-xl font-mono"
-            />
-            <DialogFooter>
-              <Button
-                onClick={handleSavePhone}
-                className="w-full bg-primary text-primary-foreground hover:brightness-110 rounded-full font-semibold h-10 text-xs shadow-md cursor-pointer"
-              >
-                Save and Lock Number
-              </Button>
-            </DialogFooter>
-          </div>
-        </DialogContent>
-      </Dialog>
+
 
       {/* 🚀 REDESIGNED HERO & ENGINE STATUS HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 sm:p-8 rounded-3xl bg-card border border-border/80 shadow-xs text-left">
@@ -472,7 +439,7 @@ export default function ContentScheduler() {
           </span>
 
           <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-            Auto-generate & schedule posts for <span className="text-outly-accent font-extrabold">1-tap WhatsApp approval</span>.
+            Auto-generate & schedule posts for your career brand.
           </h1>
         </div>
 
@@ -505,9 +472,6 @@ export default function ContentScheduler() {
                 </button>
               </p>
             </div>
-            <span className="text-[10px] font-extrabold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
-              WhatsApp Sync
-            </span>
           </div>
 
           <div className="divide-y divide-border/60 max-h-[550px] overflow-auto custom-scrollbar flex-1">
@@ -563,17 +527,7 @@ export default function ContentScheduler() {
                     </h3>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Scheduled at {formatDisplayTime(deliveryTime)} • Alerts to{" "}
-                    <button
-                      onClick={() => {
-                        setPhoneInput(whatsappNumber);
-                        setIsPhoneModalOpen(true);
-                      }}
-                      className="text-primary font-bold hover:underline cursor-pointer"
-                      title="Click to edit number"
-                    >
-                      {whatsappNumber} ⚙️
-                    </button>
+                    Scheduled at {formatDisplayTime(deliveryTime)}
                   </p>
                 </div>
 
@@ -637,9 +591,9 @@ export default function ContentScheduler() {
 
               <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 text-primary shrink-0" />
+                  <Clock className="h-4 w-4 text-primary shrink-0" />
                   <span className="text-xs font-semibold text-foreground">
-                    WhatsApp preview notification active for {whatsappNumber}
+                    Scheduled delivery is active and automated.
                   </span>
                 </div>
                 <span className="text-[11px] font-bold text-primary shrink-0">Daily {formatDisplayTime(deliveryTime)} Release</span>
@@ -697,9 +651,9 @@ export default function ContentScheduler() {
             <div className="w-9 h-9 rounded-xl bg-outly-accent/10 text-outly-accent flex items-center justify-center font-bold text-base">
               📱
             </div>
-            <h4 className="font-bold text-sm text-foreground">WhatsApp 1-Tap Control</h4>
+            <h4 className="font-bold text-sm text-foreground">Multi-Channel Reach</h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              No complex dashboards. Receive daily scheduled drafts on WhatsApp and publish with 1 tap.
+              No complex setup. Prepare, edit, and queue posts for your social channels automatically.
             </p>
           </div>
         </div>

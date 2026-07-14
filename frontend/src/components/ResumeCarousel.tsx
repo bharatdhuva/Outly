@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import resume1 from "@/assets/resumes/resume1-new-cc0bcdce041648c15d73b9fc27ecf990.webp";
-import resume3 from "@/assets/resumes/resume3-new-cd7a7bdb4cf26a77378e6065605060bd.webp";
-import resume4 from "@/assets/resumes/resume4-new-aacf952518a31b05c87e4eab5a9c0c26.webp";
+import resume1 from "@/assets/resumes/resume1.webp";
+import resume3 from "@/assets/resumes/resume3.webp";
+import resume4 from "@/assets/resumes/resume4.webp";
 
 const RESUME_IMAGES = [
   { id: 1, src: resume1, title: "ATS Pro SDE Template", tag: "Most Popular" },

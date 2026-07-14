@@ -11,10 +11,7 @@
     "start:dev": "node .\\node_modules\\tsx\\dist\\cli.mjs src/index.ts",
     "db:init": "node .\\node_modules\\tsx\\dist\\cli.mjs src/db/init.ts",
     "setup:gmail": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/setup-gmail.ts",
-    "setup:linkedin": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/setup-linkedin.ts",
-    "test:whatsapp": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/test-whatsapp.ts",
-    "test:twitter": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/test-tweet.ts",
-    "create:test-user": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/create-test-user.ts"
+    "setup:linkedin": "node .\\node_modules\\tsx\\dist\\cli.mjs scripts/setup-linkedin.ts"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
