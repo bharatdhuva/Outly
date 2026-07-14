@@ -263,6 +263,15 @@ export default function ColdMailPage() {
     },
   });
 
+  const approveSingleMutation = useMutation({
+    mutationFn: (id: string) => api.coldmail.approve(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+      toast.success("Lead approved successfully");
+    },
+    onError: (e) => toast.error(String(e)),
+  });
+
   const sendApprovedMutation = useMutation({
     mutationFn: () => api.coldmail.sendApproved(),
     onSuccess: (data) => {
@@ -917,7 +926,99 @@ export default function ColdMailPage() {
               </div>
 
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {["mail_generated", "approved"].includes(selectedCompany.status) ? (
+                  {selectedCompany.status === "mail_generated" ? (
+                    <div className="flex w-full items-center gap-2">
+                      <Button
+                        size="sm"
+                        className="flex-1 gap-2 h-9 border-none bg-success hover:bg-success/95 text-white rounded-lg font-semibold cursor-pointer transition-all duration-300 shadow-md hover:shadow-lg shadow-success/15"
+                        disabled={approveSingleMutation.isPending}
+                        onClick={() => approveSingleMutation.mutate(selectedCompany.id)}
+                      >
+                        <Check className="h-4 w-4 text-white shrink-0" />
+                        <span className="font-bold text-xs tracking-wide">Approve Email</span>
+                      </Button>
+
+                      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-9 px-3 cursor-pointer"
+                            title="Edit Mail & Details"
+                            onClick={() => {
+                              setEditData({
+                                company_name: selectedCompany.company_name,
+                                generated_subject: selectedCompany.generated_subject || "",
+                                generated_mail: selectedCompany.generated_mail || "",
+                                personalization_hook: selectedCompany.personalization_hook || "",
+                              });
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[700px]">
+                          <DialogHeader>
+                            <DialogTitle>Edit Mail & Details</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4 py-2">
+                            <div className="space-y-2">
+                              <Label>Company Name</Label>
+                              <Input
+                                value={editData.company_name || ""}
+                                onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Generated Subject</Label>
+                              <Input
+                                value={editData.generated_subject || ""}
+                                onChange={(e) => setEditData({ ...editData, generated_subject: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Generated Email Body</Label>
+                              <Textarea
+                                className="min-h-[300px] font-mono text-[13px]"
+                                value={editData.generated_mail || ""}
+                                onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Personalization Hook (Preview)</Label>
+                              <Input
+                                value={editData.personalization_hook || ""}
+                                onChange={(e) => setEditData({ ...editData, personalization_hook: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter className="flex-col gap-2 sm:flex-row">
+                            <Button
+                              onClick={() => {
+                                updateMutation.mutate({ id: selectedCompany.id, data: editData });
+                                setIsEditing(false);
+                              }}
+                              disabled={updateMutation.isPending}
+                            >
+                              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-9 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
+                        title="Delete Lead"
+                        onClick={() => {
+                          setDeleteTarget(selectedCompany);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : ["approved", "mail_sent", "replied"].includes(selectedCompany.status) ? (
                     <div className="flex w-full items-center gap-2">
                       <Button
                         size="sm"
@@ -932,6 +1033,8 @@ export default function ColdMailPage() {
                             const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(selectedCompany.hr_email)}&su=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(selectedCompany.generated_mail || "")}`;
                             window.open(url, "_blank");
                           }
+                          // Mark status as sent
+                          updateMutation.mutate({ id: selectedCompany.id, data: { status: "mail_sent" } });
                         }}
                       >
                         <GmailIcon />
