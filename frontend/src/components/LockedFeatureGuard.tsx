@@ -190,6 +190,10 @@ export default function LockedFeatureGuard({
     if (!isPremium) {
       e.preventDefault();
       e.stopPropagation();
+      // Ensure any previous success state is cleared when opening the lock modal.
+      // This prevents the success animation (payment GIF) from showing unexpectedly
+      // when the user navigates to a protected area like the Tools tab.
+      setShowSuccess(false);
       setShowModal(true);
     }
   };
