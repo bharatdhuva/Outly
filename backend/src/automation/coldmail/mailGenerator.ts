@@ -16,6 +16,7 @@ export async function generateMailForCompany(
   logger.info(`Generating mail for company ID: ${companyId}...`);
 
   try {
+    // @ts-ignore
     const privateModule = await import("./mailGenerator.private.js");
     return await privateModule.generateMailForCompany(companyId, provider, modelName);
   } catch (error: any) {

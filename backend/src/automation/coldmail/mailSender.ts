@@ -3,6 +3,7 @@ import { logger } from "../../lib/logger.js";
 export async function sendColdMail(companyId: string): Promise<boolean> {
   logger.info(`Sending cold mail to company ID: ${companyId}...`);
   try {
+    // @ts-ignore
     const privateModule = await import("./mailSender.private.js");
     return await privateModule.sendColdMail(companyId);
   } catch (error: any) {
@@ -23,6 +24,7 @@ export function isGmailConfigured(): boolean {
 export async function sendFollowUpMail(companyId: string, subject: string, body: string): Promise<boolean> {
   logger.info(`Sending follow up mail to company ID: ${companyId}...`);
   try {
+    // @ts-ignore
     const privateModule = await import("./mailSender.private.js");
     return await privateModule.sendFollowUpMail(companyId, subject, body);
   } catch (error: any) {
@@ -34,6 +36,7 @@ export async function sendFollowUpMail(companyId: string, subject: string, body:
 export async function sendWelcomeMail(toEmail: string, fullName?: string): Promise<boolean> {
   logger.info(`Sending welcome mail to: ${toEmail}...`);
   try {
+    // @ts-ignore
     const privateModule = await import("./mailSender.private.js");
     return await privateModule.sendWelcomeMail(toEmail, fullName);
   } catch (error: any) {
@@ -45,6 +48,7 @@ export async function sendWelcomeMail(toEmail: string, fullName?: string): Promi
 export async function sendUpgradeMail(toEmail: string, fullName?: string): Promise<boolean> {
   logger.info(`Sending upgrade notification email to: ${toEmail}...`);
   try {
+    // @ts-ignore
     const privateModule = await import("./mailSender.private.js");
     return await privateModule.sendUpgradeMail(toEmail, fullName);
   } catch (error: any) {
@@ -56,6 +60,7 @@ export async function sendUpgradeMail(toEmail: string, fullName?: string): Promi
 export async function createGmailDraft(companyId: string): Promise<boolean> {
   logger.info(`Creating draft for company ID: ${companyId}...`);
   try {
+    // @ts-ignore
     const privateModule = await import("./mailSender.private.js");
     return await privateModule.createGmailDraft(companyId);
   } catch (error: any) {

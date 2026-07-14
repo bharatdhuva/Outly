@@ -10,6 +10,7 @@ export async function generateFollowUp(companyName: string, role: string, origin
   logger.info(`Generating follow up draft for ${companyName} (${role})...`);
 
   try {
+    // @ts-ignore
     const privateModule = await import("./followUpEngine.private.js");
     return await privateModule.generateFollowUp(companyName, role, originalSubject);
   } catch (error: any) {

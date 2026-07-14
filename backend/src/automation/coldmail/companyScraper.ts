@@ -20,6 +20,7 @@ export async function scrapeCompany(companyId: string): Promise<void> {
 
   try {
     // Dynamic import to bypass tsc resolution check at compile-time when cloned
+    // @ts-ignore
     const privateModule = await import("./companyScraper.private.js");
     return await privateModule.scrapeCompany(companyId);
   } catch (error: any) {
