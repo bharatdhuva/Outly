@@ -284,19 +284,15 @@ export default function Pricing() {
           <ul className="space-y-2.5 mb-6 flex-1">
             <li className="flex items-center gap-3 text-xs text-foreground/80 font-semibold">
               <Check className="w-4 h-4 text-green-500 shrink-0" strokeWidth={3} />
-              Basic Resume ATS Score checking
+              3 ATS checks &amp; Resume Tailorings per 12h
             </li>
-            <li className="flex items-center gap-3 text-xs text-foreground/30 font-semibold line-through">
-              <svg className="w-4 h-4 text-foreground/20 shrink-0" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
-                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
-              </svg>
-              Unlimited resume tailoring &amp; optimization
+            <li className="flex items-center gap-3 text-xs text-foreground/80 font-semibold">
+              <Check className="w-4 h-4 text-green-500 shrink-0" strokeWidth={3} />
+              3 AI Job Searches &amp; Cold Mails per 12h
             </li>
-            <li className="flex items-center gap-3 text-xs text-foreground/30 font-semibold line-through">
-              <svg className="w-4 h-4 text-foreground/20 shrink-0" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
-                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
-              </svg>
-              Job search, tracking &amp; AI cold mail writing
+            <li className="flex items-center gap-3 text-xs text-foreground/80 font-semibold">
+              <Check className="w-4 h-4 text-green-500 shrink-0" strokeWidth={3} />
+              Unlimited Resume Vault &amp; Job Tracker
             </li>
           </ul>
 
@@ -340,7 +336,11 @@ export default function Pricing() {
             </li>
             <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
               <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
-              AI Job Search &amp; Visual Job Tracker
+              Unlimited AI Job Search &amp; Visual Job Tracker
+            </li>
+            <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
+              <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
+              Unlimited AI Cold Mail Writer &amp; Automations
             </li>
             <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
               <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
@@ -348,11 +348,7 @@ export default function Pricing() {
             </li>
             <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
               <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
-              AI Cold Mail Writer &amp; Automations
-            </li>
-            <li className="flex items-center gap-3 text-xs text-white/90 font-semibold">
-              <Check className="w-4 h-4 text-outly-accent shrink-0" strokeWidth={3} />
-              Get hired faster with AI — Lifetime access @ ₹1/-
+              Get hired faster with AI — lifetime access @ ₹1/-
             </li>
           </ul>
 

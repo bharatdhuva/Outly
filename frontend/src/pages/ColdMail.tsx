@@ -25,7 +25,7 @@ import {
   Edit,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import LockedFeatureGuard from "@/components/LockedFeatureGuard";
+
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { api, type Company } from "@/lib/api";
@@ -368,7 +368,6 @@ export default function ColdMailPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <LockedFeatureGuard featureTitle="Cold Mail Automation Engine">
         <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
         
         {/* Hero text header */}
@@ -1195,7 +1194,6 @@ export default function ColdMailPage() {
       </AlertDialog>
       
       <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
-      </LockedFeatureGuard>
     </>
   );
 }

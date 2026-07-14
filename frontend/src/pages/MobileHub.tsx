@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { 
+  FileCheck, 
+  Sparkles, 
+  Database, 
+  Search, 
+  Briefcase, 
+  Mail, 
+  Calendar 
+} from "lucide-react";
 
 import AtsScore from "./AtsScore";
 import ResumeTailor from "./ResumeTailor";
@@ -29,17 +38,17 @@ export default function MobileHub({ category }: MobileHubProps) {
 
   const tabs = {
     resumes: [
-      { id: "ats", label: "ATS Score" },
-      { id: "tailor", label: "Tailor Resume" },
-      { id: "vault", label: "Resume Vault" },
+      { id: "ats", label: "ATS Score", icon: FileCheck },
+      { id: "tailor", label: "Tailor Resume", icon: Sparkles },
+      { id: "vault", label: "Resume Vault", icon: Database },
     ],
     jobs: [
-      { id: "search", label: "Job Search" },
-      { id: "tracker", label: "Job Tracker" },
+      { id: "search", label: "Job Search", icon: Search },
+      { id: "tracker", label: "Job Tracker", icon: Briefcase },
     ],
     tools: [
-      { id: "mail", label: "Cold Mail" },
-      { id: "scheduler", label: "Scheduler" },
+      { id: "mail", label: "Cold Mail", icon: Mail },
+      { id: "scheduler", label: "Scheduler", icon: Calendar },
     ],
   }[category];
 
@@ -100,10 +109,11 @@ export default function MobileHub({ category }: MobileHubProps) {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`relative pb-3 pt-1 text-[13px] font-extrabold uppercase tracking-wider transition-all duration-150 cursor-pointer outline-none shrink-0 flex items-center gap-1.5 ${
+                className={`relative pb-3 pt-1 text-[13px] font-extrabold uppercase tracking-wider transition-all duration-155 cursor-pointer outline-none shrink-0 flex items-center gap-1.5 ${
                   isActive ? "text-[#f23c5d] font-black" : "text-zinc-400/80 hover:text-zinc-600"
                 }`}
               >
+                {tab.icon && <tab.icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[#f23c5d]" : "text-zinc-400/60"}`} />}
                 <span>{tab.label}</span>
                 {showBadge && (
                   <span className="flex h-4 min-w-4 px-1.5 items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white leading-none scale-90 translate-y-[-1px]">

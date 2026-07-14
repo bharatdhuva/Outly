@@ -226,8 +226,10 @@ export default function AtsScorePage() {
     if (diff <= 0) return "";
     const hrs = Math.floor(diff / (1000 * 60 * 60));
     const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    if (hrs > 0) return `${hrs}h ${mins}m`;
-    return `${mins}m`;
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+    const pad = (num: number) => String(num).padStart(2, "0");
+    if (hrs > 0) return `${hrs}h ${pad(mins)}m ${pad(secs)}s`;
+    return `${mins}m ${pad(secs)}s`;
   };
 
   // Load user-specific limit status from localStorage (timestamp-based auto-expiry)
@@ -257,9 +259,13 @@ export default function AtsScorePage() {
     }
   }, [userData]);
 
-  // Tick countdown every minute and auto-unlock when time passes
+  // Tick countdown every second and auto-unlock when time passes
   useEffect(() => {
     if (!unlockAtTime) return;
+    
+    // Initial call to set the live state immediately on mount or key change
+    setCountdownText(getCountdown(unlockAtTime));
+
     const timer = setInterval(() => {
       const diff = new Date(unlockAtTime).getTime() - Date.now();
       if (diff <= 0) {
@@ -272,7 +278,7 @@ export default function AtsScorePage() {
       } else {
         setCountdownText(getCountdown(unlockAtTime));
       }
-    }, 60_000);
+    }, 1000);
     return () => clearInterval(timer);
   }, [unlockAtTime, userData]);
 
@@ -363,6 +369,15 @@ export default function AtsScorePage() {
 
   // Trigger evaluation scan with loader simulation
   const triggerAtsScan = async (resumeText: string) => {
+    if (isLimitExceeded) {
+      window.dispatchEvent(new CustomEvent("outly_limit_exceeded", {
+        detail: {
+          code: "LIMIT_ATS_EXCEEDED",
+          message: "Free tier is limited to 3 ATS checks per 12 hours."
+        }
+      }));
+      return;
+    }
     if (!resumeText.trim()) return;
     if (mode === "targeted" && !jd.trim()) {
       toast({
@@ -446,14 +461,14 @@ export default function AtsScorePage() {
       
       if (isLimitError) {
         setIsLimitExceeded(true);
-        setShowLimitModal(true);
         const unlockIso = (err as any)?.data?.unlockAt || null;
         if (unlockIso) {
           setUnlockAtTime(unlockIso);
           setCountdownText(getCountdown(unlockIso));
           const userPrefix = userData?.user?.email || "anonymous";
           localStorage.setItem(`ats_limit_unlock_${userPrefix}`, unlockIso);
-        }} else {
+        }
+      } else {
         const isAiError = errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404");
         if (isAiError) {
           setShowAiErrorModal(true);
@@ -581,7 +596,7 @@ export default function AtsScorePage() {
             </div>
           )}
 
-          {!result ? (
+          {!result || result.isValidResume === false ? (
             isLimitExceeded ? (
               /* Locked upload zone because limit is reached */
               <div 
@@ -1226,16 +1241,6 @@ export default function AtsScorePage() {
                     {parsingFile && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                     {parsingFile ? "Uploading..." : "Upload Resume"}
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      const select = document.getElementById("vault-select-trigger") as HTMLSelectElement;
-                      if (select) select.focus();
-                    }}
-                    className="w-full sm:w-auto bg-muted hover:bg-muted/90 text-foreground text-[11px] font-bold px-5 py-2 rounded-full border border-border h-8.5 cursor-pointer"
-                  >
-                    Choose Vault
-                  </Button>
                 </div>
               </div>
             )}
@@ -1289,39 +1294,7 @@ export default function AtsScorePage() {
         </section>
       )}
 
-      {/* Limit Exceeded Dialog Modal */}
-      <Dialog open={showLimitModal} onOpenChange={setShowLimitModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-6 font-sans">
-          <DialogHeader className="flex flex-col items-center text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
-              <Lock className="w-6 h-6 shrink-0" />
-            </div>
-            <DialogTitle className="text-xl font-bold text-foreground">Daily Limit Reached (3/3)</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-              Your free tier is limited to 3 ATS checks per day. Upgrade to Outly Pro for unlimited checks, AI resume tailoring, and interview preparation guides.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-6 justify-center">
-            <Button
-              variant="outline"
-              onClick={() => setShowLimitModal(false)}
-              className="w-full sm:w-auto border-border text-xs font-medium h-10 rounded-full hover:bg-secondary active:scale-[0.98] transition"
-            >
-              Close
-            </Button>
-            <Button
-              onClick={() => {
-                setShowLimitModal(false);
-                navigate("/pricing");
-              }}
-              className="w-full sm:w-auto bg-outly-accent hover:brightness-110 hover:scale-[1.02] text-white text-xs font-medium h-10 rounded-full shadow-lg shadow-outly-accent/20 active:scale-[0.98] transition-all"
-            >
-              Upgrade to Pro
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
 
       <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
 

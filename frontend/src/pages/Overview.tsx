@@ -11,7 +11,7 @@ export default function OverviewPage() {
   }, []);
 
   return (
-    <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full select-none overflow-x-clip pb-12 font-sans text-outly-dark">
+    <div className="relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none overflow-x-clip pb-12 font-sans text-outly-dark">
       <style>{`
         .glowing-bg-mesh {
           background:

@@ -42,7 +42,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
-import LockedFeatureGuard from "@/components/LockedFeatureGuard";
+
 
 const STAGES = [
   { id: "saved", label: "Saved", color: "border-slate-500/20 bg-slate-500/5 text-slate-500" },
@@ -51,6 +51,144 @@ const STAGES = [
   { id: "offer", label: "Offer", color: "border-success/20 bg-success/5 text-success" },
   { id: "rejected", label: "Rejected", color: "border-destructive/20 bg-destructive/5 text-destructive" },
 ] as const;
+
+const getRelativeTime = (dateString: string) => {
+  try {
+    const diff = Date.now() - new Date(dateString).getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    if (days <= 0) return "Today";
+    if (days === 1) return "1 day ago";
+    if (days < 7) return `${days} days ago`;
+    const weeks = Math.floor(days / 7);
+    if (weeks === 1) return "1 week ago";
+    return `${weeks} weeks ago`;
+  } catch {
+    return "Active";
+  }
+};
+
+const jobBoardsList = [
+  { id: "linkedin", domain: "linkedin.com" },
+  { id: "wellfound", domain: "wellfound.com" },
+  { id: "naukri", domain: "naukri.com" },
+  { id: "internshala", domain: "internshala.com" },
+  { id: "cutshort", domain: "cutshort.io" },
+  { id: "indeed", domain: "indeed.com" },
+  { id: "glassdoor", domain: "glassdoor.com" },
+];
+
+function CompanyLogo({ company }: { company: string }) {
+  const cleaned = company.toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+  
+  const [src, setSrc] = useState(`https://logo.clearbit.com/${cleaned}.com`);
+  const [fallbackStage, setFallbackStage] = useState(0);
+
+  const handleErr = () => {
+    if (fallbackStage === 0) {
+      setSrc(`https://www.google.com/s2/favicons?domain=${cleaned}.com&sz=128`);
+      setFallbackStage(1);
+    } else {
+      setFallbackStage(2);
+    }
+  };
+
+  if (fallbackStage === 2) {
+    const initial = company.charAt(0).toUpperCase();
+    const colors = [
+      "bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", 
+      "bg-indigo-500", "bg-purple-500", "bg-pink-500", "bg-orange-500"
+    ];
+    const colorIdx = initial.charCodeAt(0) % colors.length;
+    return (
+      <div className={`w-8 h-8 rounded-full ${colors[colorIdx]} text-white flex items-center justify-center font-bold text-[11px] shrink-0 shadow-sm uppercase`}>
+        {initial}
+      </div>
+    );
+  }
+
+  return (
+    <img 
+      src={src} 
+      alt={company} 
+      className="h-8 w-8 object-contain shrink-0 mix-blend-multiply" 
+      onError={handleErr}
+    />
+  );
+}
+
+const getStagePlaceholderIcon = (stageId: string) => {
+  switch (stageId) {
+    case "saved":
+      return (
+        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+        </svg>
+      );
+    case "applied":
+      return (
+        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+        </svg>
+      );
+    case "interview":
+      return (
+        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      );
+    case "offer":
+      return (
+        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm-2 4h4M5 20h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z" />
+        </svg>
+      );
+    case "rejected":
+    default:
+      return (
+        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+  }
+};
+
+const getStageHeaderIcon = (stageId: string) => {
+  switch (stageId) {
+    case "saved":
+      return (
+        <svg className="w-4 h-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+        </svg>
+      );
+    case "applied":
+      return (
+        <svg className="w-4 h-4 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+        </svg>
+      );
+    case "interview":
+      return (
+        <svg className="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      );
+    case "offer":
+      return (
+        <svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm-2 4h4M5 20h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z" />
+        </svg>
+      );
+    case "rejected":
+    default:
+      return (
+        <svg className="w-4 h-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+  }
+};
 
 export default function ApplicationsPage() {
   const { toast } = useToast();
@@ -224,8 +362,7 @@ export default function ApplicationsPage() {
   };
 
   return (
-    <LockedFeatureGuard featureTitle="Job Tracker & Application Scheduler">
-      <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
+    <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
       
       {/* Header Title Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-left">
@@ -302,66 +439,95 @@ export default function ApplicationsPage() {
             if (isMobile && activeStageTab !== stage.id) return null;
             const stageApps = filteredApps.filter((a) => a.stage === stage.id);
             return (
-              <div
-                key={stage.id}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, stage.id)}
-                className={`rounded-2xl border p-4 min-h-[420px] lg:min-h-[560px] flex flex-col gap-3.5 transition-colors ${stage.color}`}
-              >
-                {/* Column header */}
-                <div className="flex items-center justify-between border-b border-border/40 pb-2 mb-0.5 text-left">
-                  <span className="text-[12.5px] font-bold text-foreground/80 uppercase tracking-wider">{stage.label}</span>
-                  <span className="rounded-full bg-foreground/10 px-2 py-0.5 text-[9.5px] font-extrabold text-foreground">
-                    {stageApps.length}
-                  </span>
+              <div key={stage.id} className="flex flex-col gap-3 min-h-[420px] lg:min-h-[560px] text-left">
+                {/* Column header (Outside container) */}
+                <div className="flex items-center justify-between px-1.5 py-0.5">
+                  <div className="flex items-center gap-2">
+                    {getStageHeaderIcon(stage.id)}
+                    <span className="text-[13px] font-extrabold text-foreground tracking-tight">{stage.label}</span>
+                    <span className="text-[10px] font-extrabold text-muted-foreground/80 bg-slate-200/60 px-1.5 py-0.25 rounded-md">
+                      {stageApps.length}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Column container */}
-                <div className="flex-1 flex flex-col gap-3">
+                {/* Column card container */}
+                <div
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, stage.id)}
+                  className="flex-1 rounded-[24px] border border-slate-200 bg-[#f1f5f9] p-4 flex flex-col gap-3.5 shadow-3xs"
+                >
+                  {/* Column container */}
+                  <div className="flex-1 flex flex-col gap-3">
                   {stageApps.map((app) => {
                     const linkedResume = resumes.find(r => String(r.id) === String(app.resume_version_used));
+                    const appDate = app.createdAt || app.created_at;
                     return (
                       <div
                         key={app.id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, app.id)}
                         onClick={() => setSelectedApp(app)}
-                        className="group cursor-grab active:cursor-grabbing rounded-xl border border-border bg-white p-3.5 shadow-xs hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 text-left animate-pop-in relative"
+                        className="group cursor-grab active:cursor-grabbing rounded-[24px] border border-border/50 bg-white p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-left animate-pop-in relative flex flex-col justify-between min-h-[180px] space-y-4"
                       >
-                        <div className="flex justify-between items-start gap-2">
-                          <h4 className="text-[13px] font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-                            {app.company}
-                          </h4>
-                          {app.jd_url && (
-                            <a
-                              href={app.jd_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-muted-foreground hover:text-primary transition-colors mt-0.5 shrink-0"
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-muted-foreground mt-1 truncate">{app.role}</p>
+                        <div className="space-y-3">
+                          {/* Top Row: Standalone Logo & Actions */}
+                          <div className="flex items-center justify-between">
+                            <CompanyLogo company={app.company} />
+                            
+                            <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                              {app.jd_url && (
+                                <a
+                                  href={app.jd_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-muted-foreground hover:text-foreground transition-colors p-1.5 hover:bg-secondary rounded-lg"
+                                  title="Visit job post"
+                                >
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                </a>
+                              )}
+                              <button
+                                onClick={() => setDeleteAppTarget(app)}
+                                className="text-muted-foreground hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 rounded-lg cursor-pointer"
+                                title="Delete application"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
 
-                        <div className="mt-4 flex items-center justify-between text-[10px] text-muted-foreground">
-                          <span className="flex items-center gap-1 font-mono">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(app.created_at).toLocaleDateString()}
+                          {/* Second Row: Company Name & Time */}
+                          <div className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+                            <span className="font-bold text-foreground/80 truncate max-w-[130px]">{app.company}</span>
+                            <span>•</span>
+                            <span>{appDate ? getRelativeTime(appDate) : "Just now"}</span>
+                          </div>
+
+                          {/* Third Row: Role Title */}
+                          <h4 className="text-[13.5px] font-extrabold text-foreground tracking-tight leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                            {app.role}
+                          </h4>
+                        </div>
+
+                        {/* Fourth Row: Footer / Tags */}
+                        <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-3 border-t border-border/30">
+                          <span className="flex items-center gap-1 font-semibold text-muted-foreground/80">
+                            <Calendar className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                            {appDate ? new Date(appDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "N/A"}
                           </span>
-                          <div className="flex items-center gap-1">
+                          
+                          <div className="flex items-center gap-1.5">
                             {linkedResume && (
                               <span 
-                                className="flex items-center gap-0.5 rounded bg-primary/10 text-primary px-1.5 py-0.5 text-[8.5px] font-bold max-w-[80px] truncate" 
+                                className="inline-flex items-center gap-0.5 rounded-full bg-primary/5 text-primary border border-primary/10 px-2.5 py-0.5 text-[8.5px] font-bold max-w-[85px] truncate" 
                                 title={linkedResume.label}
                               >
                                 📄 {linkedResume.label}
                               </span>
                             )}
                             {app.notes && (
-                              <span className="flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-foreground/80 text-[8.5px] font-bold">
+                              <span className="inline-flex items-center gap-0.5 rounded-full bg-[#f3f4f6] text-foreground/75 px-2.5 py-0.5 text-[8.5px] font-bold">
                                 Notes
                               </span>
                             )}
@@ -423,12 +589,14 @@ export default function ApplicationsPage() {
                     );
                   })}
                   {stageApps.length === 0 && (
-                    <div className="flex-1 flex items-center justify-center border-2 border-dashed border-foreground/5 rounded-xl p-6 text-center text-[10.5px] text-muted-foreground/50 select-none min-h-[120px]">
-                      Drag cards here
+                    <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 bg-white/50 rounded-[20px] p-6 text-center text-[10.5px] font-bold text-slate-400 select-none min-h-[120px] transition-colors">
+                      {getStagePlaceholderIcon(stage.id)}
+                      <span>Drag cards here</span>
                     </div>
                   )}
                 </div>
               </div>
+            </div>
             );
           })}
         </div>
@@ -689,7 +857,7 @@ export default function ApplicationsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Application Card?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete <strong className="text-foreground">"{deleteAppTarget?.company_name} — {deleteAppTarget?.role_title}"</strong>? This action cannot be undone.
+              Are you sure you want to delete <strong className="text-foreground">"{deleteAppTarget?.company} — {deleteAppTarget?.role}"</strong>? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -711,6 +879,5 @@ export default function ApplicationsPage() {
       </AlertDialog>
 
       </div>
-    </LockedFeatureGuard>
   );
 }

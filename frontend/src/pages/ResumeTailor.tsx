@@ -243,14 +243,16 @@ export default function ResumeTailorPage() {
     if (diff <= 0) return "";
     const hrs = Math.floor(diff / (1000 * 60 * 60));
     const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    if (hrs > 0) return `${hrs}h ${mins}m`;
-    return `${mins}m`;
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+    const pad = (num: number) => String(num).padStart(2, "0");
+    if (hrs > 0) return `${hrs}h ${pad(mins)}m ${pad(secs)}s`;
+    return `${mins}m ${pad(secs)}s`;
   };
 
-  // Load user-specific daily limit status from localStorage (6h timestamp-based auto-expiry)
+  // Load user-specific daily limit status from localStorage (12h timestamp-based auto-expiry)
   useEffect(() => {
     const userPrefix = userData?.user?.email || "anonymous";
-    const storageKey = `ats_limit_unlock_${userPrefix}`;
+    const storageKey = `tailor_limit_unlock_${userPrefix}`;
     const isPro = userData?.user?.plan === "pro" || localStorage.getItem("outly_premium_user") === "true";
 
     if (isPro) {
@@ -274,9 +276,13 @@ export default function ResumeTailorPage() {
     }
   }, [userData]);
 
-  // Tick countdown every minute and auto-unlock when time passes
+  // Tick countdown every second and auto-unlock when time passes
   useEffect(() => {
     if (!unlockAtTime) return;
+    
+    // Initial call to set the live state immediately on mount or key change
+    setCountdownText(getCountdown(unlockAtTime));
+
     const timer = setInterval(() => {
       const diff = new Date(unlockAtTime).getTime() - Date.now();
       if (diff <= 0) {
@@ -284,12 +290,12 @@ export default function ResumeTailorPage() {
         setUnlockAtTime(null);
         setCountdownText("");
         const userPrefix = userData?.user?.email || "anonymous";
-        localStorage.removeItem(`ats_limit_unlock_${userPrefix}`);
+        localStorage.removeItem(`tailor_limit_unlock_${userPrefix}`);
         clearInterval(timer);
       } else {
         setCountdownText(getCountdown(unlockAtTime));
       }
-    }, 60_000);
+    }, 1000);
     return () => clearInterval(timer);
   }, [unlockAtTime, userData]);
 
@@ -432,6 +438,15 @@ export default function ResumeTailorPage() {
   };
 
   const handleTailor = async () => {
+    if (isLimitExceeded) {
+      window.dispatchEvent(new CustomEvent("outly_limit_exceeded", {
+        detail: {
+          code: "LIMIT_TAILOR_EXCEEDED",
+          message: "Free tier is limited to 3 resume tailorings per 12 hours."
+        }
+      }));
+      return;
+    }
     if (!resumeText) {
       toast({
         variant: "destructive",
@@ -468,17 +483,16 @@ export default function ResumeTailorPage() {
       }));
     } catch (err) {
       const errStr = String(err);
-      const isLimitError = errStr.includes("LIMIT_ATS_EXCEEDED") || errStr.toLowerCase().includes("limit reached");
+      const isLimitError = errStr.includes("LIMIT_TAILOR_EXCEEDED") || errStr.toLowerCase().includes("limit reached");
       
       if (isLimitError) {
         setIsLimitExceeded(true);
-        setShowLimitModal(true);
         const unlockIso = (err as any)?.data?.unlockAt || null;
         if (unlockIso) {
           setUnlockAtTime(unlockIso);
           setCountdownText(getCountdown(unlockIso));
           const userPrefix = userData?.user?.email || "anonymous";
-          localStorage.setItem(`ats_limit_unlock_${userPrefix}`, unlockIso);
+          localStorage.setItem(`tailor_limit_unlock_${userPrefix}`, unlockIso);
         }
       } else {
         const isAiError = errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404");
@@ -1033,39 +1047,6 @@ export default function ResumeTailorPage() {
         </div>
       )}
 
-      {/* Limit Exceeded Dialog Modal */}
-      <Dialog open={showLimitModal} onOpenChange={setShowLimitModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-6 font-sans">
-          <DialogHeader className="flex flex-col items-center text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
-              <Lock className="w-6 h-6 shrink-0" />
-            </div>
-            <DialogTitle className="text-xl font-bold text-foreground">Limit Reached (3/3)</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-              Your free tier is limited to 3 ATS checks/tailoring checks per 6 hours.{countdownText ? ` Unlocks in ${countdownText}.` : " Please try again later or upgrade to Pro."}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-6 justify-center">
-            <Button
-              variant="outline"
-              onClick={() => setShowLimitModal(false)}
-              className="w-full sm:w-auto border-border text-xs font-medium h-10 rounded-full hover:bg-secondary active:scale-[0.98] transition"
-            >
-              Close
-            </Button>
-            <Button
-              onClick={() => {
-                setShowLimitModal(false);
-                navigate("/pricing");
-              }}
-              className="w-full sm:w-auto bg-outly-accent hover:brightness-110 hover:scale-[1.02] text-white text-xs font-medium h-10 rounded-full shadow-lg shadow-outly-accent/20 active:scale-[0.98] transition-all"
-            >
-              Upgrade to Pro
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
 

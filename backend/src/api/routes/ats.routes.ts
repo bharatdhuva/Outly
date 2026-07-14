@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
-import { checkAtsLimit } from "../../middleware/limits.js";
+import { checkAtsLimit, checkTailorLimit } from "../../middleware/limits.js";
 import { activityQueries } from "../../db/queries.js";
 import { uploadResume } from "../../middleware/upload.js";
 import { validateResumeText, validateJobDescriptionText } from "../../lib/resumeValidator.js";
@@ -795,7 +795,7 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
 }
 
 // POST tailor resume to job description
-router.post("/tailor", checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/tailor", checkTailorLimit, async (req: AuthenticatedRequest, res: Response) => {
   const { resume, jd } = req.body;
 
   if (!resume) {
@@ -824,7 +824,7 @@ router.post("/tailor", checkAtsLimit, async (req: AuthenticatedRequest, res: Res
 
   // Log ATS check activity
   try {
-    await activityQueries.add(req.user.id, "ats_check", "Tailored resume to job description");
+    await activityQueries.add(req.user.id, "ats_tailor", "Tailored resume to job description");
   } catch (err) {
     logger.error("Failed to log ATS check activity for tailoring", { error: String(err), userId: req.user.id });
   }

@@ -24,7 +24,7 @@ async function fetchSourceWithRetry(
         query,
         page: 1,
         num_pages: 1,
-        date_posted: "all",
+        date_posted: "month",
         remote_jobs_only: isRemoteSearch ? "true" : "false",
       },
       headers: {
@@ -67,29 +67,31 @@ router.post("/jobs", async (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ error: "Role/title search parameter is required." });
   }
 
-  // Enforce rate limit: 3 job searches per 12-hour rolling window (Pro and Free alike)
-  try {
-    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+  // Enforce rate limit: 3 job searches per 12-hour rolling window for Free tier only
+  if (req.user.plan !== "pro") {
+    try {
+      const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
 
-    const searches = await ActivityLog.find({
-      userId: req.user.id,
-      type: "job_search",
-      createdAt: { $gte: twelveHoursAgo }
-    }).sort({ createdAt: 1 }).limit(3).lean();
+      const searches = await ActivityLog.find({
+        userId: req.user.id,
+        type: "job_search",
+        createdAt: { $gte: twelveHoursAgo }
+      }).sort({ createdAt: 1 }).limit(3).lean();
 
-    if (searches.length >= 3) {
-      // Unlock 12 hours after the oldest search in the window
-      const oldestSearch = searches[0];
-      const unlockAt = new Date(new Date(oldestSearch.createdAt).getTime() + 12 * 60 * 60 * 1000).toISOString();
-      return res.status(403).json({
-        error: "Job search limit reached.",
-        code: "LIMIT_JOB_SEARCH_EXCEEDED",
-        message: "You are limited to 3 job searches per 12 hours.",
-        unlockAt
-      });
+      if (searches.length >= 3) {
+        // Unlock 12 hours after the oldest search in the window
+        const oldestSearch = searches[0];
+        const unlockAt = new Date(new Date(oldestSearch.createdAt).getTime() + 12 * 60 * 60 * 1000).toISOString();
+        return res.status(403).json({
+          error: "Job search limit reached.",
+          code: "LIMIT_JOB_SEARCH_EXCEEDED",
+          message: "You are limited to 3 job searches per 12 hours.",
+          unlockAt
+        });
+      }
+    } catch (err) {
+      logger.error("Error checking job search limit:", err);
     }
-  } catch (err) {
-    logger.error("Error checking job search limit:", err);
   }
 
   // Define target career sites/publishers
@@ -129,8 +131,15 @@ router.post("/jobs", async (req: AuthenticatedRequest, res: Response) => {
       logger.error("Error saving job search activity log:", err);
     }
 
-    // Map the JSearch response schema to the format expected by the frontend
-    const mappedJobs = allJobs.map((job: any) => {
+    const oneMonthAgoTimestamp = Math.floor((Date.now() - 30 * 24 * 60 * 60 * 1000) / 1000);
+    const mappedJobs = allJobs
+      .filter((job: any) => {
+        if (job.job_posted_at_timestamp) {
+          return job.job_posted_at_timestamp >= oneMonthAgoTimestamp;
+        }
+        return true;
+      })
+      .map((job: any) => {
       // Format location
       let loc = "India";
       if (job.job_is_remote) {

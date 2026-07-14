@@ -304,7 +304,7 @@ router.post("/upgrade", requireAuth, async (req: AuthenticatedRequest, res: Resp
       { 
         $set: { 
           plan: targetPlan,
-          planExpiresAt: targetPlan === "pro" ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null
+          planExpiresAt: targetPlan === "pro" ? new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000) : null
         } 
       },
       { new: true }

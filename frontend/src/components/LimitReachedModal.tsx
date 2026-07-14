@@ -1,0 +1,262 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Lock, Sparkles, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
+import logoTransparent from "@/assets/brand/outly_your_career_at_peak.png";
+import confetti from "canvas-confetti";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+
+const loadRazorpayScript = () => {
+  return new Promise<boolean>((resolve) => {
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
+export default function LimitReachedModal() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [open, setOpen] = useState(false);
+  const [limitMessage, setLimitMessage] = useState("");
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    const handleLimitExceeded = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const message = customEvent.detail?.message || "You have reached the free tier limit for this feature.";
+      setLimitMessage(message);
+      setShowSuccess(false);
+      setOpen(true);
+    };
+
+    window.addEventListener("outly_limit_exceeded", handleLimitExceeded);
+    return () => {
+      window.removeEventListener("outly_limit_exceeded", handleLimitExceeded);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+        setOpen(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess]);
+
+  const handleRazorpayPayment = async () => {
+    try {
+      setIsProcessingPayment(true);
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        toast({
+          title: "Connection Error",
+          description: "Failed to load Razorpay SDK. Please check your internet connection.",
+          variant: "destructive",
+        });
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      let orderData;
+      try {
+        orderData = await api.payment.createOrder(100, "INR");
+      } catch (err: any) {
+        toast({
+          title: "Order Creation Failed",
+          description: err?.message || "Could not create payment order. Please try again.",
+          variant: "destructive",
+        });
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const razorpayKeyId = orderData.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
+      if (!razorpayKeyId) {
+        toast({
+          title: "Configuration Error",
+          description: "Razorpay Key ID is missing. Redirecting to Pricing page...",
+        });
+        navigate("/pricing");
+        setOpen(false);
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const options = {
+        key: razorpayKeyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Outly",
+        description: "Unlock Outly Lifetime Cloud Pro Plan",
+        image: logoTransparent,
+        order_id: orderData.order_id,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await api.payment.verifyPayment({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            if (verifyRes.success) {
+              if (verifyRes.token) {
+                localStorage.setItem("outly_token", verifyRes.token);
+              }
+              localStorage.setItem("outly_premium_user", "true");
+              window.dispatchEvent(new Event("premium_upgrade"));
+
+              confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+              });
+
+              setShowSuccess(true);
+            } else {
+              toast({
+                title: "Payment Verification Failed",
+                description: verifyRes.message || "Payment signature verification failed.",
+                variant: "destructive",
+              });
+            }
+          } catch (err: any) {
+            toast({
+              title: "Verification Error",
+              description: err?.message || "Failed to verify payment with server.",
+              variant: "destructive",
+            });
+          } finally {
+            setIsProcessingPayment(false);
+          }
+        },
+        prefill: {
+          name: "Outly Member",
+        },
+        theme: {
+          color: "#2dc08d",
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessingPayment(false);
+            toast({
+              title: "Payment Cancelled",
+              description: "You closed the payment checkout before completing.",
+            });
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", function (response: any) {
+        setIsProcessingPayment(false);
+        toast({
+          title: "Payment Failed",
+          description: response?.error?.description || "Your transaction could not be processed.",
+          variant: "destructive",
+        });
+      });
+      rzp.open();
+    } catch (e) {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => { if (!showSuccess) setOpen(val); }}>
+      <DialogContent className={`max-h-[90vh] overflow-y-auto w-[90%] select-none border-none transition-all duration-300 flex items-center justify-center ${
+        showSuccess 
+          ? "max-w-[380px] bg-white p-6 shadow-2xl rounded-[32px] border border-slate-100/50" 
+          : "max-w-[350px] bg-transparent p-0 shadow-none overflow-hidden rounded-2xl"
+      }`}>
+        {showSuccess ? (
+          <div className="flex flex-col items-center justify-center bg-transparent text-center gap-3">
+            <dotlottie-wc
+              src="https://lottie.host/2fc0ba87-b5ce-4ef6-a1d1-17fe365e32e7/k9r7BJgSj1.lottie"
+              style={{ width: "260px", height: "260px" }}
+              autoplay
+              loop
+            />
+            <h2 className="text-xl font-black text-foreground">Welcome to Cloud Pro! 🚀</h2>
+            <p className="text-xs text-muted-foreground">All features are now unlocked with lifetime access.</p>
+          </div>
+        ) : (
+          <div className="relative w-full rounded-2xl p-[1.5px] overflow-hidden bg-slate-200 isolate shadow-2xl">
+            {/* Conic glowing background */}
+            <div className="absolute inset-[-150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2DC08D_0%,#E6B800_25%,#ff4e50_50%,#2dc08d_75%,#2DC08D_100%)]" />
+
+            {/* Inner Content Card */}
+            <div className="relative bg-white rounded-[15px] p-5 text-center flex flex-col gap-4 overflow-hidden">
+              {/* Lock Badge */}
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 shadow-inner text-primary mt-3">
+                <Lock className="h-6 w-6 stroke-[2]" />
+              </div>
+
+              {/* Title & Limits Details */}
+              <div className="space-y-2 text-center pt-1">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-destructive/10 text-destructive text-[9px] font-extrabold uppercase tracking-wider">
+                  FREE TIER LIMIT REACHED
+                </span>
+                <h2 className="text-lg font-extrabold text-foreground tracking-tight">
+                  Uff! Free Tier Limit Reached 🚀
+                </h2>
+                <p className="text-[11.5px] text-muted-foreground leading-relaxed px-1 font-medium">
+                  {limitMessage} Upgrade to Cloud Pro for unlimited job searches, resume scans, tailoring, and priority cold mail outreach.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-col gap-2">
+                <Button
+                  onClick={handleRazorpayPayment}
+                  disabled={isProcessingPayment}
+                  className="w-full bg-gradient-to-r from-primary to-[#25a97b] text-white hover:brightness-105 rounded-full font-bold text-[11.5px] h-10 shadow-md shadow-primary/25 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
+                >
+                  {isProcessingPayment ? (
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                  ) : (
+                    <>
+                      <Sparkles className="h-3.5 w-3.5 fill-white/10" />
+                      <span>Unlock Lifetime Pro for ₹1</span>
+                    </>
+                  )}
+                </Button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    navigate("/pricing");
+                  }}
+                  className="w-full text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors h-8 cursor-pointer text-center mt-0.5"
+                >
+                  View pricing plans &rarr;
+                </button>
+              </div>
+
+              {/* Footer */}
+              <div className="text-[9.5px] text-muted-foreground/60 border-t border-slate-100 pt-3 mt-2 flex items-center justify-center gap-1 font-medium select-none">
+                <span>🔒 Secured by 256-bit Razorpay Gateway</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -19,7 +19,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Poppins", "Inter", "system-ui", "sans-serif"],
         rubik: ["Rubik", "sans-serif"],
         serif: ["Playfair Display", "serif"],
         mono: ["JetBrains Mono", "monospace"],

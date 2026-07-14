@@ -9,34 +9,12 @@ function getStartOfToday(): Date {
   return start;
 }
 
-// 1. Resume upload limit middleware
+// 1. Resume upload limit middleware (Vault is completely free & unlimited)
 export async function checkResumeLimit(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  if (!req.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  // Pro users have unlimited resume uploads
-  if (req.user.plan === "pro") {
-    return next();
-  }
-
-  try {
-    const count = await ResumeVaultModel.countDocuments({ userId: req.user.id });
-    if (count >= 3) {
-      return res.status(403).json({
-        error: "Resume upload limit reached.",
-        code: "LIMIT_RESUMES_EXCEEDED",
-        message: "Free tier is limited to 3 resumes. Please upgrade to Pro for unlimited uploads."
-      });
-    }
-    next();
-  } catch (error) {
-    console.error("Error checking resume limit:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
+  return next();
 }
 
-// 2. Cold email daily limit middleware
+// 2. Cold email rolling 12-hour limit middleware
 export async function checkColdMailLimit(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -47,17 +25,17 @@ export async function checkColdMailLimit(req: AuthenticatedRequest, res: Respons
   }
 
   try {
-    const startOfToday = getStartOfToday();
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
     const count = await CompanyModel.countDocuments({
       userId: req.user.id,
-      sent_at: { $gte: startOfToday }
+      createdAt: { $gte: twelveHoursAgo }
     });
 
-    if (count >= 5) {
+    if (count >= 3) {
       return res.status(403).json({
         error: "Daily cold email limit reached.",
         code: "LIMIT_EMAILS_EXCEEDED",
-        message: "Free tier is limited to 5 cold emails per day. Please upgrade to Pro for unlimited emails."
+        message: "Free tier is limited to 3 cold emails per 12 hours. Please upgrade to Pro for unlimited emails."
       });
     }
     next();
@@ -67,7 +45,7 @@ export async function checkColdMailLimit(req: AuthenticatedRequest, res: Respons
   }
 }
 
-// 3. ATS check limit middleware (6-hour rolling window)
+// 3. ATS check limit middleware (12-hour rolling window)
 export async function checkAtsLimit(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -78,27 +56,63 @@ export async function checkAtsLimit(req: AuthenticatedRequest, res: Response, ne
   }
 
   try {
-    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
     const checks = await ActivityLogModel.find({
       userId: req.user.id,
       type: "ats_check",
-      createdAt: { $gte: sixHoursAgo }
+      createdAt: { $gte: twelveHoursAgo }
     }).sort({ createdAt: 1 }).limit(3).lean();
 
     if (checks.length >= 3) {
-      // Unlock 6 hours after the oldest check in the window
+      // Unlock 12 hours after the oldest check in the window
       const oldestCheck = checks[0];
-      const unlockAt = new Date(new Date(oldestCheck.createdAt).getTime() + 6 * 60 * 60 * 1000).toISOString();
+      const unlockAt = new Date(new Date(oldestCheck.createdAt).getTime() + 12 * 60 * 60 * 1000).toISOString();
       return res.status(403).json({
         error: "Resume check limit reached.",
         code: "LIMIT_ATS_EXCEEDED",
-        message: "Free tier is limited to 3 ATS checks per 6 hours. Please upgrade to Pro for unlimited checks.",
+        message: "Free tier is limited to 3 ATS checks per 12 hours. Please upgrade to Pro for unlimited checks.",
         unlockAt
       });
     }
     next();
   } catch (error) {
     console.error("Error checking ATS limit:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+// 4. Resume tailoring limit middleware (12-hour rolling window)
+export async function checkTailorLimit(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (req.user.plan === "pro") {
+    return next();
+  }
+
+  try {
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    const tailors = await ActivityLogModel.find({
+      userId: req.user.id,
+      type: "ats_tailor",
+      createdAt: { $gte: twelveHoursAgo }
+    }).sort({ createdAt: 1 }).limit(3).lean();
+
+    if (tailors.length >= 3) {
+      // Unlock 12 hours after the oldest tailoring in the window
+      const oldestCheck = tailors[0];
+      const unlockAt = new Date(new Date(oldestCheck.createdAt).getTime() + 12 * 60 * 60 * 1000).toISOString();
+      return res.status(403).json({
+        error: "Resume tailor limit reached.",
+        code: "LIMIT_TAILOR_EXCEEDED",
+        message: "Free tier is limited to 3 resume tailorings per 12 hours. Please upgrade to Pro for unlimited tailoring.",
+        unlockAt
+      });
+    }
+    next();
+  } catch (error) {
+    console.error("Error checking tailor limit:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 }

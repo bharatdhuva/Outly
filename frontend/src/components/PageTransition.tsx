@@ -22,7 +22,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   }, [location.pathname]);
 
   return (
-    <div key={location.pathname} className="w-full flex-1 animate-page-enter">
+    <div key={location.pathname} className="w-full flex-1 flex flex-col animate-page-enter">
       <style>{`
         @keyframes page-enter {
           0% {

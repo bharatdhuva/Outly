@@ -37,6 +37,19 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
     }
     const err = new Error(errorMsg) as Error & { data?: any };
     if (errorData) err.data = errorData;
+    
+    // Trigger the limit modal if a 403 response with a LIMIT_ code is returned
+    if (res.status === 403 && errorData?.code?.startsWith("LIMIT_")) {
+      const event = new CustomEvent("outly_limit_exceeded", {
+        detail: {
+          code: errorData.code,
+          message: errorData.message || errorMsg,
+          unlockAt: errorData.unlockAt,
+        }
+      });
+      window.dispatchEvent(event);
+    }
+    
     throw err;
   }
   return res.json();

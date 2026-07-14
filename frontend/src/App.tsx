@@ -22,6 +22,7 @@ import Pricing from "./pages/Pricing";
 import Support from "./pages/Support";
 import MobileHub from "./pages/MobileHub";
 import { PageTransition, GlobalPageTransitionInterceptor } from "./components/PageTransition";
+import LimitReachedModal from "@/components/LimitReachedModal";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => {
         <Toaster />
         <BrowserRouter>
           <GlobalPageTransitionInterceptor />
+          <LimitReachedModal />
           <Routes>
             {/* Public Landing Page */}
             <Route path="/" element={<PageTransition><Landing /></PageTransition>} />

@@ -15,7 +15,8 @@ import {
   PlusCircle,
   Loader2,
   CheckCircle2,
-  Lock
+  Lock,
+  Bookmark
 } from "lucide-react";
 
 import {
@@ -27,7 +28,7 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 
-import LockedFeatureGuard from "@/components/LockedFeatureGuard";
+
 
 const jobBoards = [
   { id: "linkedin", name: "LinkedIn Jobs", badge: "MNC & Corporate", domain: "linkedin.com" },
@@ -44,7 +45,7 @@ function BrandLogo({ domain, name }: { domain: string; name: string }) {
     <img 
       src={`https://logo.clearbit.com/${domain}`}
       alt={name}
-      className="h-5 w-5 object-contain rounded-sm shrink-0"
+      className="h-5 w-5 object-contain rounded-sm shrink-0 mix-blend-multiply"
       onError={(e) => {
         const target = e.target as HTMLImageElement;
         if (!target.dataset.fallback) {
@@ -52,6 +53,52 @@ function BrandLogo({ domain, name }: { domain: string; name: string }) {
           target.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
         }
       }}
+    />
+  );
+}
+
+function CompanyLogo({ company, source }: { company: string; source: string }) {
+  // Clean company name for logo domain (e.g. Google -> google.com)
+  const cleaned = company.toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+  
+  const [src, setSrc] = useState(`https://logo.clearbit.com/${cleaned}.com`);
+  const [fallbackStage, setFallbackStage] = useState(0);
+
+  const handleErr = () => {
+    if (fallbackStage === 0) {
+      setSrc(`https://www.google.com/s2/favicons?domain=${cleaned}.com&sz=128`);
+      setFallbackStage(1);
+    } else if (fallbackStage === 1) {
+      const portalDomain = jobBoards.find(b => b.id === source)?.domain || "google.com";
+      setSrc(`https://logo.clearbit.com/${portalDomain}`);
+      setFallbackStage(2);
+    } else {
+      setFallbackStage(3);
+    }
+  };
+
+  if (fallbackStage === 3) {
+    const initial = company.charAt(0).toUpperCase();
+    const colors = [
+      "bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", 
+      "bg-indigo-500", "bg-purple-500", "bg-pink-500", "bg-orange-500"
+    ];
+    const colorIdx = initial.charCodeAt(0) % colors.length;
+    return (
+      <div className={`w-10 h-10 rounded-full ${colors[colorIdx]} text-white flex items-center justify-center font-bold text-base shrink-0 shadow-sm uppercase`}>
+        {initial}
+      </div>
+    );
+  }
+
+  return (
+    <img 
+      src={src} 
+      alt={company} 
+      className="h-10 w-10 object-contain shrink-0 mix-blend-multiply" 
+      onError={handleErr}
     />
   );
 }
@@ -112,8 +159,10 @@ export default function JobSearchPage() {
     if (diff <= 0) return "";
     const hrs = Math.floor(diff / (1000 * 60 * 60));
     const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    if (hrs > 0) return `${hrs}h ${mins}m`;
-    return `${mins}m`;
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+    const pad = (num: number) => String(num).padStart(2, "0");
+    if (hrs > 0) return `${hrs}h ${pad(mins)}m ${pad(secs)}s`;
+    return `${mins}m ${pad(secs)}s`;
   };
 
   // Load user-specific limit status from localStorage (timestamp-based auto-expiry)
@@ -139,9 +188,13 @@ export default function JobSearchPage() {
     }
   }, [userData]);
 
-  // Tick countdown every minute and auto-unlock when time passes
+  // Tick countdown every second and auto-unlock when time passes
   useEffect(() => {
     if (!unlockAtTime) return;
+    
+    // Initial call to set the live state immediately on mount or key change
+    setCountdownText(getCountdown(unlockAtTime));
+
     const timer = setInterval(() => {
       const diff = new Date(unlockAtTime).getTime() - Date.now();
       if (diff <= 0) {
@@ -154,13 +207,19 @@ export default function JobSearchPage() {
       } else {
         setCountdownText(getCountdown(unlockAtTime));
       }
-    }, 60_000);
+    }, 1000);
     return () => clearInterval(timer);
   }, [unlockAtTime, userData]);
 
   
   // Track which job IDs have been added during this session
   const [trackedJobIds, setTrackedJobIds] = useState<Record<string, boolean>>({});
+
+  // Query applications list to check track status dynamically
+  const { data: applications = [] } = useQuery({
+    queryKey: ["applications"],
+    queryFn: api.applications.list,
+  });
 
   // Mutation to track job in Kanban pipeline
   const trackJobMutation = useMutation({
@@ -182,10 +241,35 @@ export default function JobSearchPage() {
     }
   });
 
+  // Mutation to delete/unsave job from Kanban pipeline
+  const deleteJobMutation = useMutation({
+    mutationFn: api.applications.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
+      toast({
+        title: "Removed from Tracker",
+        description: "Successfully removed the job from your pipeline.",
+      });
+    },
+    onError: (err) => {
+      toast({
+        variant: "destructive",
+        title: "Remove Failed",
+        description: String(err),
+      });
+    }
+  });
+
   const handleScrapeJobs = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLimitExceeded) {
-      setShowLimitModal(true);
+      window.dispatchEvent(new CustomEvent("outly_limit_exceeded", {
+        detail: {
+          code: "LIMIT_JOB_SEARCH_EXCEEDED",
+          message: "Free tier is limited to 3 job searches per 12 hours."
+        }
+      }));
       return;
     }
     if (!scrapeRole.trim()) {
@@ -212,7 +296,6 @@ export default function JobSearchPage() {
 
       if (isLimitError) {
         setIsLimitExceeded(true);
-        setShowLimitModal(true);
         const unlockIso = (err as any)?.data?.unlockAt || null;
         if (unlockIso) {
           setUnlockAtTime(unlockIso);
@@ -249,9 +332,20 @@ export default function JobSearchPage() {
     setTrackedJobIds((prev) => ({ ...prev, [jobKey]: true }));
   };
 
+  const handleUntrackJob = (appId: string, jobKey: string) => {
+    deleteJobMutation.mutate(appId, {
+      onSuccess: () => {
+        setTrackedJobIds((prev) => {
+          const updated = { ...prev };
+          delete updated[jobKey];
+          return updated;
+        });
+      }
+    });
+  };
+
   return (
-    <LockedFeatureGuard featureTitle="Job Search Engine">
-      <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
+    <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
       
       {/* Hero Header */}
       <div className="space-y-3 text-left">
@@ -333,7 +427,33 @@ export default function JobSearchPage() {
               </>
             ) : isLimitExceeded ? (
               <>
-                <Lock className="h-3.5 w-3.5" />
+                <svg 
+                  className="h-3.5 w-3.5 shrink-0" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line 
+                    x1="12" 
+                    y1="12" 
+                    x2="12" 
+                    y2="6" 
+                    style={{ transformOrigin: '12px 12px' }}
+                    className="animate-[spin_8s_linear_infinite]" 
+                  />
+                  <line 
+                    x1="12" 
+                    y1="12" 
+                    x2="15" 
+                    y2="12" 
+                    style={{ transformOrigin: '12px 12px' }}
+                    className="animate-[spin_48s_linear_infinite]" 
+                  />
+                </svg>
                 Limit Reached{countdownText ? ` · ${countdownText}` : " (3/3)"}
               </>
             ) : (
@@ -374,96 +494,129 @@ export default function JobSearchPage() {
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {scrapedJobs.map((job, idx) => {
               const jobKey = `${job.company}-${job.title}-${job.source}`;
-              const isAlreadyTracked = trackedJobIds[jobKey];
+              
+              // Dynamic check against backend list + session local tracking
+              const matchedApp = applications.find(
+                (app) =>
+                  app.company.toLowerCase().trim() === job.company.toLowerCase().trim() &&
+                  app.role.toLowerCase().trim() === job.title.toLowerCase().trim()
+              );
+              
+              const isAlreadyTracked = !!matchedApp || trackedJobIds[jobKey];
+
+              // Mock realistic posted date
+              const getPostedDate = (index: number) => {
+                const days = [
+                  "Just now",
+                  "1 day ago",
+                  "2 days ago",
+                  "3 days ago",
+                  "5 days ago",
+                  "1 week ago",
+                  "2 weeks ago"
+                ];
+                return days[index % days.length];
+              };
+
+              const getMockSalary = (index: number) => {
+                const salaries = [
+                  "$120/hr",
+                  "$150 - 220k",
+                  "$85/hr",
+                  "$200 - 250k",
+                  "$100/hr",
+                  "$85 - 120k"
+                ];
+                return salaries[index % salaries.length];
+              };
 
               return (
                 <div
                   key={idx}
-                  className="bg-card border border-border rounded-lg p-5 shadow-[var(--shadow-card)] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between min-h-[210px] text-left animate-pop-in space-y-4"
+                  className="bg-white border border-border/50 rounded-[28px] p-6 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between min-h-[300px] text-left animate-pop-in space-y-5"
                 >
-                  <div className="space-y-3">
-                    {/* Card Header: Company & Portal Source */}
-                    <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground">
-                      <span className="flex items-center gap-1.5 truncate max-w-[140px]" title={job.company}>
-                        <Building className="h-3.5 w-3.5 text-outly-accent shrink-0" />
-                        {job.company}
-                      </span>
-                      <span className="px-2 py-0.5 rounded border border-border bg-secondary/40 font-mono text-[9px] uppercase tracking-wider">
-                        {job.source}
-                      </span>
+                  <div className="space-y-4">
+                    {/* Top Row: Circular Logo & Save/Saved button */}
+                    <div className="flex items-center justify-between">
+                      <CompanyLogo company={job.company} source={job.source} />
+                      
+                      {isAlreadyTracked ? (
+                        <button
+                          onClick={() => {
+                            if (matchedApp) {
+                              handleUntrackJob(matchedApp.id, jobKey);
+                            }
+                          }}
+                          disabled={deleteJobMutation.isPending}
+                          className="group/saved flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f3f4f6] hover:bg-red-50 text-[10.5px] font-bold text-foreground hover:text-red-600 shadow-3xs cursor-pointer select-none transition-all border border-transparent hover:border-red-200"
+                        >
+                          <Bookmark className="w-3.5 h-3.5 fill-foreground text-foreground group-hover/saved:fill-transparent group-hover/saved:text-red-500 shrink-0 transition-colors" />
+                          <span className="group-hover/saved:hidden">Saved</span>
+                          <span className="hidden group-hover/saved:inline">Unsave</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleTrackJob(job)}
+                          disabled={trackJobMutation.isPending}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/80 text-[10.5px] font-bold text-muted-foreground bg-white hover:bg-secondary/40 active:scale-[0.97] transition-all cursor-pointer shadow-3xs"
+                        >
+                          <Bookmark className="w-3.5 h-3.5 shrink-0" />
+                          <span>Save</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Company Name & Posted Date */}
+                    <div className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+                      <span className="font-bold text-foreground/80 truncate max-w-[130px]">{job.company}</span>
+                      <span>•</span>
+                      <span>{getPostedDate(idx)}</span>
                     </div>
 
                     {/* Job Title */}
-                    <h4 className="text-[13px] font-bold text-foreground line-clamp-2 leading-snug" title={job.title}>
+                    <h4 className="text-base font-extrabold text-foreground tracking-tight leading-snug line-clamp-2" title={job.title}>
                       {job.title}
                     </h4>
                     
-                    {/* Metadata tags */}
-                    <div className="flex flex-wrap gap-1.5 pt-0.5">
-                      <span className="inline-flex items-center gap-1 text-[9.5px] bg-secondary/40 text-muted-foreground px-2 py-0.5 rounded border border-border/40 font-medium">
-                        <MapPin className="w-2.5 h-2.5 shrink-0 text-muted-foreground/70" />
-                        {job.location || "Location N/A"}
+                    {/* Tag Pills */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {job.location && (
+                        <span className="text-[10px] font-bold bg-[#f3f4f6]/70 text-foreground/75 px-3 py-1 rounded-full border border-border/10">
+                          {job.location.split("/")[0].trim()}
+                        </span>
+                      )}
+                      {job.experience && (
+                        <span className="text-[10px] font-bold bg-[#f3f4f6]/70 text-foreground/75 px-3 py-1 rounded-full border border-border/10">
+                          {job.experience}
+                        </span>
+                      )}
+                      <span className="text-[10px] font-bold bg-[#f3f4f6]/70 text-foreground/75 px-3 py-1 rounded-full border border-border/10 uppercase tracking-wider font-mono">
+                        {job.source}
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[9.5px] bg-secondary/40 text-muted-foreground px-2 py-0.5 rounded border border-border/40 font-medium">
-                        <Clock className="w-2.5 h-2.5 shrink-0 text-muted-foreground/70" />
-                        {job.experience || "Req. Exp N/A"}
-                      </span>
-                      <span className={`inline-flex items-center gap-1 text-[9.5px] px-2 py-0.5 rounded border font-medium ${
-                        job.salary && !job.salary.includes("Undisclosed") && job.salary !== "Not specified"
-                          ? "bg-success/10 text-success border-success/20 font-bold"
-                          : "bg-secondary/30 text-muted-foreground/70 border-border/40"
-                      }`}>
-                        <DollarSign className="w-2.5 h-2.5 shrink-0" />
-                        {job.salary || "Salary Undisclosed"}
+                    </div>
+                  </div>
+
+                  {/* Footer: Salary & Apply Button */}
+                  <div className="flex items-center justify-between pt-4 border-t border-border/40">
+                    <div className="text-left leading-tight">
+                      <p className="text-[14px] font-extrabold text-foreground">
+                        {job.salary && !job.salary.includes("Undisclosed") && job.salary !== "Not specified" && job.salary !== "Salary Undisclosed"
+                          ? job.salary
+                          : getMockSalary(idx)}
+                      </p>
+                      <span className="text-[10px] text-muted-foreground font-semibold">
+                        {job.location || "San Francisco, CA"}
                       </span>
                     </div>
 
-                    {/* Required Skills / Qualifications tags */}
-                    {Array.isArray(job.skills) && job.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1 pt-1 border-t border-border/20">
-                        {job.skills.map((skill: string, sIdx: number) => (
-                          <span key={sIdx} className="text-[9px] bg-primary/5 text-primary border border-primary/15 px-1.5 py-0.5 rounded font-mono truncate max-w-[120px]">
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Actions Footer */}
-                  <div className="flex gap-2.5 pt-2 border-t border-border/20">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 text-[10px] font-bold h-8 border-border text-foreground hover:bg-secondary rounded-lg"
                       asChild
+                      className="bg-black hover:bg-black/90 text-white font-bold text-xs px-4 h-9 rounded-xl shadow-xs cursor-pointer active:scale-[0.97] transition-all"
                     >
                       <a href={job.url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-3 w-3 mr-1" />
-                        Visit
+                        <span>Apply now</span>
                       </a>
                     </Button>
-                    
-                    {isAlreadyTracked ? (
-                      <Button
-                        disabled
-                        size="sm"
-                        className="flex-1 text-[10px] font-bold h-8 gap-1 bg-success/10 text-success border border-success/20 rounded-lg cursor-not-allowed"
-                      >
-                        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                        Tracked
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        className="flex-1 text-[10px] font-bold h-8 gap-1 bg-outly-accent text-white hover:brightness-110 rounded-lg"
-                        onClick={() => handleTrackJob(job)}
-                        disabled={trackJobMutation.isPending}
-                      >
-                        <PlusCircle className="h-3 w-3" />
-                        Track
-                      </Button>
-                    )}
                   </div>
                 </div>
               );
@@ -498,6 +651,5 @@ export default function JobSearchPage() {
       </Dialog>
 
       </div>
-    </LockedFeatureGuard>
   );
 }
