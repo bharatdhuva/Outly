@@ -432,19 +432,19 @@ export default function ContentScheduler() {
 
 
       {/* 🚀 REDESIGNED HERO & ENGINE STATUS HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 sm:p-8 rounded-3xl bg-card border border-border/80 shadow-xs text-left">
-        <div className="space-y-2 max-w-2xl">
-          <span className="text-[10px] font-extrabold tracking-widest text-outly-accent uppercase bg-outly-accent/10 px-3 py-1 rounded-full border border-outly-accent/20 inline-block">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-6 rounded-3xl bg-card border border-border/80 shadow-xs text-left">
+        <div className="space-y-1.5 max-w-2xl">
+          <span className="text-[9px] md:text-[10px] font-extrabold tracking-widest text-outly-accent uppercase bg-outly-accent/10 px-2.5 py-1 rounded-full border border-outly-accent/20 inline-block">
             POST SCHEDULER & BRAND AUTOMATION
           </span>
 
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+          <h1 className="text-lg sm:text-2xl font-bold text-foreground tracking-tight leading-[1.1]">
             Auto-generate & schedule posts for your career brand.
           </h1>
         </div>
 
-        <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
-          <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 shadow-2xs">
+        <div className="flex flex-col items-start md:items-end gap-1.5 shrink-0">
+          <span className="text-[9px] md:text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 shadow-2xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
             Working on Meta API & Social Auto-Publishing
           </span>

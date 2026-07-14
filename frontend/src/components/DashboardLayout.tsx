@@ -120,6 +120,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // 1. Enforce authentication checking
   const token = localStorage.getItem("outly_token");
@@ -464,14 +473,26 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-transparent text-outly-dark flex flex-col font-sans overflow-x-clip">
       
-      {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-      <header className="sticky top-0 z-[100] w-full border-b border-[#e8e2d5]/60 bg-[#FAF6EE]/85 backdrop-blur-md shadow-xs shrink-0 select-none">
-        <div className="flex h-16 w-full items-center justify-between px-8 sm:px-10 lg:px-12">
+      {/* Header Spacer Wrapper to prevent layout shift */}
+      <div className="h-16 w-full shrink-0 relative">
+        {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
+        <header className={`fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#e8e2d5]/60 bg-[#FAF6EE]/85 backdrop-blur-md shadow-xs shrink-0 select-none transition-[height] duration-150 ease-out ${
+          scrolled ? "h-11 md:h-16" : "h-16"
+        }`}>
+        <div className={`flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 transition-[height] duration-150 ease-out ${
+          scrolled ? "h-11 md:h-16" : "h-16"
+        }`}>
           
           {/* Left: Brand Logo */}
           <div className="flex h-full items-center gap-12">
             <Link to="/onboarding" className="flex h-full -translate-y-px items-center hover:opacity-90 transition-opacity">
-              <img src={logoTransparent} alt="Outly Logo" className="h-[26px] md:h-7 w-auto -translate-y-px object-contain" />
+              <img 
+                src={logoTransparent} 
+                alt="Outly Logo" 
+                className={`h-[22px] md:h-7 -translate-y-px transition-[width,height] duration-150 ease-out ${
+                  scrolled ? "w-6 object-cover object-left md:w-auto md:object-contain" : "w-auto object-contain"
+                }`} 
+              />
             </Link>
 
             {/* Middle: Desktop Links & Dropdowns */}
@@ -924,7 +945,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 className="relative p-2 text-zinc-500 active:scale-95 transition-all outline-none"
                 onClick={() => setNotificationsOpen(prev => !prev)}
               >
-                <Bell className="h-[21px] w-[21px]" />
+                <Bell className={`transition-[width,height] duration-150 ease-out ${scrolled ? "h-[17px] w-[17px]" : "h-[21px] w-[21px]"}`} />
                 {unreadCount > 0 && (
                   <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white leading-none">
                     {unreadCount}
@@ -979,7 +1000,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 className="flex items-center justify-center focus:outline-none cursor-pointer shrink-0"
                 aria-label="Open profile menu"
               >
-                <PlanStatusAvatar isPremium={isPremium} profilePic={profilePic} fullName={fullName} initials={initials} />
+                <PlanStatusAvatar 
+                  isPremium={isPremium} 
+                  profilePic={profilePic} 
+                  fullName={fullName} 
+                  initials={initials} 
+                  sizeClass={`transition-[width,height] duration-150 ease-out ${scrolled ? "h-6 w-6 text-[9px]" : "h-8 w-8 text-[11px]"}`}
+                />
               </button>
 
               {profileMenuOpen && (
@@ -1045,6 +1072,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
+    </div>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
       <main className="flex-1 w-full flex flex-col min-h-0 md:pb-0">

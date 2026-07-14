@@ -203,6 +203,15 @@ export default function ResumeVaultPage() {
       return;
     }
 
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        variant: "destructive",
+        title: "File Too Large",
+        description: "Maximum file size allowed is 5 MB.",
+      });
+      return;
+    }
+
     setFileToUpload(file);
     const baseName = file.name.replace(/\.[^/.]+$/, "");
     setResumeLabel(baseName.split("_").join(" ").split("-").join(" "));
@@ -218,6 +227,15 @@ export default function ResumeVaultPage() {
         variant: "destructive",
         title: "Unsupported File Format",
         description: "Please upload a .pdf, .docx, or .txt file.",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        variant: "destructive",
+        title: "File Too Large",
+        description: "Maximum file size allowed is 5 MB.",
       });
       return;
     }
@@ -282,15 +300,15 @@ export default function ResumeVaultPage() {
     <div className="mx-auto w-full max-w-7xl px-6 py-4 sm:py-6 sm:px-8 space-y-6 sm:space-y-8 animate-fade-in pb-20">
       
       {/* Hero text header */}
-      <div className="space-y-3 text-left">
-        <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
+      <div className="space-y-1.5 sm:space-y-3 text-left">
+        <span className="text-[10px] md:text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-2.5 py-1 rounded-full inline-block">
           RESUME MANAGEMENT
         </span>
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
+        <h1 className="text-xl sm:text-4xl font-bold text-foreground leading-[1.1] tracking-tight">
           Resume Vault
         </h1>
-        <p className="text-muted-foreground text-[13px] sm:text-[14px] leading-relaxed max-w-2xl">
-          Store multiple CV versions, audit them for ATS compliance, and track matching performance history.
+        <p className="text-muted-foreground text-xs sm:text-[14px] leading-normal max-w-2xl">
+          Store, organize and manage multiple versions of your resume for quick application tailored variants.
         </p>
       </div>
 
@@ -358,7 +376,7 @@ export default function ResumeVaultPage() {
                       <div className="mt-2.5 flex items-center justify-between gap-2 text-[10px]">
                         <span className="text-muted-foreground flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {new Date(resumeItem.created_at).toLocaleDateString()}
+                          {new Date(resumeItem.createdAt || resumeItem.created_at).toLocaleDateString()}
                         </span>
 
                         <div className="flex items-center gap-1.5">
@@ -555,7 +573,7 @@ export default function ResumeVaultPage() {
                               <div className="mt-4 border-t border-border/40 pt-2 flex items-center justify-between text-[9px] text-muted-foreground">
                                 <span className="flex items-center gap-1 font-medium">
                                   <Calendar className="h-3 w-3" />
-                                  {new Date(app.created_at).toLocaleDateString()}
+                                  {new Date(app.createdAt || app.created_at).toLocaleDateString()}
                                 </span>
                                 <Link 
                                   to="/applications" 

@@ -324,6 +324,15 @@ export default function AtsScorePage() {
       return;
     }
 
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        variant: "destructive",
+        title: "File Too Large",
+        description: "Maximum file size allowed is 5 MB.",
+      });
+      return;
+    }
+
     setResumeFile(file);
     setResumeFileName(file.name);
     setParsingFile(true);
@@ -601,15 +610,15 @@ export default function AtsScorePage() {
           
           {/* Hero text header */}
           {!result && (
-            <div className="space-y-3 sm:space-y-4">
-              <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
+            <div className="space-y-1.5 sm:space-y-3">
+              <span className="text-[10px] md:text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-2.5 py-1 rounded-full inline-block">
                 RESUME CHECKER
               </span>
-              <h1 className="text-4xl sm:text-5xl lg:text-[52px] font-bold text-foreground leading-[1.08] tracking-tight">
+              <h1 className="text-2xl sm:text-4xl lg:text-[52px] font-bold text-foreground leading-[1.05] tracking-tight">
                 Is your resume good enough?
               </h1>
-              <p className="text-muted-foreground text-[14px] sm:text-[15px] leading-relaxed max-w-xl">
-                A free and fast AI resume checker doing 27 crucial checks to ensure your resume's content, layout and design is technically compatible with the applicant tracking systems and get you interview callbacks.
+              <p className="text-muted-foreground text-xs sm:text-[15px] leading-normal max-w-xl">
+                Free AI resume checker analyzing 27 crucial factors to ensure full ATS compatibility and get you interviews.
               </p>
             </div>
           )}

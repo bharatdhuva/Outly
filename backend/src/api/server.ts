@@ -49,6 +49,14 @@ app.use("/api/scraper", scraperRoutes);
 app.use("/api", paymentRoutes);
 app.use("/api/payment", paymentRoutes);
 
+// Global JSON error handler (catches Multer file size limits and other errors)
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const errMsg = err.message || String(err);
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ error: "File too large. Maximum allowed size is 5 MB." });
+  }
+  res.status(err.status || 500).json({ error: errMsg });
+});
 
 // Server frontend in production
 const rootDir = process.cwd().endsWith("src") ? path.resolve(process.cwd(), "..") : process.cwd();

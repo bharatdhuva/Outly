@@ -343,6 +343,15 @@ export default function ResumeTailorPage() {
       return;
     }
 
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        variant: "destructive",
+        title: "File Too Large",
+        description: "Maximum file size allowed is 5 MB.",
+      });
+      return;
+    }
+
     setResumeFile(file);
     setSelectedVaultId("custom");
     setLoading(true);
@@ -600,15 +609,15 @@ export default function ResumeTailorPage() {
     <div className="mx-auto w-full max-w-7xl px-6 py-4 sm:py-6 sm:px-8 space-y-5 sm:space-y-8 animate-fade-in pb-20">
       
       {/* Hero text header */}
-      <div className="space-y-2 sm:space-y-3 text-left">
-        <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
+      <div className="space-y-1.5 sm:space-y-3 text-left">
+        <span className="text-[10px] md:text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-2.5 py-1 rounded-full inline-block">
           RESUME TAILOR
         </span>
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
+        <h1 className="text-xl sm:text-4xl font-bold text-foreground leading-[1.1] tracking-tight">
           Tailor your resume for any role
         </h1>
-        <p className="text-muted-foreground text-[13px] sm:text-[14px] leading-relaxed max-w-3xl">
-          Paste the target job description and upload your resume. Our AI automatically aligns your experience and skills to match hiring criteria.
+        <p className="text-muted-foreground text-xs sm:text-[14px] leading-normal max-w-3xl">
+          Instantly align your resume with any target job description using smart AI customization.
         </p>
       </div>
 

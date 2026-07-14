@@ -386,16 +386,16 @@ export default function ColdMailPage() {
         <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
         
         {/* Hero text header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-3 text-left">
-            <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
+          <div className="space-y-1.5 md:space-y-3 text-left">
+            <span className="text-[10px] md:text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-2.5 py-1 rounded-full inline-block">
               COLD MAIL MANAGER
             </span>
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
+            <h1 className="text-xl sm:text-4xl font-bold text-foreground leading-[1.1] tracking-tight">
               Smart Cold Outreach & Follow-up Manager
             </h1>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl leading-relaxed">
-              Generate personalized cold emails for target hiring managers, manage drafts, and track application responses in real-time.
+            <p className="text-muted-foreground text-xs sm:text-sm max-w-2xl leading-normal">
+              Generate personalized outreach emails and track hiring manager responses in real-time.
             </p>
           </div>
 
@@ -572,7 +572,10 @@ export default function ColdMailPage() {
           <>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div 
+        className="flex overflow-x-auto gap-3 pb-2 sm:grid sm:grid-cols-2 xl:grid-cols-4 select-none -mx-6 px-6 sm:mx-0 sm:px-0"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
         {[
           { label: "Pending", count: counts.pending, color: "text-warning bg-warning/10 border-warning/20" },
           { label: "Approved", count: counts.approved, color: "text-outly-accent bg-outly-accent/10 border-outly-accent/20" },
@@ -581,7 +584,7 @@ export default function ColdMailPage() {
         ].map((s) => (
           <div
             key={s.label}
-            className="flex items-center justify-between rounded-2xl border border-border bg-white px-5 py-4 shadow-sm"
+            className="flex-1 min-w-[140px] sm:min-w-0 flex items-center justify-between rounded-2xl border border-border bg-white px-5 py-4 shadow-sm shrink-0"
           >
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{s.label}</span>
             <span className={`font-mono text-xl font-bold px-3 py-1 rounded-xl border ${s.color}`}>

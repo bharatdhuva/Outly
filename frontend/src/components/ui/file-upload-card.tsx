@@ -132,7 +132,7 @@ export const FileUploadCard = React.forwardRef<HTMLDivElement, FileUploadCardPro
               "mt-5 border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center transition-colors duration-200 cursor-pointer select-none",
               isDragging
                 ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/50 hover:bg-secondary/10"
+                : "border-zinc-400/80 hover:border-primary/50 hover:bg-secondary/10"
             )}
           >
             <input
@@ -145,7 +145,7 @@ export const FileUploadCard = React.forwardRef<HTMLDivElement, FileUploadCardPro
             <UploadCloud className="w-8 h-8 text-primary/70 mb-3" />
             <p className="text-[12px] font-bold text-foreground">Choose a file or drag & drop it here.</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              PDF, DOCX, and TXT formats, up to 10 MB.
+              PDF, DOCX, and TXT formats, up to 5 MB.
             </p>
             <Button variant="outline" size="sm" className="mt-3.5 h-8 text-xs font-bold border-border hover:bg-secondary">
               Browse File
