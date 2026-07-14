@@ -182,7 +182,7 @@ export default function AtsScorePage() {
 
   // Fetch resumes from the Resume Vault
   const { data: resumes = [] } = useQuery({
-    queryKey: ["resumes"],
+    queryKey: ["resume", "list"],
     queryFn: api.resume.list,
   });
 
