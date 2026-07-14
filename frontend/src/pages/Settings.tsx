@@ -21,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { api, type AppSettings, type ResumeVaultItem } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import DotLottieLoader from "@/components/DotLottieLoader";
 
 interface SettingSectionProps {
   title: string;

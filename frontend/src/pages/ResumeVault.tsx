@@ -279,26 +279,26 @@ export default function ResumeVaultPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-4 sm:py-6 sm:px-8 space-y-6 sm:space-y-12 animate-fade-in pb-20">
+    <div className="mx-auto w-full max-w-7xl px-6 py-4 sm:py-6 sm:px-8 space-y-6 sm:space-y-8 animate-fade-in pb-20">
       
+      {/* Hero text header */}
+      <div className="space-y-3 text-left">
+        <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
+          RESUME MANAGEMENT
+        </span>
+        <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
+          Resume Vault
+        </h1>
+        <p className="text-muted-foreground text-[13px] sm:text-[14px] leading-relaxed max-w-2xl">
+          Store multiple CV versions, audit them for ATS compliance, and track matching performance history.
+        </p>
+      </div>
+
       {/* TWO COLUMN WORKSPACE GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16 items-start">
         
-        {/* ─── LEFT COLUMN: HERO, UPLOADER & STORED RESUMES LIST ─── */}
-        <div className="lg:col-span-5 space-y-6 flex flex-col justify-between min-h-[620px]">
-          
-          {/* Hero text header */}
-          <div className="space-y-3">
-            <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
-              RESUME MANAGEMENT
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
-              Resume Vault
-            </h1>
-            <p className="text-muted-foreground text-[13px] sm:text-[14px] leading-relaxed">
-              Store multiple CV versions, audit them for ATS compliance, and track matching performance history.
-            </p>
-          </div>
+        {/* ─── LEFT COLUMN: UPLOADER & STORED RESUMES LIST ─── */}
+        <div className="lg:col-span-5 space-y-6 flex flex-col justify-start">
 
           {/* Quick Uploader Dropzone */}
           <FileUploadCard
@@ -419,7 +419,7 @@ export default function ResumeVaultPage() {
           <div className="absolute inset-0 bg-outly-accent/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>
 
           {/* Browser Frame Mockup Container */}
-          <div className="relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-2xl overflow-hidden flex flex-col z-10 select-none h-[620px]">
+          <div className="relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-2xl overflow-hidden flex flex-col z-10 select-none h-auto sm:h-[620px]">
             
             {/* Browser Header Bar */}
             <div className="bg-secondary/40 border-b border-border/60 px-4 py-3 flex items-center justify-between">
@@ -512,20 +512,25 @@ export default function ResumeVaultPage() {
                 {/* Sub-tab Content Panel */}
                 <div className="flex-1 min-h-0 flex flex-col">
                   {activePreviewTab === "preview" ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center p-8 rounded-xl border border-dashed border-border bg-secondary/10 min-h-[350px]">
-                      <div className="w-14 h-14 rounded-2xl bg-outly-accent/10 text-outly-accent border border-outly-accent/20 flex items-center justify-center mb-4 shadow-sm">
-                        <FileText className="h-7 w-7" />
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 sm:p-8 rounded-xl border border-dashed border-border bg-secondary/10 gap-3">
+                      <div className="w-32 h-32 flex items-center justify-center">
+                        <dotlottie-wc
+                          src="https://lottie.host/1d29d8fb-2400-499c-9c05-f0baab68cc04/LASNuAcp8G.lottie"
+                          style={{ width: '120px', height: '120px' }}
+                          autoplay
+                          loop
+                        />
                       </div>
-                      <h3 className="text-base font-bold text-foreground mb-1.5">
+                      <h3 className="text-sm sm:text-base font-bold text-foreground">
                         Working on Resume Preview
                       </h3>
-                      <p className="text-xs text-muted-foreground max-w-sm leading-relaxed mb-6">
+                      <p className="text-[11px] sm:text-xs text-muted-foreground max-w-sm leading-relaxed">
                         We are currently optimizing live inline document rendering. In the meantime, you can download your complete resume file directly below.
                       </p>
                       <Button
                         onClick={() => handleDownloadResume(selectedResume.id, selectedResume.filename)}
                         disabled={downloadingId === selectedResume.id}
-                        className="bg-outly-accent hover:bg-outly-accent/90 text-white font-bold text-xs h-10 px-6 rounded-xl gap-2 shadow-sm active:scale-[0.98] transition-all"
+                        className="bg-outly-accent hover:bg-outly-accent/90 text-white font-bold text-xs h-10 px-6 rounded-xl gap-2 shadow-sm active:scale-[0.98] transition-all mt-2 cursor-pointer"
                       >
                         {downloadingId === selectedResume.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -721,17 +726,19 @@ export default function ResumeVaultPage() {
 
       {/* DELETE CONFIRMATION ALERT DIALOG */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <AlertDialogContent className="border-border bg-card">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Resume Version?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="border-border bg-card max-w-[340px] p-5 rounded-2xl gap-0">
+          <AlertDialogHeader className="pb-0 space-y-1">
+            <AlertDialogTitle className="text-base font-bold text-foreground">Delete Resume Version?</AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-muted-foreground leading-relaxed">
               Are you sure you want to delete <strong className="text-foreground">"{deleteTarget?.label}"</strong>? This will remove this version from your vault.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
+          <div className="flex items-center gap-2.5 mt-5">
+            <AlertDialogCancel className="flex-1 h-9 rounded-xl text-xs font-bold border-border text-foreground hover:bg-secondary cursor-pointer m-0">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
+              className="flex-1 h-9 rounded-xl text-xs font-bold bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer m-0"
               onClick={() => {
                 if (deleteTarget) {
                   deleteMutation.mutate(deleteTarget.id);
@@ -739,9 +746,9 @@ export default function ResumeVaultPage() {
                 }
               }}
             >
-              Delete Resume
+              Delete
             </AlertDialogAction>
-          </AlertDialogFooter>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
 

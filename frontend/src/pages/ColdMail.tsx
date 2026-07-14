@@ -352,24 +352,26 @@ export default function ColdMailPage() {
   return (
     <>
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <AlertDialogContent className="border-border bg-card">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Lead?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="border-border bg-card max-w-[340px] p-5 rounded-2xl gap-0">
+          <AlertDialogHeader className="pb-0 space-y-1">
+            <AlertDialogTitle className="text-base font-bold text-foreground">Delete Lead?</AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-muted-foreground leading-relaxed">
               {deleteTarget
                 ? `This will permanently remove ${deleteTarget.company_name} from your cold mail pipeline.`
                 : "This will permanently remove this lead from your cold mail pipeline."}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <div className="flex items-center gap-2.5 mt-5">
+            <AlertDialogCancel className="flex-1 h-9 rounded-xl text-xs font-bold border-border text-foreground hover:bg-secondary cursor-pointer m-0">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="flex-1 h-9 rounded-xl text-xs font-bold bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer m-0"
               onClick={handleDeleteConfirm}
             >
               Delete
             </AlertDialogAction>
-          </AlertDialogFooter>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
 
@@ -921,7 +923,7 @@ export default function ColdMailPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="flex-1 gap-2.5 h-10 border-border bg-card hover:bg-secondary/40 text-foreground font-semibold shadow-sm cursor-pointer"
+                        className="flex-1 gap-2.5 h-9 border-border bg-card hover:bg-secondary/40 text-foreground font-semibold shadow-sm cursor-pointer"
                         title="Open direct compose window in Gmail web app"
                         onClick={() => {
                           if (isMobile) {
@@ -942,7 +944,7 @@ export default function ColdMailPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-10 px-3 cursor-pointer"
+                            className="h-9 px-3 cursor-pointer"
                             title="Edit Mail & Details"
                             onClick={() => {
                               setEditData({
@@ -1008,7 +1010,7 @@ export default function ColdMailPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-10 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
+                        className="h-9 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
                         title="Delete Lead"
                         onClick={() => {
                           setDeleteTarget(selectedCompany);
@@ -1021,7 +1023,7 @@ export default function ColdMailPage() {
                     <div className="flex w-full items-center gap-2">
                       <Button
                         size="sm"
-                        className="flex-1 gap-2 h-10 border-none bg-outly-accent hover:bg-outly-accent/95 text-white rounded-full font-semibold cursor-pointer transition-all duration-300 shadow-md hover:shadow-lg shadow-outly-accent/15"
+                        className="flex-1 gap-2 h-9 border-none bg-outly-accent hover:bg-outly-accent/95 text-white rounded-full font-semibold cursor-pointer transition-all duration-300 shadow-md hover:shadow-lg shadow-outly-accent/15"
                         disabled={loadingId === selectedCompany.id}
                         onClick={() => {
                           handleGenerateCheck(() => {
@@ -1092,7 +1094,7 @@ export default function ColdMailPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-10 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
+                        className="h-9 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
                         title="Delete Lead"
                         onClick={() => {
                           setDeleteTarget(selectedCompany);
@@ -1103,7 +1105,7 @@ export default function ColdMailPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-10 px-3 cursor-pointer"
+                        className="h-9 px-3 cursor-pointer"
                         title="Skip Lead"
                         onClick={() => {
                           api.coldmail.skip(selectedCompany.id).then(() =>

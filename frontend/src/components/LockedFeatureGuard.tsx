@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Lock, Sparkles, Check, ArrowRight, ShieldCheck, Zap, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -67,6 +67,15 @@ export default function LockedFeatureGuard({
       window.removeEventListener("premium_upgrade", checkStatus);
     };
   }, []);
+
+  // Clear any lingering success/modal state when the route changes to avoid
+  // the payment success animation showing on unrelated pages (e.g., Cold Mail).
+  const location = useLocation();
+  useEffect(() => {
+    if (showSuccess) setShowSuccess(false);
+    if (showModal) setShowModal(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   const handleRazorpayPayment = async () => {
     try {
@@ -222,13 +231,10 @@ export default function LockedFeatureGuard({
             : "max-w-[350px] bg-transparent p-0 shadow-none overflow-hidden rounded-2xl"
         }`}>
           {showSuccess ? (
-            <div className="flex items-center justify-center bg-transparent pointer-events-none">
-              <dotlottie-wc
-                src="https://lottie.host/2fc0ba87-b5ce-4ef6-a1d1-17fe365e32e7/k9r7BJgSj1.lottie"
-                style={{ width: "330px", height: "330px" }}
-                autoplay
-                loop
-              />
+            <div className="flex flex-col items-center justify-center bg-transparent text-center gap-3 p-6">
+              <Sparkles className="h-12 w-12 text-outly-accent" />
+              <h2 className="text-lg font-black text-foreground">Payment successful</h2>
+              <p className="text-sm text-muted-foreground">Thank you — your account is now upgraded.</p>
             </div>
           ) : (
             /* Animated AMOLED Border Outer Wrapper */

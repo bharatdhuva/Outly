@@ -385,13 +385,10 @@ export default function Pricing() {
 
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
         <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[380px] bg-white p-6 shadow-2xl rounded-[32px] border border-slate-100/50 select-none border-none flex items-center justify-center">
-          <div className="flex items-center justify-center bg-transparent pointer-events-none">
-            <dotlottie-wc
-              src="https://lottie.host/2fc0ba87-b5ce-4ef6-a1d1-17fe365e32e7/k9r7BJgSj1.lottie"
-              style={{ width: "330px", height: "330px" }}
-              autoplay
-              loop
-            />
+          <div className="flex flex-col items-center justify-center bg-transparent text-center gap-3 p-6">
+            <Sparkles className="h-12 w-12 text-outly-accent" />
+            <h2 className="text-xl font-black text-foreground">Payment successful</h2>
+            <p className="text-xs text-muted-foreground">Thank you — your account is now upgraded.</p>
           </div>
         </DialogContent>
       </Dialog>

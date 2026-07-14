@@ -198,13 +198,8 @@ export default function LimitReachedModal() {
           : "max-w-[350px] bg-transparent p-0 shadow-none overflow-hidden rounded-2xl"
       }`}>
         {showSuccess ? (
-          <div className="flex flex-col items-center justify-center bg-transparent text-center gap-3">
-            <dotlottie-wc
-              src="https://lottie.host/2fc0ba87-b5ce-4ef6-a1d1-17fe365e32e7/k9r7BJgSj1.lottie"
-              style={{ width: "260px", height: "260px" }}
-              autoplay
-              loop
-            />
+          <div className="flex flex-col items-center justify-center bg-transparent text-center gap-3 p-6">
+            <Sparkles className="h-12 w-12 text-outly-accent" />
             <h2 className="text-xl font-black text-foreground">Welcome to Cloud Pro! 🚀</h2>
             <p className="text-xs text-muted-foreground">All features are now unlocked with lifetime access.</p>
           </div>

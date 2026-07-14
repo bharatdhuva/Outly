@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
-import DotLottieLoader from "@/components/DotLottieLoader";
 import AiErrorModal from "@/components/AiErrorModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PdfViewer from "@/components/PdfViewer";
