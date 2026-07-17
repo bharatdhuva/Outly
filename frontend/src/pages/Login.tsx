@@ -57,6 +57,7 @@ export default function Login() {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isWakingServer, setIsWakingServer] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("outly_token");
@@ -68,7 +69,32 @@ export default function Login() {
     document.title = "Outly - Sign In";
 
     // Warm up the backend server/database immediately in background
-    api.auth.ping();
+    let isSlow = false;
+    const timeoutId = setTimeout(() => {
+      isSlow = true;
+      setIsWakingServer(true);
+      toast({
+        title: "Waking up the cloud server... 🌌",
+        description: "The free hosting tier goes to sleep after inactivity. We are booting it up for you. This will take about 15-30 seconds, please hold on!",
+        duration: 10000,
+      });
+    }, 2000);
+
+    api.auth.ping()
+      .then(() => {
+        clearTimeout(timeoutId);
+        setIsWakingServer(false);
+        if (isSlow) {
+          toast({
+            title: "Server Connected! 🚀",
+            description: "The server is awake and ready. You can now log in instantly.",
+          });
+        }
+      })
+      .catch(() => {
+        clearTimeout(timeoutId);
+        setIsWakingServer(false);
+      });
   }, []);
 
   // ─── 1. Left Panel Slide Loop (Auto-cycles) ───
@@ -455,7 +481,7 @@ export default function Login() {
             {/* Submit Button */}
             <button
               type="submit"
-              className={`w-full bg-outly-accent text-white py-3.5 rounded-full font-sans text-[15px] font-medium transition-all duration-200 shadow-sm hover:opacity-95 active:scale-[0.98] select-none flex items-center justify-center gap-2.5 cursor-pointer ${isLoading ? "opacity-85 pointer-events-none" : ""
+              className={`w-full bg-outly-accent text-white py-3.5 rounded-full font-sans text-[15px] font-medium transition-all duration-200 shadow-sm hover:opacity-95 active:scale-[0.98] select-none flex items-center justify-center gap-2.5 cursor-pointer ${isLoading || isWakingServer ? "opacity-85 pointer-events-none" : ""
                 }`}
             >
               {isLoading ? (
@@ -465,6 +491,14 @@ export default function Login() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   <span>{authMode === "signin" ? "Signing in..." : "Creating account..."}</span>
+                </>
+              ) : isWakingServer ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Waking up cloud server...</span>
                 </>
               ) : (
                 authMode === "signin" ? "Sign in" : "Create account"

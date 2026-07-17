@@ -27,8 +27,10 @@ export async function connectDB(): Promise<boolean> {
     try {
       const connectOptions = {
         serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-        bufferCommands: true,
+        socketTimeoutMS: 30000,
+        bufferCommands: false,
+        maxPoolSize: 1, // Optimized for serverless cold start and connection limits
+        minPoolSize: 1,
       };
       await mongoose.connect(uri, connectOptions);
 
