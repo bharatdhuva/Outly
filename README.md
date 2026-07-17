@@ -330,6 +330,24 @@ npm run dev        # Frontend compiled at http://localhost:5173
 
 ---
 
+## ⚡ Preventing Cold Starts in Production (Free Tier)
+
+Since the backend and database may run on free tiers (like Render or Railway) or serverless architectures (like Vercel), they automatically sleep/spin down after 15 minutes of inactivity. This is why the first login or signup attempt can experience significant delay.
+
+To ensure **instant login and signup**, the following mechanisms have been put in place:
+1. **Frontend Active Warming**: As soon as a user lands on the landing page (`/`) or navigates to the login/signup screen (`/login`), the React app automatically triggers a background asynchronous request to `/api/auth/ping`. This wakes up the backend and establishes the MongoDB Atlas connection while the user is reading the landing page or typing their credentials.
+2. **Dedicated `/ping` Route**: A lightweight, public healthcheck GET route (`/api/auth/ping`) has been added to check and pre-establish database connectivity without requiring authentication headers.
+
+### Keeping the App Permanently Hot (Recommended)
+To keep the app instantly responsive at all times and prevent it from ever sleeping:
+* Set up a free account on [UptimeRobot](https://uptimerobot.com) or [Cron-Job.org](https://cron-job.org).
+* Create a simple HTTP GET monitor targeting your backend ping URL:
+  `https://outly.online/api/auth/ping` (or your backend domain URL)
+* Set the check interval to **every 10 minutes** (Render spins down after 15 minutes of inactivity).
+* This will keep the web service and database connection hot 24/7 without any cost.
+
+---
+
 ## 💎 Free vs Pro Plan
 
 | Feature | Free Tier | Pro Tier |

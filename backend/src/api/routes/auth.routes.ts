@@ -9,8 +9,19 @@ import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { connectDB } from "../../db/connection.js";
 import { sendWelcomeMail, sendUpgradeMail } from "../../automation/coldmail/mailSender.js";
 import { logger } from "../../lib/logger.js";
+import mongoose from "mongoose";
 
 const router = Router();
+
+// GET /ping (Health check to wake up the serverless function & database)
+router.get("/ping", async (req, res) => {
+  try {
+    const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+    res.json({ status: "ok", database: dbStatus, timestamp: new Date() });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err instanceof Error ? err.message : String(err) });
+  }
+});
 
 // 1. SIGNUP
 router.post("/signup", async (req, res) => {

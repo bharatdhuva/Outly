@@ -66,6 +66,9 @@ export default function Login() {
     }
 
     document.title = "Outly - Sign In";
+
+    // Warm up the backend server/database immediately in background
+    api.auth.ping();
   }, []);
 
   // ─── 1. Left Panel Slide Loop (Auto-cycles) ───

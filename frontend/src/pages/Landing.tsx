@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
+import { api } from "../lib/api";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
@@ -240,6 +241,9 @@ export default function Landing() {
       navigateTo("/onboarding");
     }
     setIsLoggedIn(hasToken);
+
+    // Warm up the backend server/database immediately in background
+    api.auth.ping();
   }, [navigateTo]);
 
   const [scrolled, setScrolled] = useState(false);

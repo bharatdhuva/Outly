@@ -57,6 +57,8 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   auth: {
+    ping: () =>
+      fetchApi<{ status: string }>("/auth/ping").catch(() => ({ status: "error" })),
     signup: (email: string, password: string, fullName?: string) =>
       fetchApi<{ token: string; user: UserProfile }>("/auth/signup", {
         method: "POST",
