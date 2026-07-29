@@ -1149,31 +1149,33 @@ export default function ColdMailPage() {
                               }
                             }, 2200);
 
-                            api.coldmail.scrape(selectedCompany.id).then(() => {
-                              api.coldmail.generate(selectedCompany.id, "gemini", "gemini-2.5-flash").then(() => {
-                                queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                                toast.success("Mail generated successfully");
-                                clearInterval(interval);
-                                setLoadingId(null);
-                                setGenerationStep("");
-                              }).catch((e) => {
-                                const errStr = String(e);
-                                if (errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404")) {
-                                  setShowAiErrorModal(true);
-                                } else {
-                                  toast.error(errStr);
-                                }
-                                queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                                clearInterval(interval);
-                                setLoadingId(null);
-                                setGenerationStep("");
-                              });
-                            }).catch((e) => {
-                              toast.error(String(e));
-                              clearInterval(interval);
-                              setLoadingId(null);
-                              setGenerationStep("");
-                            });
+                            const runGenerate = () => {
+                              api.coldmail.generate(selectedCompany.id, "gemini", "gemini-2.5-flash")
+                                .then(() => {
+                                  queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+                                  toast.success("Mail generated successfully");
+                                  clearInterval(interval);
+                                  setLoadingId(null);
+                                  setGenerationStep("");
+                                })
+                                .catch((e) => {
+                                  const errStr = String(e);
+                                  if (errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404")) {
+                                    setShowAiErrorModal(true);
+                                  } else {
+                                    toast.error(errStr);
+                                  }
+                                  queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+                                  clearInterval(interval);
+                                  setLoadingId(null);
+                                  setGenerationStep("");
+                                });
+                            };
+
+                            // Attempt website scrape asynchronously with timeout fallback
+                            api.coldmail.scrape(selectedCompany.id)
+                              .then(() => runGenerate())
+                              .catch(() => runGenerate());
                           });
                         }}
                       >
