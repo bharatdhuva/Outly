@@ -23,3 +23,7 @@ backend/data/
 
 # Local private automation implementations
 backend/src/automation/**/*.private.*
+.wwebjs_auth
+.wwebjs_cache
+backend/.wwebjs_auth
+backend/.wwebjs_cache

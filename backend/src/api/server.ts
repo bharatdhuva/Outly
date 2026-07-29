@@ -15,6 +15,7 @@ import scraperRoutes from "./routes/scraper.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import { connectDB } from "../db/connection.js";
+import mongoose from "mongoose";
 
 import helmet from "helmet";
 import { sanitizeNoSql } from "../middleware/sanitize.js";
@@ -26,7 +27,14 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(sanitizeNoSql);
 
-// Ensure MongoDB connection before handling any API routes
+// Instant Health check & wake-up route (bypasses blocking DB middleware to return instant 200 OK)
+app.get(["/health", "/api/auth/ping", "/auth/ping"], (_req, res) => {
+  connectDB().catch((err) => console.error("Background DB connect error during ping:", err));
+  const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "connecting";
+  res.json({ status: "ok", database: dbStatus, timestamp: new Date() });
+});
+
+// Ensure MongoDB connection before handling other API routes
 app.use(async (_req, res, next) => {
   const connected = await connectDB();
   if (!connected) {

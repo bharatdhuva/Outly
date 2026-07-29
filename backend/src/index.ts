@@ -10,6 +10,7 @@ import { startServer } from "./api/server.js";
 import { scheduleDailySummary } from "./jobs/dailySummary.cron.js";
 import { scheduleFollowUpChecker } from "./jobs/followUpChecker.cron.js";
 import { scheduleWeeklyReport } from "./jobs/weeklyReport.cron.js";
+import { scheduleKeepAliveCron } from "./jobs/keepAlive.cron.js";
 import "./queue/processors.js";
 import { logger } from "./lib/logger.js";
 import { connectDB } from "./db/connection.js";
@@ -48,6 +49,7 @@ async function main() {
   scheduleDailySummary();
   scheduleFollowUpChecker();
   scheduleWeeklyReport();
+  scheduleKeepAliveCron();
 
   logger.info("Outly started — all services initialized", { source: "system" });
 }
