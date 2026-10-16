@@ -67,8 +67,6 @@ Our core system consists of a Vite-powered React frontend and an Express backend
 *   **One-Click Import**: Save discovered jobs directly from search results to your Kanban application board.
 
 #### 🌅 Alerts & Analytics
-*   **WhatsApp Integration**: Live notifications for critical events (new interview invitations, payment status, etc.) via Twilio.
-*   **Daily Briefing Cron**: Automatically triggers at 8:00 AM daily, sending a list of active matches and follow-up alerts to the user.
 *   **Performance Charts**: Custom Recharts visualization of outreach open/reply rates, subject line effectiveness, and weekly applications progress.
 
 #### 💰 Payments & Monetization

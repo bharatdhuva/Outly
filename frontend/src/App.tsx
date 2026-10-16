@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import Onboarding from "./pages/Onboarding";
 import ColdMail from "./pages/ColdMail";
-import ContentScheduler from "./pages/ContentScheduler";
 import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
 import NotFound from "./pages/NotFound";
@@ -73,7 +72,6 @@ const App = () => {
                     <Route path="/tools" element={<PageTransition><MobileHub category="tools" /></PageTransition>} />
 
                     <Route path="/cold-mail" element={<PageTransition><MobileRedirect to="/tools?tab=mail" element={<ColdMail />} /></PageTransition>} />
-                    <Route path="/content-scheduler" element={<PageTransition><MobileRedirect to="/tools?tab=scheduler" element={<ContentScheduler />} /></PageTransition>} />
                     <Route path="/resume-tailor" element={<PageTransition><MobileRedirect to="/resumes?tab=tailor" element={<ResumeTailorPage />} /></PageTransition>} />
                     <Route path="/resume-vault" element={<PageTransition><MobileRedirect to="/resumes?tab=vault" element={<ResumeVault />} /></PageTransition>} />
                     <Route path="/ats-score" element={<PageTransition><MobileRedirect to="/resumes?tab=ats" element={<AtsScore />} /></PageTransition>} />

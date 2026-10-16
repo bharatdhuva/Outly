@@ -4,7 +4,6 @@ import { followUpQueue } from "./followUpQueue.js";
 import { sendColdMail, sendFollowUpMail } from "../automation/coldmail/mailSender.js";
 import { env } from "../config/env.js";
 import { companyQueries } from "../db/queries.js";
-import { sendWhatsApp } from "../notifications/whatsapp.js";
 import { logger } from "../lib/logger.js";
 
 function randomBetween(min: number, max: number): number {
@@ -25,9 +24,9 @@ mailQueue.process(async (job: Job<{ companyId: string }>) => {
 
   const success = await sendColdMail(companyId);
   if (success) {
-    await sendWhatsApp(`✅ Cold mail sent to ${company.company_name} (${company.role})`, company.userId);
+    logger.info(`✅ Cold mail sent to ${company.company_name} (${company.role})`, { source: "mail", userId: company.userId });
   } else {
-    await sendWhatsApp(`⚠️ Mail failed: ${company.company_name} — check logs`, company.userId, true);
+    logger.error(`⚠️ Mail failed: ${company.company_name} — check logs`, { source: "mail", userId: company.userId });
   }
 
   // Human-like delay before next
@@ -47,9 +46,9 @@ followUpQueue.process(async (job: Job<{ companyId: string, subject: string, body
 
   const success = await sendFollowUpMail(companyId, subject, body);
   if (success) {
-    await sendWhatsApp(`📨 Follow-up sent to ${company.company_name} — Day 5`, company.userId);
+    logger.info(`📨 Follow-up sent to ${company.company_name} — Day 5`, { source: "mail", userId: company.userId });
   } else {
-    await sendWhatsApp(`⚠️ Follow-up failed: ${company.company_name} — check logs`, company.userId, true);
+    logger.error(`⚠️ Follow-up failed: ${company.company_name} — check logs`, { source: "mail", userId: company.userId });
   }
 
   // Same human-like delay as original mail sending

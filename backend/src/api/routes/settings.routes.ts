@@ -1,6 +1,5 @@
 import { Router, Response } from "express";
 import { settingsQueries } from "../../db/queries.js";
-import { sendWhatsApp, isWhatsAppConfigured } from "../../notifications/whatsapp.js";
 import { isGmailConfigured } from "../../automation/coldmail/mailSender.js";
 import { downloadResumeToTemp } from "../../drive/googleDrive.js";
 import { env } from "../../config/env.js";
@@ -18,14 +17,11 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
 
     // Load defaults and override with user-specific database settings
     const mergedSettings = await getEditableSettings(req.user.id);
-    const hasWhatsAppNumber = !!mergedSettings.phone;
-    const whatsappConfigured = !!(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && hasWhatsAppNumber);
 
     res.json({
       ...mergedSettings,
       sender_email: env.GMAIL_USER || req.user.email || "",
       gmailConfigured: isGmailConfigured(),
-      whatsappConfigured,
     });
   } catch (e: any) {
     res.status(500).json({ error: e?.message || String(e) });
@@ -47,7 +43,7 @@ const handleSettingsUpdate = async (req: AuthenticatedRequest, res: Response) =>
     }
 
     for (const [key, value] of Object.entries(targetSettings)) {
-      if (key && key !== "sender_email" && key !== "gmailConfigured" && key !== "whatsappConfigured") {
+      if (key && key !== "sender_email" && key !== "gmailConfigured") {
         await settingsQueries.set(req.user.id, key, String(value ?? ""));
       }
     }
@@ -63,16 +59,6 @@ router.put("/", handleSettingsUpdate);
 router.put("", handleSettingsUpdate);
 router.post("/", handleSettingsUpdate);
 router.post("", handleSettingsUpdate);
-
-router.post("/test-whatsapp", async (req: AuthenticatedRequest, res) => {
-  try {
-    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
-    const ok = await sendWhatsApp("JobOS test notification: all systems OK.", req.user.id);
-    res.json({ ok });
-  } catch (e) {
-    res.status(500).json({ ok: false, error: String(e) });
-  }
-});
 
 router.post("/test-resume", async (req: AuthenticatedRequest, res) => {
   try {

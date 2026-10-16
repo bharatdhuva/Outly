@@ -41,11 +41,6 @@ export const env = {
   TWITTER_ACCESS_TOKEN: process.env.TWITTER_ACCESS_TOKEN ?? "",
   TWITTER_ACCESS_TOKEN_SECRET: process.env.TWITTER_ACCESS_TOKEN_SECRET ?? "",
 
-  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ?? "",
-  TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ?? "",
-  TWILIO_WHATSAPP_FROM:
-    process.env.TWILIO_WHATSAPP_FROM ?? "whatsapp:+14155238886",
-  YOUR_WHATSAPP_NUMBER: process.env.YOUR_WHATSAPP_NUMBER ?? "",
 
   NEWS_API_KEY: process.env.NEWS_API_KEY ?? "",
   RAPIDAPI_KEY: process.env.RAPIDAPI_KEY ?? "",

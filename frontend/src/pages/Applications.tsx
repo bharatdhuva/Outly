@@ -103,7 +103,7 @@ function CompanyLogo({ company }: { company: string }) {
 
   if (fallbackStage === 2 || !cleaned) {
     return (
-      <div className="w-8 h-8 rounded-lg bg-[#FAF6EE] text-muted-foreground/70 border border-[#e8e2d5] flex items-center justify-center shrink-0 shadow-3xs">
+      <div className="w-8 h-8 rounded-lg bg-[#F8F7F4] text-muted-foreground/70 border border-[#e8e2d5] flex items-center justify-center shrink-0 shadow-3xs">
         <Building className="h-4 w-4 stroke-[1.8] text-outly-accent" />
       </div>
     );

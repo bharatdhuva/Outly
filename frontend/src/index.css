@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 40 46% 96%;
+    --background: 45 22% 96.5%; /* Warm Linen / Paper tone — #F8F7F4 (oklch(0.975 0.004 85)) */
     --foreground: 223 47% 13%;
 
     --card: 40 35% 98.5%;
@@ -73,10 +73,11 @@
   }
 
   html, body {
+    background-color: #F8F7F4;
     background:
-      radial-gradient(circle at 90% 10%, rgba(25, 204, 149, 0.08), transparent 40%),
-      radial-gradient(circle at 10% 90%, rgba(89, 37, 220, 0.06), transparent 45%),
-      #FAF6EE;
+      radial-gradient(circle at 90% 10%, rgba(25, 204, 149, 0.04), transparent 40%),
+      radial-gradient(circle at 10% 90%, rgba(89, 37, 220, 0.03), transparent 45%),
+      #F8F7F4;
     @apply text-foreground font-sans antialiased;
     overflow-x: clip;
     width: 100%;
@@ -88,8 +89,8 @@
 
   @media (max-width: 767px) {
     .bg-white, .bg-card, .bg-card\/50 {
-      background-color: #FFFDF4 !important;
-      border-color: #F3EBD9 !important;
+      background-color: #FFFFFF !important;
+      border-color: #EAE6DF !important;
     }
   }
 
@@ -103,13 +104,13 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #FAF6EE;
+    background: #F8F7F4;
   }
 
   ::-webkit-scrollbar-thumb {
     background: rgba(78, 70, 56, 0.25);
     border-radius: 9999px;
-    border: 3px solid #FAF6EE;
+    border: 3px solid #F8F7F4;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -1415,7 +1416,7 @@ html {
   overflow-y: auto !important;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: rgba(78, 70, 56, 0.25) #FAF6EE;
+  scrollbar-color: rgba(78, 70, 56, 0.25) #F8F7F4;
 }
 
 body {

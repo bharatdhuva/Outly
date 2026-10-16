@@ -6,7 +6,6 @@ import {
 } from "../../db/queries.js";
 import { mailQueue } from "../../queue/mailQueue.js";
 import { isGmailConfigured } from "../../automation/coldmail/mailSender.js";
-import { isWhatsAppConfigured } from "../../notifications/whatsapp.js";
 import { env } from "../../config/env.js";
 import { getEditableSetting } from "../../config/appSettings.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
@@ -95,7 +94,6 @@ router.get("/system-status", async (req: AuthenticatedRequest, res: Response) =>
     res.json({
       redis: true,
       gmail: isGmailConfigured(),
-      whatsapp: await isWhatsAppConfigured(req.user.id),
     });
   } catch (e) {
     res.status(500).json({ error: String(e) });

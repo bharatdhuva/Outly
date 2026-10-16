@@ -25,7 +25,6 @@ const navSections = [
       { title: "ATS Score", url: "/ats-score", icon: BarChart, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
       { title: "Resume Tailor", url: "/resume-tailor", icon: FileText, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5" },
       { title: "Cold Mail", url: "/cold-mail", icon: Mail, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
-      { title: "Content Scheduler", url: "/content-scheduler", icon: Clock, hoverClass: "group-hover:scale-110 group-hover:rotate-6" },
     ],
   },
   {

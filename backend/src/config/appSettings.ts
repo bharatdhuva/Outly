@@ -7,7 +7,7 @@ export const editableSettingDefaults = {
   target_cities: "",
   skills: "",
   experience: "",
-  phone: env.YOUR_WHATSAPP_NUMBER,
+  phone: "",
   resume_drive_file_id: env.RESUME_DRIVE_FILE_ID,
   weekly_post_enabled: "true",
   daily_linkedin_draft_enabled: "true",
@@ -17,6 +17,9 @@ export const editableSettingDefaults = {
   weekly_post_time: "09:00 AM IST",
   daily_summary_time: "08:00 PM IST",
   linkedin_headline: "Career Autopilot",
+  content_taste: "System Design and Software Engineering topics",
+  content_schedule_time: "09:00",
+  content_schedule_enabled: "true",
 } as const;
 
 export type EditableSettingKey = keyof typeof editableSettingDefaults;
@@ -44,9 +47,6 @@ export function getSenderEmail(): string {
   return env.GMAIL_USER;
 }
 
-export async function getWhatsAppNumber(userId: string): Promise<string> {
-  return await getEditableSetting(userId, "phone");
-}
 
 export async function getResumeDriveFileId(userId: string): Promise<string> {
   return await getEditableSetting(userId, "resume_drive_file_id");

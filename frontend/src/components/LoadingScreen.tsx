@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logoIcon from "@/assets/brand/logo_light.png";
 import logoNew from "@/assets/brand/outly_your_career_at_peak.png";
-import assistanceGif from "@/assets/integrations/whatsapp_icon.gif";
 import gmailPng from "@/assets/integrations/gmail_icon.png";
 import imageCopy3Png from "@/assets/integrations/profile_card_icon.png";
 import twitterPng from "@/assets/integrations/twitter_icon.png";
@@ -24,7 +23,6 @@ const FLOATING_ICONS = [
   { name: "Gmail", src: gmailPng, x: -36, y: -172, floatDur: 2.8, floatY: -10, delay: 0.2, blend: "screen" },
   { name: "Profile Card", src: imageCopy3Png, x: -104, y: -82, floatDur: 3.2, floatY: -12, delay: 0.5, blend: "multiply" },
   { name: "Twitter", src: twitterPng, x: 176, y: 46, floatDur: 2.5, floatY: -8, delay: 0.3, blend: "screen" },
-  { name: "WhatsApp", src: assistanceGif, x: 152, y: -74, floatDur: 3.4, floatY: -10, delay: 0.6, blend: "multiply" },
 ];
 
 interface LoadingScreenProps {

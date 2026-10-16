@@ -90,7 +90,7 @@ function CompanyLogo({ company, source }: { company: string; source: string }) {
   // render the beautiful Office/Building SVG icon.
   if (fallbackStage === 3 || !cleaned) {
     return (
-      <div className="w-10 h-10 rounded-xl bg-[#FAF6EE] text-muted-foreground/70 border border-[#e8e2d5] flex items-center justify-center shrink-0 shadow-3xs">
+      <div className="w-10 h-10 rounded-xl bg-[#F8F7F4] text-muted-foreground/70 border border-[#e8e2d5] flex items-center justify-center shrink-0 shadow-3xs">
         <Building className="h-5 w-5 stroke-[1.8] text-outly-accent" />
       </div>
     );

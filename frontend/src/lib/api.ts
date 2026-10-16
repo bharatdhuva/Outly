@@ -109,7 +109,6 @@ export const api = {
       fetchApi<{
         redis: boolean;
         gmail: boolean;
-        whatsapp: boolean;
       }>(
         "/dashboard/system-status"
       ),
@@ -160,8 +159,24 @@ export const api = {
       fetchApi("/settings", { method: "POST", body: JSON.stringify({ key, value }) }),
     update: (settings: Partial<AppSettings>) =>
       fetchApi("/settings", { method: "PUT", body: JSON.stringify({ settings }) }),
-    testWhatsApp: () => fetchApi<{ ok: boolean }>("/settings/test-whatsapp", { method: "POST" }),
     testResume: () => fetchApi<{ ok: boolean }>("/settings/test-resume", { method: "POST" }),
+  },
+  contentPosts: {
+    getAll: () => fetchApi<any[]>("/content-posts"),
+    generate: (data: { topic: string }) =>
+      fetchApi<any>("/content-posts/generate", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    update: (id: string | number, data: { content: string }) =>
+      fetchApi<any>(`/content-posts/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    delete: (id: string | number) =>
+      fetchApi<any>(`/content-posts/${id}`, {
+        method: "DELETE",
+      }),
   },
   logs: {
     recent: (filter?: string, search?: string) =>
@@ -177,12 +192,20 @@ export const api = {
       fetchApi<{
         tailoredResume: string;
         matchedKeywords: string[];
+        matchCount?: number;
         missingKeywords: string[] | {
           hard_skills: string[];
           soft_skills: string[];
           tools_technologies: string[];
         };
         sources: Array<{ title: string; url: string; domain: string }>;
+        sections?: {
+          summary?: string;
+          skills?: string[];
+          experienceBullets?: string[];
+          projects?: string[];
+        };
+        modificationsSummary?: string[];
       }>("/ats/tailor", {
         method: "POST",
         body: JSON.stringify({ resume, jd }),
@@ -426,7 +449,6 @@ export interface AppSettings {
   daily_summary_time: string;
   sender_email: string;
   gmailConfigured: boolean;
-  whatsappConfigured: boolean;
 }
 
 export interface EvaluationResult {

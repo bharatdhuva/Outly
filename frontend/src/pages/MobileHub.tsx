@@ -18,7 +18,6 @@ import ResumeVault from "./ResumeVault";
 import Applications from "./Applications";
 import JobSearch from "./JobSearch";
 import ColdMail from "./ColdMail";
-import ContentScheduler from "./ContentScheduler";
 
 interface MobileHubProps {
   category: "resumes" | "jobs" | "tools";
@@ -48,7 +47,6 @@ export default function MobileHub({ category }: MobileHubProps) {
     ],
     tools: [
       { id: "mail", label: "Cold Mail", icon: Mail },
-      { id: "scheduler", label: "Scheduler", icon: Calendar },
     ],
   }[category];
 
@@ -97,7 +95,7 @@ export default function MobileHub({ category }: MobileHubProps) {
   return (
     <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full flex flex-col font-sans text-outly-dark animate-fade-in text-left bg-transparent">
       {/* Tab bar header */}
-      <div className="sticky z-30 bg-[#FAF6EE]/85 backdrop-blur-md border-b border-[#e8e2d5]/60 px-6 pt-3 select-none shadow-xs transition-[top] duration-150 ease-out top-16 sticky-tabs-container">
+      <div className="sticky z-30 bg-[#ECE8E1]/95 backdrop-blur-md border-b border-[#dcd5c9] px-6 pt-3 select-none shadow-xs transition-[top] duration-150 ease-out top-16 sticky-tabs-container">
         <div className="relative w-full overflow-hidden">
           <div 
             className="flex gap-6 overflow-x-auto -mx-6 px-6 scrollbar-none"
@@ -129,7 +127,7 @@ export default function MobileHub({ category }: MobileHubProps) {
             })}
           </div>
           {/* Fade gradient on the right edge */}
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FAF6EE] to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#ECE8E1] to-transparent pointer-events-none" />
         </div>
       </div>
 
@@ -143,7 +141,6 @@ export default function MobileHub({ category }: MobileHubProps) {
         {category === "jobs" && activeTab === "search" && <JobSearch />}
 
         {category === "tools" && activeTab === "mail" && <ColdMail />}
-        {category === "tools" && activeTab === "scheduler" && <ContentScheduler />}
       </div>
     </div>
   );

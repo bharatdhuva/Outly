@@ -5,7 +5,8 @@ import {
   Setting as SettingModel, 
   ActivityLog as ActivityLogModel, 
   Application as ApplicationModel, 
-  ResumeVault as ResumeVaultModel 
+  ResumeVault as ResumeVaultModel,
+  ContentPost as ContentPostModel
 } from "./models.js";
 import { logger } from "../lib/logger.js";
 
@@ -228,12 +229,12 @@ export const settingsQueries = {
 };
 
 export const notificationsQueries = {
-  insert: async (userId: string, type: string, message: string, whatsappStatus: string): Promise<any> => {
+  insert: async (userId: string, type: string, message: string, whatsappStatus?: string): Promise<any> => {
     const doc = new NotificationLogModel({
       userId,
       type,
       message,
-      whatsapp_status: whatsappStatus
+      whatsapp_status: whatsappStatus ?? "none"
     });
     await doc.save();
     return mapDoc(doc);
@@ -349,5 +350,52 @@ export const resumeVaultQueries = {
   delete: async (id: string, userId?: string): Promise<any> => {
     const query = userId ? { _id: id, userId } : { _id: id };
     return await ResumeVaultModel.deleteOne(query);
+  }
+};
+
+export interface ContentPost {
+  id: string;
+  userId: string;
+  content: string;
+  status: 'scheduled' | 'sent' | 'failed';
+  scheduledAt: string;
+  sentAt?: Date;
+  createdAt: Date;
+}
+
+export const contentPostQueries = {
+  getAll: async (userId: string): Promise<ContentPost[]> => {
+    const docs = await ContentPostModel.find({ userId }).sort({ createdAt: -1 });
+    return mapDocs<ContentPost>(docs);
+  },
+
+  getById: async (id: string, userId?: string): Promise<ContentPost | null> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await ContentPostModel.findOne(query);
+    return mapDoc<ContentPost>(doc);
+  },
+
+  insert: async (userId: string, post: Omit<ContentPost, "id" | "userId" | "createdAt">): Promise<ContentPost> => {
+    const doc = new ContentPostModel({
+      userId,
+      ...post
+    });
+    await doc.save();
+    return mapDoc<ContentPost>(doc)!;
+  },
+
+  update: async (id: string, post: Partial<Omit<ContentPost, "id" | "userId" | "createdAt">>, userId?: string): Promise<ContentPost | null> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    const doc = await ContentPostModel.findOneAndUpdate(
+      query,
+      { $set: post },
+      { new: true }
+    );
+    return mapDoc<ContentPost>(doc);
+  },
+
+  delete: async (id: string, userId?: string): Promise<any> => {
+    const query = userId ? { _id: id, userId } : { _id: id };
+    return await ContentPostModel.deleteOne(query);
   }
 };

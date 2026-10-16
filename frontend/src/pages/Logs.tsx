@@ -18,11 +18,11 @@ const initialLogs: LogEntry[] = [
   { time: "16:18:18", level: "success", source: "linkedin", message: "Applied to Frontend Intern @ Zepto — Easy Apply submitted" },
   { time: "16:17:55", level: "info", source: "linkedin", message: "Filling application form for Zepto — step 2/3" },
   { time: "16:17:30", level: "info", source: "linkedin", message: "Generated cover letter for Zepto SDE Intern position" },
-  { time: "16:15:02", level: "success", source: "whatsapp", message: "Notification sent: ✅ Applied to SDE Intern @ Meesho" },
+  { time: "16:15:02", level: "success", source: "mail", message: "Application update logged for Meesho" },
   { time: "16:12:17", level: "warn", source: "mail", message: "Mail to careers@xyz.corp bounced — invalid recipient address" },
   { time: "16:10:44", level: "info", source: "scraper", message: "Scraped company context for PhonePe — tech stack: React, Go, Kubernetes" },
   { time: "16:08:33", level: "error", source: "linkedin", message: "CAPTCHA detected on LinkedIn — apply queue paused automatically" },
-  { time: "16:05:01", level: "success", source: "whatsapp", message: "Notification sent: ⚠️ CAPTCHA detected — check dashboard" },
+  { time: "16:05:01", level: "info", source: "system", message: "System health check OK — all services responsive" },
   { time: "16:02:22", level: "info", source: "system", message: "Daily summary cron triggered — compiling stats" },
   { time: "16:00:05", level: "success", source: "linkedin", message: "LinkedIn weekly post published — 'This Week in Tech' edition" },
   { time: "15:58:44", level: "info", source: "news", message: "Fetched 23 articles from HN, Dev.to, GitHub Trending" },
@@ -45,7 +45,7 @@ const levelLabel: Record<LogLevel, string> = {
   error: "ERROR",
 };
 
-type FilterTab = "all" | "error" | "mail" | "linkedin" | "whatsapp";
+type FilterTab = "all" | "error" | "mail" | "linkedin";
 
 export default function LogsPage() {
   const [filter, setFilter] = useState<FilterTab>("all");
@@ -80,7 +80,6 @@ export default function LogsPage() {
     if (filter === "error" && log.level !== "error" && log.level !== "warn") return false;
     if (filter === "mail" && log.source !== "mail") return false;
     if (filter === "linkedin" && log.source !== "linkedin") return false;
-    if (filter === "whatsapp" && log.source !== "whatsapp") return false;
     if (search && !log.message.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
@@ -135,7 +134,7 @@ export default function LogsPage() {
       {/* Filter Bar */}
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
         <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1">
-          {(["all", "error", "mail", "linkedin", "whatsapp"] as const).map((t) => (
+          {(["all", "error", "mail", "linkedin"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setFilter(t)}

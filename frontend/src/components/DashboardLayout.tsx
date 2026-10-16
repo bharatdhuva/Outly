@@ -55,7 +55,6 @@ const pageTitles: Record<string, string> = {
   "/ats-score": "ATS Score",
   "/applications": "Job Tracker",
   "/job-search": "Job Search",
-  "/content-scheduler": "Content Post Scheduler",
   "/resume-vault": "Resume Vault",
   "/analytics": "Analytics",
   "/pricing": "Pricing",
@@ -484,7 +483,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       {/* Header Spacer Wrapper to prevent layout shift */}
       <div className="h-16 w-full shrink-0 relative">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#e8e2d5]/60 bg-[#FAF6EE]/85 backdrop-blur-md shadow-xs shrink-0 select-none transition-[height] duration-150 ease-out h-16 mobile-scroll-header">
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#dcd5c9] bg-[#ECE8E1]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.03)] shrink-0 select-none transition-[height] duration-150 ease-out h-16 mobile-scroll-header">
         <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 transition-[height] duration-150 ease-out h-16 mobile-scroll-header-inner">
           
           {/* Left: Brand Logo */}
@@ -768,19 +767,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Automate personalized emails to recruiters.</span>
                         </div>
                       </Link>
-                      
-                      <Link 
-                        to="/content-scheduler" 
-                        className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
-                      >
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
-                          <Calendar className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Content Post Scheduler</span>
-                          <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Automate and queue AI-generated posts.</span>
-                        </div>
-                      </Link>
                     </div>
                   </div>
                 )}
@@ -882,7 +868,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#ECE8E1] border border-[#dcd5c9] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
@@ -1012,7 +998,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF6EE] border border-[#e8e2d5] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#ECE8E1] border border-[#dcd5c9] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
@@ -1082,7 +1068,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* ─── MOBILE BOTTOM TAB BAR ─── */}
-      <div className="md:hidden sticky bottom-0 z-[100] w-full h-16 bg-[#FAF6EE]/85 backdrop-blur-md border-t border-[#e8e2d5]/60 flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
+      <div className="md:hidden sticky bottom-0 z-[100] w-full h-16 bg-[#ECE8E1]/95 backdrop-blur-md border-t border-[#dcd5c9] flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
         
         {/* Tab 1: Resumes */}
         <Link 
@@ -1147,7 +1133,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           {(() => {
             const isActive = location.pathname === "/tools" ||
                              location.pathname === "/cold-mail" || 
-                             location.pathname === "/content-scheduler" || 
                              location.pathname === "/logs";
             return (
               <>

@@ -7,6 +7,9 @@ import { checkAtsLimit, checkTailorLimit } from "../../middleware/limits.js";
 import { activityQueries } from "../../db/queries.js";
 import { uploadResume } from "../../middleware/upload.js";
 import { validateResumeText, validateJobDescriptionText } from "../../lib/resumeValidator.js";
+import { scoreResumeChain } from "../../ai/atsScoreChain.js";
+import { tailorResumeChain } from "../../ai/resumeTailorChain.js";
+import { matchResumeToJd } from "../../ai/resumeJdMatcher.js";
 import path from "path";
 import fs from "fs";
 import axios from "axios";
@@ -432,219 +435,13 @@ router.post("/score", checkAtsLimit, async (req: AuthenticatedRequest, res: Resp
     logger.error("Failed to log ATS check activity", { error: String(err), userId: req.user.id });
   }
 
-  // Try Gemini first
+  // Run LangChain ATS Scoring Chain
   try {
-    const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-    let geminiPrompt = "";
-    let fallbackPrompt = "";
-
-    if (jd && jd.trim()) {
-      geminiPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
-Analyze the provided resume against the job description below.
-
-CRITICAL VALIDATION: First, verify if the provided document is actually a resume/CV. If the document is NOT a resume/CV (for example, it is a cover letter, letter of recommendation, certificate, tax document, invoice, ID card, book, recipe, or other non-resume text), you must set the overall score and all breakdown scores to 0, and set the <is_valid_resume> value to false.
-
-CRITICAL: You MUST use Google Search to do an internet search for this role/company on Twitter/X, Reddit, and career-related sites to understand the latest trends, skills, and discussions. Integrate this grounded web search context into your evaluation.
-
-Perform a strict and highly accurate evaluation. You must wrap the sections of your response in the following XML-like tags:
-- Wrap a boolean value (true or false) in <is_valid_resume>...</is_valid_resume> indicating if the document is actually a valid resume/CV.
-- Wrap the overall score (0 to 100) in <score>...</score>
-- Wrap the skills match score (0 to 100) in <skills_match>...</skills_match>
-- Wrap the experience match score (0 to 100) in <experience_match>...</experience_match>
-- Wrap the formatting readability score (0-100) in <formatting_readability>...</formatting_readability>
-- Wrap the impact metrics score (0-100) in <impact_metrics>...</impact_metrics>
-- Wrap the list of matched keywords in <matched_keywords>
-- List item 1
-- List item 2
-...
-</matched_keywords>
-- Wrap missing hard skills in <missing_hard_skills>
-- List item 1
-...
-</missing_hard_skills>
-- Wrap missing soft skills in <missing_soft_skills>
-- List item 1
-...
-</missing_soft_skills>
-- Wrap missing tools/technologies in <missing_tools_technologies>
-- List item 1
-...
-</missing_tools_technologies>
-- Wrap the seniority match level ("Good" | "Fair" | "Poor") in <seniority_match>...</seniority_match>
-- Wrap seniority comments in <seniority_comments>...</seniority_comments>
-- Wrap formatting issues in <formatting_issues>
-- List item 1
-...
-</formatting_issues>
-- Wrap suggestions in <suggestions>
-- List item 1
-...
-</suggestions>
-
-Do not return JSON. Use the tags listed above.
-
-Resume:
-${resume}
-
-Job Description:
-${jd}`;
-
-      fallbackPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and recruiter.
-Analyze the provided resume against the job description below.
-Perform a strict and highly accurate evaluation. Return a JSON object with:
-1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
-2. "score": Overall score from 0 to 100 based on key metrics (must be 0 if isValidResume is false).
-3. "breakdown": An object containing (all must be 0 if isValidResume is false):
-   - "skills_match": Score 0-100 of how well the skills match.
-   - "experience_match": Score 0-100 of how well the years of experience and seniority align.
-   - "formatting_readability": Score 0-100 of structural suitability (penalize headers, footers, multi-column layouts, graphics, complex styling).
-   - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
-4. "matched_keywords": An array of technical/hard skills and tools found in both.
-5. "missing_keywords": An object containing arrays:
-   - "hard_skills": Crucial technologies, programming languages, or domain expertise in the JD but missing from the resume.
-   - "soft_skills": Interpersonal, leadership, or execution-style terms from the JD missing from the resume.
-   - "tools_technologies": Frameworks, platforms, tools (e.g., Redis, Git, Docker, JIRA) from the JD missing from the resume.
-6. "experience_analysis": An object containing:
-   - "seniority_match": A string ("Good" | "Fair" | "Poor") rating.
-   - "comments": A brief summary of seniority match (e.g., "Resume shows 3 years React, JD asks for 5 years Senior SDE").
-7. "formatting_issues": An array of strings outlining potential ATS readability issues (e.g., "Detected complex formatting or columns", "Ensure email is in the main body").
-8. "suggestions": An array of 3-5 high-impact, actionable changes. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
-
-Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
-
-Resume:
-${resume}
-
-Job Description:
-${jd}`;
-    } else {
-      geminiPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
-Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
-
-CRITICAL VALIDATION: First, verify if the provided document is actually a resume/CV. If the document is NOT a resume/CV (for example, it is a cover letter, letter of recommendation, certificate, tax document, invoice, ID card, book, recipe, or other non-resume text), you must set the overall score and all breakdown scores to 0, and set the <is_valid_resume> value to false.
-
-CRITICAL: You MUST use Google Search to do an internet search for this candidate's target field/role on Twitter/X, Reddit, and career-related sites to understand the latest trends, skills, and discussions. Integrate this grounded web search context into your evaluation.
-
-Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
-
-You must wrap the sections of your response in the following XML-like tags:
-- Wrap a boolean value (true or false) in <is_valid_resume>...</is_valid_resume> indicating if the document is actually a valid resume/CV.
-- Wrap the overall score (0 to 100) in <score>...</score>
-- Wrap the skills match score (0 to 100) in <skills_match>...</skills_match>
-- Wrap the experience match score (0 to 100) in <experience_match>...</experience_match>
-- Wrap the formatting readability score (0-100) in <formatting_readability>...</formatting_readability>
-- Wrap the impact metrics score (0-100) in <impact_metrics>...</impact_metrics>
-- Wrap the list of matched keywords in <matched_keywords>
-- List item 1
-...
-</matched_keywords>
-- Wrap missing hard skills in <missing_hard_skills>
-- List item 1
-...
-</missing_hard_skills>
-- Wrap missing soft skills in <missing_soft_skills>
-- List item 1
-...
-</missing_soft_skills>
-- Wrap missing tools/technologies in <missing_tools_technologies>
-- List item 1
-...
-</missing_tools_technologies>
-- Wrap the seniority match level ("Good" | "Fair" | "Poor") in <seniority_match>...</seniority_match>
-- Wrap seniority comments in <seniority_comments>...</seniority_comments>
-- Wrap formatting issues in <formatting_issues>
-- List item 1
-...
-</formatting_issues>
-- Wrap suggestions in <suggestions>
-- List item 1
-...
-</suggestions>
-
-Do not return JSON. Use the tags listed above.
-
-Resume:
-${resume}`;
-
-      fallbackPrompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
-Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
-Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
-
-Return a JSON object with:
-1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
-2. "score": General ATS readiness score from 0 to 100 (must be 0 if isValidResume is false).
-3. "breakdown": An object containing (all must be 0 if isValidResume is false):
-   - "skills_match": Score 0-100 indicating depth and layout of technical skills.
-   - "experience_match": Score 0-100 evaluating the structure, formatting, and relevance of work history.
-   - "formatting_readability": Score 0-100 of structural suitability for ATS scanners (penalize multi-columns, tables, graphics, contact info in headers).
-   - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
-4. "matched_keywords": An array of the primary technical/hard skills, tools, and methodologies detected in the resume.
-5. "missing_keywords": An object containing arrays:
-   - "hard_skills": Crucial industry-standard technologies or skills related to the candidate's target field (inferred from the resume) that are currently missing or could be added.
-   - "soft_skills": Interpersonal or execution-oriented keywords standard for this domain that are missing.
-   - "tools_technologies": Essential tools, platforms, or systems commonly expected in this role that are missing.
-6. "experience_analysis": An object containing:
-   - "seniority_match": A string ("Good" | "Fair" | "Poor") representing the clarity of the candidate's experience progression.
-   - "comments": A brief summary of the experience layout and career progression.
-7. "formatting_issues": An array of strings outlining potential ATS readability bottlenecks found in the resume (e.g., "Found multi-column layout", "Contact details in header/footer", "Non-standard section headers").
-8. "suggestions": An array of 3-5 high-impact, actionable improvements to make the resume beat automated filters. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
-
-Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
-
-Resume:
-${resume}`;
-    }
-
-    let text = "";
-
-    try {
-      logger.info("Running ATS resume evaluation via Gemini 2.5 Flash with Google Search grounding", { source: "ats" });
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash",
-        tools: [{ googleSearch: {} } as any] 
-      });
-      const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: geminiPrompt }] }],
-        generationConfig: { temperature: 0.2 },
-      });
-      text = result.response.text().trim();
-    } catch (gemini25GroundedError) {
-      logger.warn("Gemini 2.5 Flash with grounding failed for score, trying without grounding", { error: String(gemini25GroundedError), source: "ats" });
-      try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent({
-          contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],
-          generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
-        });
-        text = result.response.text().trim();
-      } catch (gemini25Error) {
-        logger.warn("Gemini 2.5 Flash failed for score, attempting fallback to Gemini 1.5 Flash with grounding", { error: String(gemini25Error), source: "ats" });
-        try {
-          const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.0-flash",
-            tools: [{ googleSearch: {} } as any]
-          });
-          const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: geminiPrompt }] }],
-            generationConfig: { temperature: 0.2 },
-          });
-          text = result.response.text().trim();
-        } catch (gemini15GroundedError) {
-          logger.warn("Gemini 1.5 Flash with grounding failed for score, trying without grounding", { error: String(gemini15GroundedError), source: "ats" });
-          const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-          const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],
-            generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
-          });
-          text = result.response.text().trim();
-        }
-      }
-    }
-
-    const parsed = parseGeminiResponse(text, true);
-    res.json(parsed);
+    logger.info("Evaluating resume score with LangChain ATS chain", { source: "ats" });
+    const parsed = await scoreResumeChain({ resume, jd });
+    return res.json(parsed);
   } catch (geminiError) {
-    logger.warn("ATS score evaluation via Gemini (2.5 & 1.5) failed, checking fallbacks", { error: String(geminiError), source: "ats" });
+    logger.warn("ATS score evaluation via LangChain chain failed, checking fallbacks", { error: String(geminiError), source: "ats" });
 
     // Fallback 1: Try Groq
     if (env.GROK_API_KEY) {
@@ -899,99 +696,21 @@ You must return a JSON object containing:
 
 Do not include any chat prefix or suffix (like "Here is your tailored resume..."). Return only the raw JSON.`;
 
+  // Run LangChain Resume Tailor Engine
   try {
-    const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-    let text = "";
-    let responseObj: any = null;
-
-    try {
-      logger.info("Generating tailored resume via Gemini 2.5 Flash with Google Search grounding", { source: "ats" });
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash",
-        tools: [{ googleSearch: {} } as any] 
-      });
-      const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: geminiPrompt }] }],
-        generationConfig: { temperature: 0.3 },
-      });
-      text = result.response.text().trim();
-      responseObj = result.response;
-    } catch (gemini25GroundedError) {
-      logger.warn("ATS tailoring via Gemini 2.5 Flash with grounding failed, trying without grounding", { error: String(gemini25GroundedError), source: "ats" });
-      try {
-        const model = genAI.getGenerativeModel({ 
-          model: "gemini-2.5-flash"
-        });
-        const result = await model.generateContent({
-          contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],
-          generationConfig: { temperature: 0.3, responseMimeType: "application/json" },
-        });
-        text = result.response.text().trim();
-        responseObj = result.response;
-      } catch (gemini25Error) {
-        logger.warn("ATS tailoring via Gemini 2.5 Flash without grounding failed, trying Gemini 1.5 Flash with grounding", { error: String(gemini25Error), source: "ats" });
-        try {
-          const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.0-flash",
-            tools: [{ googleSearch: {} } as any] 
-          });
-          const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: geminiPrompt }] }],
-            generationConfig: { temperature: 0.3 },
-          });
-          text = result.response.text().trim();
-          responseObj = result.response;
-        } catch (gemini15GroundedError) {
-          logger.warn("ATS tailoring via Gemini 1.5 Flash with grounding failed, trying without grounding", { error: String(gemini15GroundedError), source: "ats" });
-          const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.0-flash"
-          });
-          const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: fallbackPrompt }] }],
-            generationConfig: { temperature: 0.3, responseMimeType: "application/json" },
-          });
-          text = result.response.text().trim();
-          responseObj = result.response;
-        }
-      }
-    }
-
-    const parsed = parseGeminiResponse(text, false);
-
-    // Extract grounding sources
-    const sources: Array<{ title: string; url: string; domain: string }> = [];
-    const groundingMetadata = responseObj?.candidates?.[0]?.groundingMetadata;
-    if (groundingMetadata && groundingMetadata.groundingChunks) {
-      const seenUrls = new Set<string>();
-      for (const chunk of groundingMetadata.groundingChunks) {
-        if (chunk.web && chunk.web.uri) {
-          const url = chunk.web.uri;
-          if (!seenUrls.has(url)) {
-            seenUrls.add(url);
-            let domain = "";
-            try {
-              domain = new URL(url).hostname.replace("www.", "");
-            } catch (e) {
-              domain = url;
-            }
-            sources.push({
-              title: chunk.web.title || domain,
-              url: url,
-              domain: domain
-            });
-          }
-        }
-      }
-    }
-
-    res.json({
-      tailoredResume: parsed.tailoredResume || "",
-      matchedKeywords: parsed.matchedKeywords || [],
-      missingKeywords: parsed.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] },
-      sources: sources
+    logger.info("Generating tailored resume via LangChain ResumeTailorChain", { source: "ats" });
+    const aiResult = await tailorResumeChain({ resume, jd });
+    return res.json({
+      tailoredResume: aiResult.tailoredResume || "",
+      matchedKeywords: aiResult.matchedKeywords || [],
+      matchCount: aiResult.matchedKeywords?.length || 0,
+      missingKeywords: aiResult.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] },
+      sources: [],
+      sections: aiResult.sections,
+      modificationsSummary: aiResult.modificationsSummary
     });
   } catch (geminiError) {
-    logger.warn("ATS tailoring via Gemini (2.5 & 1.5) failed, checking fallbacks", { error: String(geminiError), source: "ats" });
+    logger.warn("ATS tailoring via LangChain failed, checking legacy fallbacks", { error: String(geminiError), source: "ats" });
 
     // Fallback 1: Try Groq
     if (env.GROK_API_KEY) {
@@ -1025,6 +744,43 @@ Do not include any chat prefix or suffix (like "Here is your tailored resume..."
 
     logger.error("ATS tailoring failed with no fallback available", { error: String(geminiError), source: "ats" });
     res.status(500).json({ error: `All tailoring attempts failed.\nGemini Error: ${String(geminiError)}` });
+  }
+});
+
+// POST match resume to JD using LangChain Embeddings + Cosine Similarity + LCEL
+router.post("/match", checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
+  const { resume, jd } = req.body;
+  if (!resume || !jd) {
+    return res.status(400).json({ error: "Both resume and jd are required." });
+  }
+
+  const validation = validateResumeText(resume);
+  if (!validation.isValid) {
+    return res.status(400).json({ error: validation.error });
+  }
+
+  const jdValidation = validateJobDescriptionText(jd);
+  if (!jdValidation.isValid) {
+    return res.status(400).json({ error: jdValidation.error });
+  }
+
+  try {
+    if (req.user) {
+      await activityQueries.add(req.user.id, "ats_match", "Ran LangChain Resume to JD matching with Embeddings");
+    }
+  } catch (err) {
+    logger.error("Failed to log match activity", { error: String(err) });
+  }
+
+  try {
+    const matchResult = await matchResumeToJd({
+      resumeText: resume,
+      jobDescription: jd,
+    });
+    res.json(matchResult);
+  } catch (err: any) {
+    logger.error("LangChain Resume-JD match failed", { error: err?.message || String(err) });
+    res.status(500).json({ error: "Failed to evaluate resume match against JD." });
   }
 });
 

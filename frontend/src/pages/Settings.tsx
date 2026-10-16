@@ -40,7 +40,6 @@ const emptySettings: AppSettings = {
   daily_summary_time: "08:00 PM IST",
   sender_email: "",
   gmailConfigured: false,
-  whatsappConfigured: false,
 };
 
 function getEditableSettingsPayload(form: AppSettings) {
@@ -211,18 +210,6 @@ export default function SettingsPage() {
     },
   });
 
-  const testWhatsAppMutation = useMutation({
-    mutationFn: api.settings.testWhatsApp,
-    onSuccess: (result) => {
-      toast({
-        title: result.ok ? "WhatsApp message sent" : "WhatsApp not configured",
-        description: result.ok ? "A live test message was sent successfully." : "Check Twilio credentials or the destination number.",
-      });
-    },
-    onError: (error) => {
-      toast({ variant: "destructive", title: "WhatsApp test failed", description: String(error) });
-    },
-  });
 
   // Vault upload handlers
   const handleVaultFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

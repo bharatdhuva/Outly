@@ -25,13 +25,94 @@ import {
   Save, 
   Check, 
   CheckCircle,
-  Lock,
-  RefreshCw,
-  Info,
-  ExternalLink,
-  Sparkles
+  CheckCircle2,
+  Lock, 
+  RefreshCw, 
+  Info, 
+  ExternalLink, 
+  Sparkles,
+  Target,
+  AlertCircle,
+  Search,
+  Layers,
+  Zap,
+  ArrowUpRight,
+  ArrowRight
 } from "lucide-react";
 import { FileUploadCard, UploadedFile } from "@/components/ui/file-upload-card";
+
+const parseJobInfo = (text: string) => {
+  if (!text || text.trim().length === 0) {
+    return { title: "Senior Software Engineer", company: "Target Company", location: "Bengaluru" };
+  }
+  const lines = text.trim().split("\n").map(l => l.trim()).filter(Boolean);
+  
+  let title = "";
+  let company = "";
+  let location = "";
+
+  for (const line of lines.slice(0, 8)) {
+    const clean = line.replace(/^[#*\-•\s]+/, "").trim();
+    if (!clean) continue;
+    
+    const roleMatch = clean.match(/(?:role|position|job\s*title|looking\s+for\s+(?:an?|the)?)\s*[:\-–]?\s*([A-Za-z0-9\s/&,.-]+)/i);
+    if (roleMatch && roleMatch[1].trim().length < 60) {
+      title = roleMatch[1].trim();
+      break;
+    }
+
+    const atMatch = clean.match(/^([A-Za-z0-9\s/&,.-]+?)\s+(?:at|@)\s+([A-Za-z0-9\s&,.-]+)$/i);
+    if (atMatch && atMatch[1].length < 50) {
+      title = atMatch[1].trim();
+      company = atMatch[2].trim();
+      break;
+    }
+
+    const dashMatch = clean.match(/^([A-Za-z0-9\s/&,.-]+?)\s*[-–|]\s*([A-Za-z0-9\s&,.-]+)$/);
+    if (dashMatch && dashMatch[1].length < 50 && !dashMatch[1].toLowerCase().includes("http")) {
+      title = dashMatch[1].trim();
+      company = dashMatch[2].trim();
+      break;
+    }
+
+    if (!title && clean.length > 3 && clean.length < 55 && !clean.includes(":") && !clean.includes("http")) {
+      title = clean;
+    }
+  }
+
+  for (const line of lines.slice(0, 15)) {
+    if (!company) {
+      const compMatch = line.match(/(?:company|organization|about\s+us)\s*[:\-–]?\s*([A-Za-z0-9\s&,.-]+)/i);
+      if (compMatch && compMatch[1].trim().length < 40) {
+        company = compMatch[1].trim();
+      }
+    }
+    if (!location) {
+      const locMatch = line.match(/(?:location|place|city|based\s+in)\s*[:\-–]?\s*([A-Za-z0-9\s,.-]+)/i);
+      if (locMatch && locMatch[1].trim().length < 40) {
+        location = locMatch[1].trim();
+      }
+    }
+  }
+
+  if (!title) title = "Senior Software Engineer";
+  if (!company) company = "Google";
+  if (!location) location = "Bengaluru";
+
+  return { title, company, location };
+};
+
+const getTailoredAgo = (iso?: string) => {
+  if (!iso) return "tailored 2 minutes ago";
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return "tailored just now";
+  if (diffMins === 1) return "tailored 1 minute ago";
+  if (diffMins < 60) return `tailored ${diffMins} minutes ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours === 1) return "tailored 1 hour ago";
+  return `tailored ${diffHours} hours ago`;
+};
 
 const validateResumeTextClient = (text: string): { isValid: boolean; error?: string } => {
   if (!text || text.trim().length < 150) {
@@ -150,6 +231,25 @@ export default function ResumeTailorPage() {
       return [];
     }
   });
+  const [modificationsSummary, setModificationsSummary] = useState<string[]>(() => {
+    try {
+      const val = sessionStorage.getItem("rt_modificationsSummary");
+      return val ? JSON.parse(val) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [tailoredAt, setTailoredAt] = useState<string>(() => sessionStorage.getItem("rt_tailoredAt") || "");
+
+  useEffect(() => {
+    if (tailoredAt) {
+      sessionStorage.setItem("rt_tailoredAt", tailoredAt);
+    } else {
+      sessionStorage.removeItem("rt_tailoredAt");
+    }
+  }, [tailoredAt]);
+
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [unlockAtTime, setUnlockAtTime] = useState<string | null>(null);
@@ -205,6 +305,10 @@ export default function ResumeTailorPage() {
   useEffect(() => {
     sessionStorage.setItem("rt_sources", JSON.stringify(sources));
   }, [sources]);
+
+  useEffect(() => {
+    sessionStorage.setItem("rt_modificationsSummary", JSON.stringify(modificationsSummary));
+  }, [modificationsSummary]);
 
   useEffect(() => {
     if (isValidResume !== null) {
@@ -444,6 +548,7 @@ export default function ResumeTailorPage() {
     setMatchedKeywords([]);
     setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
     setSources([]);
+    setModificationsSummary([]);
     if (idStr === "custom") {
       setResumeText(null);
       setIsValidResume(null);
@@ -498,6 +603,9 @@ export default function ResumeTailorPage() {
       setMatchedKeywords(response.matchedKeywords || []);
       setMissingKeywords(response.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] });
       setSources(response.sources || []);
+      setModificationsSummary(response.modificationsSummary || []);
+      setTailoredAt(new Date().toISOString());
+      setIsEditing(false);
       toast({
         title: "Resume Tailored Successfully!",
         description: "The AI optimized version and keyword insights are ready.",
@@ -605,467 +713,392 @@ export default function ResumeTailorPage() {
     }
   };
 
+  const jobInfo = parseJobInfo(jobDesc);
+  const tailoredAgoText = getTailoredAgo(tailoredAt);
+
+  const flatMissingKeywords: string[] = Array.isArray(missingKeywords)
+    ? missingKeywords
+    : [
+        ...(missingKeywords?.hard_skills || []),
+        ...(missingKeywords?.tools_technologies || []),
+        ...(missingKeywords?.soft_skills || [])
+      ];
+
+  const totalKeywords = matchedKeywords.length + flatMissingKeywords.length;
+  const matchPercentage = totalKeywords > 0
+    ? Math.round((matchedKeywords.length / totalKeywords) * 100)
+    : 80;
+
+  if (tailoredResult && !isEditing) {
+    return (
+      <div className="mx-auto w-full max-w-6xl px-6 py-6 sm:py-8 space-y-6 animate-fade-in pb-20">
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+          <div>
+            <span className="text-[11px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
+              RESUME / TAILOR
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mt-1.5">
+              {jobInfo.title}
+            </h1>
+            <p className="text-[13px] text-muted-foreground font-medium mt-1">
+              {jobInfo.company} · {jobInfo.location} — {tailoredAgoText}
+            </p>
+          </div>
+
+          <button
+            onClick={() => setIsEditing(true)}
+            className="self-start bg-foreground hover:bg-foreground/90 text-background text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
+          >
+            Re-tailor <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="border-b border-border/60 my-5" />
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Column: Tailored resume */}
+          <div className="lg:col-span-8 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[13px] font-bold text-foreground">Tailored resume</h2>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleCopy}
+                  className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer font-medium"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? "Copied" : "Copy"}</span>
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer font-medium"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download</span>
+                </button>
+                <button
+                  onClick={handleSaveToVault}
+                  disabled={savingToVault}
+                  className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 font-medium"
+                >
+                  {savingToVault ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                  <span>{savingToVault ? "Saving..." : "Save"}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-6 sm:p-8 min-h-[550px] shadow-sm overflow-x-auto text-left">
+              <pre className="whitespace-pre-wrap font-mono text-[12px] sm:text-[13px] leading-relaxed text-foreground/90 select-text font-normal">
+                {tailoredResult}
+              </pre>
+            </div>
+          </div>
+
+          {/* Right Column: Keyword Match */}
+          <div className="lg:col-span-4 space-y-6 pt-2 text-left">
+            <div>
+              <span className="text-[11px] font-bold tracking-[0.2em] text-muted-foreground uppercase block">
+                KEYWORD MATCH
+              </span>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="text-5xl sm:text-6xl font-bold tracking-tight text-foreground leading-none">
+                  {matchPercentage}
+                </span>
+                <span className="text-2xl font-semibold text-muted-foreground">%</span>
+              </div>
+              <p className="text-[12px] text-muted-foreground font-medium mt-2">
+                {matchedKeywords.length} of {Math.max(matchedKeywords.length, totalKeywords)} keywords from the job description
+              </p>
+              <div className="w-full h-1 bg-secondary rounded-full overflow-hidden mt-3">
+                <div
+                  className="h-full bg-foreground rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, Math.max(5, matchPercentage))}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="border-b border-border/60 my-5" />
+
+            {/* Missing Section */}
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground">Missing</span>
+                <span className="text-xs text-muted-foreground font-mono">{flatMissingKeywords.length}</span>
+              </div>
+              <div className="flex flex-wrap gap-x-3.5 gap-y-2 mt-3 text-xs text-foreground/85 leading-relaxed">
+                {flatMissingKeywords.length > 0 ? (
+                  flatMissingKeywords.map((kw, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5">
+                      <span className="text-amber-500 font-bold leading-none text-sm">•</span>
+                      <span>{kw}</span>
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-muted-foreground italic text-[11px]">No missing critical keywords detected</span>
+                )}
+              </div>
+            </div>
+
+            <div className="border-b border-border/60 my-5" />
+
+            {/* Matched Section */}
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground">Matched</span>
+                <span className="text-xs text-muted-foreground font-mono">{matchedKeywords.length}</span>
+              </div>
+              <div className="flex flex-wrap gap-x-3.5 gap-y-2 mt-3 text-xs text-foreground/85 leading-relaxed">
+                {matchedKeywords.length > 0 ? (
+                  matchedKeywords.map((kw, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5">
+                      <span className="text-emerald-500 font-bold leading-none text-sm">•</span>
+                      <span>{kw}</span>
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-muted-foreground italic text-[11px]">No matched keywords yet</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-4 sm:py-6 sm:px-8 space-y-5 sm:space-y-8 animate-fade-in pb-20">
+    <div className="mx-auto w-full max-w-6xl px-6 py-6 sm:py-8 space-y-6 animate-fade-in pb-20 text-left">
       
-      {/* Hero text header */}
-      <div className="space-y-1.5 sm:space-y-3 text-left">
-        <span className="text-[10px] md:text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-2.5 py-1 rounded-full inline-block">
-          RESUME TAILOR
-        </span>
-        <h1 className="text-xl sm:text-4xl font-bold text-foreground leading-[1.1] tracking-tight">
-          Tailor your resume for any role
-        </h1>
-        <p className="text-muted-foreground text-xs sm:text-[14px] leading-normal max-w-3xl">
-          Instantly align your resume with any target job description using smart AI customization.
-        </p>
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+        <div>
+          <span className="text-[11px] font-semibold tracking-[0.25em] text-neutral-400 uppercase">
+            RESUME / TAILOR / INPUTS
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
+            Tailor your resume for a role
+          </h1>
+          <p className="text-[13px] text-neutral-500 font-normal mt-1">
+            Paste the job description and add your resume. We'll rewrite it around the role's keywords.
+          </p>
+        </div>
+
+        {tailoredResult && (
+          <button
+            onClick={() => setIsEditing(false)}
+            className="self-start text-xs text-neutral-600 hover:text-neutral-900 flex items-center gap-1.5 font-medium cursor-pointer transition-colors pt-2"
+          >
+            ← Back to tailored resume
+          </button>
+        )}
       </div>
 
-      {/* INPUT WORKSPACE (Side by Side columns / Mobile Wizard) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8 items-stretch">
+      {/* INPUT WORKSPACE (Side by Side columns) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         
-        {/* Left Input: Job Description */}
-        {(!isMobile || mobileStep === 1) && (
-          <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[320px] md:h-[460px] text-left space-y-4 animate-fade-in">
-            <div className="flex justify-between items-center border-b border-border/40 pb-3">
-              <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <FileText className="h-4.5 w-4.5 text-outly-accent" />
-                Job Description
-              </h2>
-              {isMobile ? (
-                <span className="text-[10px] font-extrabold text-outly-accent uppercase bg-outly-accent/5 px-2 py-0.5 rounded-full">Step 1 of 2</span>
-              ) : (
-                <span className="text-[10px] font-extrabold text-muted-foreground uppercase">Target Context</span>
-              )}
-            </div>
-            <Textarea
-              className="flex-1 resize-none rounded-xl border-border bg-white text-[13px] leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-success p-3.5"
+        {/* Left Column: 01 Job description */}
+        <div className="space-y-2 flex flex-col">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold text-neutral-900 flex items-center gap-1.5">
+              <span className="font-mono text-neutral-400 font-normal">01</span>
+              <span>Job description</span>
+            </h2>
+            <span className="text-[11px] font-mono text-neutral-400">
+              {jobDesc.trim() ? `${jobDesc.trim().split(/\s+/).length} words` : "0 words"}
+            </span>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200/80 bg-white p-4 h-[440px] shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col focus-within:border-neutral-400 transition-colors">
+            <textarea
+              className="flex-1 w-full resize-none border-0 bg-transparent text-[12.5px] leading-relaxed text-neutral-800 placeholder:text-neutral-400 focus:outline-none font-mono"
               placeholder="Paste the job description here..."
               value={jobDesc}
               onChange={(e) => setJobDesc(e.target.value)}
             />
-            {isMobile && (
-              <Button
-                onClick={() => setMobileStep(2)}
-                disabled={jobDesc.trim().length < 15}
-                className="w-full bg-outly-accent hover:brightness-110 text-white font-bold tracking-normal rounded-full shadow-md active:scale-[0.98] transition-all h-9 text-xs cursor-pointer mt-2"
-              >
-                Next: Upload Resume &rarr;
-              </Button>
-            )}
           </div>
-        )}
+        </div>
 
-        {/* Right Input: Resume Source */}
-        {(!isMobile || mobileStep === 2) && (
-          <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col min-h-[460px] text-left animate-fade-in">
-            
-            <div className="flex justify-between items-center border-b border-border/40 pb-3 mb-4">
-            <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <FileText className="h-4.5 w-4.5 text-success" />
-              Resume Source
+        {/* Right Column: 02 Your resume */}
+        <div className="space-y-2 flex flex-col">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold text-neutral-900 flex items-center gap-1.5">
+              <span className="font-mono text-neutral-400 font-normal">02</span>
+              <span>Your resume</span>
             </h2>
-            <span className="text-[10px] font-extrabold text-muted-foreground uppercase">Candidate Input</span>
+            <span className="text-[11px] font-mono text-neutral-400">
+              PDF, DOCX, TXT · 5 MB
+            </span>
           </div>
 
-          {loading ? (
-            <div className="flex-1 border-2 border-dashed border-success/60 bg-[#fdfaf3]/50 p-6 text-center rounded-xl select-none flex flex-col items-center justify-center min-h-[250px] w-full">
-              <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center mb-4 text-success">
-                <UploadCloud className="w-6 h-6 animate-bounce shrink-0" />
-              </div>
-              <div className="w-full max-w-xs space-y-3">
-                <div className="flex justify-between items-center text-xs font-bold text-outly-dark">
-                  <span>Uploading resume...</span>
-                  <span>{uploadProgress}%</span>
+          <div className="rounded-xl border border-neutral-200/80 bg-white p-4 h-[440px] shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col">
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept=".pdf,.docx,.txt"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) processResumeFile(file);
+              }}
+            />
+
+            {loading ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-3">
+                <Loader2 className="w-6 h-6 animate-spin text-neutral-700" />
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-neutral-800">Uploading resume...</p>
+                  <p className="text-[11px] text-neutral-400">{uploadProgress}% processed</p>
                 </div>
-                <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-success rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
+                <div className="w-48 h-1 bg-neutral-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-neutral-900 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
                 </div>
-                <p className="text-[10px] text-zinc-400 font-medium">Please wait while Outly processes your file...</p>
               </div>
-            </div>
-          ) : !resumeFile && selectedVaultId === "custom" ? (
-            isLimitExceeded ? (
-              <div className="flex-1 border-2 border-dashed border-border bg-secondary/35 rounded-xl flex flex-col items-center justify-center p-6 text-center select-none cursor-not-allowed">
-                <div className="space-y-4">
-                  <Lock className="w-8 h-8 text-amber-600 mx-auto" />
-                  <div className="space-y-1">
-                    <p className="text-[14px] font-bold text-foreground">Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : " (3/3)"}</p>
-                    <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">You've used 3 resume tailoring/check attempts. {countdownText ? `Try again in ${countdownText}.` : "Please upgrade to Pro for unlimited tailoring."}</p>
-                  </div>
-                  <Button 
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate("/pricing");
-                    }}
-                    className="bg-outly-accent hover:brightness-110 text-white text-xs font-bold tracking-wider px-6 py-2.5 rounded-full active:scale-[0.98] transition h-10 uppercase"
+            ) : !resumeFile && selectedVaultId === "custom" ? (
+              isLimitExceeded ? (
+                <div className="flex-1 border border-dashed border-neutral-200 rounded-lg flex flex-col items-center justify-center p-6 text-center select-none">
+                  <Lock className="w-6 h-6 text-neutral-400 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-neutral-800">Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : " (3/3)"}</p>
+                  <p className="text-[11px] text-neutral-500 max-w-xs mx-auto mt-1 mb-3">
+                    You've used your free tailor attempts. Upgrade to Pro for unlimited tailoring.
+                  </p>
+                  <Button
+                    size="sm"
+                    onClick={() => navigate("/pricing")}
+                    className="bg-neutral-900 hover:bg-neutral-800 text-white text-xs px-4 h-8 rounded-lg cursor-pointer"
                   >
                     Upgrade to Pro
                   </Button>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-4 flex-1 flex flex-col">
-                <FileUploadCard
-                  files={uploadedFiles}
-                  onFilesChange={handleFilesSelect}
-                  onFileRemove={() => {
-                    setResumeFile(null);
-                    setResumeText(null);
-                    setSelectedVaultId("custom");
-                    setTailoredResult(null);
-                    setMatchedKeywords([]);
-                    setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
-                    setSources([]);
-                    setIsValidResume(null);
-                    setResumeValidationError(null);
-                    setMobileStep(1);
-                  }}
-                />
-
-                {resumes.length > 0 && (
-                  <div className="flex flex-col items-center gap-1.5 pt-1.5 max-w-xs mx-auto" onClick={(e) => e.stopPropagation()}>
-                    <select
-                      className="bg-white border border-border h-8 text-[11px] rounded-lg px-2.5 font-bold text-foreground/70 focus:outline-none focus:ring-1 focus:ring-success shadow-sm w-full cursor-pointer hover:border-success/50 transition"
-                      value={selectedVaultId}
-                      onChange={(e) => handleVaultSelect(e.target.value)}
-                    >
-                      <option value="custom">Or select from Vault...</option>
-                      {resumes.map((r) => (
-                        <option key={r.id} value={String(r.id)}>
-                          {r.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-            )
-          ) : (
-            <div className="flex-1 flex flex-col min-h-0">
-              <div className="mb-3 flex items-center justify-between border-b border-border/40 pb-2">
-                <span className="truncate text-[12px] font-bold text-foreground flex items-center gap-1.5">
-                  <FileText className="h-4 w-4 text-success" />
-                  {resumeFile ? resumeFile.name : (resumes.find(r => String(r.id) === selectedVaultId)?.label || "Vault Resume")}
-                </span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="gap-1 text-muted-foreground h-7 px-2 hover:bg-destructive/10 hover:text-destructive text-[11px] font-bold"
-                  onClick={() => {
-                    setResumeFile(null);
-                    setResumeText(null);
-                    setSelectedVaultId("custom");
-                    setTailoredResult(null);
-                    setMatchedKeywords([]);
-                    setMissingKeywords({ hard_skills: [], soft_skills: [], tools_technologies: [] });
-                    setSources([]);
-                    setIsValidResume(null);
-                    setResumeValidationError(null);
-                    setMobileStep(1);
-                  }}
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border border-dashed rounded-lg flex-1 flex flex-col items-center justify-center text-center p-6 transition-colors cursor-pointer ${
+                    isDragging ? "border-neutral-900 bg-neutral-50" : "border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50/50"
+                  }`}
                 >
-                  <X className="h-3.5 w-3.5" />
-                  Remove
-                </Button>
-              </div>
+                  <p className="text-xl sm:text-2xl font-normal text-neutral-800">
+                    Drop your resume here
+                  </p>
+                  <p className="text-xs text-neutral-500 mt-2">
+                    or <span className="underline underline-offset-2 text-neutral-800 font-medium">browse files</span>
+                  </p>
 
-              <div className="flex-1 min-h-[360px] overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
-                {isValidResume === false ? (
-                  /* Invalid Resume Error State */
-                  <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none bg-white animate-fade-in">
-                    <div className="flex items-center justify-center mb-0.5">
-                      <dotlottie-wc
-                        src="https://lottie.host/11b02034-8246-4f8e-9e73-a1cd4138eb67/FlOkPtywgI.lottie"
-                        style={{ width: "110px", height: "110px" }}
-                        autoplay
-                        loop
-                      />
+                  {resumes.length > 0 && (
+                    <div className="mt-5 w-full max-w-xs" onClick={(e) => e.stopPropagation()}>
+                      <select
+                        className="w-full text-[11px] bg-neutral-50 border border-neutral-200 rounded-lg px-2.5 py-1.5 text-neutral-600 focus:outline-none focus:border-neutral-400 cursor-pointer"
+                        value={selectedVaultId}
+                        onChange={(e) => handleVaultSelect(e.target.value)}
+                      >
+                        <option value="custom">Or select from Vault...</option>
+                        {resumes.map((r) => (
+                          <option key={r.id} value={String(r.id)}>
+                            {r.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                    <h3 className="text-sm sm:text-base font-bold text-foreground mb-1">Invalid Document Detected</h3>
-                    <p className="text-[11px] sm:text-xs text-muted-foreground max-w-sm leading-relaxed mb-4">
-                      {resumeValidationError || "The uploaded document does not appear to be a valid resume/CV."}
-                    </p>
-                    <div className="bg-secondary/40 border border-border/60 rounded-xl p-3.5 max-w-sm text-left space-y-2.5 w-full">
-                      <span className="block text-[10px] font-extrabold uppercase tracking-wider text-foreground">
-                        💡 Proper Resume Requirements:
-                      </span>
-                      <ul className="space-y-1.5 text-[10.5px] text-muted-foreground font-medium">
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                          <span>Must contain standard sections (e.g., <strong>Experience</strong>, <strong>Education</strong>, or <strong>Skills</strong>).</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                          <span>Must include candidate contact info (e.g., email or phone number).</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                          <span>Cannot be a tax form, invoice, receipt, ID card, or general article.</span>
-                        </li>
-                      </ul>
+                  )}
+                </div>
+              )
+            ) : (
+              /* Resume Preview / Uploaded state */
+              <div className="flex-1 flex flex-col min-h-0">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-100">
+                  <span className="truncate text-xs font-medium text-neutral-800 flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5 text-neutral-500" />
+                    {resumeFile ? resumeFile.name : (resumes.find(r => String(r.id) === selectedVaultId)?.label || "Vault Resume")}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setResumeFile(null);
+                      setResumeText(null);
+                      setSelectedVaultId("custom");
+                      setIsValidResume(null);
+                      setResumeValidationError(null);
+                    }}
+                    className="text-neutral-400 hover:text-neutral-800 text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                    Remove
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto rounded-lg border border-neutral-100 bg-neutral-50/50 p-3">
+                  {isValidResume === false ? (
+                    <div className="flex flex-col items-center justify-center p-4 text-center h-full">
+                      <AlertCircle className="w-6 h-6 text-amber-600 mb-2" />
+                      <p className="text-xs font-semibold text-neutral-800">Invalid Resume Format</p>
+                      <p className="text-[11px] text-neutral-500 mt-1 max-w-xs">
+                        {resumeValidationError || "Document does not contain standard resume sections (Experience, Education, Skills)."}
+                      </p>
                     </div>
-                  </div>
-                ) : resumeFile && resumeFile.type === "application/pdf" ? (
-                  <div className="flex-1 flex flex-col min-h-[360px]">
+                  ) : resumeFile && resumeFile.type === "application/pdf" ? (
                     <PdfViewer file={resumeFile} />
-                  </div>
-                ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
-                  <div className="flex-1 flex flex-col min-h-[360px]">
+                  ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
                     <PdfViewer url={api.resume.getFileUrl(selectedVaultId)} />
-                  </div>
-                ) : (
-                  <div className="flex-1 overflow-y-auto p-3.5 text-left max-h-[360px]">
-                    <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-foreground/80">{resumeText}</pre>
-                  </div>
-                )}
+                  ) : (
+                    <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-neutral-700">
+                      {resumeText}
+                    </pre>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-          {isMobile && (
-            <div className="mt-4 pt-3 border-t border-border/40">
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => setMobileStep(1)}
-                className="w-full font-bold text-xs rounded-full border-zinc-200 text-muted-foreground hover:bg-zinc-50 h-9 cursor-pointer"
-              >
-                &larr; Back to Job Description
-              </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-        )}
       </div>
 
-      {/* Action Submit Area (Below inputs) */}
-      {(!isMobile || mobileStep === 2) && (
-        <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-3 sm:gap-4 rounded-xl border border-border bg-card p-3 sm:p-4 shadow-[var(--shadow-card)] animate-fade-in">
-          <span className="text-[11px] font-bold text-muted-foreground">Tailored live by Outly AI</span>
-          <Button
-            className="w-full sm:w-auto max-w-[220px] bg-outly-accent hover:brightness-110 text-white px-5 font-bold tracking-normal rounded-full shadow-md shadow-outly-accent/15 active:scale-[0.98] transition-all gap-1.5 h-9 text-xs cursor-pointer"
-            onClick={handleTailor}
-            disabled={tailoring || !resumeText || !jobDesc.trim() || isValidResume === false}
-          >
-            {tailoring ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Tailoring{tailoringDots}
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-3.5 w-3.5" />
-                Tailor Resume
-              </>
-            )}
-          </Button>
-        </div>
-      )}
+      {/* Bottom Action Area */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+        <p className="text-xs text-neutral-500">
+          {!jobDesc.trim() && !resumeText
+            ? "Paste the job description and add your resume to continue."
+            : !jobDesc.trim()
+            ? "Paste the target job description to continue."
+            : !resumeText
+            ? "Add your resume to continue."
+            : isValidResume === false
+            ? "Please provide a valid resume file to continue."
+            : "Ready to tailor your resume."}
+        </p>
+
+        <button
+          onClick={handleTailor}
+          disabled={tailoring || !resumeText || !jobDesc.trim() || isValidResume === false}
+          className="self-end sm:self-auto bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:cursor-not-allowed text-white text-xs font-medium px-5 py-2.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-xs"
+        >
+          {tailoring ? (
+            <>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Tailoring{tailoringDots}
+            </>
+          ) : (
+            <>
+              Tailor resume <ArrowRight className="w-3.5 h-3.5" />
+            </>
+          )}
+        </button>
+      </div>
 
       {/* TAILORING ANIMATED PROGRESS LOADER CARD */}
       {tailoring && (
-        <div className="w-full bg-card border border-border rounded-2xl p-10 text-center shadow-[var(--shadow-card)] space-y-4 animate-pulse">
-          <Loader2 className="h-9 w-9 animate-spin text-outly-accent mx-auto" />
-          <div className="space-y-2 max-w-sm mx-auto">
-            <h3 className="text-base font-bold text-foreground">AI Tailoring in Progress{tailoringDots}</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Outly AI is parsing the job description, cross-referencing industry skill sets, and rewriting your resume points. This takes about 10-15 seconds.
+        <div className="w-full bg-white border border-neutral-200/80 rounded-xl p-10 text-center shadow-xs space-y-3 animate-fade-in">
+          <Loader2 className="h-8 w-8 animate-spin text-neutral-800 mx-auto" />
+          <div className="space-y-1 max-w-sm mx-auto">
+            <h3 className="text-xs font-semibold text-neutral-900">AI Tailoring in Progress{tailoringDots}</h3>
+            <p className="text-[11px] text-neutral-500 leading-relaxed">
+              Outly AI is parsing requirements, extracting role skills, and rewriting your resume points. This takes about 10-15 seconds.
             </p>
           </div>
         </div>
       )}
-
-      {/* TAILORED DOCK PREVIEW & KEYWORD ANALYSIS SECTION */}
-      {tailoredResult && !tailoring && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6 border-t border-border/40 animate-slide-up">
-          
-          {/* Left Panel: Tailored Resume preview panel (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] flex flex-col h-[380px] md:h-[600px] text-left">
-              <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-border/40 pb-3">
-                <div>
-                  <h3 className="text-[15px] font-bold text-foreground flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-success" />
-                    Tailored Resume (Markdown)
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Optimized work history and professional profile summary.</p>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1.5 h-8 px-3 text-[11px] border-border text-foreground hover:bg-secondary rounded-lg font-bold"
-                    onClick={handleCopy}
-                  >
-                    {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
-                    Copy
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1.5 h-8 px-3 text-[11px] border-border text-foreground hover:bg-secondary rounded-lg font-bold"
-                    onClick={handleDownload}
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    Download
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1.5 h-8 px-3 text-[11px] border-border text-foreground hover:bg-secondary rounded-lg font-bold"
-                    onClick={handleSaveToVault}
-                    disabled={savingToVault}
-                  >
-                    {savingToVault ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Save className="h-3.5 w-3.5" />
-                    )}
-                    {savingToVault ? "Saving..." : "Save to Vault"}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto rounded-xl border border-border bg-secondary/10 p-4 font-mono text-[12px] leading-relaxed text-foreground/80">
-                <pre className="whitespace-pre-wrap">{tailoredResult}</pre>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Panel: Keyword Insights & Search References (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
-            
-            {/* Keyword Analysis Card */}
-            <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] space-y-4 text-left">
-              <h3 className="text-[14px] font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-3">
-                <Sparkles className="h-4.5 w-4.5 text-outly-accent animate-pulse" />
-                Keyword Improvements
-              </h3>
-              
-              <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1">
-                {/* Matched skills */}
-                {matchedKeywords.length > 0 && (
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold text-success uppercase tracking-wider block">Matched Primary Skills</span>
-                    <div className="flex flex-wrap gap-1">
-                      {matchedKeywords.map((kw, i) => (
-                        <span key={i} className="rounded-md bg-success/5 border border-success/15 px-2 py-0.5 text-[10px] font-semibold text-success flex items-center gap-1">
-                          <Check className="h-2.5 w-2.5" />
-                          {kw}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Missing Skills */}
-                {typeof missingKeywords === "object" && !Array.isArray(missingKeywords) ? (
-                  <div className="space-y-3">
-                    {(missingKeywords.hard_skills?.length || 0) > 0 && (
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">Recommended Hard Skills to Add</span>
-                        <div className="flex flex-wrap gap-1">
-                          {missingKeywords.hard_skills.map((kw, i) => (
-                            <span key={i} className="rounded-md bg-amber-500/5 border border-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                              {kw}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {(missingKeywords.tools_technologies?.length || 0) > 0 && (
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">Tools / Technologies</span>
-                        <div className="flex flex-wrap gap-1">
-                          {missingKeywords.tools_technologies.map((kw, i) => (
-                            <span key={i} className="rounded-md bg-blue-500/5 border border-blue-500/20 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
-                              {kw}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {(missingKeywords.soft_skills?.length || 0) > 0 && (
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">Soft Skills</span>
-                        <div className="flex flex-wrap gap-1">
-                          {missingKeywords.soft_skills.map((kw, i) => (
-                            <span key={i} className="rounded-md bg-emerald-500/5 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                              {kw}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">Recommended Skills to Add</span>
-                    <div className="flex flex-wrap gap-1">
-                      {(missingKeywords as string[]).map((kw, i) => (
-                        <span key={i} className="rounded-md bg-amber-500/5 border border-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                          {kw}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Grounded References Card */}
-            {sources.length > 0 && (
-              <div className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] space-y-4 text-left flex flex-col h-[270px]">
-                <div className="flex justify-between items-center border-b border-border/40 pb-3">
-                  <div>
-                    <h3 className="text-[14px] font-bold text-foreground flex items-center gap-2">
-                      <Info className="h-4.5 w-4.5 text-primary" />
-                      Grounded Search Sources
-                    </h3>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Role requirements verified from external benchmark profiles.</p>
-                  </div>
-                  <span className="text-[10px] font-extrabold bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-full">{sources.length}</span>
-                </div>
-
-                <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-                  {sources.map((src, i) => (
-                    <a
-                      key={i}
-                      href={src.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-border bg-white hover:bg-secondary/40 transition duration-200 cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <img
-                          className="h-4 w-4 rounded shrink-0 bg-white border border-border/10"
-                          src={`https://www.google.com/s2/favicons?domain=${src.domain}&sz=32`}
-                          alt=""
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = "none";
-                          }}
-                        />
-                        <div className="min-w-0">
-                          <p className="text-[12px] font-bold text-foreground truncate">{src.title}</p>
-                          <p className="text-[10px] text-muted-foreground truncate font-mono">{src.url}</p>
-                        </div>
-                      </div>
-                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-
-          </div>
-
-        </div>
-      )}
-
 
       <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
 

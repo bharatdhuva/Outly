@@ -7,9 +7,7 @@ config({ path: path.resolve(__dirname, "..", ".env") });
 import fs from "fs";
 import { env } from "./config/env.js";
 import { startServer } from "./api/server.js";
-import { scheduleDailySummary } from "./jobs/dailySummary.cron.js";
 import { scheduleFollowUpChecker } from "./jobs/followUpChecker.cron.js";
-import { scheduleWeeklyReport } from "./jobs/weeklyReport.cron.js";
 import { scheduleKeepAliveCron } from "./jobs/keepAlive.cron.js";
 import "./queue/processors.js";
 import { logger } from "./lib/logger.js";
@@ -46,9 +44,7 @@ async function main() {
       logger.error("❌ MongoDB background connection error:", { error: err instanceof Error ? err.stack || err.message : String(err), source: "system" });
     });
 
-  scheduleDailySummary();
   scheduleFollowUpChecker();
-  scheduleWeeklyReport();
   scheduleKeepAliveCron();
 
   logger.info("Outly started — all services initialized", { source: "system" });
