@@ -341,12 +341,21 @@ export default function ColdMailPage() {
   if (isLoading)
     return <DotLottieLoader minHeight="min-h-[400px]" />;
 
-  // Helper to ensure MSU reference in draft
-  // Remove repeated lines/paragraphs and ensure MSU reference
-  function cleanDraft(draft: string): string {
-    // Remove repeated paragraphs (split by double newlines)
+  // Helper to ensure proper formatting, greeting, paragraph separation, and sign-off in cold mail draft
+  function cleanDraft(draft: string, company?: Company | null): string {
+    if (!draft) return "";
+    let text = draft.trim();
+
+    // 1. Fix punctuation stuck directly to uppercase letters without spaces or line breaks (e.g. "resonates.As", "agencies.I'm")
+    text = text.replace(/([.!?])([A-Z])/g, "$1\n\n$2");
+    text = text.replace(/\r\n/g, "\n");
+
+    // 2. Remove accidental duplicate headers like "SUBJECT: ...\nBODY:"
+    text = text.replace(/^(subject:.*?\n+|body:\s*)+/gi, "");
+
+    // 3. Remove repeated paragraphs
     const seen = new Set<string>();
-    const uniqueParas = draft
+    const uniqueParas = text
       .split(/\n{2,}/)
       .map((p) => p.trim())
       .filter((p) => {
@@ -354,7 +363,25 @@ export default function ColdMailPage() {
         seen.add(p);
         return true;
       });
-    return uniqueParas.join("\n\n");
+
+    let formatted = uniqueParas.join("\n\n");
+
+    // 4. Ensure greeting at the beginning
+    const hasGreeting = /^(hi|hey|hello|dear)\b/i.test(formatted.trim());
+    if (!hasGreeting) {
+      const recipient = company?.target_person_name?.trim() || (company?.company_name ? `${company.company_name} Team` : "Hiring Team");
+      formatted = `Hi ${recipient},\n\n${formatted}`;
+    }
+
+    // 5. Ensure professional sign-off at the end
+    const hasSignOff = /(best regards|warm regards|kind regards|regards|sincerely|best,)\s*\n?/i.test(formatted);
+    if (!hasSignOff) {
+      const sender = company?.sender_name?.trim() || settings?.full_name?.trim() || "Bharat Dhuva";
+      const location = company?.sender_location?.trim() || settings?.target_cities?.split(",")[0]?.trim() || "";
+      formatted = `${formatted}\n\nBest regards,\n${sender}${location ? `\n${location}` : ""}`;
+    }
+
+    return formatted;
   }
 
   return (
@@ -861,8 +888,8 @@ export default function ColdMailPage() {
                           </div>
 
                           {/* Email Body */}
-                          <div className="font-mono text-[11px] leading-relaxed text-secondary-foreground whitespace-pre-wrap pt-1">
-                            {selectedCompany.generated_mail ? cleanDraft(selectedCompany.generated_mail) : "No draft generated yet."}
+                          <div className="font-sans text-[13px] sm:text-sm leading-relaxed text-foreground whitespace-pre-wrap pt-1 select-text">
+                            {selectedCompany.generated_mail ? cleanDraft(selectedCompany.generated_mail, selectedCompany) : "No draft generated yet."}
                           </div>
                         </div>
 
@@ -892,8 +919,8 @@ export default function ColdMailPage() {
                               <p className="text-[11px] font-semibold text-muted-foreground truncate">
                                 Re: {variantsData.followups.day4.subject_options?.[0]}
                               </p>
-                              <p className="text-[11px] text-muted-foreground font-mono whitespace-pre-wrap leading-relaxed">
-                                {variantsData.followups.day4.body}
+                              <p className="text-xs text-foreground/80 font-sans whitespace-pre-wrap leading-relaxed">
+                                {cleanDraft(variantsData.followups.day4.body, selectedCompany)}
                               </p>
                             </div>
 
@@ -916,8 +943,8 @@ export default function ColdMailPage() {
                               <p className="text-[11px] font-semibold text-muted-foreground truncate">
                                 Re: {variantsData.followups.day7.subject_options?.[0]}
                               </p>
-                              <p className="text-[11px] text-muted-foreground font-mono whitespace-pre-wrap leading-relaxed">
-                                {variantsData.followups.day7.body}
+                              <p className="text-xs text-foreground/80 font-sans whitespace-pre-wrap leading-relaxed">
+                                {cleanDraft(variantsData.followups.day7.body, selectedCompany)}
                               </p>
                             </div>
                           </div>
@@ -952,7 +979,7 @@ export default function ColdMailPage() {
                               setEditData({
                                 company_name: selectedCompany.company_name,
                                 generated_subject: selectedCompany.generated_subject || "",
-                                generated_mail: selectedCompany.generated_mail || "",
+                                generated_mail: cleanDraft(selectedCompany.generated_mail || "", selectedCompany),
                                 personalization_hook: selectedCompany.personalization_hook || "",
                               });
                             }}
@@ -982,7 +1009,7 @@ export default function ColdMailPage() {
                             <div className="space-y-2">
                               <Label>Generated Email Body</Label>
                               <Textarea
-                                className="min-h-[300px] font-mono text-[13px]"
+                                className="min-h-[300px] font-sans text-sm leading-relaxed"
                                 value={editData.generated_mail || ""}
                                 onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
                               />
@@ -1029,11 +1056,12 @@ export default function ColdMailPage() {
                         className="flex-1 gap-2.5 h-9 border-border bg-card hover:bg-secondary/40 text-foreground font-semibold shadow-sm cursor-pointer"
                         title="Open direct compose window in Gmail web app"
                         onClick={() => {
+                          const mailBody = cleanDraft(selectedCompany.generated_mail || "", selectedCompany);
                           if (isMobile) {
-                            const mailtoUrl = `mailto:${encodeURIComponent(selectedCompany.hr_email)}?subject=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(selectedCompany.generated_mail || "")}`;
+                            const mailtoUrl = `mailto:${encodeURIComponent(selectedCompany.hr_email)}?subject=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(mailBody)}`;
                             window.location.href = mailtoUrl;
                           } else {
-                            const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(selectedCompany.hr_email)}&su=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(selectedCompany.generated_mail || "")}`;
+                            const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(selectedCompany.hr_email)}&su=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(mailBody)}`;
                             window.open(url, "_blank");
                           }
                           // Mark status as sent
@@ -1055,7 +1083,7 @@ export default function ColdMailPage() {
                               setEditData({
                                 company_name: selectedCompany.company_name,
                                 generated_subject: selectedCompany.generated_subject || "",
-                                generated_mail: selectedCompany.generated_mail || "",
+                                generated_mail: cleanDraft(selectedCompany.generated_mail || "", selectedCompany),
                                 personalization_hook: selectedCompany.personalization_hook || "",
                               });
                             }}
@@ -1085,7 +1113,7 @@ export default function ColdMailPage() {
                             <div className="space-y-2">
                               <Label>Generated Email Body</Label>
                               <Textarea
-                                className="min-h-[300px] font-mono text-[13px]"
+                                className="min-h-[300px] font-sans text-sm leading-relaxed"
                                 value={editData.generated_mail || ""}
                                 onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
                               />

@@ -18,8 +18,22 @@ Your emails read like genuine peer-to-peer engineering conversations:
   * Variant A: Impact & Metrics-driven (focus on shipped features, performance, speed).
   * Variant B: Problem-solver & Tech-synergy (focus on solving bandwidth/engineering problems relevant to the company).
 
-Never use generic openers like "I hope this email finds you well" or "My name is X and I am writing to apply...".
-Lead immediately with a thoughtful hook referencing the company or role.`,
+EMAIL BODY STRUCTURE & FORMATTING REQUIREMENTS:
+Every email body (primary and variants) MUST strictly adhere to this format:
+1. Salutation: "Hi {targetPerson}," (or "Hi {companyName} Team," if recipient is generic).
+2. Blank line (\\n\\n).
+3. Paragraph 1 (Personalization Hook): 1-2 sentences referencing specific company projects, tech stack, or recent momentum. Never use generic openers like "I hope this email finds you well" or "My name is X and I am writing to apply...".
+4. Blank line (\\n\\n).
+5. Paragraph 2 (Value Proposition): 2-3 sentences connecting candidate's hands-on engineering skills and background directly to {targetRole} and company needs.
+6. Blank line (\\n\\n).
+7. Paragraph 3 (Resume reference & CTA): 1-2 sentences mentioning attached resume ("I've attached my resume for your reference.") and proposing a brief, low-friction chat.
+8. Blank line (\\n\\n).
+9. Sign-off:
+Best regards,
+{senderName}
+{senderLocation}
+
+DO NOT merge all sentences into one block. Separate every section with double newlines (\\n\\n).`,
   ],
   [
     "human",

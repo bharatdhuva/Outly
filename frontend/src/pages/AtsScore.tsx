@@ -72,6 +72,7 @@ export default function AtsScorePage() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   const resultContainerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isInitialMount = useRef(true);
 
   useEffect(() => {
@@ -599,704 +600,311 @@ export default function AtsScorePage() {
     ];
   };
 
-  return (
-    <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 py-4 sm:py-6 space-y-6 sm:space-y-12 animate-fade-in pb-20">
-      
-      {/* TWO COLUMN WORKSPACE GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16 items-start">
-        
-        {/* ─── LEFT COLUMN: HERO DESCRIPTIONS & INPUT OR RESUME VIEW ─── */}
-        <div className="lg:col-span-6 space-y-4 sm:space-y-8 flex flex-col justify-center min-h-0 md:min-h-[480px]">
-          
-          {/* Hero text header */}
-          {!result && (
-            <div className="space-y-1.5 sm:space-y-3">
-              <span className="text-[10px] md:text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-2.5 py-1 rounded-full inline-block">
-                RESUME CHECKER
-              </span>
-              <h1 className="text-2xl sm:text-4xl lg:text-[52px] font-bold text-foreground leading-[1.05] tracking-tight">
-                Is your resume good enough?
-              </h1>
-              <p className="text-muted-foreground text-xs sm:text-[15px] leading-normal max-w-xl">
-                Free AI resume checker analyzing 27 crucial factors to ensure full ATS compatibility and get you interviews.
-              </p>
-            </div>
-          )}
+  const FACTORS = [
+    { id: "contact", label: "Contact details", category: "Content", passed: resume ? (resume.includes("@") || /\d{10}/.test(resume)) : null },
+    { id: "headings", label: "Section headings", category: "Structure", passed: sectionsScore >= 60 },
+    { id: "density", label: "Keyword density", category: "Content", passed: contentScore >= 60 },
+    { id: "verbs", label: "Action verbs", category: "Language", passed: styleScore >= 50 },
+    { id: "impact", label: "Quantified impact", category: "Content", passed: (activeResult.breakdown?.impact_metrics ?? 0) >= 50 },
+    { id: "parsability", label: "File parsability", category: "Format", passed: result ? result.isValidResume !== false : null },
+    { id: "spacing", label: "Length & spacing", category: "Format", passed: formatScore >= 50 },
+  ];
 
-          {!result || result.isValidResume === false ? (
-            isLimitExceeded ? (
-              /* Locked upload zone because limit is reached */
-              <div 
-                className="border-2 border-dashed border-border bg-secondary/30 p-5 sm:p-10 text-center rounded-2xl select-none cursor-not-allowed"
-              >
-                <div className="space-y-3 sm:space-y-4 py-2">
-                  <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
-                    <Lock className="w-5 h-5 shrink-0" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <p className="text-[14px] sm:text-[15px] font-bold text-foreground">
-                      Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : " (3/3)"}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground font-medium max-w-xs mx-auto leading-relaxed">
-                      You've used 3 resume checks. {countdownText ? `Try again in ${countdownText}.` : "Upgrade to Outly Pro for unlimited scans and deeper semantic matching."}
-                    </p>
-                  </div>
-                  <Button 
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate("/pricing");
-                    }}
-                    className="bg-outly-accent hover:brightness-110 hover:scale-[1.02] text-white text-xs font-bold tracking-wider px-6 py-4 rounded-full shadow-lg shadow-outly-accent/20 active:scale-[0.98] transition-all h-10 shrink-0 uppercase"
-                  >
-                    Upgrade to Outly Pro
-                  </Button>
+  return (
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-8 py-6 sm:py-10 space-y-8 animate-fade-in pb-20 text-left">
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        accept=".pdf,.docx,.txt"
+        onChange={handleFileUpload}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+        
+        {/* ─── LEFT COLUMN: HEADER & UPLOAD / PREVIEW ─── */}
+        <div className="lg:col-span-6 space-y-6 text-left">
+          
+          {/* Header Title Section matching screenshot */}
+          <div className="space-y-3">
+            <span className="text-[11px] font-semibold tracking-[0.25em] text-neutral-400 uppercase font-sans">
+              RESUME / CHECKER
+            </span>
+            <h1 className="text-4xl sm:text-[46px] font-bold text-neutral-900 tracking-tight leading-[1.08] font-sans">
+              Is your resume<br className="hidden sm:inline" /> good enough?
+            </h1>
+            <p className="text-[14px] text-neutral-500 font-normal leading-relaxed max-w-md mt-2">
+              We check your resume against 27 factors that applicant tracking systems look at, and tell you exactly what to fix.
+            </p>
+          </div>
+
+          {/* Upload card matching screenshot */}
+          <div className="space-y-3">
+            {isLimitExceeded ? (
+              <div className="rounded-2xl border border-neutral-200/80 bg-white p-8 sm:p-10 text-center select-none shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3">
+                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
+                  <Lock className="w-5 h-5 shrink-0" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-neutral-900">
+                    Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : " (3/3)"}
+                  </h3>
+                  <p className="text-xs text-neutral-500 max-w-xs mx-auto leading-relaxed">
+                    You've used your 3 free resume checks. Upgrade to Outly Pro for unlimited scans.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => navigate("/pricing")}
+                  className="bg-neutral-950 hover:bg-neutral-800 text-white text-xs font-semibold px-5 h-9 rounded-lg cursor-pointer"
+                >
+                  Upgrade to Pro
+                </Button>
+              </div>
+            ) : parsingFile || showScanLoader ? (
+              <div className="rounded-2xl border border-neutral-200/80 bg-white p-8 sm:p-12 text-center shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center min-h-[260px] space-y-3">
+                <Loader2 className="w-6 h-6 animate-spin text-neutral-800" />
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-neutral-800">
+                    {parsingFile ? "Uploading resume..." : scanStatus || "Checking 27 factors..."}
+                  </p>
+                  <p className="font-mono text-[11px] text-neutral-400">
+                    {parsingFile ? `${uploadProgress}% processed` : `${scanProgress}% analyzed`}
+                  </p>
+                </div>
+                <div className="w-48 h-1 bg-neutral-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-neutral-900 rounded-full transition-all duration-300"
+                    style={{ width: `${parsingFile ? uploadProgress : scanProgress}%` }}
+                  />
                 </div>
               </div>
-            ) : (parsingFile || showScanLoader) ? (
-              /* Real Upload & Scan Progress loader */
-              <div className="border-2 border-dashed border-success/60 bg-[#fdfaf3]/50 p-5 sm:p-10 text-center rounded-2xl select-none flex flex-col items-center justify-center min-h-[220px] w-full animate-pulse">
-                <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center mb-4 text-success">
-                  <UploadCloud className="w-6 h-6 animate-bounce shrink-0" />
+            ) : result ? (
+              <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3.5">
+                <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                  <div className="flex items-center gap-2 truncate pr-2">
+                    <FileText className="w-4 h-4 text-neutral-500 shrink-0" />
+                    <span className="text-xs font-semibold text-neutral-900 truncate">
+                      {resumeFile ? resumeFile.name : resumeFileName || "Uploaded Resume"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setResult(null);
+                      setResume("");
+                      setResumeFile(null);
+                      setResumeFileName("");
+                      setSelectedVaultId("custom");
+                    }}
+                    className="text-[11px] font-medium text-neutral-400 hover:text-neutral-900 cursor-pointer transition-colors shrink-0"
+                  >
+                    Change file
+                  </button>
                 </div>
-                <div className="w-full max-w-xs space-y-3">
-                  <div className="flex justify-between items-center text-xs font-bold text-outly-dark">
-                    <span>{parsingFile ? "Uploading resume..." : "Outly AI is checking your document..."}</span>
-                    <span>{parsingFile ? uploadProgress : scanProgress}%</span>
-                  </div>
-                  <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-success rounded-full transition-all duration-300 ease-out"
-                      style={{ width: `${parsingFile ? uploadProgress : scanProgress}%` }}
-                    />
-                  </div>
-                  <p className="text-[10px] text-zinc-400 font-medium min-h-[16px]">
-                    {parsingFile ? "Please wait while Outly processes your file..." : scanStatus}
-                  </p>
+
+                <div className="max-h-[360px] overflow-y-auto rounded-lg border border-neutral-100 bg-neutral-50/50 p-3">
+                  {result.isValidResume === false ? (
+                    <div className="text-center py-6 px-4 space-y-2">
+                      <AlertCircle className="w-6 h-6 text-amber-500 mx-auto" />
+                      <p className="text-xs font-semibold text-neutral-900">Invalid Resume Document</p>
+                      <p className="text-[11px] text-neutral-500 leading-relaxed max-w-xs mx-auto">
+                        {result.error || "The uploaded document lacks standard resume sections (Experience, Education, Skills)."}
+                      </p>
+                    </div>
+                  ) : resumeFile && resumeFile.type === "application/pdf" ? (
+                    <PdfViewer file={resumeFile} />
+                  ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
+                    <PdfViewer url={api.resume.getFileUrl(selectedVaultId)} />
+                  ) : (
+                    <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-neutral-700">
+                      {resume}
+                    </pre>
+                  )}
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
-                <FileUploadCard
-                  files={uploadedFiles}
-                  onFilesChange={handleFilesSelect}
-                  onFileRemove={() => {
-                    setResumeFile(null);
-                    setResumeFileName("");
-                    setResume("");
-                    setResult(null);
-                  }}
-                />
+              <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 sm:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border border-dashed rounded-xl p-8 sm:p-14 text-center flex flex-col items-center justify-center transition-all cursor-pointer ${
+                    isDragging
+                      ? "border-neutral-900 bg-neutral-50"
+                      : "border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50/50"
+                  }`}
+                >
+                  <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight font-sans">
+                    Drop your resume here
+                  </h2>
+                  <p className="text-xs sm:text-sm text-neutral-500 mt-2.5">
+                    or <span className="underline underline-offset-4 text-neutral-900 font-semibold">browse files</span>
+                  </p>
+                  <p className="font-mono text-[11px] text-neutral-400 mt-6 tracking-wide">
+                    PDF, DOCX, TXT · up to 5 MB
+                  </p>
+                </div>
 
-                {/* Inline Vault Resume Selector */}
                 {resumes.length > 0 && (
-                  <div className="flex flex-col items-center gap-1.5 pt-2 max-w-xs mx-auto" onClick={(e) => e.stopPropagation()}>
-                    <span className="text-[10px] font-extrabold uppercase text-muted-foreground">Or select from Vault</span>
+                  <div className="mt-4 pt-4 border-t border-neutral-100 flex items-center justify-between text-xs" onClick={(e) => e.stopPropagation()}>
+                    <span className="text-[11px] text-neutral-400 font-medium">Or select from Vault:</span>
                     <select
-                      id="vault-select-trigger"
-                      className="bg-white border border-border h-8 text-[11px] rounded-lg px-2 font-bold text-foreground/70 focus:outline-none focus:ring-1 focus:ring-success shadow-sm w-full cursor-pointer hover:border-success/50 transition"
+                      className="text-[11px] bg-neutral-50 border border-neutral-200 rounded-lg px-2.5 py-1 text-neutral-700 focus:outline-none focus:border-neutral-400 cursor-pointer max-w-[200px] truncate"
                       value={selectedVaultId}
                       onChange={(e) => handleVaultSelect(e.target.value)}
                     >
-                      <option value="custom">Select a resume...</option>
+                      <option value="custom">Choose a resume...</option>
                       {resumes.map((r) => (
                         <option key={r.id} value={String(r.id)}>
-                          {r.label} ({r.filename.split(".").pop()?.toUpperCase()})
+                          {r.label}
                         </option>
                       ))}
                     </select>
                   </div>
                 )}
+              </div>
+            )}
 
-                {/* Privacy terms guarantee (as requested) */}
-                <div className="text-muted-foreground/60 text-[11px] font-semibold flex items-center justify-center gap-1.5 pt-1">
-                  <Lock className="w-3.5 h-3.5 shrink-0 text-muted-foreground/40" />
-                  <span>Your resume and website data is completely safe.</span>
-                </div>
-              </div>
-            )
-          ) : (
-            /* Resume Preview Workspace (PDF or text block) after scan completes */
-            <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-[var(--shadow-card)] flex-1 flex flex-col min-h-0 md:min-h-[380px] animate-slide-up">
-              <div className="mb-4 flex items-center justify-between gap-3 border-b border-border/40 pb-2.5">
-                <span className="truncate text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <FileText className="h-4 w-4 text-outly-accent shrink-0" />
-                  {resumeFile ? resumeFile.name : resumeFileName || resumes.find(r => String(r.id) === selectedVaultId)?.label || "Uploaded Resume"}
-                </span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="gap-1 text-muted-foreground h-7 px-2 hover:bg-destructive/10 hover:text-destructive text-[11px]"
-                  onClick={() => {
-                    setResult(null);
-                    setResume("");
-                    setResumeFile(null);
-                    setResumeFileName("");
-                    setSelectedVaultId("custom");
-                  }}
-                >
-                  <X className="h-3.5 w-3.5" />
-                  Clear
-                </Button>
-              </div>
-
-              {/* View PDF file or plain text */}
-              <div className="flex-1 min-h-[260px] md:min-h-[480px] overflow-hidden rounded-xl border border-border bg-secondary/10 flex flex-col">
-                {resumeFile && resumeFile.type === "application/pdf" ? (
-                  <div className="flex-1 flex flex-col min-h-[260px] md:min-h-[480px]">
-                    <PdfViewer file={resumeFile} />
-                  </div>
-                ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
-                  <div className="flex-1 flex flex-col min-h-[260px] md:min-h-[480px]">
-                    <PdfViewer url={api.resume.getFileUrl(selectedVaultId)} />
-                  </div>
-                ) : (
-                  <div className="flex-1 max-h-[260px] md:max-h-[480px] overflow-y-auto p-4 text-left">
-                    <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-foreground/80">{resume}</pre>
-                  </div>
-                )}
-              </div>
-
-              {/* Action tray below active resume preview */}
-              <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between">
-                <span className="text-[10px] font-bold text-muted-foreground">Checked by Outly AI</span>
-                <Button
-                  onClick={handleCheckScoreClick}
-                  disabled={loading}
-                  size="sm"
-                  className="bg-outly-accent hover:bg-outly-accent/95 text-white text-[11px] px-4 py-1.5 font-bold tracking-wider rounded-lg shadow-sm"
-                >
-                  <RefreshCw className={`h-3 w-3 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-                  RESCAN RESUME
-                </Button>
-              </div>
+            <div className="flex items-center gap-2 text-xs text-neutral-400 font-normal pl-1">
+              <Lock className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
+              <span>Your resume stays private and is never shared.</span>
             </div>
-          )}
-
-        </div>
-
-        {/* ─── RIGHT COLUMN: THE INTERACTIVE DASHBOARD CARD ─── */}
-        {!isLimitExceeded && (result || !isMobile) && (
-          <div ref={resultContainerRef} className="lg:col-span-6 relative flex items-center justify-center w-full scroll-mt-20">
-          
-          {/* Background glowing mesh radial effect */}
-          <div className="absolute inset-0 bg-outly-accent/5 blur-[80px] rounded-full transform -translate-y-12 select-none pointer-events-none"></div>
-          
-          {/* Browser Frame Mockup Container */}
-          <div className={`relative bg-card border border-border/85 rounded-2xl shadow-[0_22px_70px_rgba(26,26,26,0.06)] w-full max-w-xl overflow-hidden flex flex-col z-10 select-none transition-all duration-300 ${
-            !result
-              ? "h-[180px] min-h-[180px] md:h-[600px] md:min-h-[500px]"
-              : "h-auto md:h-[600px] min-h-[500px]"
-          }`}>
-            
-            {/* Browser Header Bar */}
-            <div className="bg-secondary/40 border-b border-border/60 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-destructive/80"></div>
-                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-warning/80"></div>
-                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-success/80"></div>
-              </div>
-              <div className="bg-white border border-border/50 rounded-md text-[9px] sm:text-[10px] font-bold text-muted-foreground/60 px-3 sm:px-6 py-0.5 tracking-tight flex items-center gap-1.5 select-none max-w-[140px] xs:max-w-none truncate">
-                <Lock className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-success shrink-0" />
-                <span className="truncate">ats.outly.online</span>
-              </div>
-              <div className="w-8 sm:w-10"></div>
-            </div>
-
-            {/* Main Score Dashboard Layout */}
-            {result && result.isValidResume === false ? (
-              /* Invalid Resume Error State */
-              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none bg-white animate-fade-in min-h-[400px]">
-                <div className="flex items-center justify-center mb-1">
-                  <dotlottie-wc
-                    src="https://lottie.host/11b02034-8246-4f8e-9e73-a1cd4138eb67/FlOkPtywgI.lottie"
-                    style={{ width: "130px", height: "130px" }}
-                    autoplay
-                    loop
-                  />
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2">Invalid Document Detected</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground max-w-sm leading-relaxed mb-6">
-                  {result.error || "The uploaded document does not appear to be a valid resume/CV. Outly AI scanned the file but could not identify standard sections or profile details."}
-                </p>
-                <div className="bg-secondary/40 border border-border/60 rounded-xl p-4 max-w-sm text-left space-y-3.5 w-full">
-                  <span className="block text-[11px] font-extrabold uppercase tracking-wider text-foreground">
-                    💡 Proper Resume Requirements:
-                  </span>
-                  <ul className="space-y-2 text-[11.5px] text-muted-foreground font-medium">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                      <span>Must contain standard sections (e.g., <strong>Experience</strong>, <strong>Education</strong>, or <strong>Skills</strong>).</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                      <span>Must include candidate contact info (e.g., email or phone number).</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                      <span>Cannot be a tax form, invoice, receipt, ID card, or general article.</span>
-                    </li>
-                  </ul>
-                </div>
-                <Button 
-                  onClick={() => {
-                    setResult(null);
-                    setResume("");
-                    setResumeFile(null);
-                    setResumeFileName("");
-                    setSelectedVaultId("custom");
-                  }}
-                  className="mt-6 bg-outly-accent hover:brightness-110 text-white text-xs font-bold px-6 py-2.5 rounded-full shadow-md shadow-outly-accent/20 cursor-pointer transition active:scale-[0.97] h-9 shrink-0 gap-1.5"
-                >
-                  Upload a Different File
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col md:grid md:grid-cols-12 flex-1 h-auto md:h-[calc(100%-44px)]">
-              
-              {/* Left Panel: Score circular dial & category selector buttons (5/12 cols) */}
-              <div className="col-span-12 md:col-span-5 border-b md:border-b-0 md:border-r border-border/60 p-4 bg-secondary/10 flex flex-col justify-between h-auto md:h-full overflow-y-auto">
-                
-                <div className="space-y-4">
-                  <span className="text-[11px] font-bold text-foreground/80 tracking-tight block">Resume Score</span>
-                  
-                  {/* SVG Arc Progress Dial */}
-                  <div className="relative flex flex-col items-center justify-center py-2">
-                    <svg className="w-28 h-28 transform -rotate-90">
-                      <circle cx="56" cy="56" r="46" className="stroke-muted fill-none" strokeWidth="8" />
-                      <circle
-                        cx="56"
-                        cy="56"
-                        r="46"
-                        className={`fill-none transition-all duration-1000 ${getScoreDialColorClass(activeResult.score)}`}
-                        strokeWidth="8"
-                        strokeDasharray="289"
-                        strokeDashoffset={289 - (289 * activeResult.score) / 100}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute text-center flex flex-col items-center justify-center">
-                      <span className="text-2xl font-extrabold text-foreground">{activeResult.score}</span>
-                      <span className="text-[8px] font-extrabold text-muted-foreground uppercase tracking-wider mt-[-2px]">/ 100</span>
-                    </div>
-                  </div>
-
-                  {/* Issues indicator badge */}
-                  <div className="text-center">
-                    <span className={`inline-block text-[8px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider ${
-                      activeResult.score >= 80 
-                        ? "bg-success/10 text-success border border-success/15" 
-                        : activeResult.score >= 50 
-                          ? "bg-warning/10 text-warning border border-warning/15" 
-                          : "bg-amber-500/10 text-amber-700 border border-amber-500/15"
-                    }`}>
-                      {issuesCount} Issues Found
-                    </span>
-                  </div>
-                </div>
-
-                {/* Categories Tab Selector */}
-                <div className="space-y-1.5 pt-4 border-t border-border/50">
-                  <button
-                    onClick={() => setActiveCategory("content")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
-                      activeCategory === "content" 
-                        ? "bg-white border border-border shadow-sm pl-3.5" 
-                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
-                    }`}
-                  >
-                    {activeCategory === "content" && (
-                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
-                    )}
-                    <span className={`text-[11px] font-bold ${activeCategory === "content" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Content</span>
-                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(contentScore)}`}>{contentScore}%</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveCategory("format")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
-                      activeCategory === "format" 
-                        ? "bg-white border border-border shadow-sm pl-3.5" 
-                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
-                    }`}
-                  >
-                    {activeCategory === "format" && (
-                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
-                    )}
-                    <span className={`text-[11px] font-bold ${activeCategory === "format" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Format & Density</span>
-                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(formatScore)}`}>{formatScore}%</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveCategory("style")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
-                      activeCategory === "style" 
-                        ? "bg-white border border-border shadow-sm pl-3.5" 
-                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
-                    }`}
-                  >
-                    {activeCategory === "style" && (
-                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
-                    )}
-                    <span className={`text-[11px] font-bold ${activeCategory === "style" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Style</span>
-                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(styleScore)}`}>{styleScore}%</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveCategory("sections")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
-                      activeCategory === "sections" 
-                        ? "bg-white border border-border shadow-sm pl-3.5" 
-                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
-                    }`}
-                  >
-                    {activeCategory === "sections" && (
-                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
-                    )}
-                    <span className={`text-[11px] font-bold ${activeCategory === "sections" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Sections</span>
-                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(sectionsScore)}`}>{sectionsScore}%</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveCategory("roles")}
-                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-all duration-300 active:scale-[0.97] relative overflow-hidden ${
-                      activeCategory === "roles" 
-                        ? "bg-white border border-border shadow-sm pl-3.5" 
-                        : "hover:bg-white/50 border border-transparent pl-2 text-muted-foreground"
-                    }`}
-                  >
-                    {activeCategory === "roles" && (
-                      <span className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-md bg-outly-accent animate-[slide-up_0.3s_ease-out]" />
-                    )}
-                    <span className={`text-[11px] font-bold ${activeCategory === "roles" ? "text-foreground font-extrabold" : "text-muted-foreground"}`}>Roles</span>
-                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${getBadgeColorClass(rolesScore)}`}>{rolesScore}%</span>
-                  </button>
-                </div>
-
-              </div>
-
-              {/* Right Panel: Detailed Checklist items of active category (7/12 cols) */}
-              <div className="col-span-12 md:col-span-7 p-5 bg-white overflow-y-auto h-auto md:h-full flex flex-col justify-between text-left">
-                
-                <div className="space-y-4">
-                  {/* Render content dynamically based on active category */}
-                  {activeCategory === "content" && (
-                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
-                      <div className="flex justify-between items-center border-b border-border pb-3">
-                        <div>
-                          <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Content Audits</h4>
-                          <p className="text-[9px] text-muted-foreground mt-0.5">Scans keyword targets, density, and achievement metrics.</p>
-                        </div>
-                        <span className="text-xs font-bold text-success">{contentScore}%</span>
-                      </div>
-
-                      <div className="space-y-3">
-                        {/* ATS Parse Check */}
-                        <div className="flex items-start gap-2.5 bg-success/5 border border-success/15 p-2.5 rounded-xl">
-                          <Check className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                          <div>
-                            <span className="block text-[11px] font-bold text-foreground">ATS Parse Rate</span>
-                            <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Universal fonts and plain structure parsed successfully with 98% clarity.</span>
-                          </div>
-                        </div>
-
-                        {/* Quantified Metrics Check */}
-                        <div className="flex items-start gap-2.5 bg-success/5 border border-success/15 p-2.5 rounded-xl">
-                          <Check className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                          <div>
-                            <span className="block text-[11px] font-bold text-foreground">Quantified Impact</span>
-                            <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Multiple achievement bullet points contain key metric parameters.</span>
-                          </div>
-                        </div>
-
-                        {/* Keyword gaps (Live/mock data mapped) */}
-                        {getMissingKeywordsArray(activeResult.missing_keywords).length > 0 ? (
-                          <div className="space-y-3 w-full">
-                            <div className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/15 p-2.5 rounded-xl">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                              <div className="w-full">
-                                <span className="block text-[11px] font-bold text-amber-700">Keyword Gaps Detected</span>
-                                <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Your CV lacks these core terms required for this domain:</span>
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-2 w-full">
-                              {getMissingKeywordsArray(activeResult.missing_keywords).map((kw, i) => (
-                                <div key={i} className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/10 p-2.5 rounded-xl w-full text-left break-words">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5"></span>
-                                  <span className="text-[10px] font-medium text-foreground leading-relaxed break-words w-full">{kw}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-start gap-2.5 bg-success/5 border border-success/15 p-2.5 rounded-xl">
-                            <Check className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                            <div>
-                              <span className="block text-[11px] font-bold text-success">Excellent Keyword Match</span>
-                              <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">No critical keyword gaps found in content parameters.</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeCategory === "format" && (
-                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
-                      <div className="flex justify-between items-center border-b border-border pb-3">
-                        <div>
-                          <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Format &amp; Density</h4>
-                          <p className="text-[9px] text-muted-foreground mt-0.5">Audits spacing, layout margins, fonts, and lengths.</p>
-                        </div>
-                        <span className="text-xs font-bold text-warning">{formatScore}%</span>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-2.5 bg-success/5 border border-success/15 p-2.5 rounded-xl">
-                          <Check className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                          <div>
-                            <span className="block text-[11px] font-bold text-foreground">Standard Page-Length</span>
-                            <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">The page length is highly optimal and stays within scannable guidelines.</span>
-                          </div>
-                        </div>
-
-                        {activeResult.formatting_issues && activeResult.formatting_issues.length > 0 ? (
-                          <div className="flex items-start gap-2.5 bg-warning/5 border border-warning/15 p-2.5 rounded-xl">
-                            <AlertCircle className="w-3.5 h-3.5 text-warning shrink-0 mt-0.5" />
-                            <div className="w-full">
-                              <span className="block text-[11px] font-bold text-warning">Layout Inconsistencies</span>
-                              <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Adjust padding and section headers to standard scales:</span>
-                              <ul className="list-disc list-inside mt-2 text-[10px] text-muted-foreground space-y-1">
-                                {activeResult.formatting_issues.map((issue, i) => (
-                                  <li key={i}>{issue}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-start gap-2.5 bg-success/5 border border-success/15 p-2.5 rounded-xl">
-                            <Check className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                            <div>
-                              <span className="block text-[11px] font-bold text-success">Clean Spacing Layout</span>
-                              <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">No parser-breaking tables or spacing issues detected.</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeCategory === "style" && (
-                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
-                      <div className="flex justify-between items-center border-b border-border pb-3">
-                        <div>
-                          <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Style &amp; Grammar</h4>
-                          <p className="text-[9px] text-muted-foreground mt-0.5">Scans action verb ratios, redundant phrases, and buzzwords.</p>
-                        </div>
-                        <span className="text-xs font-bold text-warning">{styleScore}%</span>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-2.5 bg-success/5 border border-success/15 p-2.5 rounded-xl">
-                          <Check className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                          <div>
-                            <span className="block text-[11px] font-bold text-foreground">Action-Oriented phrasings</span>
-                            <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">CV features strong leading action verbs (e.g., 'engineered', 'optimized', 'developed').</span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-2.5 bg-warning/5 border border-warning/15 p-2.5 rounded-xl">
-                          <Info className="w-3.5 h-3.5 text-warning shrink-0 mt-0.5" />
-                          <div>
-                            <span className="block text-[11px] font-bold text-warning">Avoid Weak Buzzwords</span>
-                            <span className="block text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Replace fluff adjectives like 'highly motivated' with quantitative metrics.</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeCategory === "sections" && (
-                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
-                      <div className="flex justify-between items-center border-b border-border pb-3">
-                        <div>
-                          <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Section Anchors</h4>
-                          <p className="text-[9px] text-muted-foreground mt-0.5">Confirms presence of standard CV structural blocks.</p>
-                        </div>
-                        <span className="text-xs font-bold text-success">{sectionsScore}%</span>
-                      </div>
-
-                      <div className="space-y-2.5 pt-1">
-                        <div className="flex justify-between items-center text-[11px] border-b border-border/40 pb-2">
-                          <span className="font-bold text-foreground/80">Work Experience</span>
-                          {resume.toLowerCase().includes("experience") || resume.toLowerCase().includes("work") || resume.toLowerCase().includes("employment") || resume.toLowerCase().includes("history") ? (
-                            <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
-                          ) : (
-                            <span className="text-amber-600 font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
-                          )}
-                        </div>
-                        <div className="flex justify-between items-center text-[11px] border-b border-border/40 pb-2">
-                          <span className="font-bold text-foreground/80">Education &amp; Credentials</span>
-                          {resume.toLowerCase().includes("education") || resume.toLowerCase().includes("academic") || resume.toLowerCase().includes("degree") || resume.toLowerCase().includes("university") || resume.toLowerCase().includes("college") || resume.toLowerCase().includes("school") ? (
-                            <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
-                          ) : (
-                            <span className="text-amber-600 font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
-                          )}
-                        </div>
-                        <div className="flex justify-between items-center text-[11px] border-b border-border/40 pb-2">
-                          <span className="font-bold text-foreground/80">Key Projects</span>
-                          {resume.toLowerCase().includes("project") || resume.toLowerCase().includes("accomplishment") ? (
-                            <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
-                          ) : (
-                            <span className="text-amber-600 font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
-                          )}
-                        </div>
-                        <div className="flex justify-between items-center text-[11px] border-b border-border/40 pb-2">
-                          <span className="font-bold text-foreground/80">Summary Profile</span>
-                          {resume.toLowerCase().includes("summary") || resume.toLowerCase().includes("profile") || resume.toLowerCase().includes("objective") || resume.toLowerCase().includes("about me") ? (
-                            <span className="text-success font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Found</span>
-                          ) : (
-                            <span className="text-amber-600 font-bold flex items-center gap-1"><X className="w-3 h-3" /> Missing</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeCategory === "roles" && (
-                    <div className="space-y-4 animate-[slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
-                      <div className="flex justify-between items-center border-b border-border pb-3">
-                        <div>
-                          <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wider">Role Alignment</h4>
-                          <p className="text-[9px] text-muted-foreground mt-0.5">Grades seniority progression, titles, and match quality.</p>
-                        </div>
-                        <span className="text-xs font-bold text-warning">{rolesScore}%</span>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-2.5 bg-success/5 border border-success/15 p-2.5 rounded-xl">
-                          <Check className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
-                          <div>
-                            <span className="block text-[11px] font-bold text-foreground">Seniority Level Match</span>
-                            <span className={`block text-[10px] mt-1 font-bold ${
-                              activeResult.experience_analysis?.seniority_match === "Good" ? "text-success" : "text-warning"
-                            }`}>
-                              {activeResult.experience_analysis?.seniority_match} Match Grade
-                            </span>
-                          </div>
-                        </div>
-
-                        {activeResult.experience_analysis?.comments && (
-                          <div className="flex items-start gap-2.5 bg-secondary/40 border border-border p-2.5 rounded-xl">
-                            <Info className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                            <div>
-                              <span className="block text-[11px] font-bold text-foreground">Expert Evaluation Comment</span>
-                              <span className="block text-[10px] text-muted-foreground mt-1 leading-relaxed">{activeResult.experience_analysis.comments}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Live rescanner / status footer */}
-                {result && (
-                  <div className="border-t border-border/40 pt-4 mt-6 flex items-center justify-between text-[10px] text-muted-foreground font-medium select-none">
-                    <span>Scanned live by Outly AI</span>
-                    <button 
-                      onClick={handleCheckScoreClick} 
-                      disabled={loading}
-                      className="flex items-center gap-1 font-bold text-outly-accent hover:underline transition"
-                    >
-                      <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
-                      <span>Rescan</span>
-                    </button>
-                  </div>
-                )}
-
-              </div>
-
-              </div>
-            )}
-
-            {/* ─── MOCK DEMO CARD BLUR OVERLAY ─── */}
-            {!result && (
-              <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-30 flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none transition-all duration-300">
-                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-success/10 flex items-center justify-center mb-2 sm:mb-3">
-                  <Lock className="w-4 h-4 sm:w-6 sm:h-6 text-success animate-pulse shrink-0" />
-                </div>
-                <h3 className="text-xs sm:text-base font-bold text-foreground mb-0.5 sm:mb-1">Upload to Unlock Complete Report</h3>
-                <p className="text-[10px] sm:text-xs text-muted-foreground max-w-xs leading-relaxed mb-3 sm:mb-5 hidden sm:block">
-                  Upload your resume or select a sample from your vault to unlock the comprehensive 27-point ATS scoring report.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full justify-center max-w-[200px] sm:max-w-none">
-                  <Button 
-                    onClick={() => document.getElementById("resume-upload-input")?.click()}
-                    disabled={parsingFile}
-                    className="w-full sm:w-auto bg-outly-accent hover:brightness-110 text-white text-[11px] font-bold px-5 py-2 rounded-full shadow-md shadow-outly-accent/15 transition h-8.5 shrink-0 gap-1.5 cursor-pointer max-w-full truncate"
-                  >
-                    {parsingFile && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    {parsingFile ? "Uploading..." : "Upload Resume"}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* ─── SCANNING LOADER OVERLAY ─── */}
-            {showScanLoader && (
-              <div className="absolute inset-0 bg-white/95 z-40 flex flex-col items-center justify-center p-4 text-center select-none animate-fade-in">
-                <div className="space-y-3 w-full max-w-[210px]">
-                  {/* Spinning Circle */}
-                  <div className="relative w-8 h-8 mx-auto">
-                    <div className="absolute inset-0 border-3 border-success/10 rounded-full"></div>
-                    <div className="absolute inset-0 border-3 border-t-success rounded-full animate-spin"></div>
-                  </div>
-                  
-                  <div className="space-y-0.5">
-                    <h3 className="text-[10px] font-extrabold text-foreground uppercase tracking-wider">Outly AI Engine</h3>
-                    <p className="text-[9px] text-muted-foreground leading-normal min-h-[26px]">{scanStatus}</p>
-                  </div>
-                  
-                  {/* Custom Progress Bar */}
-                  <div className="h-1 w-full bg-secondary rounded-full overflow-hidden">
-                    <div className="h-full bg-success transition-all duration-100" style={{ width: `${scanProgress}%` }}></div>
-                  </div>
-                </div>
-              </div>
-            )}
-
           </div>
         </div>
-      )}
+
+        {/* ─── RIGHT COLUMN: ATS REPORT CARD ─── */}
+        <div className="lg:col-span-6 rounded-2xl border border-neutral-200/80 bg-white p-6 sm:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col justify-between text-left">
+          
+          <div>
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
+              <h3 className="text-sm font-semibold text-neutral-900 font-sans">ATS report</h3>
+              <span className="font-mono text-xs text-neutral-400">27 factors</span>
+            </div>
+
+            {/* Score placeholder or Live score */}
+            <div className="py-5 border-b border-neutral-100">
+              {!result ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-2.5 bg-neutral-300 rounded-full" />
+                  <span className="font-mono text-sm font-medium text-neutral-400">/ 100</span>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-extrabold text-neutral-900 tracking-tight">{result.score}</span>
+                    <span className="font-mono text-base font-medium text-neutral-400">/ 100</span>
+                    <span className={`ml-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                      result.score >= 80 
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                        : result.score >= 50 
+                          ? "bg-amber-50 text-amber-700 border border-amber-200" 
+                          : "bg-red-50 text-red-700 border border-red-200"
+                    }`}>
+                      {result.score >= 80 ? "Strong Match" : result.score >= 50 ? "Needs Review" : "Low Score"}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        result.score >= 80 ? "bg-emerald-600" : result.score >= 50 ? "bg-amber-500" : "bg-red-500"
+                      }`}
+                      style={{ width: `${result.score}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 7 Factor Rows */}
+            <div className="divide-y divide-neutral-100">
+              {FACTORS.map((factor) => {
+                const status = result ? factor.passed : null;
+                return (
+                  <div key={factor.id} className="flex items-center justify-between py-3 text-xs">
+                    <div className="flex items-center gap-2.5">
+                      {status === true ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      ) : status === false ? (
+                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                      ) : (
+                        <span className="text-neutral-300 text-sm leading-none shrink-0">•</span>
+                      )}
+                      <span className={`font-medium ${status !== null ? "text-neutral-900" : "text-neutral-700"}`}>
+                        {factor.label}
+                      </span>
+                    </div>
+                    <span className="font-mono text-[11px] text-neutral-400">{factor.category}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Detailed recommendations if result is present */}
+            {result && (
+              <div className="mt-4 pt-4 border-t border-neutral-100 space-y-3">
+                {issuesCount > 0 ? (
+                  <div className="bg-neutral-50 rounded-xl p-3.5 space-y-2 border border-neutral-200/60">
+                    <span className="text-[11px] font-bold text-neutral-800 uppercase tracking-wider block">
+                      Key Recommendations ({issuesCount})
+                    </span>
+                    <ul className="text-xs text-neutral-600 space-y-1.5 list-disc list-inside">
+                      {activeResult.formatting_issues?.slice(0, 3).map((issue, i) => (
+                        <li key={i} className="leading-relaxed">{issue}</li>
+                      ))}
+                      {getMissingKeywordsArray(activeResult.missing_keywords).slice(0, 3).length > 0 && (
+                        <li className="leading-relaxed">
+                          Add keywords: <span className="font-medium text-neutral-900">{getMissingKeywordsArray(activeResult.missing_keywords).slice(0, 3).join(", ")}</span>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                ) : (
+                  <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-xl border border-emerald-200 font-medium">
+                    ✓ Excellent ATS compatibility. No critical formatting or content issues found.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Card Footer */}
+          <div className="pt-6 border-t border-neutral-100 mt-5 space-y-3">
+            {!result ? (
+              <>
+                <p className="text-xs text-neutral-600 font-medium">Add your resume to see your score.</p>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={parsingFile}
+                  className="bg-neutral-950 hover:bg-neutral-800 disabled:bg-neutral-300 text-white text-xs font-semibold px-5 py-2.5 rounded-lg shadow-sm cursor-pointer transition-colors flex items-center gap-2"
+                >
+                  {parsingFile ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                  <span>{parsingFile ? "Uploading..." : "Upload resume"}</span>
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-neutral-950 hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-sm cursor-pointer transition-colors"
+                >
+                  Scan another resume
+                </button>
+                <button
+                  onClick={() => navigate("/resume-tailor")}
+                  className="bg-white hover:bg-neutral-50 text-neutral-800 border border-neutral-200 text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer transition-colors"
+                >
+                  Tailor for a role →
+                </button>
+              </div>
+            )}
+          </div>
+
+        </div>
 
       </div>
 
-      {/* Actionable suggestions list (Rendered only after live scan completes) */}
-      {result && result.isValidResume !== false && result.suggestions && result.suggestions.length > 0 && (
-        <section className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5 text-left max-w-4xl mx-auto animate-slide-up">
-          <h3 className="text-[15px] font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-3">
-            <Info className="h-5.5 w-5.5 text-primary shrink-0" />
-            Actionable Fixes &amp; Optimizations
-          </h3>
-          <ol className="space-y-4 pl-1">
-            {result.suggestions.map((suggestion, i) => (
-              <li key={i} className="flex items-start gap-3.5 text-xs text-muted-foreground leading-relaxed">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary mt-0.5">
-                  {i + 1}
-                </span>
-                <span className="text-foreground/80 font-medium pt-0.5">{suggestion}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
-
-
-
       <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
-
     </div>
   );
 }
