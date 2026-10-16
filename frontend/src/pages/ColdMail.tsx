@@ -383,7 +383,7 @@ export default function ColdMailPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-        <div className="mx-auto w-full max-w-7xl px-6 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 py-6 space-y-8 animate-fade-in pb-20">
         
         {/* Hero text header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">

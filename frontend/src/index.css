@@ -1557,39 +1557,42 @@ body {
   }
 }
 
-/* High performance scroll transitions (run completely on GPU) */
+/* Mobile header — fixed h-16 always, no layout-triggering transitions.
+   Only use GPU-composited properties (opacity, transform) for scroll effects. */
 .mobile-scroll-header {
-  height: 4rem; /* h-16 */
+  height: 4rem; /* h-16 — never changes, no reflow */
+  will-change: transform;
 }
 .mobile-scroll-header-inner {
-  height: 4rem; /* h-16 */
+  height: 4rem; /* h-16 — never changes */
 }
 
+/* On mobile: subtle shadow deepens on scroll (opacity only — GPU composited) */
 @media (max-width: 767px) {
+  /* Remove any accidental height/size transitions on mobile */
+  .mobile-scroll-header,
+  .mobile-scroll-header-inner {
+    transition: box-shadow 0.2s ease !important;
+  }
+
   body.scrolled-header .mobile-scroll-header {
-    height: 2.75rem !important; /* h-11 */
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
   }
-  body.scrolled-header .mobile-scroll-header-inner {
-    height: 2.75rem !important; /* h-11 */
+
+  /* Sticky tabs always sit at top-16 (h-16 header), never jump */
+  .sticky-tabs-container {
+    top: 4rem !important; /* always 64px below the fixed header */
   }
-  body.scrolled-header .mobile-scroll-logo {
-    width: 1.5rem !important; /* w-6 */
-    object-fit: cover !important;
-    object-position: left !important;
+
+  /* Smooth touch scrolling for all scrollable containers */
+  * {
+    -webkit-overflow-scrolling: touch;
   }
-  body.scrolled-header .mobile-scroll-bell {
-    width: 17px !important;
-    height: 17px !important;
-  }
-  body.scrolled-header .mobile-avatar {
-    width: 1.5rem !important;
-    height: 1.5rem !important;
-    font-size: 9px !important;
-  }
-  
-  /* Sticky tabs in MobileHub.tsx transition tops smoothly on compositor */
-  body.scrolled-header .sticky-tabs-container {
-    top: 2.75rem !important; /* top-11 */
+
+  /* Prevent text size adjustment on orientation change */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 }
 

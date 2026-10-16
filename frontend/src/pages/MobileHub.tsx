@@ -132,7 +132,7 @@ export default function MobileHub({ category }: MobileHubProps) {
       </div>
 
       {/* Content area */}
-      <div className="flex-1 w-full min-h-0 overflow-y-auto">
+      <div className="flex-1 w-full min-h-0">
         {category === "resumes" && activeTab === "ats" && <AtsScore />}
         {category === "resumes" && activeTab === "tailor" && <ResumeTailor />}
         {category === "resumes" && activeTab === "vault" && <ResumeVault />}

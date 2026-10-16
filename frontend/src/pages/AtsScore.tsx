@@ -600,7 +600,7 @@ export default function AtsScorePage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-4 sm:py-6 sm:px-8 space-y-6 sm:space-y-12 animate-fade-in pb-20">
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 py-4 sm:py-6 space-y-6 sm:space-y-12 animate-fade-in pb-20">
       
       {/* TWO COLUMN WORKSPACE GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16 items-start">

@@ -11,7 +11,7 @@ export default function OnboardingPage() {
   }, []);
 
   return (
-    <div className="relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none overflow-x-clip pb-12 font-sans text-outly-dark">
+    <div className="relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none overflow-x-clip pb-20 font-sans text-outly-dark">
       <style>{`
         .glowing-bg-mesh {
           background:
@@ -50,7 +50,7 @@ export default function OnboardingPage() {
 
       <div className="glowing-bg-mesh absolute inset-0 -z-10 w-full" />
 
-      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-6 py-6 sm:px-8 lg:grid-cols-12 lg:gap-16 lg:pt-14 lg:pb-12">
+      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-4 sm:px-8 py-6 lg:grid-cols-12 lg:gap-16 lg:pt-14 lg:pb-12">
         <div className="flex flex-col justify-center space-y-9 text-left lg:col-span-6">
           <div className="space-y-7">
             <h1 className="text-4xl font-semibold leading-[1.25] tracking-normal text-outly-dark sm:text-5xl lg:text-[54px]">

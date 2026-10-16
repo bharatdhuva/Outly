@@ -731,7 +731,7 @@ export default function ResumeTailorPage() {
 
   if (tailoredResult && !isEditing) {
     return (
-      <div className="mx-auto w-full max-w-6xl px-6 py-6 sm:py-8 space-y-6 animate-fade-in pb-20">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20">
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
           <div>
@@ -870,7 +870,7 @@ export default function ResumeTailorPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-6 sm:py-8 space-y-6 animate-fade-in pb-20 text-left">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left">
       
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
@@ -911,7 +911,7 @@ export default function ResumeTailorPage() {
             </span>
           </div>
 
-          <div className="rounded-xl border border-neutral-200/80 bg-white p-4 h-[440px] shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col focus-within:border-neutral-400 transition-colors">
+          <div className="rounded-xl border border-neutral-200/80 bg-white p-4 h-[320px] sm:h-[440px] shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col focus-within:border-neutral-400 transition-colors">
             <textarea
               className="flex-1 w-full resize-none border-0 bg-transparent text-[12.5px] leading-relaxed text-neutral-800 placeholder:text-neutral-400 focus:outline-none font-mono"
               placeholder="Paste the job description here..."
@@ -933,7 +933,7 @@ export default function ResumeTailorPage() {
             </span>
           </div>
 
-          <div className="rounded-xl border border-neutral-200/80 bg-white p-4 h-[440px] shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col">
+          <div className="rounded-xl border border-neutral-200/80 bg-white p-4 h-[320px] sm:h-[440px] shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col">
             <input
               type="file"
               ref={fileInputRef}

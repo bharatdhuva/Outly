@@ -483,8 +483,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       {/* Header Spacer Wrapper to prevent layout shift */}
       <div className="h-16 w-full shrink-0 relative">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#dcd5c9] bg-[#ECE8E1]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.03)] shrink-0 select-none transition-[height] duration-150 ease-out h-16 mobile-scroll-header">
-        <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 transition-[height] duration-150 ease-out h-16 mobile-scroll-header-inner">
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#dcd5c9] bg-[#ECE8E1]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.03)] shrink-0 select-none h-16 mobile-scroll-header">
+        <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
           
           {/* Left: Brand Logo */}
           <div className="flex h-full items-center gap-12">
@@ -492,7 +492,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <img 
                 src={logoTransparent} 
                 alt="Outly Logo" 
-                className="h-[22px] md:h-7 -translate-y-px transition-[width,height] duration-150 ease-out w-auto object-contain mobile-scroll-logo"
+                className="h-[22px] md:h-7 -translate-y-px w-auto object-contain"
               />
             </Link>
 
@@ -933,7 +933,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 className="relative p-2 text-zinc-500 active:scale-95 transition-all outline-none"
                 onClick={() => setNotificationsOpen(prev => !prev)}
               >
-                <Bell className="transition-[width,height] duration-150 ease-out h-[21px] w-[21px] mobile-scroll-bell" />
+                <Bell className="h-[21px] w-[21px]" />
                 {unreadCount > 0 && (
                   <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white leading-none">
                     {unreadCount}
@@ -993,7 +993,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   profilePic={profilePic} 
                   fullName={fullName} 
                   initials={initials} 
-                  sizeClass="h-8 w-8 text-[11px] mobile-avatar transition-[width,height,font-size] duration-150 ease-out"
+                  sizeClass="h-8 w-8 text-[11px]"
                 />
               </button>
 
@@ -1063,12 +1063,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     </div>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
-      <main className="flex-1 w-full flex flex-col min-h-0 md:pb-0">
+      <main className="flex-1 w-full flex flex-col min-h-0 pb-20 md:pb-0">
         {children}
       </main>
 
       {/* ─── MOBILE BOTTOM TAB BAR ─── */}
-      <div className="md:hidden sticky bottom-0 z-[100] w-full h-16 bg-[#ECE8E1]/95 backdrop-blur-md border-t border-[#dcd5c9] flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none animate-slide-up">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full h-16 bg-[#ECE8E1]/95 backdrop-blur-md border-t border-[#dcd5c9] flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none">
         
         {/* Tab 1: Resumes */}
         <Link 

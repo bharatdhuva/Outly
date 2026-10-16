@@ -297,7 +297,7 @@ export default function ResumeVaultPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-4 sm:py-6 sm:px-8 space-y-6 sm:space-y-8 animate-fade-in pb-20">
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 py-4 sm:py-6 space-y-6 sm:space-y-8 animate-fade-in pb-20">
       
       {/* Hero text header */}
       <div className="space-y-1.5 sm:space-y-3 text-left">
