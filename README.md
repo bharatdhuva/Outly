@@ -2,98 +2,150 @@
 
 # 🌌 Outly
 
-### *AI-Powered Personal Career Automation System*
+### *AI-Powered Career Outreach & Resume Intelligence Platform*
 
-Stop applying manually. Let AI automate your outreach, resume tailoring, and job tracking. Outly is a premium full-stack SaaS platform that handles your entire job search pipeline—from website-scraped cold emails and ATS-optimized resumes to a drag-and-drop Kanban tracker and automated notifications—all in one unified, modern dashboard.
+**Outly** is a production-ready, full-stack career acceleration engine built with **TypeScript**, **LangChain**, and **Google Gemini**. It automates the tedious job hunt pipeline by combining **Retrieval-Augmented Generation (RAG)**, **vector semantic embeddings**, **automated company web-scraping**, and **ATS optimization** with a human-mimicking outreach dispatch system.
 
 [![Live Application](https://img.shields.io/badge/🌐_Live_App-outly.online-6366f1?style=for-the-badge&logo=googlechrome&logoColor=white)](https://outly.online)
-[![Status](https://img.shields.io/badge/Status-Active_Development-10b981?style=for-the-badge&logo=githubactions&logoColor=white)](#)
-[![TypeScript](https://img.shields.io/badge/TS-Strict_TypeScript-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](#)
+[![LangChain](https://img.shields.io/badge/🦜🔗_LangChain-LCEL_Chains-1c3c3c?style=for-the-badge)](https://js.langchain.com/)
+[![Google Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-8E75C4?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+[![Embeddings](https://img.shields.io/badge/Vector_Search-Cosine_Similarity-0ea5e9?style=for-the-badge)](#-advanced-ai--rag-architecture)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict_5.x-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](#)
+[![Redis & Bull](https://img.shields.io/badge/Queue-Redis_BullMQ-dc2626?style=for-the-badge&logo=redis&logoColor=white)](#)
 
 <br/>
 
 ---
 
-**[🌐 Live Site](https://outly.online)** &nbsp;|&nbsp; **[⚡ Quickstart](#-getting-started)** &nbsp;|&nbsp; **[📁 Architecture](#-project-architecture)** &nbsp;|&nbsp; **[🔌 API Reference](#-api-endpoints)** &nbsp;|&nbsp; **[💎 Free vs Pro](#-free-vs-pro-plan)**
+**[🌐 Live Demo](https://outly.online)** &nbsp;|&nbsp; **[🧠 AI & RAG Architecture](#-advanced-ai--rag-architecture)** &nbsp;|&nbsp; **[⚡ Key Features](#-features--capabilities)** &nbsp;|&nbsp; **[🛠️ System Design](#️-system-architecture)** &nbsp;|&nbsp; **[🔌 API Docs](#-api-endpoints)** &nbsp;|&nbsp; **[🚀 Quickstart](#-getting-started)** &nbsp;|&nbsp; **[👨‍💻 Hire the Developer](#-built-by-bharat-dhuva)**
 
 ---
 
 </div>
 
-## 🎯 The Problem
+## 🎯 The Problem & The Engineering Solution
 
-Job hunting is an exhausting, repetitive grind. Spending hours writing cold emails, rewriting bullet points to fit specific Job Descriptions (JDs), updating tracking spreadsheets, and missing follow-ups drain candidates. 
-
-**Outly solves this.** It automates your career outreach by web-scraping target companies, dynamically tailoring resumes using Google Gemini AI, scheduling social posts, and organizing your pipeline on a visual Kanban board.
+| The Manual Job Hunt Bottleneck | How Outly Solves It With Applied AI |
+| :--- | :--- |
+| **Generic, ignored cold emails** sent blindly to recruiters without company context | **RAG-Powered Scraper**: Scrapes live company websites using Playwright/Cheerio, extracts business context, and feeds it into LangChain to draft hyper-personalized emails. |
+| **Silent rejection by ATS bots** due to missing keywords and unstructured phrasing | **Vector Semantic Matching**: Compares resume text to JDs using `text-embedding-004` cosine similarity + a multi-point LangChain scoring audit with structured Zod schemas. |
+| **Hours spent manually rewriting resumes** for each individual application | **Deterministic Resume Tailoring**: LangChain LCEL chain reorganizes and rewrites bullet points to match the JD using the Google XYZ formula without hallucinating facts. |
+| **Spreadsheet chaos & lost leads** across multiple job boards | **Integrated Kanban CRM**: Drag-and-drop pipeline synchronized with Gmail API tracking, auto-scheduled follow-ups, and activity history. |
 
 ---
 
-## ⚡ Current System Analysis & Features
+## 🧠 Advanced AI & RAG Architecture
 
-Our core system consists of a Vite-powered React frontend and an Express backend, deployed as a monorepo structure. Below is the live status of all system components:
+Outly is engineered around production-grade LLM design patterns using **LangChain Expression Language (LCEL)**, strict **Zod runtime schemas**, and **Retrieval-Augmented Generation (RAG)**:
+
+```mermaid
+flowchart TD
+    subgraph INGESTION["1. Document & Web Context Ingestion"]
+        A[PDF / DOCX Upload] -->|pdf-parse / mammoth| B[Raw Resume Text]
+        C[Target Job Description] --> D[Cleaned JD Text]
+        E[Target Company URL] -->|Playwright + Cheerio| F[Scraped Live Context]
+    end
+
+    subgraph RAG_EMBEDDINGS["2. Semantic Vector Space & RAG"]
+        B & D -->|GoogleGenerativeAIEmbeddings\ntext-embedding-004| G[(Dense Vectors)]
+        G --> H["Mathematical Cosine Similarity\n(dot product / normA * normB)"]
+    end
+
+    subgraph LANGCHAIN_CHAINS["3. LangChain LCEL Chains with Zod Validation"]
+        H & B & D --> I["Resume-JD Matcher Chain\n(resumeJdMatcher.ts)"]
+        B & D --> J["ATS Scoring Chain\n(atsScoreChain.ts)"]
+        B & D --> K["Resume Tailoring Chain\n(resumeTailorChain.ts)"]
+        F & B --> L["Cold Outreach Generator Chain\n(coldMailChain.ts)"]
+    end
+
+    subgraph RESILIENCE["4. Resilient Fallback Engine"]
+        I & J & K & L -->|Primary: Gemini 2.5 Flash| M{Success?}
+        M -- No --> N[Groq LLaMA 3.3 70B Fallback]
+        N -- No --> O[Anthropic Claude 3.5 Sonnet Fallback]
+        M -- Yes --> P[Guaranteed Structured JSON]
+    end
+
+    subgraph OUTPUTS["5. Production Actions"]
+        P --> Q[Granular ATS Audit & Skills Gap UI]
+        P --> R[Markdown Tailored Resume + PDF Export]
+        P --> S[A/B Cold Email Drafts + Gmail OAuth2 Dispatch]
+    end
+
+    style INGESTION fill:#1e1e2e,stroke:#6366f1,stroke-width:2px,color:#fff
+    style RAG_EMBEDDINGS fill:#1e1e2e,stroke:#0ea5e9,stroke-width:2px,color:#fff
+    style LANGCHAIN_CHAINS fill:#1e1e2e,stroke:#10b981,stroke-width:2px,color:#fff
+    style RESILIENCE fill:#1e1e2e,stroke:#f59e0b,stroke-width:2px,color:#fff
+    style OUTPUTS fill:#1e1e2e,stroke:#8b5cf6,stroke-width:2px,color:#fff
+```
+
+### 1. Vector Embeddings & Semantic Resume-JD Matching (`resumeJdMatcher.ts`)
+* **Vector Model**: LangChain `GoogleGenerativeAIEmbeddings` (`text-embedding-004`).
+* **Cosine Similarity Engine**: Outly computes vector embeddings for both the candidate's resume and the job description, calculating exact mathematical cosine similarity (`dotProduct / (normA * normB)`).
+* **Hybrid Scoring**: Blends raw geometric vector proximity with qualitative LLM reasoning to evaluate role readiness, seniority trajectory, and critical skills alignment.
+
+### 2. LangChain ATS Resume Audit Engine (`atsScoreChain.ts`)
+* **Structured Outputs**: Bound via `.withStructuredOutput(AtsScoreResultSchema)` ensuring zero JSON formatting parse errors.
+* **Granular Breakdown**: Evaluates documents across four discrete weighted dimensions:
+  * **Skills Match (0-100)**: Direct technical stack alignment.
+  * **Experience Match (0-100)**: Career progression and seniority depth.
+  * **Formatting Readability (0-100)**: Multi-column detection, table traps, and machine readability.
+  * **Impact Metrics (0-100)**: Verification of quantifiable metrics (%, $, latency, scale) and strong action verbs.
+* **Document Integrity Guard**: Dedicated heuristic + LLM validation (`isValidResume`) to reject receipts, cover letters, or non-resume documents before scoring.
+
+### 3. Precision Resume Tailor Engine (`resumeTailorChain.ts`)
+* **Context-Aware Section Rewrites**: Tailors the resume section-by-section (Summary, Skills, Experience Bullets, Projects) to mirror the exact competencies prioritized in the JD.
+* **Anti-Hallucination Integrity Rules**: Strict prompt governance forbids fabricating degrees, past employers, dates, or non-existent job titles.
+* **Google XYZ Formula**: Automatically rephrases bullet points into *"Accomplished [X], as measured by [Y], by doing [Z]"* format.
+* **Export Pipeline**: Generates clean Markdown that can be inspected, live-edited in the UI, and compiled into a downloadable PDF.
+
+### 4. RAG-Augmented Cold Email Outreach Engine (`coldMailChain.ts`)
+* **Live Web Retrieval (RAG)**: Playwright + Cheerio scrape the target company's landing page, engineering blog, and value proposition in real time.
+* **Context Fusion**: Merges candidate profile data, resume strengths, target recipient persona, and scraped company intelligence into a unified LangChain `ChatPromptTemplate`.
+* **Multi-Angle A/B Generation**: Generates 2 distinct psychological email variants:
+  * **Variant A (Metrics & Impact)**: Focuses on engineering velocity, scalability, and measurable outcomes.
+  * **Variant B (Problem-Solver)**: Focuses on relieving team bandwidth constraints and specific tech stack synergies.
+* **Deliverability Guards**: Automates anti-spam formatting, humanized sign-offs, and randomized dispatch jitter (3-7 minutes) via BullMQ Redis.
+
+---
+
+## ⚡ Features & Capabilities
 
 ### 🟢 Live & Fully Integrated
 
-#### 🔐 Authentication & Onboarding
-*   **Secure Auth**: Native Signup/Login with `bcrypt` password hashing and JWT access tokens.
-*   **Google OAuth**: One-click registration/login using Google Gmail OAuth2.
-*   **Interactive Onboarding**: Guided multi-step onboarding wizard ([Onboarding.tsx](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/frontend/src/pages/Onboarding.tsx)) to establish target roles, cities, core skills, and experience levels.
-*   **Mobile Hub**: Dedicated responsive mobile hub navigation ([MobileHub.tsx](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/frontend/src/pages/MobileHub.tsx)) for seamless usage on small-screen viewports.
-
 #### 📧 AI Cold Email Outreach Engine
-*   **Lead CRM & CSV Import**: Import recruiter and manager leads individually or in bulk via CSV parsing.
-*   **Company Scraper**: Built-in Playwright + Cheerio scraper ([companyScraper.ts](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/backend/src/automation/coldmail/companyScraper.ts)) that fetches company homepage/career pages context for hyper-personalized messaging.
-*   **AI Cold Mail Generation**: Gemini AI generates personalized email subject lines and body copies. Supports multi-variant generation (A/B testing drafts).
-*   **OAuth2 Email Sender**: Direct integration with the Google Gmail API to send emails straight from the user's Gmail mailbox.
-*   **Rate Limit & Queuing**: Uses Bull Redis-backed queues with random delays (3 to 7 minutes) to mimic natural human behavior and prevent spam blocking.
-*   **Automated Follow-ups**: Node-cron jobs check for unresponsive recruiters and auto-generate follow-up sequences.
+* **Lead CRM & Bulk CSV Ingestion**: Import recruiter and hiring manager contacts via CSV or manually via an interactive modal.
+* **Real-Time Website Scraper**: Playwright-powered background scraper (`companyScraper.ts`) extracts mission statements, tech stacks, and company news.
+* **LangChain Cold Mail Generator**: Synthesizes scraped context with candidate strengths to output personalized email drafts and subject lines.
+* **Google Gmail OAuth2 Sender**: Dispatches emails straight from the candidate's authentic Gmail inbox via the official Google APIs (no generic SMTP or third-party relay flags).
+* **BullMQ Queue with Human Jitter**: Backed by Redis to process email delivery with randomized 3 to 7 minute delays to protect sender domain reputation.
+* **Automated Follow-Up Engine**: Node-cron cron jobs detect unanswered threads and draft contextual follow-up reminders.
 
-#### 📄 Resume Vault & Management
-*   **Cloud & Mongoose Storage**: Dual storage model using Cloudinary URLs for fast CDN delivery and Base64-encoded strings directly in MongoDB for durable backups.
-*   **Multi-Format Parsing**: Auto-extracts plaintext resume data from PDF and DOCX files using `pdf-parse` and `mammoth`.
-*   **Cloud Sync**: Link and pull resumes directly from Google Drive using Google File IDs.
+#### 🎯 ATS Resume Evaluation & Semantic Matcher
+* **Dual Scoring Engine**: Run a universal ATS readiness check or match against a specific target Job Description.
+* **Visual Skills Gap Breakdown**: Displays matched competencies alongside missing hard skills, soft skills, and required tooling.
+* **Vector Similarity Indicator**: Displays semantic cosine distance calculated from dense vector embeddings.
 
-#### 🎯 ATS Resume Scoring & Tailoring
-*   **AtsScore Workspace**: Drag and drop resumes to compare them against any target Job Description. Returns an ATS score (0-100), key skills gap analysis, missing keywords list, and formatting/impact recommendations ([AtsScore.tsx](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/frontend/src/pages/AtsScore.tsx)).
-*   **ResumeTailor Engine**: Auto-tailors and rewrites specific resume sections to align with missing keywords in target JDs while preserving factual employment history ([ResumeTailor.tsx](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/frontend/src/pages/ResumeTailor.tsx)).
-*   **PDF Export**: Formats the optimized resume and compiles it into a downloadable PDF.
+#### 📄 Resume Tailoring & Document Vault
+* **Section-Wise Editing Studio**: Review side-by-side comparisons of original vs. tailored bullet points.
+* **Multi-Format Ingestion**: Extracts text accurately from `.pdf` and `.docx` using `pdf-parse` and `mammoth`.
+* **Cloud & Hybrid Storage**: Dual storage model using Cloudinary for CDN assets and Base64-encoded records in MongoDB Atlas for instant retrieval.
+* **PDF Compiler**: Export optimized resumes directly to clean, print-ready PDF formats.
 
-#### 📋 Visual Job Tracker
-*   **Kanban Pipeline**: Drag-and-drop workflow tracking application stages: `Saved` ➔ `Applied` ➔ `Interview` ➔ `Offer` ➔ `Rejected`.
-*   **Timeline Logs**: Tracks notes, email threads, and contact touchpoints per application card.
+#### 📋 Visual Kanban Application Tracker
+* **Interactive Drag-and-Drop Pipeline**: Manage applications across `Saved` ➔ `Applied` ➔ `Interview` ➔ `Offer` ➔ `Rejected` stages.
+* **Audit Logs & Notes**: Attach custom notes, salary ranges, resume version used, and email correspondence to each application card.
 
-#### 🔍 Job Finder Scraper
-*   **Live Web Scraping**: Playwright-powered job search engine scraping real-time listings based on target roles, locations, and experience thresholds.
-*   **One-Click Import**: Save discovered jobs directly from search results to your Kanban application board.
+#### 🔍 Playwright Job Finder Scraper
+* **Live Job Search**: Scrapes real-time postings tailored to role titles, preferred locations, and experience thresholds.
+* **1-Click Import**: Save discovered listings directly into your Kanban pipeline with zero copy-pasting.
 
-#### 🌅 Alerts & Analytics
-*   **Performance Charts**: Custom Recharts visualization of outreach open/reply rates, subject line effectiveness, and weekly applications progress.
+#### 📊 Performance Analytics & Command Center
+* **Recharts Dashboard**: Track open rates, response rates, top-performing subject lines, and weekly application volumes.
+* **Quick Command Palette (⌘K / Ctrl+K)**: Search leads, resumes, and navigate views with keyboard-first shortcuts.
 
-#### 💰 Payments & Monetization
-*   **Razorpay Subscriptions**: Subscription order generation and secure payment webhook verification for upgrading from Free to Pro accounts.
-*   **Feature Gate Middleware**: In-app limits restricting Free accounts to 3 resumes, 3 ATS matches per day, and 5 cold emails daily.
-
----
-
-### 🟡 Mocked / Local Mode (Frontend Only)
-*   **Social Content Scheduler**: The frontend supports editing, generating, and reviewing LinkedIn and Twitter posts, but operates in simulated/mock mode. Mongoose backend schema mapping is planned for upcoming milestones.
-
----
-
-## 🔄 Recent Changelog: Added & Removed Code
-
-To keep our architecture highly performant and scalable, the following changes were recently executed in the codebase:
-
-### ➕ Newly Added
-1.  **Resume Customization Workspace** ([ResumeTailor.tsx](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/frontend/src/pages/ResumeTailor.tsx)): A dedicated UI for AI-optimized resume editing and section-by-section rewrites.
-2.  **ATS Evaluation Center** ([AtsScore.tsx](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/frontend/src/pages/AtsScore.tsx)): An analytics scoring platform that extracts keywords from job descriptions and provides a match breakdown.
-3.  **Onboarding Setup Wizard** ([Onboarding.tsx](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/frontend/src/pages/Onboarding.tsx)): Guideline settings handler that saves target locations, stack focus, and experience to Mongoose settings database.
-4.  **Monorepo Mobile Navigation Shell** ([MobileHub.tsx](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/frontend/src/pages/MobileHub.tsx)): Responsive navigation dock dynamically adapting for clean rendering across standard mobile viewports.
-5.  **Omnipresent Dashboard Layout** ([DashboardLayout.tsx](file:///c:/Users/dhuva/Desktop/Bharat%20Dhuva/Projects/Outly/frontend/src/components/DashboardLayout.tsx)): Command search bar (⌘K) utility, sidebar navigation animations, page-transition loading screens.
-
-### ➖ Removed & Deprecated
-1.  **SQLite Database Engine (`better-sqlite3` / `schema.ts`)**: Deprecated and removed legacy local SQLite backend file operations. All core features (settings, activity logs, applications, companies, resume vault) now run on MongoDB Atlas via Mongoose models to allow serverless routing compatibility.
-2.  **SMTP Gmail Credential Auth**: Replaced legacy SMTP mail transports with Google API OAuth2 authentication to prevent email authentication failures.
+#### 💳 Monetization & Access Control
+* **Razorpay Subscriptions**: Secure subscription order creation and HMAC webhook verification for Pro tier upgrades.
+* **Granular Tier Limits**: Built-in middleware enforcing daily quotas on free accounts with real-time UI warnings.
 
 ---
 
@@ -102,279 +154,270 @@ To keep our architecture highly performant and scalable, the following changes w
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Outly User
-    participant FE as Vite Frontend
-    participant BE as Express Backend (Vercel)
-    participant Scrape as Playwright Scraper
-    participant AI as Gemini AI Engine
-    participant DB as MongoDB Atlas
-    participant Email as Gmail API (OAuth2)
+    actor Candidate as User / Candidate
+    participant UI as Vite + React 18
+    participant API as Express API Server
+    participant Scraper as Playwright Worker
+    participant LC as LangChain + RAG Engine
+    participant Redis as BullMQ / Redis
+    participant Gmail as Google Gmail API
 
-    User->>FE: Imports Lead CRM Details / CSV
-    FE->>BE: POST /api/coldmail/leads
-    BE->>Scrape: Initiates background job
-    Scrape-->>BE: Returns website context & tags
-    BE->>AI: Prompts Gemini (Scraped content + resume data)
-    AI-->>BE: Returns personalized email variants
-    BE->>DB: Stores lead status as 'mail_generated'
-    BE-->>FE: Populates lead draft variants in UI
-    User->>FE: Selects variant & clicks Send
-    FE->>BE: POST /api/coldmail/send/:id
-    BE->>Email: dispatches via OAuth2 Mail API
-    Email-->>BE: Returns tracking response
-    BE->>DB: Updates status to 'sent'
-    BE-->>FE: Refreshes Kanban and Dashboard stats
+    Note over Candidate,UI: 1. Cold Email Outreach Flow
+    Candidate->>UI: Uploads Leads CSV or adds company URL
+    UI->>API: POST /api/coldmail/companies
+    API->>Scraper: Scrape company website & tech stack
+    Scraper-->>API: Returns company context & metadata
+    API->>LC: Execute ColdMailChain(Scraped Context + Resume)
+    LC-->>API: Returns primary email + A/B variants (Zod verified)
+    API-->>UI: Displays drafts in interactive preview modal
+    Candidate->>UI: Approves draft & triggers send
+    UI->>API: POST /api/coldmail/send/:id
+    API->>Redis: Enqueue job with 3-7 min humanized jitter
+    Redis->>Gmail: Send via OAuth2 User Credentials
+    Gmail-->>API: Delivery confirmed
+    API-->>UI: Updates lead status to 'sent' + refreshes Kanban
+
+    Note over Candidate,UI: 2. Semantic ATS Matching & Tailoring
+    Candidate->>UI: Uploads Resume & pastes target JD
+    UI->>API: POST /api/ats/match
+    API->>LC: Compute embeddings (text-embedding-004) & cosine similarity
+    API->>LC: Run AtsScoreChain with structured evaluation
+    LC-->>API: Returns score (0-100), skills gap, & formatting audit
+    API-->>UI: Renders interactive score gauges & keyword chips
+    Candidate->>UI: Clicks "Tailor Resume"
+    UI->>API: POST /api/ats/tailor
+    API->>LC: Run ResumeTailorChain (XYZ formula, zero hallucination)
+    LC-->>API: Returns optimized Markdown sections + keywords
+    API-->>UI: Loads side-by-side editing studio & PDF export
 ```
 
 ---
 
-## 🛠️ Technical Stack
+## 💻 Technical Stack
 
-| Component | Technology | Purpose |
+### Core AI & LangChain Layer
+| Library / Tool | Version / Spec | Role in Outly |
 | :--- | :--- | :--- |
-| **Core Frontend** | React 18, Vite 5, TypeScript | Single Page Application framework & development builder |
-| **Styling** | TailwindCSS 3, Shadcn/UI (Radix) | Responsive layout, modern UI components & design primitives |
-| **Animations** | Framer Motion, GSAP | Fluid page routing transitions and interactive landing page micro-animations |
-| **State Management** | TanStack React Query, Hook Form | Backend query caching, client-side mutations, form state handling |
-| **Runtime & Server** | Node.js (v18+), Express 4 | API routing server written in strict TypeScript |
-| **Database** | MongoDB Atlas, Mongoose 9 | Primary cloud-hosted document database for user documents |
-| **Background Queue** | Redis, Bull Queue | Task queue with randomized timing intervals for cold mail sending |
-| **Automation** | Playwright, Cheerio | Headless web browser scraping for companies and job finder |
-| **Mail Services** | Nodemailer, Google OAuth2 | Direct Gmail API sender integration |
-| **AI Models** | Google Gemini (Gemini 2.5 Flash), Claude, Grok | Multi-variant copy writing, ATS scoring, resume tailoring |
+| **LangChain Core** | `@langchain/core` | Prompt templates (`ChatPromptTemplate`), output parsers, runnable pipelines |
+| **LangChain Google GenAI** | `@langchain/google-genai` | Native chat model wrappers and vector embedding generators |
+| **Primary LLM** | `gemini-2.5-flash` | High-speed, structured text generation, resume rewriting, cold email crafting |
+| **Vector Embeddings** | `text-embedding-004` | 768-dimensional dense vector embeddings for semantic document similarity |
+| **Schema Validation** | `zod` | Strict runtime typing for structured LLM outputs, preventing malformed responses |
+| **Fallback Models** | `llama-3.3-70b` (Groq), `claude-3-5-sonnet` | High-availability resilience fallbacks if primary quota or rate limits are met |
+
+### Full-Stack Infrastructure
+| Layer | Technologies | Purpose |
+| :--- | :--- | :--- |
+| **Frontend Framework** | React 18, Vite 5, TypeScript | Responsive, modern Single Page Application with strict type safety |
+| **Styling & Design** | TailwindCSS, Shadcn/UI (Radix primitives) | Polished dark-mode UI with high accessibility and sleek micro-interactions |
+| **Animations** | Framer Motion, GSAP | Page-transition smoothing and animated data visualization counters |
+| **State & Data Fetching** | TanStack React Query, React Hook Form | Query caching, optimistic UI updates, and performant form validation |
+| **Backend Runtime** | Node.js (v18+), Express 4, TypeScript | Modular RESTful API server with custom error boundaries and rate limiters |
+| **Primary Database** | MongoDB Atlas, Mongoose 9 | Scalable cloud document database for users, leads, resumes, and Kanban states |
+| **Asynchronous Queues** | Redis, Bull / BullMQ | Persistent background job processing with rate limiting and retry backoff |
+| **Web Scraping** | Playwright, Cheerio | Headless browser execution for real-time company intelligence and job crawling |
+| **Email Transport** | Google OAuth2 API, Nodemailer | Direct inbox authorization bypassing spam filters and SMTP restrictions |
+| **File Storage** | Cloudinary API, MongoDB Base64 | Dual storage architecture for fast CDN delivery and persistent backup |
 
 ---
 
-## 📁 Codebase Layout
+## 📁 Codebase Directory Structure
 
 ```
 Outly/
 ├── api/
-│   └── index.js                      # Vercel serverless gateway function
+│   └── index.js                      # Vercel serverless entry gateway
 ├── backend/
 │   ├── src/
-│   │   ├── index.ts                  # Backend server entry & initialization
+│   │   ├── index.ts                  # Server bootstrap & lifecycle manager
+│   │   ├── ai/                       # 🦜🔗 LangChain & AI Orchestration Layer
+│   │   │   ├── llm.ts                # Gemini model & embedding initializers + cosine similarity
+│   │   │   ├── prompts.ts            # LangChain ChatPromptTemplates for all features
+│   │   │   ├── resumeJdMatcher.ts    # Semantic vector embedding comparison engine
+│   │   │   ├── atsScoreChain.ts      # ATS evaluation chain with Zod schema output
+│   │   │   ├── resumeTailorChain.ts  # Section-wise resume rewrite engine (XYZ formula)
+│   │   │   ├── coldMailChain.ts      # RAG-augmented cold outreach chain with A/B variants
+│   │   │   ├── testE2MJobRun.ts      # E2E test suite running all 4 LangChain chains
+│   │   │   └── index.ts              # Central AI module exports
 │   │   ├── api/
-│   │   │   ├── server.ts             # Express server routes & middleware registry
-│   │   │   └── routes/               # Modular API endpoint routers (auth, coldmail, ats, etc.)
+│   │   │   ├── server.ts             # Express middleware, CORS, and route aggregation
+│   │   │   └── routes/               # Modular REST endpoints (ats, coldmail, auth, etc.)
 │   │   ├── automation/
-│   │   │   └── coldmail/             # Scraper, AI generators, and CSV parsers
-│   │   ├── db/
-│   │   │   ├── connection.ts         # Mongoose connection layer
-│   │   │   └── models.ts             # Mongoose database schemas
-│   │   ├── jobs/                     # Daily summaries and notification cron triggers
-│   │   ├── queue/                    # Bull Redis background queues
-│   │   ├── middleware/               # Auth guards, limit verifiers, sanitizer
-│   │   └── config/                   # Configuration bindings & env validators
-│   ├── scripts/                      # DB init, test user, token setup utilities
+│   │   │   └── coldmail/             # Scrapers (Playwright), CSV parsers, mail dispatchers
+│   │   ├── db/                       # Mongoose schemas (users, companies, resumes, applications)
+│   │   ├── queue/                    # Redis-backed Bull queues for cold mail dispatching
+│   │   ├── jobs/                     # Scheduled cron jobs for follow-up reminders
+│   │   ├── middleware/               # JWT auth guards, tier limiters, upload handlers
+│   │   └── config/                   # Strongly typed environment configuration
 │   └── package.json
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx                   # Main React entry with 18 Router pages
-│   │   ├── main.tsx                  # Client mount initialization
-│   │   ├── index.css                 # Global CSS design tokens
-│   │   ├── pages/                    # 18 Modular pages (AtsScore, ResumeTailor, etc.)
-│   │   ├── components/               # Custom UI, command menus, layout wrappers
-│   │   ├── hooks/                    # Mobile breakpoints & toasts hooks
-│   │   └── lib/                      # Base fetch client configuration mapping
-│   ├── tailwind.config.ts
+│   │   ├── App.tsx                   # Client routing table (18+ routes)
+│   │   ├── pages/                    # Dedicated view modules
+│   │   │   ├── AtsScore.tsx          # Interactive ATS evaluation & keyword gap analysis
+│   │   │   ├── ResumeTailor.tsx      # Split-screen resume customization workspace
+│   │   │   ├── ColdMail.tsx          # Outreach campaign manager & A/B draft selector
+│   │   │   ├── JobFinder.tsx         # Live Playwright job listings search
+│   │   │   ├── Applications.tsx      # Drag-and-drop Kanban career tracker
+│   │   │   └── ...                   # Analytics, Resume Vault, Onboarding, Mobile Hub
+│   │   ├── components/               # Radix UI wrappers, charts, command palette (⌘K)
+│   │   └── lib/                      # API client, query cache, formatting utilities
 │   └── package.json
-├── vercel.json                       # Monorepo build and serverless rewrite instructions
-└── package.json                      # Workspace dependencies manager
+└── package.json                      # Workspace scripts
 ```
-
----
-
-## 🗄️ Database Schemas (MongoDB)
-
-All application data has been unified under MongoDB Atlas document schemas:
-
-### 1. `users`
-*   `email` (String, unique, required)
-*   `passwordHash` (String, required)
-*   `fullName` (String)
-*   `profilePic` (String)
-*   `plan` (String, `free` | `pro`, default `free`)
-*   `planExpiresAt` (Date)
-*   `createdAt` (Date)
-
-### 2. `companies` (Cold Outreach Leads)
-*   `userId` (ObjectId ➔ User reference)
-*   `company_name` (String, required)
-*   `role` (String, required)
-*   `hr_email` (String, required)
-*   `linkedin_url` / `website_url` (String)
-*   `target_person_name` / `target_person_role` (String)
-*   `status` (String: `pending`, `scraped`, `mail_generated`, `approved`, `sent`, `replied`)
-*   `scraped_context` (String)
-*   `generated_subject` / `generated_mail` (String)
-*   `generated_variants_json` (String)
-
-### 3. `resumevaults`
-*   `userId` (ObjectId ➔ User reference)
-*   `filename` (String, required)
-*   `label` (String, required)
-*   `content` (String, extracted text)
-*   `fileData` (String, base64 payload)
-*   `cloudinaryUrl` (String)
-*   `is_default` (Number, `0` or `1`)
-
-### 4. `applications` (Kanban Tracker)
-*   `userId` (ObjectId ➔ User reference)
-*   `company` (String, required)
-*   `role` (String, required)
-*   `jd_url` (String)
-*   `stage` (String: `saved`, `applied`, `interview`, `offer`, `rejected`)
-*   `resume_version_used` (String)
-*   `notes` (String)
-*   `email_history` (String, JSON array payload)
 
 ---
 
 ## 🔌 API Endpoints
 
-### Auth (`/api/auth`)
-*   `POST /signup` - Register a new account
-*   `POST /login` - Password verification login
-*   `POST /google` - Exchange Google Token for JWT
-*   `GET /me` - Get current user profile information
-*   `POST /upgrade` - Process Razorpay payments and change user plan
-*   `POST /gmail/callback` - Callback target for Gmail OAuth permissions grant
+### 🧠 AI & Resume Intelligence (`/api/ats` & `/api/resume`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/ats/score` | Evaluates resume against target JD using LangChain `scoreResumeChain` (Zod structured output) |
+| `POST` | `/api/ats/match` | Computes semantic vector embeddings (`text-embedding-004`) and cosine similarity |
+| `POST` | `/api/ats/tailor` | Executes `tailorResumeChain` to rewrite resume sections matching JD requirements |
+| `POST` | `/api/ats/parse-file`| Extracts plain text from uploaded `.pdf` or `.docx` files |
+| `GET` | `/api/resume` | Fetches candidate's stored resume versions from MongoDB/Cloudinary |
+| `POST` | `/api/resume/upload` | Uploads and processes a new resume into the cloud vault |
+| `PUT` | `/api/resume/:id/default`| Sets preferred default resume for 1-click applications |
 
-### Cold Mail Outreach (`/api/coldmail`)
-*   `GET /leads` - List all leads assigned to active user
-*   `POST /companies` - Create an individual lead manually
-*   `POST /upload-csv` - Parse and import bulk CSV files
-*   `POST /scrape/:id` - Scrape target company homepage
-*   `POST /generate/:id` - Generate customized email subject & body variants
-*   `POST /approve/:id` - Move email draft status to approved
-*   `POST /send/:id` - Push email to Bull queue for delivery
+### 📧 Cold Outreach Automation (`/api/coldmail`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/coldmail/companies` | Retrieves all company leads and outreach campaign states |
+| `POST` | `/api/coldmail/companies` | Manually creates a new company lead target |
+| `POST` | `/api/coldmail/upload-csv` | Parses and batch imports recruiter contacts via CSV |
+| `POST` | `/api/coldmail/scrape/:id`| Triggers Playwright worker to scrape live website context |
+| `POST` | `/api/coldmail/generate/:id`| Executes LangChain `coldMailChain` using scraped web context to produce A/B drafts |
+| `POST` | `/api/coldmail/send/:id` | Enqueues personalized email to Redis BullMQ with anti-spam jitter delay |
 
-### Resume & ATS Scoring (`/api/ats` & `/api/resume`)
-*   `POST /ats/score` - Score resume structure/keywords against a target JD
-*   `POST /ats/tailor` - AI custom rewriting of resume sections
-*   `POST /ats/parse-file` - Parse file text from direct upload
-*   `GET /resume` - List stored user resumes
-*   `POST /resume/upload` - Direct file upload (Cloudinary + Mongoose)
-*   `PUT /resume/:id/default` - Set selected resume version as default
+### 📋 Job Tracker & CRM (`/api/applications`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/applications` | Fetches all tracked jobs grouped by Kanban stages |
+| `POST` | `/api/applications` | Adds a newly discovered job card to the pipeline |
+| `PUT` | `/api/applications/:id/stage`| Updates application column (`saved`, `applied`, `interview`, etc.) |
+| `PUT` | `/api/applications/:id` | Updates salary, interview notes, or recruiter touchpoints |
+| `DELETE`| `/api/applications/:id` | Removes an application card from the board |
 
-### Job Tracker (`/api/applications`)
-*   `GET /` - Fetch user's job pipeline applications
-*   `POST /` - Insert manual application card
-*   `PUT /:id` - Update details or notes
-*   `PUT /:id/stage` - Drag application card to different pipeline column
-*   `DELETE /:id` - Remove application from pipeline
+### 🔐 Authentication & Accounts (`/api/auth`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/auth/signup` | Native registration with `bcrypt` salt hashing |
+| `POST` | `/api/auth/login` | Issues signed JWT access token |
+| `POST` | `/api/auth/google` | Google OAuth2 token exchange |
+| `GET` | `/api/auth/me` | Retrieves authenticated user profile & plan quotas |
+| `GET` | `/api/auth/ping` | Lightweight healthcheck route used for backend pre-warming |
 
 ---
 
 ## ⚡ Getting Started
 
 ### Prerequisites
-*   **Node.js** (v18.0.0 or higher)
-*   **MongoDB Atlas** account (or local MongoDB server instance)
-*   **Redis** server (Optional for local development, required for email Bull Queue scheduling)
+* **Node.js** (v18.0.0 or higher)
+* **MongoDB Atlas** database connection URI
+* **Redis** server (Optional for local development; required for Bull queue dispatching)
+* **Google Gemini API Key** ([Get one here](https://aistudio.google.com/))
 
-### 1. Clone the Codebase
+### 1. Clone & Install
 ```bash
 git clone https://github.com/bharatdhuva/Outly.git
 cd Outly
+npm install
 ```
 
-### 2. Backend Environment Settings
-Initialize variables by cloning `.env.example` in `/backend`:
+### 2. Configure Backend Environment
 ```bash
 cd backend
-npm install
 cp .env.example .env
 ```
-Fill out these parameters in `.env`:
+Populate `.env` with your credentials:
 ```env
-MONGODB_URI=mongodb+srv://your-atlas-uri
-JWT_SECRET=your-jwt-signing-secret
-GEMINI_API_KEY=your-gemini-ai-token
+PORT=3001
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/outly
+JWT_SECRET=your_jwt_secret_key
+GEMINI_API_KEY=your_gemini_api_key
 
-# Gmail API Sending (Google Console credentials)
-GMAIL_CLIENT_ID=your-google-oauth-client-id
-GMAIL_CLIENT_SECRET=your-google-oauth-client-secret
-GMAIL_REFRESH_TOKEN=your-google-oauth-refresh-token
-GMAIL_USER=your-sending-mailbox@gmail.com
+# Optional Multi-LLM Resilient Fallbacks
+GROK_API_KEY=your_groq_api_key
+CLAUDE_API_KEY=your_anthropic_api_key
 
-# Cloudinary Integration (Resume uploads)
-CLOUDINARY_CLOUD_NAME=your-cloudinary-name
-CLOUDINARY_API_KEY=your-cloudinary-key
-CLOUDINARY_API_SECRET=your-cloudinary-secret
-```
-Run the local database migration script and spin up the developer server:
-```bash
-npm run db:init
-npm run dev        # Backend listening on http://localhost:3001
+# Google OAuth2 & Gmail Dispatching
+GMAIL_CLIENT_ID=your_oauth_client_id.apps.googleusercontent.com
+GMAIL_CLIENT_SECRET=your_oauth_client_secret
+GMAIL_REFRESH_TOKEN=your_oauth_refresh_token
+GMAIL_USER=your_sending_address@gmail.com
+
+# Cloudinary Storage
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_key
+CLOUDINARY_API_SECRET=your_cloudinary_secret
+
+# Redis (for background Bull queue)
+REDIS_URL=redis://127.0.0.1:6379
 ```
 
-### 3. Frontend Environment Settings
-Set up the frontend parameters in `/frontend`:
+### 3. Run the LangChain AI Test Suite
+Validate that all LangChain chains and vector similarity calculations execute cleanly:
 ```bash
-cd ../frontend
-npm install
-cp .env.example .env
+npx tsx src/ai/testE2MJobRun.ts
 ```
-Fill out the variables in `.env`:
-```env
-VITE_API_URL=http://localhost:3001/api
-```
-Spin up the development Vite compiler:
+
+### 4. Start the Application
+Start both backend and frontend concurrently from the root directory:
 ```bash
-npm run dev        # Frontend compiled at http://localhost:5173
+# Terminal 1: Backend
+cd backend
+npm run dev
+
+# Terminal 2: Frontend
+cd frontend
+npm run dev
 ```
+Open **[http://localhost:5173](http://localhost:5173)** in your browser.
 
 ---
 
-## ⚡ Preventing Cold Starts in Production (Free Tier)
+## 🛡️ Production Engineering: Cold-Start Mitigation
 
-Since the backend and database may run on free tiers (like Render or Railway) or serverless architectures (like Vercel), they automatically sleep/spin down after 15 minutes of inactivity. This is why the first login or signup attempt can experience significant delay.
+When deployed on free tiers (like Render, Railway, or Vercel serverless functions), instances often spin down after 15 minutes of inactivity. Outly implements two proactive design solutions to eliminate cold-start lag:
 
-To ensure **instant login and signup**, the following mechanisms have been put in place:
-1. **Frontend Active Warming**: As soon as a user lands on the landing page (`/`) or navigates to the login/signup screen (`/login`), the React app automatically triggers a background asynchronous request to `/api/auth/ping`. This wakes up the backend and establishes the MongoDB Atlas connection while the user is reading the landing page or typing their credentials.
-2. **Dedicated `/ping` Route**: A lightweight, public healthcheck GET route (`/api/auth/ping`) has been added to check and pre-establish database connectivity without requiring authentication headers.
-
-### Keeping the App Permanently Hot (Recommended)
-To keep the app instantly responsive at all times and prevent it from ever sleeping:
-* Set up a free account on [UptimeRobot](https://uptimerobot.com) or [Cron-Job.org](https://cron-job.org).
-* Create a simple HTTP GET monitor targeting your backend ping URL:
-  `https://outly.online/api/auth/ping` (or your backend domain URL)
-* Set the check interval to **every 10 minutes** (Render spins down after 15 minutes of inactivity).
-* This will keep the web service and database connection hot 24/7 without any cost.
+1. **Client-Side Predictive Warming**: When any visitor navigates to the landing page (`/`) or opens the authentication modal (`/login`), the React client fires an asynchronous, non-blocking `GET /api/auth/ping` request. This initializes the server process and warms up the MongoDB Atlas connection pool before credentials are submitted.
+2. **Scheduled Keep-Alive Monitor**: For zero cold-start latency, a simple HTTP check targeting `https://outly.online/api/auth/ping` running every 10 minutes (via UptimeRobot or Cron-Job.org) maintains 100% warm-state availability without incurring compute costs.
 
 ---
 
-## 💎 Free vs Pro Plan
+## 💎 Free vs Pro Plan Matrix
 
-| Feature | Free Tier | Pro Tier |
-| :--- | :--- | :--- |
-| **Max Resumes** | 3 versions | Unlimited versions |
-| **Daily ATS Evaluations** | 3 matches/day | Unlimited evaluations |
-| **Daily Cold Email Sends** | 5 sends/day | Unlimited sending capacity |
-| **Visual Kanban Pipeline** | Unlimited cards | Unlimited cards |
-| **Auto Follow-up Engine** | ❌ Offline | ✅ Online (Cron automation) |
-| **Support Channels** | Standard | Priority Discord/Email |
-
----
-
-## 🗺️ Upcoming Roadmap (Under Active Development)
-
--   **Chrome Extension**: 1-click scraper extension to clip jobs directly from LinkedIn/Indeed and push them to the Outly pipeline.
--   **Outreach Tracker Pixel**: Inject click and open trackers in emails to populate the analytics dashboard heatmaps.
--   **AI Mock Interview Mode**: Audio/text simulation interview preparation built using Gemini 2.5 Pro.
--   **Multi-Model LLM Choice**: Settings option to toggle models (Gemini 2.5 Flash, Claude 3.5 Sonnet, or Grok 3).
--   **Aesthetic Resume Themes**: Ready-made resume designs with customizable PDF layout models.
+| Feature | Free Community Tier | Pro Career Tier |
+| :--- | :---: | :---: |
+| **Resume Vault Storage** | Up to 3 Versions | Unlimited Versions |
+| **Daily ATS Evaluations** | 3 Audits / Day | Unlimited Evaluations |
+| **LangChain Vector Similarity** | Included | Included |
+| **Cold Outreach Sends** | 5 Emails / Day | Unlimited Emails |
+| **A/B Email Angle Generation** | Included | Included |
+| **Automated Follow-Up Cron** | Manual Only | Automated Cron Pipeline |
+| **Kanban Pipeline Tracking** | Unlimited Cards | Unlimited Cards |
+| **Priority Support** | Standard | Dedicated Discord / Email |
 
 ---
 
 <div align="center">
 
-### Built with ❤️ by [Bharat Dhuva](https://github.com/bharatdhuva)
+## 👨‍💻 Built by Bharat Dhuva
 
-[![GitHub](https://img.shields.io/badge/GitHub-bharatdhuva-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/bharatdhuva)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-bharatdhuva27-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/bharatdhuva27)
+**Full-Stack & Applied AI Engineer**  
+Specializing in **TypeScript, LangChain, RAG Systems, Node.js, and Modern Web Architectures.**
+
+Looking for an engineer who builds high-impact AI products from scratch with clean code, scalable architecture, and strict attention to detail? **Let's connect.**
+
 [![Portfolio](https://img.shields.io/badge/Portfolio-bharatdhuva.com-6366f1?style=for-the-badge&logo=googlechrome&logoColor=white)](https://bharatdhuva.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-bharatdhuva27-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/bharatdhuva27)
+[![GitHub](https://img.shields.io/badge/GitHub-bharatdhuva-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/bharatdhuva)
+[![Email](https://img.shields.io/badge/Email-Contact_Me-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:bharatdhuva27@gmail.com)
+
+---
+
+*Star ⭐ this repository if you find it helpful!*
 
 </div>
