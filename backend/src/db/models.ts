@@ -99,14 +99,3 @@ const ResumeVaultSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 export const ResumeVault = mongoose.model("ResumeVault", ResumeVaultSchema);
-
-// 10. Content Post Model (for content scheduler)
-const ContentPostSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  content: { type: String, required: true },
-  status: { type: String, enum: ["scheduled", "sent", "failed"], default: "scheduled" },
-  scheduledAt: String, // e.g. "09:00"
-  sentAt: Date,
-  createdAt: { type: Date, default: Date.now }
-});
-export const ContentPost = mongoose.model("ContentPost", ContentPostSchema);

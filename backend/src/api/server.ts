@@ -14,7 +14,6 @@ import analyticsRoutes from "./routes/analytics.routes.js";
 import scraperRoutes from "./routes/scraper.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
-import contentPostsRoutes from "./routes/contentPosts.routes.js";
 import { connectDB } from "../db/connection.js";
 import mongoose from "mongoose";
 
@@ -82,7 +81,6 @@ app.use("/api/analytics", analyticsRoutes);
 app.use("/api/scraper", scraperRoutes);
 app.use("/api", paymentRoutes);
 app.use("/api/payment", paymentRoutes);
-app.use("/api/content-posts", contentPostsRoutes);
 
 // Global JSON error handler (catches Multer file size limits and other errors)
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

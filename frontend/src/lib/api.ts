@@ -161,23 +161,6 @@ export const api = {
       fetchApi("/settings", { method: "PUT", body: JSON.stringify({ settings }) }),
     testResume: () => fetchApi<{ ok: boolean }>("/settings/test-resume", { method: "POST" }),
   },
-  contentPosts: {
-    getAll: () => fetchApi<any[]>("/content-posts"),
-    generate: (data: { topic: string }) =>
-      fetchApi<any>("/content-posts/generate", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
-    update: (id: string | number, data: { content: string }) =>
-      fetchApi<any>(`/content-posts/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      }),
-    delete: (id: string | number) =>
-      fetchApi<any>(`/content-posts/${id}`, {
-        method: "DELETE",
-      }),
-  },
   logs: {
     recent: (filter?: string, search?: string) =>
       fetchApi<LogEntry[]>(`/logs/recent?filter=${filter ?? "all"}&search=${search ?? ""}`),
