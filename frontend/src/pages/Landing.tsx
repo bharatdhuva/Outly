@@ -20,16 +20,10 @@ import {
   Sparkles,
   FileCheck,
   FolderArchive,
-  Search,
   Briefcase,
   Mail,
   HelpCircle,
   ExternalLink,
-  ShieldCheck,
-  Cpu,
-  Lock,
-  CheckCircle2,
-  Terminal,
 } from "lucide-react";
 
 // ─── TYPES & DATA STRUCTURES ───
@@ -1567,146 +1561,27 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ─── FOOTER (MINIMALIST & TECHNICAL — MATCHING REFERENCE) ─── */}
-      <footer className="bg-[#FAF8F5] border-t border-neutral-200/70 pt-16 pb-12 font-sans select-none text-left">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+      {/* ─── MINIMAL FOOTER ─── */}
+      <footer className="bg-[#FAF8F5] border-t border-neutral-200/70 py-12 font-sans select-none text-left">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           
-          {/* Top 4-Column Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-10 md:gap-8 items-start">
-            
-            {/* Col 1: Brand Info */}
-            <div className="sm:col-span-2 md:col-span-4 space-y-3">
-              <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2DC08D] shadow-[0_0_8px_rgba(45,192,141,0.5)] inline-block" />
-                <span className="text-xl font-bold tracking-tight text-neutral-900 font-sans">Outly</span>
-              </div>
-              <p className="text-xs text-neutral-500 font-normal leading-relaxed max-w-sm">
-                AI-powered resume tailoring, live ATS scoring, and cold outreach automation for high-impact job seekers.
-              </p>
-            </div>
-
-            {/* Col 2: @ EXPLORE */}
-            <div className="md:col-span-3 space-y-3.5">
-              <div className="text-[11px] font-mono font-semibold uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-1.5">
-                <span className="text-[#2DC08D]">@</span>
-                <span>EXPLORE</span>
-              </div>
-              <ul className="space-y-2.5 text-xs text-neutral-600 font-normal">
-                <li>
-                  <Link to="/ats-score" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
-                    <FileCheck className="w-3.5 h-3.5 text-[#2DC08D]" />
-                    <span>ATS Resume Checker</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/resume-tailor" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
-                    <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
-                    <span>Tailor Resume</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/resume-vault" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
-                    <FolderArchive className="w-3.5 h-3.5 text-[#2DC08D]" />
-                    <span>Resume Vault</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/job-search" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
-                    <Search className="w-3.5 h-3.5 text-[#2DC08D]" />
-                    <span>Job Search</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/applications" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
-                    <Briefcase className="w-3.5 h-3.5 text-[#2DC08D]" />
-                    <span>Job Tracker</span>
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Col 3: ◈ SUPPORT & TOOLS */}
-            <div className="md:col-span-3 space-y-3.5">
-              <div className="text-[11px] font-mono font-semibold uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-1.5">
-                <span className="text-[#2DC08D]">◈</span>
-                <span>SUPPORT &amp; TOOLS</span>
-              </div>
-              <ul className="space-y-2.5 text-xs text-neutral-600 font-normal">
-                <li>
-                  <Link to="/cold-mail" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
-                    <Mail className="w-3.5 h-3.5 text-[#2DC08D]" />
-                    <span>Cold Mail Outreach</span>
-                  </Link>
-                </li>
-                <li>
-                  <a href="#pricing" onClick={(e) => handleScrollToSection(e, "pricing")} className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors cursor-pointer">
-                    <Tag className="w-3.5 h-3.5 text-[#2DC08D]" />
-                    <span>Pricing Plans</span>
-                  </a>
-                </li>
-                <li>
-                  <Link to="/support" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
-                    <HelpCircle className="w-3.5 h-3.5 text-[#2DC08D]" />
-                    <span>Help Center</span>
-                  </Link>
-                </li>
-                <li>
-                  <a href="https://x.com/mrcrotes" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
-                    <svg className="w-3.5 h-3.5 text-[#2DC08D] fill-current" viewBox="0 0 24 24">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                    <span>@mrcrotes on X</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="https://bharatdhuva.vercel.app/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
-                    <ExternalLink className="w-3.5 h-3.5 text-[#2DC08D]" />
-                    <span>Bharat Dhuva</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Col 4: </> PLATFORM */}
-            <div className="md:col-span-2 space-y-3.5">
-              <div className="text-[11px] font-mono font-semibold uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-1.5">
-                <span className="text-[#2DC08D]">&lt;/&gt;</span>
-                <span>PLATFORM</span>
-              </div>
-              <ul className="space-y-2.5 text-xs text-neutral-600 font-normal">
-                <li className="inline-flex items-center gap-2">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#2DC08D]" />
-                  <span>27 ATS Factors</span>
-                </li>
-                <li className="inline-flex items-center gap-2">
-                  <Cpu className="w-3.5 h-3.5 text-[#2DC08D]" />
-                  <span>Gemini AI Engine</span>
-                </li>
-                <li className="inline-flex items-center gap-2">
-                  <Lock className="w-3.5 h-3.5 text-[#2DC08D]" />
-                  <span>Encrypted Vault</span>
-                </li>
-                <li className="inline-flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2DC08D]" />
-                  <span>98% Parser Accuracy</span>
-                </li>
-                <li className="inline-flex items-center gap-2">
-                  <Terminal className="w-3.5 h-3.5 text-[#2DC08D]" />
-                  <span>System Active</span>
-                </li>
-              </ul>
-            </div>
-
+          {/* Left: Brand Logo & Tagline */}
+          <div className="space-y-2.5 max-w-sm">
+            <Link 
+              to="/" 
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
+            >
+              <img src={logoTransparent} alt="Outly" className="h-6 sm:h-7 w-auto object-contain" />
+            </Link>
+            <p className="text-xs text-neutral-500 font-normal leading-relaxed">
+              AI-powered resume tailoring, live ATS scoring, and cold outreach automation for high-impact job seekers.
+            </p>
           </div>
 
-          {/* Bottom Copyright & Project Note */}
-          <div className="border-t border-neutral-200/60 mt-14 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono text-neutral-400">
-            <div>
-              © 2026 Outly. All rights reserved.
-            </div>
-            <div className="text-[#2DC08D] font-mono font-medium">
-              AI &amp; Career Automation Subject Project
-            </div>
+          {/* Right: Copyright */}
+          <div className="text-[11px] sm:text-xs font-mono text-neutral-400 self-start sm:self-center">
+            © 2026 Outly. All rights reserved.
           </div>
 
         </div>
