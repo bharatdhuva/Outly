@@ -560,6 +560,7 @@ export default function ResumeVaultPage() {
               );
             })}
           </div>
+          )}
 
           <p className="text-[11px] text-neutral-400 font-normal mt-3 px-1">
             PDF, DOCX or TXT, up to 5 MB.
