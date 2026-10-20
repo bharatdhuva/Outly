@@ -29,6 +29,7 @@ import {
   Calendar,
   ChevronRight,
   X,
+  FolderArchive,
 } from "lucide-react";
 
 interface ResumeDocSection {
@@ -399,9 +400,12 @@ export default function ResumeVaultPage() {
       {/* Top Header matching ResumeTailor & AtsScore */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-            Resume / Vault
-          </p>
+          <div className="inline-flex items-center gap-2 mb-1">
+            <FolderArchive className="w-3.5 h-3.5 text-[#2DC08D]" />
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+              Resume / Vault
+            </span>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
             Resume Vault
           </h1>

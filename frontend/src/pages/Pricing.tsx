@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Check, ArrowRight, Lock, Loader2, Sparkles } from "lucide-react";
+import { Check, ArrowRight, Lock, Loader2, Sparkles, Tag } from "lucide-react";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import { api } from "@/lib/api";
@@ -179,15 +179,18 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-full w-full font-geist py-8 sm:py-12 px-4 sm:px-6 flex flex-col items-center justify-center animate-fade-in text-neutral-900 select-none">
+    <div className="min-h-full w-full font-geist py-8 sm:py-12 px-4 sm:px-6 flex flex-col items-center justify-start animate-fade-in text-neutral-900 select-none">
       
-      {/* ─── TOP BREADCRUMB ─── */}
-      <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground text-center mb-3">
-        Outly / Pricing
-      </p>
-
       {/* ─── HERO HEADER ─── */}
       <div className="text-center max-w-xl mx-auto space-y-3">
+        {/* ─── TOP EYEBROW ─── */}
+        <div className="inline-flex items-center gap-2 mb-1">
+          <Tag className="w-3.5 h-3.5 text-[#2DC08D]" />
+          <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+            PRICING
+          </span>
+        </div>
+
         <h1 className="text-4xl sm:text-[48px] md:text-[54px] font-bold text-neutral-900 tracking-[-0.035em] leading-[1.06]">
           A clearer way to move forward.
         </h1>

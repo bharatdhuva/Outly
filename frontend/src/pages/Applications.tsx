@@ -31,7 +31,8 @@ import {
   Calendar,
   FileText,
   Clock,
-  X
+  X,
+  Briefcase,
 } from "lucide-react";
 
 const STAGES = [
@@ -301,9 +302,12 @@ export default function Applications() {
       {/* ─── TOP HEADER ─── */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-neutral-200/70">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-            Jobs / Tracker
-          </p>
+          <div className="inline-flex items-center gap-2 mb-1">
+            <Briefcase className="w-3.5 h-3.5 text-[#2DC08D]" />
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+              Jobs / Tracker
+            </span>
+          </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 tracking-tight mt-1.5">
             Applications
           </h1>

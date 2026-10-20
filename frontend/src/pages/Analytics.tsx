@@ -40,9 +40,12 @@ export default function AnalyticsPage() {
     <div className="mx-auto w-full max-w-6xl space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <p className="text-[13px] font-medium text-primary flex items-center gap-1">
-          <TrendingUp className="h-3 w-3" /> Dashboard
-        </p>
+        <div className="inline-flex items-center gap-2 mb-1">
+          <TrendingUp className="w-3.5 h-3.5 text-[#2DC08D]" />
+          <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+            Analytics / Dashboard
+          </span>
+        </div>
         <h1 className="mt-1 text-[28px] font-semibold tracking-tight text-foreground">Outreach Analytics</h1>
         <p className="mt-2 max-w-2xl text-[14px] leading-6 text-muted-foreground">
           Real-time metrics tracking your outreach pipelines. Understand which styles, subject lines, and timings trigger replies.

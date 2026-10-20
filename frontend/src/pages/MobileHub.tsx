@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { 
   FileCheck, 
   Sparkles, 
-  Database, 
+  FolderArchive, 
   Search, 
   Briefcase, 
   Mail, 
@@ -39,7 +39,7 @@ export default function MobileHub({ category }: MobileHubProps) {
     resumes: [
       { id: "ats", label: "ATS Score", icon: FileCheck },
       { id: "tailor", label: "Tailor Resume", icon: Sparkles },
-      { id: "vault", label: "Resume Vault", icon: Database },
+      { id: "vault", label: "Resume Vault", icon: FolderArchive },
     ],
     jobs: [
       { id: "search", label: "Job Search", icon: Search },
@@ -95,7 +95,7 @@ export default function MobileHub({ category }: MobileHubProps) {
   return (
     <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full flex flex-col font-sans text-outly-dark animate-fade-in text-left bg-transparent">
       {/* Tab bar header */}
-      <div className="sticky z-30 bg-[#ECE8E1]/95 backdrop-blur-md border-b border-[#dcd5c9] px-6 pt-3 select-none shadow-xs transition-[top] duration-150 ease-out top-16 sticky-tabs-container">
+      <div className="sticky z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E4DC]/80 px-6 pt-3 select-none shadow-xs transition-[top] duration-150 ease-out top-16 sticky-tabs-container">
         <div className="relative w-full overflow-hidden">
           <div 
             className="flex gap-6 overflow-x-auto -mx-6 px-6 scrollbar-none"
@@ -109,10 +109,10 @@ export default function MobileHub({ category }: MobileHubProps) {
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
                   className={`relative pb-3 pt-1 text-[11px] font-bold uppercase tracking-wider transition-all duration-155 cursor-pointer outline-none shrink-0 flex items-center gap-1.5 ${
-                    isActive ? "text-[#f23c5d]" : "text-zinc-400/80 hover:text-zinc-600"
+                    isActive ? "text-[#2DC08D]" : "text-zinc-500/80 hover:text-zinc-800"
                   }`}
                 >
-                  {tab.icon && <tab.icon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-[#f23c5d]" : "text-zinc-400/60"}`} />}
+                  {tab.icon && <tab.icon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-[#2DC08D]" : "text-zinc-400"}`} />}
                   <span>{tab.label}</span>
                   {showBadge && (
                     <span className="flex h-3.5 min-w-3.5 px-1 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white leading-none scale-90 translate-y-[-1px]">
@@ -120,14 +120,14 @@ export default function MobileHub({ category }: MobileHubProps) {
                     </span>
                   )}
                   {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#f23c5d] rounded-full" />
+                    <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#2DC08D] rounded-full" />
                   )}
                 </button>
               );
             })}
           </div>
           {/* Fade gradient on the right edge */}
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#ECE8E1] to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FAF8F5] to-transparent pointer-events-none" />
         </div>
       </div>
 

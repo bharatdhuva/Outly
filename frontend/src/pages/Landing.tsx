@@ -13,6 +13,24 @@ import {
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
 } from "recharts";
+import {
+  Tag,
+  Check,
+  ArrowRight,
+  Sparkles,
+  FileCheck,
+  FolderArchive,
+  Search,
+  Briefcase,
+  Mail,
+  HelpCircle,
+  ExternalLink,
+  ShieldCheck,
+  Cpu,
+  Lock,
+  CheckCircle2,
+  Terminal,
+} from "lucide-react";
 
 // ─── TYPES & DATA STRUCTURES ───
 
@@ -1348,149 +1366,181 @@ export default function Landing() {
       </section>
 
       {/* PRICING SECTION */}
-      <section id="pricing" className="max-w-6xl mx-auto px-6 sm:px-8 py-12 sm:py-24">
-        <div className="mb-12 sm:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-6 sm:gap-8">
-          <div>
-            <div className="flex items-center gap-3 mb-4 sm:mb-6">
-              <div className="h-px w-8 bg-outly-accent"></div>
-              <div className="text-outly-accent font-bold text-[9px] sm:text-[10px] tracking-[0.3em] uppercase">PRICING</div>
-            </div>
-            <h2 className="text-3xl sm:text-6xl md:text-8xl font-medium tracking-tight mb-4 sm:mb-10 leading-[0.95]">
-              Free <span className="italic-serif text-outly-accent">by nature.</span><br />
-              Paid <span className="italic-serif text-outly-accent">for convenience.</span>
-            </h2>
-            <p className="text-outly-dark/50 text-base sm:text-xl max-w-2xl leading-relaxed font-medium">
-              Outly is built around a simple idea: the tool is free. Your data is our key, so it always stays private and secure — or let us handle the cloud setup and pay one calm price.
-            </p>
+      <section id="pricing" className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center select-none">
+        
+        {/* Hero Header matching in-app Pricing.tsx */}
+        <div className="text-center max-w-xl mx-auto space-y-3">
+          <div className="inline-flex items-center gap-2 mb-1">
+            <Tag className="w-3.5 h-3.5 text-[#2DC08D]" />
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+              PRICING
+            </span>
           </div>
 
-          {/* Pricing Switcher Controls */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 bg-white border border-outly-border p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-soft shrink-0">
-
-            {/* Currency switcher */}
-            <div className="flex items-center gap-2 select-none">
-              <span className="text-xs font-bold text-outly-dark/40">Currency:</span>
-              <div className="flex bg-outly-cream border border-outly-border rounded-lg p-0.5">
-                <button
-                  className={`px-2.5 py-1 text-[9px] font-bold rounded transition-all ${currency === "INR" ? "bg-white text-outly-dark shadow-sm" : "text-outly-dark/40"
-                    }`}
-                  onClick={() => changePricingCurrency("INR")}
-                >
-                  INR (₹)
-                </button>
-                <button
-                  className={`px-2.5 py-1 text-[9px] font-bold rounded transition-all ${currency === "USD" ? "bg-white text-outly-dark shadow-sm" : "text-outly-dark/40"
-                    }`}
-                  onClick={() => changePricingCurrency("USD")}
-                >
-                  USD ($)
-                </button>
-              </div>
-            </div>
-          </div>
+          <h2 className="text-4xl sm:text-[48px] md:text-[54px] font-bold text-neutral-900 tracking-[-0.035em] leading-[1.06]">
+            A clearer way to move forward.
+          </h2>
+          <p className="text-[14px] sm:text-[15px] text-neutral-500 font-normal leading-relaxed max-w-md mx-auto pt-1">
+            Tools for a more focused job search. Start free, then upgrade when you need more room.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 items-stretch max-w-4xl mx-auto">
+        {/* Billing Toggle (Pill Capsule matching in-app Pricing.tsx) */}
+        <div className="inline-flex items-center p-1 bg-white border border-neutral-200/90 rounded-full shadow-xs mx-auto mt-7">
+          <button
+            onClick={() => setBillingDuration("monthly")}
+            className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
+              billingDuration === "monthly"
+                ? "bg-[#141414] text-white shadow-xs"
+                : "text-neutral-500 hover:text-neutral-900"
+            }`}
+          >
+            <span>Monthly</span>
+            <span className={`text-[10px] font-medium tracking-tight ${
+              billingDuration === "monthly" ? "text-neutral-300" : "text-neutral-400"
+            }`}>
+              ₹1 trial
+            </span>
+          </button>
+          <button
+            onClick={() => setBillingDuration("yearly")}
+            className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
+              billingDuration === "yearly"
+                ? "bg-[#141414] text-white shadow-xs"
+                : "text-neutral-500 hover:text-neutral-900"
+            }`}
+          >
+            <span>Yearly</span>
+            <span className={`text-[10px] font-medium tracking-tight ${
+              billingDuration === "yearly" ? "text-neutral-300" : "text-neutral-400"
+            }`}>
+              ₹99 trial
+            </span>
+          </button>
+        </div>
 
-          {/* Outly Free Card */}
-          <div className="bg-white rounded-3xl p-5 md:p-6 shadow-soft border border-outly-border flex flex-col hover:border-outly-accent/20 transition-all duration-300">
-            <div className="mb-3">
-              <span className="bg-outly-dark/5 text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-outly-dark/50">YOUR DATA IS OUR KEY</span>
+        {/* Pricing Cards Grid (2 Cards matching in-app Pricing.tsx) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-[760px] mx-auto mt-8 items-stretch text-left">
+          
+          {/* Card 1: Free */}
+          <div className="border border-neutral-200/80 bg-white rounded-[26px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all hover:border-neutral-300">
+            <div>
+              <h3 className="text-xl font-bold text-neutral-900 tracking-tight">Free</h3>
+              <p className="text-xs text-neutral-500 mt-2 min-h-[32px] leading-relaxed">
+                A simple place to start building momentum.
+              </p>
+
+              {/* Price block */}
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="text-5xl font-extrabold text-neutral-900 tracking-tight">₹0</span>
+                <span className="text-xs text-neutral-400 font-normal ml-1">/ month</span>
+              </div>
+              <p className="text-[11.5px] text-neutral-400 mt-1 font-normal">no commitment</p>
+
+              {/* Button */}
+              <button
+                onClick={() => navigateTo("/login")}
+                className="w-full border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-800 text-xs font-semibold py-2.5 rounded-xl text-center shadow-2xs mt-6 cursor-pointer transition-colors"
+              >
+                Get started free
+              </button>
+
+              {/* Divider */}
+              <div className="border-t border-neutral-100 my-6" />
+
+              {/* Includes list */}
+              <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.18em] mb-3.5">
+                INCLUDES
+              </div>
+              <ul className="space-y-2.5">
+                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
+                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
+                  <span>Resume Vault</span>
+                </li>
+                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
+                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
+                  <span>3 saved applications</span>
+                </li>
+                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
+                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
+                  <span>Basic resume checker</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight">Outly <span className="italic-serif text-outly-dark/40 font-normal">Free</span></h3>
-            <p className="text-xs text-outly-dark/50 font-medium mb-4">Complete privacy. Your data stays yours, and is never sold.</p>
-            <div className="flex items-baseline gap-2 mb-4 select-none">
-              <span className="text-4xl md:text-5xl font-bold">{priceData.free}</span>
-              <span className="text-outly-dark/30 text-xs font-medium">{priceData.freeMeta}</span>
-            </div>
-            <ul className="space-y-2.5 mb-6 flex-1">
-              <li className="flex items-center gap-3 text-xs font-semibold text-outly-dark/70">
-                <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                3 ATS checks &amp; Resume Tailorings per 12h
-              </li>
-              <li className="flex items-center gap-3 text-xs font-semibold text-outly-dark/70">
-                <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                3 AI Job Searches &amp; Cold Mails per 12h
-              </li>
-              <li className="flex items-center gap-3 text-xs font-semibold text-outly-dark/70">
-                <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                Unlimited Resume Vault &amp; Job Tracker
-              </li>
-            </ul>
-            <button onClick={() => navigateTo("/login")} className="w-full border-2 border-outly-border hover:border-outly-dark/40 py-2.5 rounded-full font-sans text-xs md:text-sm font-bold hover:bg-outly-dark/5 active:scale-[0.98] transition-all duration-200 text-center select-none block cursor-pointer">Start free</button>
           </div>
 
-          {/* Outly Cloud Card */}
-          <div className="bg-foreground rounded-3xl p-5 md:p-6 text-white flex flex-col relative overflow-hidden shadow-xl shadow-outly-accent/10 border border-outly-accent/20 hover:shadow-outly-accent/20 transition-all duration-500">
-            <div className="mb-3 flex flex-wrap gap-2 items-center justify-between">
-              <span className="bg-outly-accent text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">SPECIAL LAUNCH OFFER</span>
-              <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] font-bold px-2.5 py-1.5 rounded-full tracking-wider font-mono flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                <span>{timeLeft || "3d 00h 00m 00s"} LEFT</span>
-              </span>
+          {/* Card 2: Pro */}
+          <div className="border border-neutral-300 bg-white rounded-[26px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative transition-all hover:border-neutral-400">
+            <div>
+              {/* Top Right Badge */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-neutral-900 tracking-tight">Pro</h3>
+                <span className="text-[9px] font-semibold text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2DC08D] inline-block" />
+                  MOST CHOSEN
+                </span>
+              </div>
+
+              <p className="text-xs text-neutral-500 mt-2 min-h-[32px] leading-relaxed">
+                Everything you need to apply with intention.
+              </p>
+
+              {/* Price block */}
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="text-5xl font-extrabold text-neutral-900 tracking-tight">
+                  {billingDuration === "yearly" ? "₹99" : "₹1"}
+                </span>
+                <span className="text-xs text-neutral-400 font-normal ml-1">
+                  {billingDuration === "yearly" ? "/ year trial" : "/ month trial"}
+                </span>
+              </div>
+              <p className="text-[11.5px] text-neutral-400 mt-1 font-normal">
+                {billingDuration === "yearly" ? "special ₹99 yearly trial" : "special ₹1 monthly trial"}
+              </p>
+
+              {/* Start Pro CTA Button */}
+              <button
+                onClick={() => navigateTo(isLoggedIn ? "/pricing" : "/login")}
+                className="w-full bg-[#121212] hover:bg-black text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm mt-6 cursor-pointer transition-all active:scale-[0.99]"
+              >
+                <span>{billingDuration === "yearly" ? "Start Pro (₹99 Trial)" : "Start Pro (₹1 Trial)"}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Divider */}
+              <div className="border-t border-neutral-100 my-6" />
+
+              {/* Includes list */}
+              <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.18em] mb-3.5">
+                INCLUDES
+              </div>
+              <ul className="space-y-2.5">
+                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
+                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
+                  <span>Unlimited applications</span>
+                </li>
+                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
+                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
+                  <span>Unlimited resume versions</span>
+                </li>
+                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
+                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
+                  <span>ATS score &amp; keyword insights</span>
+                </li>
+                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
+                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
+                  <span>Resume tailoring</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-xl md:text-2xl font-medium mb-1 tracking-tight">Outly <span className="italic-serif text-outly-accent font-normal">Cloud</span></h3>
-            <p className="text-xs text-white/60 mb-4">No setup, no hassle. Outly Cloud tuned for speed — it just works.</p>
-            <div className="flex items-baseline gap-2.5 mb-4 select-none">
-              <span className="text-4xl md:text-5xl font-bold">{priceData.pro}</span>
-              <span className="text-white/30 text-sm md:text-base font-medium line-through leading-none">{priceData.proSlashed}</span>
-              <span className="text-white/60 text-xs font-medium">{priceData.proDuration}</span>
-            </div>
-            <ul className="space-y-2.5 mb-6 flex-1">
-              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
-                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                Unlimited Resume Tailoring &amp; ATS Score Checking
-              </li>
-              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
-                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                Unlimited AI Job Search &amp; Visual Job Tracker
-              </li>
-              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
-                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                Unlimited AI Cold Mail Writer &amp; Automations
-              </li>
-              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
-                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                LinkedIn &amp; Twitter Post Schedulers
-              </li>
-              <li className="flex items-center gap-3 text-xs font-semibold text-white/90">
-                <svg className="w-4 h-4 text-outly-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                Get hired faster with AI — lifetime access @ ₹1/-
-              </li>
-            </ul>
-            <button onClick={() => navigateTo("/login")} className="w-full bg-outly-accent py-2.5 rounded-full font-sans text-xs md:text-sm font-bold hover:brightness-115 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-outly-accent/25 text-center select-none block cursor-pointer text-white">Get Outly Cloud</button>
           </div>
+
         </div>
 
         {/* Security Alert Note */}
-        <div className="mt-8 sm:mt-16 bg-white rounded-[20px] sm:rounded-[32px] p-5 sm:p-8 max-w-2xl mx-auto flex gap-4 sm:gap-6 items-center border border-outly-border shadow-soft">
-          <div className="w-10 h-10 sm:w-14 sm:h-14 bg-[#5e7d5e]/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-[#5e7d5e] shrink-0 border border-[#5e7d5e]/20">
-            <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
-            </svg>
-          </div>
-          <div>
-            <h5 className="text-xs sm:text-sm font-bold text-outly-dark mb-1">Your data is our key and stays yours</h5>
-            <p className="text-[11px] sm:text-xs text-outly-dark/40 leading-relaxed font-medium">Maintain complete control over your private information. Your data is <span className="text-outly-dark font-bold">fully encrypted and localized before it's stored</span>, and never written to logs or trained on external models.</p>
-          </div>
-        </div>
-        <p className="text-center mt-6 sm:mt-12 text-[9px] sm:text-[10px] font-bold text-outly-dark/30 uppercase tracking-widest">Either way, your email never trains anyone's models. That's a promise, not a setting.</p>
+        <p className="text-center mt-10 text-[11px] font-mono text-neutral-400">
+          Either way, your data stays yours and is never sold or trained on external models.
+        </p>
       </section>
 
       {/* BOTTOM CTA */}
@@ -1517,65 +1567,145 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-white py-12 border-t border-outly-border/50 font-sans">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 flex flex-col md:flex-row justify-between items-center gap-8">
-
-          {/* Brand Logo & Copyright */}
-          <div className="flex flex-col items-center md:items-start gap-1">
-            <div className="flex items-center">
-              <img src={logoTransparent} alt="Outly Logo" className="h-5 md:h-7 w-auto object-contain" />
+      {/* ─── FOOTER (MINIMALIST & TECHNICAL — MATCHING REFERENCE) ─── */}
+      <footer className="bg-[#FAF8F5] border-t border-neutral-200/70 pt-16 pb-12 font-sans select-none text-left">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          
+          {/* Top 4-Column Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-10 md:gap-8 items-start">
+            
+            {/* Col 1: Brand Info */}
+            <div className="sm:col-span-2 md:col-span-4 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#2DC08D] shadow-[0_0_8px_rgba(45,192,141,0.5)] inline-block" />
+                <span className="text-xl font-bold tracking-tight text-neutral-900 font-sans">Outly</span>
+              </div>
+              <p className="text-xs text-neutral-500 font-normal leading-relaxed max-w-sm">
+                AI-powered resume tailoring, live ATS scoring, and cold outreach automation for high-impact job seekers.
+              </p>
             </div>
-            <p className="text-[11px] font-medium text-outly-dark/40 mt-1">
-              © 2026 Outly. All rights reserved.
-            </p>
+
+            {/* Col 2: @ EXPLORE */}
+            <div className="md:col-span-3 space-y-3.5">
+              <div className="text-[11px] font-mono font-semibold uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-1.5">
+                <span className="text-[#2DC08D]">@</span>
+                <span>EXPLORE</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-neutral-600 font-normal">
+                <li>
+                  <Link to="/ats-score" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
+                    <FileCheck className="w-3.5 h-3.5 text-[#2DC08D]" />
+                    <span>ATS Resume Checker</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/resume-tailor" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
+                    <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
+                    <span>Tailor Resume</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/resume-vault" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
+                    <FolderArchive className="w-3.5 h-3.5 text-[#2DC08D]" />
+                    <span>Resume Vault</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/job-search" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
+                    <Search className="w-3.5 h-3.5 text-[#2DC08D]" />
+                    <span>Job Search</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/applications" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
+                    <Briefcase className="w-3.5 h-3.5 text-[#2DC08D]" />
+                    <span>Job Tracker</span>
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Col 3: ◈ SUPPORT & TOOLS */}
+            <div className="md:col-span-3 space-y-3.5">
+              <div className="text-[11px] font-mono font-semibold uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-1.5">
+                <span className="text-[#2DC08D]">◈</span>
+                <span>SUPPORT &amp; TOOLS</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-neutral-600 font-normal">
+                <li>
+                  <Link to="/cold-mail" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
+                    <Mail className="w-3.5 h-3.5 text-[#2DC08D]" />
+                    <span>Cold Mail Outreach</span>
+                  </Link>
+                </li>
+                <li>
+                  <a href="#pricing" onClick={(e) => handleScrollToSection(e, "pricing")} className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors cursor-pointer">
+                    <Tag className="w-3.5 h-3.5 text-[#2DC08D]" />
+                    <span>Pricing Plans</span>
+                  </a>
+                </li>
+                <li>
+                  <Link to="/support" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
+                    <HelpCircle className="w-3.5 h-3.5 text-[#2DC08D]" />
+                    <span>Help Center</span>
+                  </Link>
+                </li>
+                <li>
+                  <a href="https://x.com/mrcrotes" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
+                    <svg className="w-3.5 h-3.5 text-[#2DC08D] fill-current" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    <span>@mrcrotes on X</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://bharatdhuva.vercel.app/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-neutral-900 transition-colors">
+                    <ExternalLink className="w-3.5 h-3.5 text-[#2DC08D]" />
+                    <span>Bharat Dhuva</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Col 4: </> PLATFORM */}
+            <div className="md:col-span-2 space-y-3.5">
+              <div className="text-[11px] font-mono font-semibold uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-1.5">
+                <span className="text-[#2DC08D]">&lt;/&gt;</span>
+                <span>PLATFORM</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-neutral-600 font-normal">
+                <li className="inline-flex items-center gap-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#2DC08D]" />
+                  <span>27 ATS Factors</span>
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <Cpu className="w-3.5 h-3.5 text-[#2DC08D]" />
+                  <span>Gemini AI Engine</span>
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <Lock className="w-3.5 h-3.5 text-[#2DC08D]" />
+                  <span>Encrypted Vault</span>
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2DC08D]" />
+                  <span>98% Parser Accuracy</span>
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <Terminal className="w-3.5 h-3.5 text-[#2DC08D]" />
+                  <span>System Active</span>
+                </li>
+              </ul>
+            </div>
+
           </div>
 
-          {/* Developer & Support Contact Links */}
-          <div className="flex flex-col items-center md:items-end gap-3 w-full md:w-auto">
-            <span className="text-[11px] font-extrabold uppercase tracking-widest text-outly-dark/40 text-center md:text-right">
-              Developer Contact
-            </span>
-            <div className="flex items-center justify-center md:justify-end gap-5 w-full sm:w-auto">
-              {/* Email */}
-              <a
-                href="mailto:bharatdhuva27@gmail.com"
-                title="Email: bharatdhuva27@gmail.com"
-                className="text-outly-muted hover:text-outly-accent transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </a>
-
-
-              {/* LinkedIn */}
-              <a
-                href="https://linkedin.com/in/bharatdhuva27/"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="LinkedIn"
-                className="text-outly-muted hover:text-[#0a66c2] transition-colors"
-              >
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                </svg>
-              </a>
-
-              {/* Portfolio */}
-              <a
-                href="https://bharatdhuva.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Portfolio"
-                className="text-outly-muted hover:text-outly-accent transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-                </svg>
-              </a>
+          {/* Bottom Copyright & Project Note */}
+          <div className="border-t border-neutral-200/60 mt-14 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono text-neutral-400">
+            <div>
+              © 2026 Outly. All rights reserved.
+            </div>
+            <div className="text-[#2DC08D] font-mono font-medium">
+              AI &amp; Career Automation Subject Project
             </div>
           </div>
 

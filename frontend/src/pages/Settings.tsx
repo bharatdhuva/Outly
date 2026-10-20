@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Save,
   Sliders,
+  Settings as SettingsIcon,
   User,
   Plus,
   Trash2,
@@ -309,9 +310,12 @@ export default function SettingsPage() {
       
       {/* Hero text header */}
       <div className="space-y-3 text-left">
-        <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
-          SETTINGS
-        </span>
+        <div className="inline-flex items-center gap-2">
+          <SettingsIcon className="w-3.5 h-3.5 text-[#2DC08D]" />
+          <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+            SETTINGS
+          </span>
+        </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
           Account & Profile Preferences
         </h1>
@@ -425,10 +429,10 @@ export default function SettingsPage() {
               <Button 
                 type="submit" 
                 disabled={saveMutation.isPending} 
-                className="gap-2 bg-outly-accent text-white hover:brightness-110 shadow-md shadow-outly-accent/20 rounded-full px-8 py-3 font-semibold h-11 text-sm cursor-pointer w-full sm:w-auto"
+                className="gap-2 bg-[#121212] hover:bg-black text-white shadow-sm rounded-xl px-7 py-2.5 font-semibold h-10 text-xs cursor-pointer w-full sm:w-auto transition-all active:scale-[0.99] disabled:opacity-85"
               >
-                {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                {saveMutation.isPending ? "Saving..." : "Save Settings"}
+                {saveMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                <span>{saveMutation.isPending ? "Saving..." : "Save Settings"}</span>
               </Button>
             </div>
           </div>

@@ -479,7 +479,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   const isResumeActive = location.pathname.startsWith("/resume-") || location.pathname === "/ats-score" || location.pathname === "/resume-vault" || location.pathname === "/resumes";
   const isJobsActive = location.pathname === "/job-search" || location.pathname === "/applications" || location.pathname === "/analytics" || location.pathname === "/jobs";
-  const isToolsActive = ["/cold-mail", "/linkedin-posts", "/twitter", "/logs", "/settings", "/tools"].some(path => location.pathname.startsWith(path));
+  const isToolsActive = ["/cold-mail", "/linkedin-posts", "/twitter", "/logs", "/tools"].some(path => location.pathname.startsWith(path));
   const isPricingActive = location.pathname === "/pricing";
   const isSupportActive = location.pathname === "/support";
 
@@ -487,9 +487,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-transparent text-outly-dark flex flex-col font-sans overflow-x-clip">
       
       {/* Header Spacer Wrapper to prevent layout shift */}
-      <div className="h-16 w-full shrink-0 relative bg-[#EDE9E2]">
+      <div className="h-16 w-full shrink-0 relative bg-[#FAF8F5] md:bg-[#EDE9E2]">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E2DDD3]/60 bg-[#EDE9E2]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E2DDD3]/60 bg-[#FAF8F5]/95 md:bg-[#EDE9E2]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
         <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
           
           {/* Left: Brand Logo */}
@@ -515,32 +515,32 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   type="button"
                   onClick={() => toggleDropdown("resumes")}
                   className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
-                    isResumeActive
+                    (isResumeActive || activeDropdown === "resumes")
                       ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
                       : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
                   }`}
                 >
                   <span>Resume</span>
                   <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${
-                    isResumeActive ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                    (isResumeActive || activeDropdown === "resumes") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
                   } ${activeDropdown === "resumes" ? "rotate-180" : ""}`} />
                 </button>
 
                 {activeDropdown === "resumes" && (
                   <div
-                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-card p-5 shadow-2xl animate-slide-up select-none"
+                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
                     onMouseEnter={() => openDropdown("resumes")}
                     onMouseLeave={scheduleDropdownClose}
                   >
                     {/* Left: Tools */}
                     <div className="col-span-7 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">Tools</div>
+                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">Tools</div>
                       <div className="space-y-1">
                         <Link 
                           to="/ats-score" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
+                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                             {/* Circle Check (ATS Resume Checker) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10" />
@@ -548,16 +548,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">ATS Resume Checker</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Analyze your resume against ATS algorithms.</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">ATS Resume Checker</span>
+                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Analyze your resume against ATS algorithms.</span>
                           </div>
                         </Link>
 
                         <Link 
                           to="/resume-tailor" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
+                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                             {/* 3D Cube (AI Resume Builder) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
@@ -566,16 +566,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Tailor Resume</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Tailor your CV for specific job descriptions.</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Tailor Resume</span>
+                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Tailor your CV for specific job descriptions.</span>
                           </div>
                         </Link>
 
                         <Link 
                           to="/resume-vault" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
+                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                             {/* Document List (Resume Examples) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
@@ -585,16 +585,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Resume Vault</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Manage saved resumes and tailored versions.</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Resume Vault</span>
+                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Manage saved resumes and tailored versions.</span>
                           </div>
                         </Link>
                       </div>
                     </div>
 
                     {/* Right: Learning */}
-                    <div className="col-span-5 border-l border-border pl-4 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1">Learning</div>
+                    <div className="col-span-5 border-l border-[#E2DDD3] pl-4 space-y-2.5">
+                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
                       <div className="space-y-3.5 pt-1">
                         <button 
                           onClick={() => setActiveGuide("how-to-write")}
@@ -636,32 +636,32 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   type="button"
                   onClick={() => toggleDropdown("jobs")}
                   className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
-                    isJobsActive
+                    (isJobsActive || activeDropdown === "jobs")
                       ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
                       : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
                   }`}
                 >
                   <span>Jobs</span>
                   <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${
-                    isJobsActive ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                    (isJobsActive || activeDropdown === "jobs") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
                   } ${activeDropdown === "jobs" ? "rotate-180" : ""}`} />
                 </button>
 
                 {activeDropdown === "jobs" && (
                   <div
-                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-border bg-card p-5 shadow-2xl animate-slide-up select-none"
+                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
                     onMouseEnter={() => openDropdown("jobs")}
                     onMouseLeave={scheduleDropdownClose}
                   >
                     {/* Left: Job Search */}
                     <div className="col-span-7 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">Job Search</div>
+                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">Job Search</div>
                       <div className="space-y-1">
                         <Link 
                           to="/job-search" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
+                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                             {/* Office Building (Job Board) — Enhancv style */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
@@ -675,34 +675,34 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Job Search</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Find matches and track them instantly.</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Job Search</span>
+                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Find matches and track them instantly.</span>
                           </div>
                         </Link>
 
                         <Link 
                           to="/applications" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
+                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                             {/* Target/Bullseye (Job Tracker) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10" />
                               <circle cx="12" cy="12" r="6" />
-                              <circle cx="12" cy="12" r="2" />
+                              <circle cx="12" cy="2" r="2" />
                             </svg>
                           </div>
                           <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Job Tracker</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Organize your applications in a visual board.</span>
+                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Job Tracker</span>
+                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Organize your applications in a visual board.</span>
                           </div>
                         </Link>
                       </div>
                     </div>
 
                     {/* Right: Resources */}
-                    <div className="col-span-5 border-l border-border pl-4 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1">Learning</div>
+                    <div className="col-span-5 border-l border-[#E2DDD3] pl-4 space-y-2.5">
+                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
                       <div className="space-y-3.5 pt-1">
                         <button 
                           onClick={() => setActiveGuide("interview-prep")}
@@ -744,30 +744,30 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   type="button"
                   onClick={() => toggleDropdown("tools")}
                   className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
-                    isToolsActive
+                    (isToolsActive || activeDropdown === "tools")
                       ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
                       : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
                   }`}
                 >
                   <span>Tools</span>
                   <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${
-                    isToolsActive ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                    (isToolsActive || activeDropdown === "tools") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
                   } ${activeDropdown === "tools" ? "rotate-180" : ""}`} />
                 </button>
 
                 {activeDropdown === "tools" && (
                   <div
-                    className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-2xl border border-border bg-card p-5 shadow-2xl animate-slide-up select-none"
+                    className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
                     onMouseEnter={() => openDropdown("tools")}
                     onMouseLeave={scheduleDropdownClose}
                   >
-                    <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">AI Outreach</div>
+                    <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">AI Outreach</div>
                     <div className="space-y-1">
                       <Link 
                         to="/cold-mail" 
-                        className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
+                        className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                       >
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                           {/* Envelope (Cold Mail) */}
                           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -775,8 +775,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           </svg>
                         </div>
                         <div>
-                          <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Cold Mail Automation</span>
-                          <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Automate personalized emails to recruiters.</span>
+                          <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Cold Mail Automation</span>
+                          <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Automate personalized emails to recruiters.</span>
                         </div>
                       </Link>
                     </div>
@@ -949,7 +949,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               >
                 <Bell className="h-[21px] w-[21px]" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#EDE9E2]">
+                  <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#FAF8F5] md:ring-[#EDE9E2]">
                     {unreadCount}
                   </span>
                 )}
@@ -1012,13 +1012,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#EDE9E2] border border-[#E2DDD3] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
-                    <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                    <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#f0ece4]">
                       {fullName}
                     </div>
                     
                     {isPremium ? (
-                      <div className="px-3 py-2.5 border-b border-[#e8e2d5] bg-primary/5 flex items-center gap-2 select-none">
+                      <div className="px-3 py-2.5 border-b border-[#f0ece4] bg-primary/5 flex items-center gap-2 select-none">
                         <Sparkles className="h-3.5 w-3.5 fill-primary/10 text-primary animate-pulse" />
                         <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
                           Cloud Pro Active
@@ -1077,12 +1077,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     </div>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
-      <main className="flex-1 w-full flex flex-col min-h-0 pb-20 md:pb-0">
+      <main className="flex-1 w-full flex flex-col min-h-0 pb-24 md:pb-0 overflow-x-clip">
         {children}
       </main>
 
       {/* ─── MOBILE BOTTOM TAB BAR ─── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full h-16 bg-[#ECE8E1]/95 backdrop-blur-md border-t border-[#dcd5c9] flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.04)] select-none">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] bg-[#FAF8F5]/95 backdrop-blur-md border-t border-[#E8E4DC]/80 flex items-center justify-around shadow-[0_-2px_12px_rgba(0,0,0,0.03)] select-none">
         
         {/* Tab 1: Resumes */}
         <Link 
@@ -1098,12 +1098,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             return (
               <>
                 <div className={`transition-all duration-200 ${
-                  isActive ? "text-[#f23c5d] scale-105" : "text-zinc-400/60"
+                  isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
                 }`}>
                   <ScrollText className="h-5 w-5 transition-colors duration-200" />
                 </div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-[#f23c5d]" : "font-medium text-zinc-400/80"
+                  isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
                 }`}>
                   Resumes
                 </span>
@@ -1125,12 +1125,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             return (
               <>
                 <div className={`transition-all duration-200 ${
-                  isActive ? "text-[#f23c5d] scale-105" : "text-zinc-400/60"
+                  isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
                 }`}>
                   <Briefcase className="h-5 w-5 transition-colors duration-200" />
                 </div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-[#f23c5d]" : "font-medium text-zinc-400/80"
+                  isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
                 }`}>
                   Jobs
                 </span>
@@ -1151,12 +1151,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             return (
               <>
                 <div className={`transition-all duration-200 ${
-                  isActive ? "text-[#f23c5d] scale-105" : "text-zinc-400/60"
+                  isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
                 }`}>
                   <Wrench className="h-5 w-5 transition-colors duration-200" />
                 </div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-[#f23c5d]" : "font-medium text-zinc-400/80"
+                  isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
                 }`}>
                   Tools
                 </span>
@@ -1177,12 +1177,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             return (
               <>
                 <div className={`transition-all duration-200 ${
-                  isActive ? "text-[#f23c5d] scale-105" : "text-zinc-400/60"
+                  isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
                 }`}>
                   <User className="h-5 w-5 transition-colors duration-200" />
                 </div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-[#f23c5d]" : "font-medium text-zinc-400/80"
+                  isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
                 }`}>
                   Profile
                 </span>

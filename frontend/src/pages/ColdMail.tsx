@@ -410,23 +410,27 @@ export default function ColdMailPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 py-6 space-y-8 animate-fade-in pb-20">
+      {/* ─── MAIN CONTENT CONTAINER (MATCHING RESUME VAULT & JOB SEARCH) ─── */}
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left font-sans">
         
-        {/* Hero text header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
-          <div className="space-y-1.5 md:space-y-3 text-left">
-            <span className="text-[10px] md:text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-2.5 py-1 rounded-full inline-block">
-              COLD MAIL MANAGER
-            </span>
-            <h1 className="text-xl sm:text-4xl font-bold text-foreground leading-[1.1] tracking-tight">
-              Smart Cold Outreach & Follow-up Manager
+        {/* Top Header matching ResumeVault, JobSearch, AtsScore & ResumeTailor */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+          <div>
+            <div className="inline-flex items-center gap-2 mb-1">
+              <Mail className="w-3.5 h-3.5 text-[#2DC08D]" />
+              <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+                Tools / Cold Mail
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
+              Cold Mail Outreach
             </h1>
-            <p className="text-muted-foreground text-xs sm:text-sm max-w-2xl leading-normal">
-              Generate personalized outreach emails and track hiring manager responses in real-time.
+            <p className="text-[13px] text-neutral-500 font-normal mt-1 max-w-2xl">
+              Generate personalized recruiter outreach, research company profiles, and automate follow-up sequences.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2.5">
             <input
               ref={fileInputRef}
               type="file"
@@ -434,29 +438,33 @@ export default function ColdMailPage() {
               className="hidden"
               onChange={handleFileChange}
             />
+
             <Dialog open={isAdding} onOpenChange={setIsAdding}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2 border-border shadow-sm rounded-full px-5 py-2.5 font-semibold text-sm h-11">
-                  <Plus className="h-4 w-4 text-outly-accent" />
-                  Add Company Data
-                </Button>
+                <button
+                  type="button"
+                  className="self-start inline-flex items-center justify-center gap-1.5 bg-[#111111] hover:bg-black text-white px-4 py-2.5 rounded-lg text-xs sm:text-[13px] font-medium transition-all shadow-sm shrink-0 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4 text-white" />
+                  <span>Add Company Data</span>
+                </button>
               </DialogTrigger>
-              <DialogContent className="w-[95%] max-w-[420px] border-border bg-card p-5 font-sans rounded-2xl">
-                <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-border/40 pb-3">
-                  <DialogTitle className="text-base font-bold text-foreground">Add Company Data</DialogTitle>
-                  <DialogDescription className="text-[11px] text-muted-foreground leading-none">
-                    Enter target company & contact details.
+              <DialogContent className="w-[95%] max-w-[460px] border-neutral-200 bg-white p-6 font-sans rounded-2xl shadow-xl">
+                <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-neutral-100 pb-3">
+                  <DialogTitle className="text-base font-bold text-neutral-900">Add Company Data</DialogTitle>
+                  <DialogDescription className="text-xs text-neutral-500">
+                    Enter target hiring company & recruiter contact details.
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleCreate} className="space-y-3.5 py-3 text-xs font-semibold">
+                <form onSubmit={handleCreate} className="space-y-3.5 py-3 text-xs font-medium">
                   {/* Row 1: Company Name & Target Email */}
                   <div className="grid grid-cols-2 gap-3.5">
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Company Name *</label>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Company Name *</label>
                       <input
                         required
-                        placeholder="e.g. OpenAI"
-                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                        placeholder="e.g. Stripe"
+                        className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                         value={newCompany.company_name}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, company_name: e.target.value })
@@ -464,12 +472,12 @@ export default function ColdMailPage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Target Email *</label>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Target Email *</label>
                       <input
                         required
                         type="email"
-                        placeholder="sam@openai.com"
-                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                        placeholder="recruiter@stripe.com"
+                        className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                         value={newCompany.hr_email}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, hr_email: e.target.value })
@@ -481,10 +489,10 @@ export default function ColdMailPage() {
                   {/* Row 2: Target Person Name & Target Role */}
                   <div className="grid grid-cols-2 gap-3.5">
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Contact Name</label>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Contact Name</label>
                       <input
-                        placeholder="e.g. Sam Altman"
-                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                        placeholder="e.g. Sarah Jenkins"
+                        className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                         value={newCompany.target_person_name || ""}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, target_person_name: e.target.value })
@@ -492,10 +500,10 @@ export default function ColdMailPage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Target Role</label>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Target Role</label>
                       <input
-                        placeholder="e.g. CEO"
-                        className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                        placeholder="e.g. Tech Lead / Recruiter"
+                        className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                         value={newCompany.target_person_role || ""}
                         onChange={(e) =>
                           setNewCompany({ ...newCompany, target_person_role: e.target.value })
@@ -506,11 +514,11 @@ export default function ColdMailPage() {
 
                   {/* Row 3: Website URL */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Website URL (optional)</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Website URL (optional)</label>
                     <input
                       type="url"
-                      placeholder="https://openai.com"
-                      className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
+                      placeholder="https://stripe.com"
+                      className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                       value={newCompany.website_url || ""}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, website_url: e.target.value })
@@ -520,11 +528,11 @@ export default function ColdMailPage() {
 
                   {/* Row 4: Personalization Hook / Note */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Personalization Hook / Note (optional)</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Personalization Hook / Note (optional)</label>
                     <textarea
                       rows={2}
-                      placeholder="e.g. Impressed by OpenAI's commitment to developer tooling."
-                      className="w-full rounded-lg border border-border bg-white p-2 text-xs outline-none focus:ring-1 focus:ring-outly-accent text-foreground shadow-xs placeholder:text-muted-foreground/60 resize-none min-h-[50px]"
+                      placeholder="e.g. Passionate about developer APIs and Stripe's recent SDK releases."
+                      className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 resize-none min-h-[55px] transition-all"
                       value={newCompany.personalization_hook || ""}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, personalization_hook: e.target.value })
@@ -532,786 +540,805 @@ export default function ColdMailPage() {
                     />
                   </div>
 
-                  <DialogFooter className="flex flex-row gap-2.5 justify-end border-t border-border/40 pt-3 mt-3">
-                    <Button
+                  <DialogFooter className="flex flex-row gap-2.5 justify-end border-t border-neutral-100 pt-3 mt-4">
+                    <button
                       type="button"
-                      variant="outline"
-                      className="flex-1 sm:flex-none border-border text-xs font-semibold h-9 rounded-full hover:bg-secondary active:scale-[0.98] transition"
+                      className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors cursor-pointer"
                       onClick={() => setIsAdding(false)}
                     >
                       Cancel
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       type="submit"
                       disabled={createMutation.isPending}
-                      className="flex-1 sm:flex-none bg-outly-accent hover:bg-outly-accent/90 text-white text-xs font-semibold h-9 rounded-full shadow-xs active:scale-[0.98] transition-all"
+                      className="px-4 py-2 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50"
                     >
                       {createMutation.isPending ? "Adding..." : "Add Company"}
-                    </Button>
+                    </button>
                   </DialogFooter>
                 </form>
               </DialogContent>
             </Dialog>
-
-
           </div>
         </div>
 
-        {/* Mode Switcher Navigation */}
-        <div className="flex border-b border-border gap-2">
+        {/* ─── MODE SWITCHER (PILL CAPSULE) ─── */}
+        <div className="inline-flex items-center p-1 bg-white border border-neutral-200/90 rounded-xl shadow-3xs select-none">
           <button
             onClick={() => setMainMode("manual")}
-            className={`pb-3.5 px-4 text-sm font-semibold transition-all relative ${
+            className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
               mainMode === "manual"
-                ? "text-outly-accent border-b-2 border-outly-accent font-bold"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-[#141414] text-white shadow-xs"
+                : "text-neutral-500 hover:text-neutral-900"
             }`}
           >
             Manual Outreach
           </button>
           <button
             onClick={() => setMainMode("csv")}
-            className={`pb-3.5 px-4 text-sm font-semibold transition-all flex items-center gap-2 relative ${
+            className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
               mainMode === "csv"
-                ? "text-outly-accent border-b-2 border-outly-accent font-bold"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-[#141414] text-white shadow-xs"
+                : "text-neutral-500 hover:text-neutral-900"
             }`}
           >
-            <span>CSV Bulk Import</span>
+            CSV Bulk Import
           </button>
         </div>
 
         {mainMode === "csv" ? (
-          <div className="w-full flex flex-col items-center justify-center mt-2 md:mt-6 mb-8 px-6 md:px-0">
+          <div className="rounded-2xl border border-neutral-200/80 bg-white p-12 text-center shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center">
             <dotlottie-wc
               src="https://lottie.host/675a6e97-8b37-4b95-925a-fe86629539f8/xtVl1jJ2z3.lottie"
-              style={{ width: 'min(92vw, 420px)', height: 'min(92vw, 420px)' }}
+              style={{ width: 'min(80vw, 320px)', height: 'min(80vw, 320px)' }}
               autoplay
               loop
             />
-            <h3 className="mt-6 text-2xl font-bold text-foreground">CSV Bulk Outreach</h3>
-            <p className="mt-2 text-sm text-muted-foreground max-w-2xl text-center leading-relaxed px-2">
-              We're polishing CSV import & campaign scheduling. Coming soon — streamlined bulk outreach to scale your campaigns.
+            <h3 className="mt-4 text-xl font-bold text-neutral-900">CSV Bulk Outreach</h3>
+            <p className="mt-1 text-xs text-neutral-500 max-w-md leading-relaxed">
+              We're polishing CSV import & campaign scheduling. Coming soon — streamlined bulk outreach to scale your recruiter campaigns.
             </p>
-            {/* Notify button removed per design — simple coming soon layout */}
           </div>
         ) : (
           <>
-
-      {/* Stats row */}
-      <div 
-        className="flex overflow-x-auto gap-3 pb-2 sm:grid sm:grid-cols-2 xl:grid-cols-4 select-none -mx-6 px-6 sm:mx-0 sm:px-0"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {[
-          { label: "Pending", count: counts.pending, color: "text-warning bg-warning/10 border-warning/20" },
-          { label: "Approved", count: counts.approved, color: "text-outly-accent bg-outly-accent/10 border-outly-accent/20" },
-          { label: "Sent", count: counts.sent, color: "text-success bg-success/10 border-success/20" },
-          { label: "Replied", count: counts.replied, color: "text-info bg-info/10 border-info/20" },
-        ].map((s) => (
-          <div
-            key={s.label}
-            className="flex-1 min-w-[140px] sm:min-w-0 flex items-center justify-between rounded-2xl border border-border bg-white px-5 py-4 shadow-sm shrink-0"
-          >
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{s.label}</span>
-            <span className={`font-mono text-xl font-bold px-3 py-1 rounded-xl border ${s.color}`}>
-              {s.count}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-5">
-        {(!isMobile || !mobileDetailsOpen) && (
-          <div className="lg:col-span-3 rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col">
-          <div className="border-b border-border px-6 py-4 bg-slate-50/50">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground/70">Company Pipeline</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 gap-1.5 text-xs font-semibold rounded-full"
-                  onClick={() => approveAllMutation.mutate()}
-                  disabled={counts.approved === 0 || approveAllMutation.isPending}
+            {/* ─── STATS ROW (ELEVATED SUMMARY CARDS) ─── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 select-none">
+              {[
+                { label: "Pending", count: counts.pending, badge: "bg-amber-50 text-amber-700 border-amber-200/70" },
+                { label: "Approved", count: counts.approved, badge: "bg-emerald-50 text-emerald-700 border-emerald-200/70" },
+                { label: "Sent", count: counts.sent, badge: "bg-blue-50 text-blue-700 border-blue-200/70" },
+                { label: "Replied", count: counts.replied, badge: "bg-purple-50 text-purple-700 border-purple-200/70" },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center justify-between"
                 >
-                  <Check className="h-3.5 w-3.5 text-green-600" /> Approve All
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 gap-1.5 text-xs font-semibold text-outly-accent border-outly-accent/30 bg-outly-accent/5 hover:bg-outly-accent/10 rounded-full"
-                  onClick={() => sendApprovedMutation.mutate()}
-                  disabled={
-                    counts.approved === 0 || sendApprovedMutation.isPending
-                  }
-                >
-                  <Send className="h-3.5 w-3.5" /> Send Approved
-                </Button>
-              </div>
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{s.label}</span>
+                    <p className="font-mono text-2xl font-bold text-neutral-900 mt-0.5">{s.count}</p>
+                  </div>
+                  <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border ${s.badge}`}>
+                    {s.count}
+                  </span>
+                </div>
+              ))}
             </div>
-          </div>
-          <div className="divide-y divide-border max-h-[520px] overflow-auto custom-scrollbar flex-1">
-            {companies.length === 0 ? (
-              <div className="p-16 text-center text-muted-foreground">
-                <Building2 className="mx-auto mb-3 h-12 w-12 text-muted-foreground/30" />
-                <p className="font-semibold text-foreground text-base">No company data found</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Add target company data manually to start your outreach campaign
-                </p>
-              </div>
-            ) : (
-              companies.map((company: Company) => {
-                const stepIdx = getCurrentStepIndex(company.status);
-                return (
-                  <button
-                    key={company.id}
-                    onClick={() => {
-                      setSelected(company.id);
-                      if (isMobile) {
-                        setMobileDetailsOpen(true);
-                      }
-                    }}
-                    className={`w-full px-5 py-4 text-left transition-all hover:bg-secondary border-l-4 ${
-                      selected === company.id
-                        ? "bg-outly-accent/5 border-l-outly-accent"
-                        : "border-l-transparent"
-                    }`}
-                  >
-                    {/* Top Row: Avatar, Info, Status, Delete */}
-                    <div className="flex items-center gap-3 w-full">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 font-mono text-xs font-bold text-slate-700 shrink-0 overflow-hidden border border-slate-200">
-                        {company.company_name.slice(0, 2).toUpperCase()}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-bold text-foreground truncate">
-                            {company.company_name}
-                          </p>
-                          {company.website_url && (
-                             <ExternalLink className="h-3 w-3 text-muted-foreground/40 shrink-0" />
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate font-medium mt-0.5">
-                          {company.role}
+
+            {/* ─── TWO COLUMN PIPELINE & DETAIL WORKSPACE ─── */}
+            <div className="grid gap-6 lg:grid-cols-12 items-start pt-1">
+              {/* Left Column: Company Pipeline List */}
+              {(!isMobile || !mobileDetailsOpen) && (
+                <div className="lg:col-span-5 rounded-2xl border border-neutral-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col">
+                  {/* Pipeline Header */}
+                  <div className="border-b border-neutral-100 px-5 py-3.5 bg-neutral-50/50 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-700">
+                        Company Pipeline ({companies.length})
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => approveAllMutation.mutate()}
+                        disabled={counts.approved === 0 || approveAllMutation.isPending}
+                        className="h-7 px-2.5 text-[11px] font-semibold rounded-lg border border-neutral-200 hover:bg-neutral-100 disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer text-neutral-700"
+                      >
+                        <Check className="h-3 w-3 text-emerald-600" />
+                        Approve All
+                      </button>
+                      <button
+                        onClick={() => sendApprovedMutation.mutate()}
+                        disabled={counts.approved === 0 || sendApprovedMutation.isPending}
+                        className="h-7 px-2.5 text-[11px] font-semibold rounded-lg bg-[#2DC08D] hover:bg-[#25a77a] text-white disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
+                      >
+                        <Send className="h-3 w-3 text-white" />
+                        Send Approved
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Company Items */}
+                  <div className="divide-y divide-neutral-100 max-h-[580px] overflow-y-auto">
+                    {companies.length === 0 ? (
+                      <div className="p-12 text-center text-neutral-400">
+                        <Building2 className="mx-auto mb-2.5 h-10 w-10 text-neutral-300" />
+                        <p className="font-semibold text-neutral-800 text-sm">No company data found</p>
+                        <p className="mt-1 text-xs text-neutral-400">
+                          Add target company data manually to start your outreach campaign
                         </p>
                       </div>
+                    ) : (
+                      companies.map((company: Company) => {
+                        const stepIdx = getCurrentStepIndex(company.status);
+                        const isSelected = selected === company.id;
+                        return (
+                          <button
+                            key={company.id}
+                            onClick={() => {
+                              setSelected(company.id);
+                              if (isMobile) {
+                                setMobileDetailsOpen(true);
+                              }
+                            }}
+                            className={`w-full px-4 py-3.5 text-left transition-all border-l-[3px] flex flex-col gap-2 cursor-pointer ${
+                              isSelected
+                                ? "bg-neutral-50/80 border-l-[#2DC08D]"
+                                : "border-l-transparent hover:bg-neutral-50/40"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 w-full">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-100 font-mono text-xs font-bold text-neutral-700 shrink-0 border border-neutral-200/60">
+                                {company.company_name.slice(0, 2).toUpperCase()}
+                              </div>
+                              
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-xs font-bold text-neutral-900 truncate">
+                                    {company.company_name}
+                                  </p>
+                                  {company.website_url && (
+                                    <ExternalLink className="h-3 w-3 text-neutral-400 shrink-0" />
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-neutral-500 truncate mt-0.5 font-medium">
+                                  {company.role}
+                                </p>
+                              </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
-                        <StatusBadge status={company.status} />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-full"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteTarget(company);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <StatusBadge status={company.status} />
+                                <button
+                                  type="button"
+                                  className="p-1 rounded-lg text-neutral-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteTarget(company);
+                                  }}
+                                  title="Delete Lead"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </div>
 
-                    {/* Bottom Row: Pipeline indicators */}
-                    <div className="mt-3 flex items-center justify-between pl-13 pr-2">
-                      <div className="flex items-center gap-1">
-                        {pipelineOrder.map((_, si) => (
-                          <div
-                            key={si}
-                            className={`h-1.5 w-3 rounded-full ${si <= stepIdx ? "bg-outly-accent" : "bg-slate-200"}`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-[10px] text-muted-foreground font-semibold capitalize">
-                        {company.status.replace("_", " ")}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })
-            )}
-          </div>
-        </div>
-      )}
-
-        {(!isMobile || mobileDetailsOpen) && (
-          <div className="lg:col-span-2 space-y-4">
-            {selectedCompany ? (
-              <div className="space-y-6 rounded-2xl border border-border bg-white p-6 animate-slide-in shadow-sm">
-                {isMobile && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 gap-1.5 text-xs font-semibold px-0 text-muted-foreground hover:text-foreground flex self-start"
-                    onClick={() => setMobileDetailsOpen(false)}
-                  >
-                    <ChevronLeft className="h-4 w-4" /> Back to list
-                  </Button>
-                )}
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <h3 className="text-lg font-bold text-foreground">
-                    {selectedCompany.company_name}
-                  </h3>
-                  <div className="mt-1 flex flex-wrap items-center gap-2">
-                    {(selectedCompany.createdAt || selectedCompany.created_at) && (
-                      <span className="text-[10px] text-muted-foreground uppercase font-medium tracking-tight">
-                        Since {new Date(selectedCompany.createdAt || selectedCompany.created_at!).toLocaleDateString()}
-                      </span>
+                            <div className="flex items-center justify-between pl-12 pr-1">
+                              <div className="flex items-center gap-1">
+                                {pipelineOrder.map((_, si) => (
+                                  <div
+                                    key={si}
+                                    className={`h-1.5 w-3 rounded-full transition-colors ${
+                                      si <= stepIdx ? "bg-[#2DC08D]" : "bg-neutral-200"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-[10px] text-neutral-400 font-medium capitalize">
+                                {company.status.replace("_", " ")}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })
                     )}
                   </div>
                 </div>
-                {selectedCompany.website_url && (
-                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                    <a href={selectedCompany.website_url} target="_blank" rel="noreferrer">
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 border-y border-border py-4">
-                <div className="space-y-1">
-                   <p className="text-[10px] font-bold uppercase text-muted-foreground/60 flex items-center gap-1">
-                    <User className="h-3 w-3" /> Target
-                   </p>
-                   <p className="text-xs font-medium">
-                     {selectedCompany.target_person_name || "Hiring Team"}
-                   </p>
-                   <p className="text-[10px] text-muted-foreground truncate">
-                     {selectedCompany.target_person_role || "Recruiter"}
-                   </p>
-                </div>
-                <div className="space-y-1">
-                   <p className="text-[10px] font-bold uppercase text-muted-foreground/60 flex items-center gap-1">
-                    <Mail className="h-3 w-3" /> Email
-                   </p>
-                   <p className="text-xs font-medium truncate">
-                     {selectedCompany.hr_email}
-                   </p>
-                   <p className="text-[10px] text-muted-foreground">
-                     Direct Outreach
-                   </p>
-                </div>
-              </div>
-
-
-              <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-2 opacity-10">
-                  <Sparkles className="h-12 w-12 text-primary" />
-                </div>
-                <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-primary/70">
-                  🎯 Personalization Hook
-                </p>
-                <p className="text-sm text-primary leading-relaxed font-medium">
-                  {selectedCompany.personalization_hook || "Waiting for generation..."}
-                </p>
-              </div>
-
-              {selectedCompany.error_message && (
-                <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-destructive/80">
-                    Generation Error
-                  </p>
-                  <p className="text-xs leading-relaxed text-destructive/90 break-words">
-                    {selectedCompany.error_message}
-                  </p>
-                </div>
               )}
 
-              {/* AI Draft & Variants */}
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-[10px] font-bold uppercase text-muted-foreground/60 block">
-                      AI Draft Content
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-medium text-muted-foreground">Follow-up Sequence</span>
-                      <input
-                        type="checkbox"
-                        checked={showFollowUps}
-                        onChange={(e) => setShowFollowUps(e.target.checked)}
-                        className="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                    </div>
-                  </div>
+              {/* Right Column: Selected Company Detail & AI Outreach Preview */}
+              {(!isMobile || mobileDetailsOpen) && (
+                <div className="lg:col-span-7 space-y-4">
+                  {selectedCompany ? (
+                    <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-5">
+                      {isMobile && (
+                        <button
+                          type="button"
+                          className="h-7 gap-1 text-xs font-semibold px-0 text-neutral-500 hover:text-neutral-900 flex items-center cursor-pointer mb-2"
+                          onClick={() => setMobileDetailsOpen(false)}
+                        >
+                          <ChevronLeft className="h-4 w-4" /> Back to list
+                        </button>
+                      )}
 
-                  {(() => {
-                    let variantsData: any = null;
-                    try {
-                      if (selectedCompany.generated_variants_json) {
-                        variantsData = JSON.parse(selectedCompany.generated_variants_json);
-                      }
-                    } catch (e) {
-                      console.error("Variants parse error:", e);
-                    }
-
-                    const activeDraftBody = variantsData?.variants?.[activeTab]?.body || selectedCompany.generated_mail;
-                    const activeSubjectOptions = variantsData?.variants?.[activeTab]?.subject_options || [
-                      selectedCompany.generated_subject || "Subject will appear here"
-                    ];
-
-                    const handleCopyText = (txt: string) => {
-                      navigator.clipboard.writeText(txt);
-                      toast.success("Copied to clipboard!");
-                    };
-
-                    const handleApplySubject = (subj: string) => {
-                      updateMutation.mutate({
-                        id: selectedCompany.id,
-                        data: { generated_subject: subj }
-                      });
-                    };
-
-                    const handleApplyBody = (body: string) => {
-                      updateMutation.mutate({
-                        id: selectedCompany.id,
-                        data: { generated_mail: body }
-                      });
-                    };
-
-                    return (
-                      <div className="space-y-4">
-                        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
-                          <div className="border-b border-border/60 pb-2.5">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block mb-1">
-                              Subject
-                            </span>
-                            <p className="text-xs font-semibold text-foreground">
-                              {selectedCompany.generated_subject || "No subject generated yet."}
-                            </p>
-                          </div>
-
-                          {/* Email Body */}
-                          <div className="font-sans text-[13px] sm:text-sm leading-relaxed text-foreground whitespace-pre-wrap pt-1 select-text">
-                            {selectedCompany.generated_mail ? cleanDraft(selectedCompany.generated_mail, selectedCompany) : "No draft generated yet."}
+                      {/* Target Info Header */}
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between border-b border-neutral-100 pb-4">
+                        <div>
+                          <h3 className="text-lg font-bold text-neutral-900 tracking-tight">
+                            {selectedCompany.company_name}
+                          </h3>
+                          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-neutral-500 font-normal">
+                            <span>{selectedCompany.role}</span>
+                            {(selectedCompany.createdAt || selectedCompany.created_at) && (
+                              <>
+                                <span>•</span>
+                                <span className="text-[11px] text-neutral-400">
+                                  Added {new Date(selectedCompany.createdAt || selectedCompany.created_at!).toLocaleDateString()}
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
 
-                        {/* Follow up sequence items */}
-                        {showFollowUps && variantsData?.followups && (
-                          <div className="space-y-3 animate-slide-up border-t border-border/60 pt-4">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">
-                              ⏰ Follow-up Sequence
-                            </span>
+                        {selectedCompany.website_url && (
+                          <a
+                            href={selectedCompany.website_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-600 hover:text-black font-medium border border-neutral-200 px-2.5 py-1 rounded-lg self-start transition-colors"
+                          >
+                            <span>Website</span>
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
 
-                            {/* Day 4 */}
-                            <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-2">
-                              <div className="flex justify-between items-center border-b border-border/40 pb-1.5">
-                                <span className="text-[11px] font-semibold text-foreground">Follow-up 1 (Day 4)</span>
-                                <Button
-                                  size="sm"
-                                  type="button"
-                                  variant="ghost"
-                                  className="h-6 px-2 text-[10px] text-muted-foreground"
-                                  onClick={() => handleCopyText(
-                                    `Subject: ${variantsData.followups.day4.subject_options?.[0] || 'Followup 4'}\n\n${variantsData.followups.day4.body}`
-                                  )}
-                                >
-                                  Copy All
-                                </Button>
-                              </div>
-                              <p className="text-[11px] font-semibold text-muted-foreground truncate">
-                                Re: {variantsData.followups.day4.subject_options?.[0]}
-                              </p>
-                              <p className="text-xs text-foreground/80 font-sans whitespace-pre-wrap leading-relaxed">
-                                {cleanDraft(variantsData.followups.day4.body, selectedCompany)}
-                              </p>
-                            </div>
+                      {/* Contact Details Grid */}
+                      <div className="grid grid-cols-2 gap-3 bg-neutral-50/60 border border-neutral-100 rounded-xl p-3.5">
+                        <div className="space-y-0.5">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
+                            <User className="h-3 w-3" /> Target Contact
+                          </p>
+                          <p className="text-xs font-semibold text-neutral-900">
+                            {selectedCompany.target_person_name || "Hiring Team"}
+                          </p>
+                          <p className="text-[11px] text-neutral-500">
+                            {selectedCompany.target_person_role || "Recruiter"}
+                          </p>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
+                            <Mail className="h-3 w-3" /> Recipient Email
+                          </p>
+                          <p className="text-xs font-semibold text-neutral-900 truncate">
+                            {selectedCompany.hr_email}
+                          </p>
+                          <p className="text-[11px] text-neutral-500">
+                            Direct Outreach
+                          </p>
+                        </div>
+                      </div>
 
-                            {/* Day 7 */}
-                            <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-2">
-                              <div className="flex justify-between items-center border-b border-border/40 pb-1.5">
-                                <span className="text-[11px] font-semibold text-foreground">Follow-up 2 (Day 7)</span>
-                                <Button
-                                  size="sm"
-                                  type="button"
-                                  variant="ghost"
-                                  className="h-6 px-2 text-[10px] text-muted-foreground"
-                                  onClick={() => handleCopyText(
-                                    `Subject: ${variantsData.followups.day7.subject_options?.[0] || 'Followup 7'}\n\n${variantsData.followups.day7.body}`
+                      {/* Personalization Hook Card */}
+                      <div className="rounded-xl border border-emerald-200/60 bg-emerald-50/40 p-4 relative overflow-hidden">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1">
+                            <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                            Personalization Hook
+                          </span>
+                        </div>
+                        <p className="text-xs leading-relaxed text-emerald-950 font-medium">
+                          {selectedCompany.personalization_hook || "Waiting for generation..."}
+                        </p>
+                      </div>
+
+                      {selectedCompany.error_message && (
+                        <div className="rounded-xl border border-red-200/60 bg-red-50/50 p-4">
+                          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-red-700">
+                            Generation Error
+                          </p>
+                          <p className="text-xs leading-relaxed text-red-900 break-words">
+                            {selectedCompany.error_message}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* AI Draft Content */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                            AI Outreach Draft
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <label className="text-[11px] font-medium text-neutral-500 flex items-center gap-1.5 cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={showFollowUps}
+                                onChange={(e) => setShowFollowUps(e.target.checked)}
+                                className="h-3.5 w-3.5 rounded border-neutral-300 text-black focus:ring-black cursor-pointer"
+                              />
+                              <span>Follow-up Sequence</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {(() => {
+                          let variantsData: any = null;
+                          try {
+                            if (selectedCompany.generated_variants_json) {
+                              variantsData = JSON.parse(selectedCompany.generated_variants_json);
+                            }
+                          } catch (e) {
+                            console.error("Variants parse error:", e);
+                          }
+
+                          const handleCopyText = (txt: string) => {
+                            navigator.clipboard.writeText(txt);
+                            toast.success("Copied to clipboard!");
+                          };
+
+                          return (
+                            <div className="space-y-4">
+                              {/* Subject & Body Container */}
+                              <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/40 overflow-hidden">
+                                <div className="border-b border-neutral-200/80 px-4 py-2.5 bg-neutral-100/50 flex items-center justify-between">
+                                  <div className="flex-1 min-w-0 pr-3">
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-400 block mb-0.5">
+                                      Subject
+                                    </span>
+                                    <p className="text-xs font-semibold text-neutral-900 truncate">
+                                      {selectedCompany.generated_subject || "No subject generated yet."}
+                                    </p>
+                                  </div>
+                                  {selectedCompany.generated_subject && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(selectedCompany.generated_subject || "");
+                                        toast.success("Subject copied!");
+                                      }}
+                                      className="text-[11px] font-medium text-neutral-500 hover:text-black transition-colors shrink-0 cursor-pointer"
+                                    >
+                                      Copy Subject
+                                    </button>
                                   )}
-                                >
-                                  Copy All
-                                </Button>
+                                </div>
+                                <div className="p-4">
+                                  <div className="font-sans text-xs sm:text-[13px] leading-relaxed text-neutral-800 whitespace-pre-wrap select-text">
+                                    {selectedCompany.generated_mail
+                                      ? cleanDraft(selectedCompany.generated_mail, selectedCompany)
+                                      : "Click Auto-Generate Mail below to conduct AI research and generate tailored outreach."}
+                                  </div>
+                                </div>
                               </div>
-                              <p className="text-[11px] font-semibold text-muted-foreground truncate">
-                                Re: {variantsData.followups.day7.subject_options?.[0]}
-                              </p>
-                              <p className="text-xs text-foreground/80 font-sans whitespace-pre-wrap leading-relaxed">
-                                {cleanDraft(variantsData.followups.day7.body, selectedCompany)}
-                              </p>
+
+                              {/* Follow up sequence items */}
+                              {showFollowUps && variantsData?.followups && (
+                                <div className="space-y-3 animate-slide-up border-t border-neutral-100 pt-4">
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
+                                    Follow-up Sequence
+                                  </span>
+
+                                  {/* Day 4 */}
+                                  <div className="rounded-xl border border-neutral-200/80 bg-white p-3.5 space-y-2 shadow-3xs">
+                                    <div className="flex justify-between items-center border-b border-neutral-100 pb-1.5">
+                                      <span className="text-xs font-semibold text-neutral-800">Follow-up 1 (Day 4)</span>
+                                      <button
+                                        type="button"
+                                        className="text-[11px] font-medium text-neutral-500 hover:text-black transition-colors cursor-pointer"
+                                        onClick={() => handleCopyText(
+                                          `Subject: ${variantsData.followups.day4.subject_options?.[0] || 'Followup 4'}\n\n${variantsData.followups.day4.body}`
+                                        )}
+                                      >
+                                        Copy All
+                                      </button>
+                                    </div>
+                                    <p className="text-[11px] font-semibold text-neutral-500 truncate">
+                                      Re: {variantsData.followups.day4.subject_options?.[0]}
+                                    </p>
+                                    <p className="text-xs text-neutral-700 font-sans whitespace-pre-wrap leading-relaxed">
+                                      {cleanDraft(variantsData.followups.day4.body, selectedCompany)}
+                                    </p>
+                                  </div>
+
+                                  {/* Day 7 */}
+                                  <div className="rounded-xl border border-neutral-200/80 bg-white p-3.5 space-y-2 shadow-3xs">
+                                    <div className="flex justify-between items-center border-b border-neutral-100 pb-1.5">
+                                      <span className="text-xs font-semibold text-neutral-800">Follow-up 2 (Day 7)</span>
+                                      <button
+                                        type="button"
+                                        className="text-[11px] font-medium text-neutral-500 hover:text-black transition-colors cursor-pointer"
+                                        onClick={() => handleCopyText(
+                                          `Subject: ${variantsData.followups.day7.subject_options?.[0] || 'Followup 7'}\n\n${variantsData.followups.day7.body}`
+                                        )}
+                                      >
+                                        Copy All
+                                      </button>
+                                    </div>
+                                    <p className="text-[11px] font-semibold text-neutral-500 truncate">
+                                      Re: {variantsData.followups.day7.subject_options?.[0]}
+                                    </p>
+                                    <p className="text-xs text-neutral-700 font-sans whitespace-pre-wrap leading-relaxed">
+                                      {cleanDraft(variantsData.followups.day7.body, selectedCompany)}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
                             </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Action Buttons Bar */}
+                      <div className="pt-2">
+                        {selectedCompany.status === "mail_generated" ? (
+                          <div className="flex w-full items-center gap-2">
+                            <button
+                              type="button"
+                              className="flex-1 h-10 gap-2 border-none bg-[#2DC08D] hover:bg-[#25a77a] text-white rounded-xl font-medium text-xs cursor-pointer transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
+                              disabled={approveSingleMutation.isPending}
+                              onClick={() => approveSingleMutation.mutate(selectedCompany.id)}
+                            >
+                              <Check className="h-4 w-4 text-white shrink-0" />
+                              <span>Approve Email</span>
+                            </button>
+
+                            <Dialog open={isEditing} onOpenChange={setIsEditing}>
+                              <DialogTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 transition-colors cursor-pointer shadow-3xs"
+                                  title="Edit Mail & Details"
+                                  onClick={() => {
+                                    setEditData({
+                                      company_name: selectedCompany.company_name,
+                                      generated_subject: selectedCompany.generated_subject || "",
+                                      generated_mail: cleanDraft(selectedCompany.generated_mail || "", selectedCompany),
+                                      personalization_hook: selectedCompany.personalization_hook || "",
+                                    });
+                                  }}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </button>
+                              </DialogTrigger>
+                              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-6 shadow-xl">
+                                <DialogHeader>
+                                  <DialogTitle className="text-base font-bold text-neutral-900">Edit Mail & Details</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4 py-2">
+                                  <div className="space-y-1">
+                                    <Label className="text-xs font-semibold">Company Name</Label>
+                                    <Input
+                                      className="rounded-xl border-neutral-200"
+                                      value={editData.company_name || ""}
+                                      onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-xs font-semibold">Generated Subject</Label>
+                                    <Input
+                                      className="rounded-xl border-neutral-200"
+                                      value={editData.generated_subject || ""}
+                                      onChange={(e) => setEditData({ ...editData, generated_subject: e.target.value })}
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-xs font-semibold">Generated Email Body</Label>
+                                    <Textarea
+                                      className="min-h-[260px] font-sans text-xs sm:text-sm leading-relaxed rounded-xl border-neutral-200"
+                                      value={editData.generated_mail || ""}
+                                      onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-xs font-semibold">Personalization Hook</Label>
+                                    <Input
+                                      className="rounded-xl border-neutral-200"
+                                      value={editData.personalization_hook || ""}
+                                      onChange={(e) => setEditData({ ...editData, personalization_hook: e.target.value })}
+                                    />
+                                  </div>
+                                </div>
+                                <DialogFooter className="flex-col gap-2 sm:flex-row">
+                                  <button
+                                    type="button"
+                                    className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors cursor-pointer"
+                                    onClick={() => setIsEditing(false)}
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="px-4 py-2 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                                    onClick={() => {
+                                      updateMutation.mutate({ id: selectedCompany.id, data: editData });
+                                      setIsEditing(false);
+                                    }}
+                                    disabled={updateMutation.isPending}
+                                  >
+                                    {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                                  </button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+
+                            <button
+                              type="button"
+                              className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-red-50 hover:text-red-600 text-neutral-500 transition-colors cursor-pointer shadow-3xs"
+                              title="Delete Lead"
+                              onClick={() => {
+                                setDeleteTarget(selectedCompany);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : ["approved", "mail_sent", "replied"].includes(selectedCompany.status) ? (
+                          <div className="flex w-full items-center gap-2">
+                            <button
+                              type="button"
+                              className="flex-1 h-10 gap-2 border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-900 rounded-xl font-medium text-xs shadow-xs cursor-pointer flex items-center justify-center transition-colors"
+                              title="Open direct compose window in Gmail web app"
+                              onClick={() => {
+                                const mailBody = cleanDraft(selectedCompany.generated_mail || "", selectedCompany);
+                                if (isMobile) {
+                                  const mailtoUrl = `mailto:${encodeURIComponent(selectedCompany.hr_email)}?subject=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(mailBody)}`;
+                                  window.location.href = mailtoUrl;
+                                } else {
+                                  const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(selectedCompany.hr_email)}&su=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(mailBody)}`;
+                                  window.open(url, "_blank");
+                                }
+                                updateMutation.mutate({ id: selectedCompany.id, data: { status: "mail_sent" } });
+                              }}
+                            >
+                              <GmailIcon />
+                              <span>Draft in Gmail</span>
+                            </button>
+
+                            <Dialog open={isEditing} onOpenChange={setIsEditing}>
+                              <DialogTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 transition-colors cursor-pointer shadow-3xs"
+                                  title="Edit Mail & Details"
+                                  onClick={() => {
+                                    setEditData({
+                                      company_name: selectedCompany.company_name,
+                                      generated_subject: selectedCompany.generated_subject || "",
+                                      generated_mail: cleanDraft(selectedCompany.generated_mail || "", selectedCompany),
+                                      personalization_hook: selectedCompany.personalization_hook || "",
+                                    });
+                                  }}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </button>
+                              </DialogTrigger>
+                              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-6 shadow-xl">
+                                <DialogHeader>
+                                  <DialogTitle className="text-base font-bold text-neutral-900">Edit Mail & Details</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4 py-2">
+                                  <div className="space-y-1">
+                                    <Label className="text-xs font-semibold">Company Name</Label>
+                                    <Input
+                                      className="rounded-xl border-neutral-200"
+                                      value={editData.company_name || ""}
+                                      onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-xs font-semibold">Generated Subject</Label>
+                                    <Input
+                                      className="rounded-xl border-neutral-200"
+                                      value={editData.generated_subject || ""}
+                                      onChange={(e) => setEditData({ ...editData, generated_subject: e.target.value })}
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-xs font-semibold">Generated Email Body</Label>
+                                    <Textarea
+                                      className="min-h-[260px] font-sans text-xs sm:text-sm leading-relaxed rounded-xl border-neutral-200"
+                                      value={editData.generated_mail || ""}
+                                      onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-xs font-semibold">Personalization Hook</Label>
+                                    <Input
+                                      className="rounded-xl border-neutral-200"
+                                      value={editData.personalization_hook || ""}
+                                      onChange={(e) => setEditData({ ...editData, personalization_hook: e.target.value })}
+                                    />
+                                  </div>
+                                </div>
+                                <DialogFooter className="flex-col gap-2 sm:flex-row">
+                                  <button
+                                    type="button"
+                                    className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors cursor-pointer"
+                                    onClick={() => setIsEditing(false)}
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="px-4 py-2 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                                    onClick={() => {
+                                      updateMutation.mutate({ id: selectedCompany.id, data: editData });
+                                      setIsEditing(false);
+                                    }}
+                                    disabled={updateMutation.isPending}
+                                  >
+                                    {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                                  </button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+
+                            <button
+                              type="button"
+                              className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-red-50 hover:text-red-600 text-neutral-500 transition-colors cursor-pointer shadow-3xs"
+                              title="Delete Lead"
+                              onClick={() => {
+                                setDeleteTarget(selectedCompany);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex w-full items-center gap-2">
+                            <button
+                              type="button"
+                              className="flex-1 h-10 gap-2 bg-[#111111] hover:bg-black text-white rounded-xl font-medium text-xs cursor-pointer transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
+                              disabled={loadingId === selectedCompany.id}
+                              onClick={() => {
+                                handleGenerateCheck(() => {
+                                  setLoadingId(selectedCompany.id);
+                                  setGenerationStep("🔍 Researching Company Profile...");
+                                  
+                                  const steps = [
+                                    "🌐 Crawling Website & Tech Stack...",
+                                    "📰 Scanning Social Media & News...",
+                                    "🧠 Personalizing AI Cover Letter...",
+                                    "✨ Refining Cover Letter Drafts..."
+                                  ];
+                                  let stepIdx = 0;
+                                  const interval = setInterval(() => {
+                                    if (stepIdx < steps.length) {
+                                      setGenerationStep(steps[stepIdx]);
+                                      stepIdx++;
+                                    }
+                                  }, 2200);
+
+                                  const runGenerate = () => {
+                                    api.coldmail.generate(selectedCompany.id, "gemini", "gemini-2.5-flash")
+                                      .then(() => {
+                                        queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+                                        toast.success("Mail generated successfully");
+                                        clearInterval(interval);
+                                        setLoadingId(null);
+                                        setGenerationStep("");
+                                      })
+                                      .catch((e) => {
+                                        const errStr = String(e);
+                                        if (errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404")) {
+                                          setShowAiErrorModal(true);
+                                        } else {
+                                          toast.error(errStr);
+                                        }
+                                        queryClient.invalidateQueries({ queryKey: ["coldmail"] });
+                                        clearInterval(interval);
+                                        setLoadingId(null);
+                                        setGenerationStep("");
+                                      });
+                                  };
+
+                                  api.coldmail.scrape(selectedCompany.id)
+                                    .then(() => runGenerate())
+                                    .catch(() => runGenerate());
+                                });
+                              }}
+                            >
+                              {loadingId === selectedCompany.id ? (
+                                <>
+                                  <RefreshCw className="h-4 w-4 animate-spin shrink-0 text-white" />
+                                  <span className="text-xs font-semibold text-white truncate">
+                                    {isMobile && generationStep
+                                      ? `${generationStep.split(" ")[0]} ${generationStep.split(" ")[1].slice(0, 11)}...`
+                                      : generationStep}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="h-4 w-4 text-[#2DC08D] shrink-0" />
+                                  <span className="font-semibold text-xs text-white">
+                                    {isMobile ? "Generate Mail" : "Auto-Generate Mail"}
+                                  </span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-red-50 hover:text-red-600 text-neutral-500 transition-colors cursor-pointer shadow-3xs"
+                              title="Delete Lead"
+                              onClick={() => {
+                                setDeleteTarget(selectedCompany);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+
+                            <button
+                              type="button"
+                              className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-600 transition-colors cursor-pointer shadow-3xs"
+                              title="Skip Lead"
+                              onClick={() => {
+                                api.coldmail.skip(selectedCompany.id).then(() =>
+                                  queryClient.invalidateQueries({ queryKey: ["coldmail"] })
+                                );
+                              }}
+                            >
+                              <SkipForward className="h-4 w-4" />
+                            </button>
                           </div>
                         )}
                       </div>
-                    );
-                  })()}
-                </div>
-              </div>
 
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {selectedCompany.status === "mail_generated" ? (
-                    <div className="flex w-full items-center gap-2">
-                      <Button
-                        size="sm"
-                        className="flex-1 gap-2 h-9 border-none bg-success hover:bg-success/95 text-white rounded-lg font-semibold cursor-pointer transition-all duration-300 shadow-md hover:shadow-lg shadow-success/15"
-                        disabled={approveSingleMutation.isPending}
-                        onClick={() => approveSingleMutation.mutate(selectedCompany.id)}
-                      >
-                        <Check className="h-4 w-4 text-white shrink-0" />
-                        <span className="font-bold text-xs tracking-wide">Approve Email</span>
-                      </Button>
-
-                      <Dialog open={isEditing} onOpenChange={setIsEditing}>
-                        <DialogTrigger asChild>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 px-3 cursor-pointer"
-                            title="Edit Mail & Details"
-                            onClick={() => {
-                              setEditData({
-                                company_name: selectedCompany.company_name,
-                                generated_subject: selectedCompany.generated_subject || "",
-                                generated_mail: cleanDraft(selectedCompany.generated_mail || "", selectedCompany),
-                                personalization_hook: selectedCompany.personalization_hook || "",
-                              });
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[700px]">
-                          <DialogHeader>
-                            <DialogTitle>Edit Mail & Details</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4 py-2">
-                            <div className="space-y-2">
-                              <Label>Company Name</Label>
-                              <Input
-                                value={editData.company_name || ""}
-                                onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Generated Subject</Label>
-                              <Input
-                                value={editData.generated_subject || ""}
-                                onChange={(e) => setEditData({ ...editData, generated_subject: e.target.value })}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Generated Email Body</Label>
-                              <Textarea
-                                className="min-h-[300px] font-sans text-sm leading-relaxed"
-                                value={editData.generated_mail || ""}
-                                onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Personalization Hook (Preview)</Label>
-                              <Input
-                                value={editData.personalization_hook || ""}
-                                onChange={(e) => setEditData({ ...editData, personalization_hook: e.target.value })}
-                              />
-                            </div>
+                      {/* Sender Profile Details */}
+                      <div className="pt-4 border-t border-neutral-100 mt-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                            Sender Profile Context
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div className="space-y-0.5">
+                            <p className="text-[10px] text-neutral-400 flex items-center gap-1">
+                              <MapPin className="h-3 w-3" /> Location
+                            </p>
+                            <p className="font-medium text-neutral-800">{selectedCompany.sender_location || "Not specified"}</p>
                           </div>
-                          <DialogFooter className="flex-col gap-2 sm:flex-row">
-                            <Button
-                              onClick={() => {
-                                updateMutation.mutate({ id: selectedCompany.id, data: editData });
-                                setIsEditing(false);
-                              }}
-                              disabled={updateMutation.isPending}
-                            >
-                              {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-9 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
-                        title="Delete Lead"
-                        onClick={() => {
-                          setDeleteTarget(selectedCompany);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : ["approved", "mail_sent", "replied"].includes(selectedCompany.status) ? (
-                    <div className="flex w-full items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 gap-2.5 h-9 border-border bg-card hover:bg-secondary/40 text-foreground font-semibold shadow-sm cursor-pointer"
-                        title="Open direct compose window in Gmail web app"
-                        onClick={() => {
-                          const mailBody = cleanDraft(selectedCompany.generated_mail || "", selectedCompany);
-                          if (isMobile) {
-                            const mailtoUrl = `mailto:${encodeURIComponent(selectedCompany.hr_email)}?subject=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(mailBody)}`;
-                            window.location.href = mailtoUrl;
-                          } else {
-                            const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(selectedCompany.hr_email)}&su=${encodeURIComponent(selectedCompany.generated_subject || "")}&body=${encodeURIComponent(mailBody)}`;
-                            window.open(url, "_blank");
-                          }
-                          // Mark status as sent
-                          updateMutation.mutate({ id: selectedCompany.id, data: { status: "mail_sent" } });
-                        }}
-                      >
-                        <GmailIcon />
-                        <span>Draft in Gmail</span>
-                      </Button>
-
-                      <Dialog open={isEditing} onOpenChange={setIsEditing}>
-                        <DialogTrigger asChild>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 px-3 cursor-pointer"
-                            title="Edit Mail & Details"
-                            onClick={() => {
-                              setEditData({
-                                company_name: selectedCompany.company_name,
-                                generated_subject: selectedCompany.generated_subject || "",
-                                generated_mail: cleanDraft(selectedCompany.generated_mail || "", selectedCompany),
-                                personalization_hook: selectedCompany.personalization_hook || "",
-                              });
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[700px]">
-                          <DialogHeader>
-                            <DialogTitle>Edit Mail & Details</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4 py-2">
-                            <div className="space-y-2">
-                              <Label>Company Name</Label>
-                              <Input
-                                value={editData.company_name || ""}
-                                onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Generated Subject</Label>
-                              <Input
-                                value={editData.generated_subject || ""}
-                                onChange={(e) => setEditData({ ...editData, generated_subject: e.target.value })}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Generated Email Body</Label>
-                              <Textarea
-                                className="min-h-[300px] font-sans text-sm leading-relaxed"
-                                value={editData.generated_mail || ""}
-                                onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Personalization Hook (Preview)</Label>
-                              <Input
-                                value={editData.personalization_hook || ""}
-                                onChange={(e) => setEditData({ ...editData, personalization_hook: e.target.value })}
-                              />
-                            </div>
+                          <div className="space-y-0.5">
+                            <p className="text-[10px] text-neutral-400 flex items-center gap-1">
+                              <User className="h-3 w-3" /> Sender Name
+                            </p>
+                            <p className="font-medium text-neutral-800">{selectedCompany.sender_name || "Outly User"}</p>
                           </div>
-                          <DialogFooter className="flex-col gap-2 sm:flex-row">
-                            <Button
-                              onClick={() => {
-                                updateMutation.mutate({ id: selectedCompany.id, data: editData });
-                                setIsEditing(false);
-                              }}
-                              disabled={updateMutation.isPending}
-                            >
-                              {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-9 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
-                        title="Delete Lead"
-                        onClick={() => {
-                          setDeleteTarget(selectedCompany);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                          <div className="space-y-0.5">
+                            <p className="text-[10px] text-neutral-400 flex items-center gap-1">
+                              <Wrench className="h-3 w-3" /> Key Skills
+                            </p>
+                            <p className="font-medium text-neutral-800 truncate">{selectedCompany.key_skills || "General"}</p>
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="text-[10px] text-neutral-400 flex items-center gap-1">
+                              <GraduationCap className="h-3 w-3" /> Experience
+                            </p>
+                            <p className="font-medium text-neutral-800 truncate">{selectedCompany.experience_level || "Not specified"}</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ) : (
-                    <div className="flex w-full items-center gap-2">
-                      <Button
-                        size="sm"
-                        className="flex-1 gap-2 h-9 border-none bg-outly-accent hover:bg-outly-accent/95 text-white rounded-full font-semibold cursor-pointer transition-all duration-300 shadow-md hover:shadow-lg shadow-outly-accent/15"
-                        disabled={loadingId === selectedCompany.id}
-                        onClick={() => {
-                          handleGenerateCheck(() => {
-                            setLoadingId(selectedCompany.id);
-                            setGenerationStep("🔍 Researching Company Profile...");
-                            
-                            const steps = [
-                              "🌐 Crawling Website & Tech Stack...",
-                              "📰 Scanning Social Media & News...",
-                              "🧠 Personalizing AI Cover Letter...",
-                              "✨ Refining Cover Letter Drafts..."
-                            ];
-                            let stepIdx = 0;
-                            const interval = setInterval(() => {
-                              if (stepIdx < steps.length) {
-                                setGenerationStep(steps[stepIdx]);
-                                stepIdx++;
-                              }
-                            }, 2200);
-
-                            const runGenerate = () => {
-                              api.coldmail.generate(selectedCompany.id, "gemini", "gemini-2.5-flash")
-                                .then(() => {
-                                  queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                                  toast.success("Mail generated successfully");
-                                  clearInterval(interval);
-                                  setLoadingId(null);
-                                  setGenerationStep("");
-                                })
-                                .catch((e) => {
-                                  const errStr = String(e);
-                                  if (errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404")) {
-                                    setShowAiErrorModal(true);
-                                  } else {
-                                    toast.error(errStr);
-                                  }
-                                  queryClient.invalidateQueries({ queryKey: ["coldmail"] });
-                                  clearInterval(interval);
-                                  setLoadingId(null);
-                                  setGenerationStep("");
-                                });
-                            };
-
-                            // Attempt website scrape asynchronously with timeout fallback
-                            api.coldmail.scrape(selectedCompany.id)
-                              .then(() => runGenerate())
-                              .catch(() => runGenerate());
-                          });
-                        }}
-                      >
-                        {loadingId === selectedCompany.id ? (
-                          <>
-                            <RefreshCw className="h-4 w-4 animate-spin shrink-0 text-white" />
-                            <span className="animate-fade-in text-[10px] font-bold text-white tracking-wide truncate">
-                              {isMobile && generationStep
-                                ? `${generationStep.split(" ")[0]} ${generationStep.split(" ")[1].slice(0, 11)}...`
-                                : generationStep}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="h-4 w-4 text-white animate-bounce shrink-0" />
-                            <span className="font-bold text-xs tracking-wide">
-                              {isMobile ? "Generate" : "Auto-Generate Mail"}
-                            </span>
-                          </>
-                        )}
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-9 px-3 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
-                        title="Delete Lead"
-                        onClick={() => {
-                          setDeleteTarget(selectedCompany);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-9 px-3 cursor-pointer"
-                        title="Skip Lead"
-                        onClick={() => {
-                          api.coldmail.skip(selectedCompany.id).then(() =>
-                            queryClient.invalidateQueries({ queryKey: ["coldmail"] })
-                          );
-                        }}
-                      >
-                        <SkipForward className="h-4 w-4" />
-                      </Button>
+                    <div className="flex h-[480px] items-center justify-center rounded-2xl border border-dashed border-neutral-300 bg-white/70 text-sm text-neutral-400 shadow-3xs">
+                      <div className="text-center p-6">
+                        <div className="relative mx-auto mb-3 inline-flex p-3.5 rounded-2xl bg-neutral-50 border border-neutral-200/60">
+                          <Mail className="h-8 w-8 text-neutral-400" />
+                          <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-white flex items-center justify-center border border-neutral-200 shadow-xs">
+                            <Eye className="h-3 w-3 text-[#2DC08D]" />
+                          </div>
+                        </div>
+                        <p className="font-bold text-neutral-800 text-sm">Select a company</p>
+                        <p className="mt-1 text-xs text-neutral-400 max-w-[220px] leading-relaxed">
+                          Choose a target lead from your pipeline to preview, generate, and edit personalized outreach.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
-
-              {/* Advanced info section */}
-              <div className="pt-4 border-t border-border mt-4">
-                 <button className="flex items-center justify-between w-full group">
-                   <p className="text-[10px] font-bold uppercase text-muted-foreground/40 group-hover:text-muted-foreground transition-colors">
-                     Sender Profile Details
-                   </p>
-                   <ChevronRight className="h-3 w-3 text-muted-foreground/30" />
-                 </button>
-                  <div className="mt-3 grid grid-cols-2 gap-4">
-                   <div className="space-y-1">
-                      <p className="text-[9px] text-muted-foreground flex items-center gap-1">
-                        <MapPin className="h-2.5 w-2.5" /> From
-                      </p>
-                      <p className="text-[10px] font-medium">{selectedCompany.sender_location}</p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[9px] text-muted-foreground flex items-center gap-1">
-                        <User className="h-2.5 w-2.5" /> Identity
-                      </p>
-                      <p className="text-[10px] font-medium">{selectedCompany.sender_name}</p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[9px] text-muted-foreground flex items-center gap-1">
-                        <Wrench className="h-2.5 w-2.5" /> Skills
-                      </p>
-                      <p className="text-[10px] font-medium truncate">{selectedCompany.key_skills}</p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[9px] text-muted-foreground flex items-center gap-1">
-                        <GraduationCap className="h-2.5 w-2.5" /> Background
-                      </p>
-                      <p className="text-[10px] font-medium truncate">{selectedCompany.experience_level}</p>
-                   </div>
-                 </div>
-              </div>
+              )}
             </div>
-          ) : (
-            <div className="flex h-[480px] items-center justify-center rounded-2xl border border-dashed border-border bg-white text-sm text-muted-foreground shadow-sm">
-              <div className="text-center p-6">
-                <div className="relative mx-auto mb-4 inline-flex p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <Mail className="h-10 w-10 text-muted-foreground/30" />
-                  <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-white flex items-center justify-center border border-border shadow-xs">
-                    <Eye className="h-3.5 w-3.5 text-outly-accent" />
-                  </div>
-                </div>
-                <p className="font-bold text-foreground text-base">Selection Required</p>
-                <p className="mt-1.5 text-xs text-muted-foreground max-w-[220px] leading-relaxed">
-                  Pick a target lead from the pipeline list on the left to preview and edit their personalized AI outreach email.
-                </p>
-              </div>
-            </div>
-          )}
-          </div>
+          </>
         )}
       </div>
-      </>
-      )}
-        </div>
       <AlertDialog open={showSettingsPrompt} onOpenChange={setShowSettingsPrompt}>
         <AlertDialogContent>
           <AlertDialogHeader>

@@ -735,9 +735,12 @@ export default function ResumeTailorPage() {
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
           <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-              Resume / Tailor
-            </p>
+            <div className="inline-flex items-center gap-2 mb-1">
+              <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
+              <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+                Resume / Tailor
+              </span>
+            </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mt-1.5">
               {jobInfo.title}
             </h1>
@@ -875,9 +878,12 @@ export default function ResumeTailorPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-            Resume / Tailor / Inputs
-          </p>
+          <div className="inline-flex items-center gap-2 mb-1">
+            <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+              Resume / Tailor
+            </span>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
             Tailor your resume for a role
           </h1>

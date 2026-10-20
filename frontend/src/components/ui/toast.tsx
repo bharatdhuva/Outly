@@ -14,7 +14,7 @@ const ToastViewport = React.forwardRef<
   <ToastPrimitives.Viewport
     ref={ref}
     className={cn(
-      "fixed bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 z-[9999] flex max-h-screen w-[90%] max-w-[340px] flex-col p-4 font-sans gap-2",
+      "fixed top-16 right-4 sm:top-20 sm:right-6 z-[9999] flex max-h-screen w-[92%] sm:w-full sm:max-w-[380px] flex-col gap-2.5 font-sans pointer-events-none",
       className,
     )}
     {...props}
@@ -23,12 +23,12 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-center space-x-2 overflow-hidden rounded-full border px-5 py-2.5 shadow-md transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-bottom-full data-[state=open]:slide-in-from-bottom-5 font-sans text-xs text-center",
+  "group pointer-events-auto relative flex w-full items-start overflow-hidden rounded-2xl border bg-white p-4 shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-4 font-sans text-left",
   {
     variants: {
       variant: {
-        default: "border-[#e8e2d5] bg-[#F8F7F4] text-outly-dark",
-        destructive: "border-red-700/20 bg-red-600 text-white",
+        default: "border-neutral-200/90 text-neutral-900",
+        destructive: "border-rose-200/90 bg-white text-neutral-900",
       },
     },
     defaultVariants: {

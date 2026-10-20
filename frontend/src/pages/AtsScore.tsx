@@ -472,12 +472,13 @@ export default function AtsScorePage() {
       if (data.isValidResume === false) {
         toast({
           variant: "destructive",
-          title: "Scan Failed",
-          description: "The uploaded document does not appear to be a valid resume.",
+          title: "Invalid Resume Format",
+          description: "Please upload a valid CV containing standard sections (Experience, Skills, Education).",
         });
       } else {
         toast({
-          title: "Uploaded successfully",
+          title: "Resume Uploaded Successfully",
+          description: `Analysis complete with match score: ${data.score}/100.`,
         });
       }
     } catch (err) {
@@ -615,9 +616,12 @@ export default function AtsScorePage() {
       {/* Top Header matching ResumeTailor & ResumeVault */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-            Resume / Checker
-          </p>
+          <div className="inline-flex items-center gap-2 mb-1">
+            <CheckCircle className="w-3.5 h-3.5 text-[#2DC08D]" />
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+              Resume / Checker
+            </span>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
             ATS Resume Checker
           </h1>
