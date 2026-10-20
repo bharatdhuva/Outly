@@ -28,6 +28,7 @@ import {
   Building,
   Calendar,
   ChevronRight,
+  X,
 } from "lucide-react";
 
 interface ResumeDocSection {
@@ -169,6 +170,11 @@ export default function ResumeVaultPage() {
   // Delete inline popover state
   const [deleteTargetId, setDeleteTargetId] = useState<string | number | null>(null);
 
+  // Inline edit state for resume version title
+  const [isEditingInline, setIsEditingInline] = useState(false);
+  const [inlineLabel, setInlineLabel] = useState("");
+  const inlineInputRef = useRef<HTMLInputElement>(null);
+
   // Fetch resumes from vault
   const { data: serverResumes = [], isLoading: resumesLoading } = useQuery({
     queryKey: ["resume", "list"],
@@ -195,42 +201,33 @@ export default function ResumeVaultPage() {
   const userName = userData?.user?.fullName || settings?.full_name || "Bharat Dhuva";
   const userEmail = userData?.user?.email || "bharatdhuva276@gmail.com";
 
-  // Provide initial versions matching the exact screenshot design if user has no resumes yet
-  const defaultResumes: ResumeVaultItem[] = [
-    {
-      id: "vault-default-1",
-      label: "Bharat Dhuva Resume",
-      filename: "Bharat_Dhuva_Resume.pdf",
-      is_default: 1,
-      content: null,
-      created_at: "2026-07-15T12:00:00.000Z",
-    },
-    {
-      id: "vault-default-2",
-      label: "dotnet resume",
-      filename: "Bharat_Resume.pdf",
-      is_default: 0,
-      content: null,
-      created_at: "2026-07-16T12:00:00.000Z",
-    },
-  ];
+  const resumes: ResumeVaultItem[] = serverResumes;
 
-  const resumes: ResumeVaultItem[] =
-    serverResumes.length > 0 ? serverResumes : defaultResumes;
-
-  // Auto-select "dotnet resume" or first/default on load
+  // Auto-select first or default resume when resumes list updates
   useEffect(() => {
-    if (resumes.length > 0 && selectedResumeId === null) {
-      // In the mockup, "dotnet resume" is selected by default
-      const dotnetRes = resumes.find(r => r.label.toLowerCase() === "dotnet resume");
-      if (dotnetRes) {
-        setSelectedResumeId(dotnetRes.id);
-      } else {
+    if (resumes.length > 0) {
+      const currentExists = resumes.some(r => String(r.id) === String(selectedResumeId));
+      if (!currentExists) {
         const defaultRes = resumes.find(r => r.is_default === 1);
         setSelectedResumeId(defaultRes ? defaultRes.id : resumes[0].id);
       }
+    } else {
+      setSelectedResumeId(null);
     }
   }, [resumes, selectedResumeId]);
+
+  useEffect(() => {
+    setIsEditingInline(false);
+  }, [selectedResumeId]);
+
+  useEffect(() => {
+    if (isEditingInline) {
+      setTimeout(() => {
+        inlineInputRef.current?.focus();
+        inlineInputRef.current?.select();
+      }, 50);
+    }
+  }, [isEditingInline]);
 
   // Set default mutation
   const setDefaultMutation = useMutation({
@@ -359,7 +356,7 @@ export default function ResumeVaultPage() {
 
   // Find selected resume
   const selectedResume =
-    resumes.find(r => String(r.id) === String(selectedResumeId)) || resumes[0] || null;
+    resumes.find(r => String(r.id) === String(selectedResumeId)) || (resumes.length > 0 ? resumes[0] : null);
 
   // Find linked applications
   const linkedApps = selectedResume
@@ -377,13 +374,24 @@ export default function ResumeVaultPage() {
     });
   };
 
+  const handleSaveInlineLabel = () => {
+    if (!selectedResume) return;
+    const trimmed = inlineLabel.trim();
+    if (!trimmed || trimmed === selectedResume.label) {
+      setIsEditingInline(false);
+      return;
+    }
+    updateLabelMutation.mutate(
+      { id: selectedResume.id, label: trimmed },
+      {
+        onSettled: () => setIsEditingInline(false),
+      }
+    );
+  };
+
   const parsedDoc = parseResumeDocument(selectedResume?.content, userName, userEmail);
   const isPdf = selectedResume?.filename?.toLowerCase().endsWith(".pdf") ?? false;
-  const pdfUrl = selectedResume
-    ? String(selectedResume.id).startsWith("vault-default-")
-      ? "/sample_resume.pdf"
-      : api.resume.getFileUrl(String(selectedResume.id))
-    : null;
+  const pdfUrl = selectedResume ? api.resume.getFileUrl(String(selectedResume.id)) : null;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left font-sans">
@@ -417,23 +425,31 @@ export default function ResumeVaultPage() {
         {/* ─── LEFT COLUMN: RESUME VERSIONS LIST ─── */}
         <div className="lg:col-span-4 xl:col-span-3 space-y-3">
           <span className="text-[11px] font-semibold tracking-[0.16em] text-neutral-400 uppercase block">
-            {resumes.length} VERSIONS
+            {resumes.length} {resumes.length === 1 ? "VERSION" : "VERSIONS"}
           </span>
 
-          <div className="space-y-1">
-            {resumes.map((resumeItem) => {
-              const isSelected = String(selectedResumeId) === String(resumeItem.id);
-              const isDefault = resumeItem.is_default === 1;
-              const realAppsCount = applications.filter(
-                app => String(app.resume_version_used) === String(resumeItem.id)
-              ).length;
-              // Mock application counts matching screenshot if default demo data
-              const appCount =
-                resumeItem.id === "vault-default-1"
-                  ? 4
-                  : resumeItem.id === "vault-default-2"
-                  ? 0
-                  : realAppsCount;
+          {resumes.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-neutral-300 p-6 text-center bg-white/70">
+              <p className="text-xs font-semibold text-neutral-800">No resumes yet</p>
+              <p className="text-[11px] text-neutral-400 mt-1 leading-relaxed">
+                Upload your first resume to manage versions.
+              </p>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-neutral-900 text-white rounded-lg hover:bg-black transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Upload resume
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {resumes.map((resumeItem) => {
+                const isSelected = String(selectedResumeId) === String(resumeItem.id);
+                const isDefault = resumeItem.is_default === 1;
+                const appCount = applications.filter(
+                  app => String(app.resume_version_used) === String(resumeItem.id)
+                ).length;
 
               return (
                 <div
@@ -557,21 +573,66 @@ export default function ResumeVaultPage() {
               {/* Header: Title + Actions */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-1">
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <h2 className="text-lg sm:text-[22px] font-bold text-neutral-900 tracking-tight">
-                      {selectedResume.label}
-                    </h2>
-                    <button
+                  {isEditingInline ? (
+                    <div className="flex items-center gap-1.5 py-0.5">
+                      <input
+                        ref={inlineInputRef}
+                        type="text"
+                        value={inlineLabel}
+                        onChange={(e) => setInlineLabel(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSaveInlineLabel();
+                          } else if (e.key === "Escape") {
+                            setIsEditingInline(false);
+                          }
+                        }}
+                        className="text-lg sm:text-[22px] font-bold text-neutral-900 tracking-tight bg-white border border-neutral-300 rounded-md px-2 py-0.5 outline-none focus:ring-1 focus:ring-black shadow-inner max-w-sm"
+                        placeholder="Resume version name"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSaveInlineLabel}
+                        disabled={updateLabelMutation.isPending || !inlineLabel.trim()}
+                        className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md transition-colors cursor-pointer"
+                        title="Save (Enter)"
+                      >
+                        {updateLabelMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-neutral-600" />
+                        ) : (
+                          <Check className="w-4 h-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingInline(false)}
+                        className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-md transition-colors cursor-pointer"
+                        title="Cancel (Esc)"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
                       onClick={() => {
-                        setEditLabelText(selectedResume.label);
-                        setIsEditOpen(true);
+                        setInlineLabel(selectedResume.label);
+                        setIsEditingInline(true);
                       }}
-                      className="p-1 text-neutral-400 hover:text-neutral-900 transition-colors cursor-pointer"
-                      title="Rename version"
+                      className="group/title flex items-center gap-1.5 cursor-pointer -ml-1 pl-1 pr-2 py-0.5 rounded-lg hover:bg-neutral-100/70 transition-colors inline-flex"
+                      title="Click text to rename"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                      <h2 className="text-lg sm:text-[22px] font-bold text-neutral-900 tracking-tight group-hover/title:text-black">
+                        {selectedResume.label}
+                      </h2>
+                      <span
+                        className="p-1 text-neutral-400 group-hover/title:text-neutral-800 transition-colors"
+                        title="Click to rename"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
+                  )}
                   <p className="text-xs text-neutral-400 mt-0.5 font-normal">
                     {selectedResume.filename}
                   </p>
@@ -715,8 +776,21 @@ export default function ResumeVaultPage() {
               )}
             </>
           ) : (
-            <div className="bg-[#f4f4f3] rounded-xl border border-neutral-200/70 p-12 text-center text-neutral-400 text-xs">
-              Select or upload a resume to view.
+            <div className="bg-[#f4f4f3] rounded-xl border border-neutral-200/70 p-12 sm:p-20 text-center flex flex-col items-center justify-center min-h-[480px]">
+              <div className="w-12 h-12 rounded-full bg-neutral-200/80 flex items-center justify-center mb-3 text-neutral-400">
+                <Plus className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-neutral-800">No resumes in vault</h3>
+              <p className="text-xs text-neutral-400 mt-1 max-w-xs leading-relaxed">
+                Your vault is currently empty. Upload your resume to view and tailor it for job applications.
+              </p>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-4 inline-flex items-center gap-1.5 bg-black hover:bg-neutral-800 text-white px-4 py-2 rounded-lg text-xs font-medium transition-all shadow-sm cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Upload your resume</span>
+              </button>
             </div>
           )}
         </div>
