@@ -648,24 +648,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <div className="text-[9px] font-extrabold text-muted-foreground/50 uppercase tracking-[0.15em] mb-1 px-1">Job Search</div>
                       <div className="space-y-1">
                         <Link 
-                          to="/applications" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
-                            {/* Target/Bullseye (Job Tracker) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10" />
-                              <circle cx="12" cy="12" r="6" />
-                              <circle cx="12" cy="12" r="2" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Job Tracker</span>
-                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Organize your applications in a visual board.</span>
-                          </div>
-                        </Link>
-
-                        <Link 
                           to="/job-search" 
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
                         >
@@ -685,6 +667,24 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           <div>
                             <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Job Search</span>
                             <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Find matches and track them instantly.</span>
+                          </div>
+                        </Link>
+
+                        <Link 
+                          to="/applications" 
+                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-muted/50 transition duration-155 group text-left"
+                        >
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:text-outly-accent transition duration-150">
+                            {/* Target/Bullseye (Job Tracker) */}
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10" />
+                              <circle cx="12" cy="12" r="6" />
+                              <circle cx="12" cy="12" r="2" />
+                            </svg>
+                          </div>
+                          <div>
+                            <span className="block text-[13px] font-bold text-outly-dark/70 group-hover:text-outly-accent transition duration-150">Job Tracker</span>
+                            <span className="block text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Organize your applications in a visual board.</span>
                           </div>
                         </Link>
                       </div>
