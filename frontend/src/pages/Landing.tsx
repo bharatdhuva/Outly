@@ -18,12 +18,6 @@ import {
   Check,
   ArrowRight,
   Sparkles,
-  FileCheck,
-  FolderArchive,
-  Briefcase,
-  Mail,
-  HelpCircle,
-  ExternalLink,
 } from "lucide-react";
 
 // ─── TYPES & DATA STRUCTURES ───
