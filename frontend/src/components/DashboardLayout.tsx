@@ -477,27 +477,33 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     setActiveDropdown((current) => (current === dropdown ? null : dropdown));
   };
 
+  const isResumeActive = location.pathname.startsWith("/resume-") || location.pathname === "/ats-score" || location.pathname === "/resume-vault" || location.pathname === "/resumes";
+  const isJobsActive = location.pathname === "/job-search" || location.pathname === "/applications" || location.pathname === "/analytics" || location.pathname === "/jobs";
+  const isToolsActive = ["/cold-mail", "/linkedin-posts", "/twitter", "/logs", "/settings", "/tools"].some(path => location.pathname.startsWith(path));
+  const isPricingActive = location.pathname === "/pricing";
+  const isSupportActive = location.pathname === "/support";
+
   return (
     <div className="min-h-screen bg-transparent text-outly-dark flex flex-col font-sans overflow-x-clip">
       
       {/* Header Spacer Wrapper to prevent layout shift */}
-      <div className="h-16 w-full shrink-0 relative">
+      <div className="h-16 w-full shrink-0 relative bg-[#EDE9E2]">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#dcd5c9] bg-[#ECE8E1]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.03)] shrink-0 select-none h-16 mobile-scroll-header">
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E2DDD3]/60 bg-[#EDE9E2]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
         <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
           
           {/* Left: Brand Logo */}
-          <div className="flex h-full items-center gap-12">
+          <div className="flex h-full items-center gap-10 lg:gap-12">
             <Link to="/onboarding" className="flex h-full -translate-y-px items-center hover:opacity-90 transition-opacity">
               <img 
                 src={logoTransparent} 
                 alt="Outly Logo" 
-                className="h-[22px] md:h-7 -translate-y-px w-auto object-contain"
+                className="h-[24px] md:h-7 -translate-y-px w-auto object-contain shrink-0"
               />
             </Link>
 
             {/* Middle: Desktop Links & Dropdowns */}
-            <nav className="hidden h-full items-center gap-8 font-['Poppins',system-ui,sans-serif] md:flex">
+            <nav className="hidden h-full items-center gap-7 lg:gap-8 font-sans md:flex">
               
               {/* Dropdown 1: RESUMES */}
               <div 
@@ -508,14 +514,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <button 
                   type="button"
                   onClick={() => toggleDropdown("resumes")}
-                  className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
-                    location.pathname.startsWith("/resume-") || location.pathname === "/ats-score" || location.pathname === "/resume-vault"
-                      ? "border-primary text-primary" 
-                      : "border-transparent text-outly-dark/70 hover:text-outly-accent"
+                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
+                    isResumeActive
+                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
+                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
                   }`}
                 >
                   <span>Resume</span>
-                  <ChevronDown className={`h-4 w-4 translate-y-px transition-transform duration-200 ${activeDropdown === "resumes" ? "rotate-180 text-primary" : ""}`} />
+                  <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${
+                    isResumeActive ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                  } ${activeDropdown === "resumes" ? "rotate-180" : ""}`} />
                 </button>
 
                 {activeDropdown === "resumes" && (
@@ -627,14 +635,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <button 
                   type="button"
                   onClick={() => toggleDropdown("jobs")}
-                  className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
-                    location.pathname === "/applications" || location.pathname === "/analytics"
-                      ? "border-primary text-primary" 
-                      : "border-transparent text-outly-dark/70 hover:text-outly-accent"
+                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
+                    isJobsActive
+                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
+                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
                   }`}
                 >
                   <span>Jobs</span>
-                  <ChevronDown className={`h-4 w-4 translate-y-px transition-transform duration-200 ${activeDropdown === "jobs" ? "rotate-180 text-primary" : ""}`} />
+                  <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${
+                    isJobsActive ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                  } ${activeDropdown === "jobs" ? "rotate-180" : ""}`} />
                 </button>
 
                 {activeDropdown === "jobs" && (
@@ -733,14 +743,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <button 
                   type="button"
                   onClick={() => toggleDropdown("tools")}
-                  className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
-                    ["/cold-mail", "/linkedin-posts", "/twitter", "/logs", "/settings"].some(path => location.pathname.startsWith(path))
-                      ? "border-primary text-primary" 
-                      : "border-transparent text-outly-dark/70 hover:text-outly-accent"
+                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
+                    isToolsActive
+                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
+                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
                   }`}
                 >
                   <span>Tools</span>
-                  <ChevronDown className={`h-4 w-4 translate-y-px transition-transform duration-200 ${activeDropdown === "tools" ? "rotate-180 text-primary" : ""}`} />
+                  <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${
+                    isToolsActive ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                  } ${activeDropdown === "tools" ? "rotate-180" : ""}`} />
                 </button>
 
                 {activeDropdown === "tools" && (
@@ -775,10 +787,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               {/* Standalone Link: PRICING */}
               <Link 
                 to="/pricing"
-                className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
-                  location.pathname === "/pricing"
-                    ? "border-primary text-primary" 
-                    : "border-transparent text-outly-dark/70 hover:text-outly-accent"
+                className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
+                  isPricingActive
+                    ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
+                    : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
                 }`}
               >
                 <span>Pricing</span>
@@ -787,10 +799,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               {/* Standalone Link: SUPPORT */}
               <Link 
                 to="/support"
-                className={`flex h-full items-center gap-1.5 border-b-2 text-[16px] font-medium leading-none tracking-normal transition-colors duration-200 ${
-                  location.pathname === "/support"
-                    ? "border-primary text-primary" 
-                    : "border-transparent text-outly-dark/70 hover:text-outly-accent"
+                className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
+                  isSupportActive
+                    ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
+                    : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
                 }`}
               >
                 <span>Support</span>
@@ -806,12 +818,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <div className="relative hidden md:block" ref={desktopNotificationMenuRef}>
               <button
                 type="button"
-                className="relative p-2 text-zinc-500 hover:text-outly-dark active:scale-95 transition-all outline-none"
+                className="relative p-2 text-[#4A4844] hover:text-outly-dark active:scale-95 transition-all outline-none rounded-full hover:bg-black/5 cursor-pointer"
                 onClick={() => setNotificationsOpen(prev => !prev)}
+                aria-label="Notifications"
               >
                 <Bell className="h-[19px] w-[19px]" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white leading-none">
+                  <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#EDE9E2]">
                     {unreadCount}
                   </span>
                 )}
@@ -868,7 +881,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#ECE8E1] border border-[#dcd5c9] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#EDE9E2] border border-[#E2DDD3] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
@@ -930,12 +943,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <div className="relative md:hidden mr-1" ref={mobileNotificationMenuRef}>
               <button
                 type="button"
-                className="relative p-2 text-zinc-500 active:scale-95 transition-all outline-none"
+                className="relative p-2 text-[#4A4844] active:scale-95 transition-all outline-none rounded-full hover:bg-black/5"
                 onClick={() => setNotificationsOpen(prev => !prev)}
+                aria-label="Notifications"
               >
                 <Bell className="h-[21px] w-[21px]" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white leading-none">
+                  <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#EDE9E2]">
                     {unreadCount}
                   </span>
                 )}
@@ -998,7 +1012,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#ECE8E1] border border-[#dcd5c9] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#EDE9E2] border border-[#E2DDD3] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
