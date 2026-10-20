@@ -349,115 +349,99 @@ export default function JobSearchPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 py-6 space-y-8 animate-fade-in pb-20">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left font-sans">
       
-      {/* Hero Header */}
-      <div className="space-y-3 text-left">
-        <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
-          JOB SEARCH
-        </span>
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
-          Smart Job Search & Auto Apply Platform
-        </h1>
-        <p className="text-muted-foreground text-[13px] sm:text-[14px] leading-relaxed max-w-3xl">
-          Search across major job portals like LinkedIn, Wellfound, Internshala, and Naukri. One-click track listings straight into your Kanban pipeline.
-        </p>
-
-        {/* Job Portals Horizontal Marquee Carousel */}
-        <div className="slider-mask relative w-full py-4 my-2 group">
-          <div className="animate-marquee flex items-center gap-8">
-            {[...jobBoards, ...jobBoards, ...jobBoards].map((board, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-2.5 shrink-0 opacity-85 hover:opacity-100 transition-all duration-200 cursor-pointer group/item"
-              >
-                <BrandLogo domain={board.domain} name={board.name} />
-                <div className="text-left">
-                  <p className="text-xs font-bold text-foreground leading-snug group-hover/item:text-primary transition-colors">{board.name}</p>
-                  <span className="text-[10px] font-medium text-muted-foreground">{board.badge}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Top Header matching ResumeVault, Applications, AtsScore & ResumeTailor */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            Jobs / Search
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
+            Job Search
+          </h1>
+          <p className="text-[13px] text-neutral-500 font-normal mt-1 max-w-3xl">
+            Search live across LinkedIn, Wellfound, Naukri, and top platforms. One-click track positions straight into your visual Kanban pipeline.
+          </p>
         </div>
       </div>
 
-      {/* Scraper Parameters Input Form */}
-      <section className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-card)] text-left">
-        <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-1.5">
-          <Search className="h-4.5 w-4.5 text-outly-accent" />
-          Filter Parameters
-        </h2>
+      {/* Job Portals Horizontal Marquee */}
+      <div className="slider-mask relative w-full py-2 overflow-hidden group">
+        <div className="animate-marquee flex items-center gap-8">
+          {[...jobBoards, ...jobBoards, ...jobBoards].map((board, idx) => (
+            <div
+              key={idx}
+              className="flex items-center gap-2.5 shrink-0 opacity-80 hover:opacity-100 transition-opacity cursor-pointer group/item select-none"
+            >
+              <BrandLogo domain={board.domain} name={board.name} />
+              <div className="text-left">
+                <p className="text-xs font-bold text-neutral-800 leading-snug group-hover/item:text-black transition-colors">{board.name}</p>
+                <span className="text-[10px] font-medium text-neutral-400">{board.badge}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Filter Parameters Form */}
+      <section className="rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] text-left">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xs font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-2">
+            <Search className="h-3.5 w-3.5 text-neutral-500" />
+            Filter Parameters
+          </h2>
+          {isLimitExceeded && countdownText && (
+            <span className="text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200/70 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <Lock className="w-3 h-3" />
+              Unlocks in {countdownText}
+            </span>
+          )}
+        </div>
         
         <form onSubmit={handleScrapeJobs} className="grid gap-4 md:grid-cols-3 items-end text-xs font-medium">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Briefcase className="h-3.5 w-3.5 text-primary" /> Target Role
+            <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1">
+              <Briefcase className="h-3.5 w-3.5 text-neutral-400" /> Target Role
             </label>
             <Input
               required
-              placeholder="e.g. React Developer"
+              placeholder="e.g. Backend Engineer, Full Stack"
               value={scrapeRole}
               onChange={(e) => setScrapeRole(e.target.value)}
-              className="bg-card border-border text-xs h-9 focus-visible:ring-primary placeholder:text-muted-foreground/60 rounded-lg shadow-sm"
+              className="bg-neutral-50/50 hover:bg-white focus:bg-white border-neutral-200 text-xs h-10 focus-visible:ring-1 focus-visible:ring-black placeholder:text-neutral-400 rounded-xl shadow-none transition-all"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5 text-primary" /> Location
+            <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 text-neutral-400" /> Location
             </label>
             <Input
-              placeholder="e.g. Bengaluru / Remote"
+              placeholder="e.g. Bengaluru, Remote, Delhi"
               value={scrapeLocation}
               onChange={(e) => setScrapeLocation(e.target.value)}
-              className="bg-card border-border text-xs h-9 focus-visible:ring-primary placeholder:text-muted-foreground/60 rounded-lg shadow-sm"
+              className="bg-neutral-50/50 hover:bg-white focus:bg-white border-neutral-200 text-xs h-10 focus-visible:ring-1 focus-visible:ring-black placeholder:text-neutral-400 rounded-xl shadow-none transition-all"
             />
           </div>
 
           <Button 
             type="submit" 
             disabled={isScraping} 
-            className={`h-9 w-full font-bold tracking-wide rounded-lg uppercase shadow-sm active:scale-[0.98] transition-all gap-1.5 ${
+            className={`h-10 w-full font-medium tracking-normal rounded-xl text-xs shadow-sm active:scale-[0.98] transition-all gap-1.5 cursor-pointer ${
               isLimitExceeded 
-                ? "bg-amber-500 hover:bg-amber-500/90 text-white" 
-                : "bg-outly-accent hover:bg-outly-accent/90 text-white"
+                ? "bg-amber-600 hover:bg-amber-700 text-white" 
+                : "bg-black hover:bg-neutral-800 text-white"
             }`}
           >
             {isScraping ? (
               <>
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Searching...
+                Searching live portals...
               </>
             ) : isLimitExceeded ? (
               <>
-                <svg 
-                  className="h-3.5 w-3.5 shrink-0" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line 
-                    x1="12" 
-                    y1="12" 
-                    x2="12" 
-                    y2="6" 
-                    style={{ transformOrigin: '12px 12px' }}
-                    className="animate-[spin_8s_linear_infinite]" 
-                  />
-                  <line 
-                    x1="12" 
-                    y1="12" 
-                    x2="15" 
-                    y2="12" 
-                    style={{ transformOrigin: '12px 12px' }}
-                    className="animate-[spin_48s_linear_infinite]" 
-                  />
-                </svg>
+                <Lock className="h-3.5 w-3.5" />
                 Limit Reached{countdownText ? ` · ${countdownText}` : " (3/3)"}
               </>
             ) : (
@@ -473,57 +457,64 @@ export default function JobSearchPage() {
       {/* Scraped Jobs listings list */}
       <div className="space-y-4 text-left">
         <div className="flex items-center justify-between">
-          <h3 className="text-[14px] font-bold text-foreground flex items-center gap-2">
-            <Briefcase className="h-4.5 w-4.5 text-primary" />
-            Live Search Results
-          </h3>
+          <div className="flex items-center gap-2.5">
+            <h3 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
+              <Briefcase className="h-4 w-4 text-neutral-600" />
+              Live Search Results
+            </h3>
+            {scrapedJobs.length > 0 && (
+              <span className="text-[11px] font-semibold text-neutral-600 bg-neutral-100 px-2.5 py-0.5 rounded-full border border-neutral-200/70">
+                {scrapedJobs.length} {scrapedJobs.length === 1 ? "position" : "positions"}
+              </span>
+            )}
+          </div>
+
           {scrapedJobs.length > 0 && (
-            <span className="text-[10px] text-muted-foreground font-mono bg-secondary/80 px-2.5 py-0.5 rounded-full border border-border">
-              {isLiveScrape ? "Outly Live Job search" : "Outly Live Job search"}
+            <span className="text-[10px] text-neutral-400 font-mono tracking-widest uppercase">
+              Outly Live Search
             </span>
           )}
         </div>
 
         {isScraping ? (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((n) => (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
               <div 
                 key={n}
-                className="bg-card border border-border/50 rounded-[28px] p-6 shadow-xs min-h-[300px] flex flex-col justify-between animate-pulse"
+                className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] min-h-[260px] flex flex-col justify-between animate-pulse"
               >
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 bg-secondary rounded-full" />
-                    <div className="w-16 h-6 bg-secondary rounded-full" />
+                    <div className="w-10 h-10 bg-neutral-100 rounded-xl" />
+                    <div className="w-14 h-6 bg-neutral-100 rounded-full" />
                   </div>
-                  <div className="space-y-2">
-                    <div className="h-4 bg-secondary rounded w-3/4" />
-                    <div className="h-3 bg-secondary rounded w-1/2" />
+                  <div className="space-y-2 pt-1">
+                    <div className="h-4 bg-neutral-100 rounded w-3/4" />
+                    <div className="h-3 bg-neutral-100 rounded w-1/2" />
                   </div>
                   <div className="space-y-1.5 pt-2">
-                    <div className="h-3 bg-secondary rounded w-5/6" />
-                    <div className="h-3 bg-secondary rounded w-4/5" />
+                    <div className="h-3 bg-neutral-100 rounded w-5/6" />
                   </div>
                 </div>
-                <div className="pt-4 border-t border-border/40 flex items-center justify-between">
-                  <div className="h-3 bg-secondary rounded w-1/4" />
-                  <div className="h-6 bg-secondary rounded w-1/5" />
+                <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
+                  <div className="h-3 bg-neutral-100 rounded w-1/4" />
+                  <div className="h-8 bg-neutral-100 rounded-lg w-20" />
                 </div>
               </div>
             ))}
           </div>
         ) : scrapedJobs.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center text-muted-foreground min-h-[300px] flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
-            <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-muted-foreground mb-4 animate-pulse">
-              <Search className="h-6 w-6" />
+          <div className="rounded-2xl border border-dashed border-neutral-300 bg-white p-14 text-center min-h-[320px] flex flex-col items-center justify-center shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400 mb-3">
+              <Search className="h-5 w-5" />
             </div>
-            <h4 className="text-[14px] font-bold text-foreground">No search criteria active</h4>
-            <p className="text-[11px] text-muted-foreground max-w-sm mt-1 leading-relaxed">
-              Enter target role parameters above and search across major portals.
+            <h4 className="text-sm font-bold text-neutral-800">No active job search</h4>
+            <p className="text-xs text-neutral-400 max-w-sm mt-1 leading-relaxed">
+              Enter target role and location parameters above to search live across LinkedIn, Wellfound, Naukri, and more.
             </p>
           </div>
         ) : (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {scrapedJobs.map((job, idx) => {
               const jobKey = `${job.company}-${job.title}-${job.source}`;
               
@@ -536,7 +527,7 @@ export default function JobSearchPage() {
               
               const isAlreadyTracked = !!matchedApp || trackedJobIds[jobKey];
 
-              // Mock realistic posted date
+              // Realistic posted date
               const getPostedDate = (index: number) => {
                 const days = [
                   "Just now",
@@ -552,12 +543,12 @@ export default function JobSearchPage() {
 
               const getMockSalary = (index: number) => {
                 const salaries = [
-                  "$120/hr",
-                  "$150 - 220k",
-                  "$85/hr",
-                  "$200 - 250k",
-                  "$100/hr",
-                  "$85 - 120k"
+                  "₹18 - 25 LPA",
+                  "₹12 - 18 LPA",
+                  "₹25 - 35 LPA",
+                  "₹15 - 22 LPA",
+                  "₹30 - 45 LPA",
+                  "₹10 - 16 LPA"
                 ];
                 return salaries[index % salaries.length];
               };
@@ -565,10 +556,10 @@ export default function JobSearchPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-card border border-border/50 rounded-[28px] p-6 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between min-h-[300px] text-left animate-pop-in space-y-5"
+                  className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-neutral-300 transition-all duration-200 flex flex-col justify-between min-h-[280px] text-left space-y-4"
                 >
-                  <div className="space-y-4">
-                    {/* Top Row: Circular Logo & Save/Saved button */}
+                  <div className="space-y-3">
+                    {/* Top Row: Company Logo & Save button */}
                     <div className="flex items-center justify-between">
                       <CompanyLogo company={job.company} source={job.source} />
                       
@@ -580,9 +571,9 @@ export default function JobSearchPage() {
                             }
                           }}
                           disabled={deleteJobMutation.isPending}
-                          className="group/saved flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f3f4f6] hover:bg-red-50 text-[10.5px] font-bold text-foreground hover:text-red-600 shadow-3xs cursor-pointer select-none transition-all border border-transparent hover:border-red-200"
+                          className="group/saved flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900 text-white hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-[11px] font-semibold shadow-xs cursor-pointer select-none transition-all border border-transparent"
                         >
-                          <Bookmark className="w-3.5 h-3.5 fill-foreground text-foreground group-hover/saved:fill-transparent group-hover/saved:text-red-500 shrink-0 transition-colors" />
+                          <Bookmark className="w-3.5 h-3.5 fill-white text-white group-hover/saved:fill-transparent group-hover/saved:text-red-500 shrink-0 transition-colors" />
                           <span className="group-hover/saved:hidden">Saved</span>
                           <span className="hidden group-hover/saved:inline">Unsave</span>
                         </button>
@@ -590,7 +581,7 @@ export default function JobSearchPage() {
                         <button
                           onClick={() => handleTrackJob(job)}
                           disabled={trackJobMutation.isPending}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/80 text-[10.5px] font-bold text-muted-foreground bg-card hover:bg-secondary/60 active:scale-[0.97] transition-all cursor-pointer shadow-3xs"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200/90 text-[11px] font-medium text-neutral-600 bg-white hover:bg-neutral-50 hover:text-neutral-900 active:scale-[0.97] transition-all cursor-pointer shadow-xs"
                         >
                           <Bookmark className="w-3.5 h-3.5 shrink-0" />
                           <span>Save</span>
@@ -599,51 +590,51 @@ export default function JobSearchPage() {
                     </div>
 
                     {/* Company Name & Posted Date */}
-                    <div className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
-                      <span className="font-bold text-foreground/80 truncate max-w-[130px]">{job.company}</span>
+                    <div className="text-[11px] font-medium text-neutral-400 flex items-center gap-1.5">
+                      <span className="font-bold text-neutral-800 truncate max-w-[140px]">{job.company}</span>
                       <span>•</span>
                       <span>{getPostedDate(idx)}</span>
                     </div>
 
                     {/* Job Title */}
-                    <h4 className="text-base font-extrabold text-foreground tracking-tight leading-snug line-clamp-2" title={job.title}>
+                    <h4 className="text-[15px] font-bold text-neutral-900 tracking-tight leading-snug line-clamp-2" title={job.title}>
                       {job.title}
                     </h4>
                     
                     {/* Tag Pills */}
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
                       {job.location && (
-                        <span className="text-[10px] font-bold bg-[#f3f4f6]/70 text-foreground/75 px-3 py-1 rounded-full border border-border/10">
+                        <span className="text-[10px] font-medium bg-neutral-100 text-neutral-600 px-2.5 py-0.5 rounded-md border border-neutral-200/40">
                           {job.location.split("/")[0].trim()}
                         </span>
                       )}
                       {job.experience && (
-                        <span className="text-[10px] font-bold bg-[#f3f4f6]/70 text-foreground/75 px-3 py-1 rounded-full border border-border/10">
+                        <span className="text-[10px] font-medium bg-neutral-100 text-neutral-600 px-2.5 py-0.5 rounded-md border border-neutral-200/40">
                           {job.experience}
                         </span>
                       )}
-                      <span className="text-[10px] font-bold bg-[#f3f4f6]/70 text-foreground/75 px-3 py-1 rounded-full border border-border/10 uppercase tracking-wider font-mono">
+                      <span className="text-[10px] font-semibold bg-neutral-100 text-neutral-500 px-2.5 py-0.5 rounded-md border border-neutral-200/40 uppercase tracking-wider font-mono">
                         {job.source}
                       </span>
                     </div>
                   </div>
 
                   {/* Footer: Salary & Apply Button */}
-                  <div className="flex items-center justify-between pt-4 border-t border-border/40">
+                  <div className="flex items-center justify-between pt-3.5 border-t border-neutral-100">
                     <div className="text-left leading-tight">
-                      <p className="text-[14px] font-extrabold text-foreground">
+                      <p className="text-[13px] font-bold text-neutral-900">
                         {job.salary && !job.salary.includes("Undisclosed") && job.salary !== "Not specified" && job.salary !== "Salary Undisclosed"
                           ? job.salary
                           : getMockSalary(idx)}
                       </p>
-                      <span className="text-[10px] text-muted-foreground font-semibold">
-                        {job.location || "San Francisco, CA"}
+                      <span className="text-[10px] text-neutral-400 font-normal">
+                        {job.location || "Bengaluru / Remote"}
                       </span>
                     </div>
 
                     <Button
                       asChild
-                      className="bg-black hover:bg-black/90 text-white font-bold text-xs px-4 h-9 rounded-xl shadow-xs cursor-pointer active:scale-[0.97] transition-all"
+                      className="bg-black hover:bg-neutral-800 text-white font-medium text-xs px-3.5 h-8 rounded-lg shadow-sm cursor-pointer active:scale-[0.97] transition-all"
                     >
                       <a href={job.url} target="_blank" rel="noopener noreferrer">
                         <span>Apply now</span>
@@ -659,22 +650,22 @@ export default function JobSearchPage() {
 
       {/* Limit Exceeded Dialog Modal */}
       <Dialog open={showLimitModal} onOpenChange={setShowLimitModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-border bg-card p-6 font-sans text-center">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-neutral-200 bg-white p-6 font-sans text-center rounded-xl">
           <DialogHeader className="flex flex-col items-center text-center space-y-3">
             <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
               <Lock className="w-6 h-6 shrink-0" />
             </div>
-            <DialogTitle className="text-xl font-bold text-foreground">Search Limit Reached (3/3)</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+            <DialogTitle className="text-base font-bold text-neutral-900">Search Limit Reached (3/3)</DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500 leading-relaxed">
               You are limited to 3 job searches per 12 hours.{countdownText ? ` Unlocks in ${countdownText}.` : " Please try again later."}
             </DialogDescription>
           </DialogHeader>
           
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-6 justify-center">
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4 justify-center">
             <Button
               variant="outline"
               onClick={() => setShowLimitModal(false)}
-              className="w-full sm:w-auto border-border text-xs font-medium h-10 rounded-full hover:bg-secondary active:scale-[0.98] transition"
+              className="w-full sm:w-auto border-neutral-200 text-xs font-medium h-9 rounded-lg hover:bg-neutral-50 transition"
             >
               Close
             </Button>
