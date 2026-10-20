@@ -62,7 +62,16 @@ router.get("/:id/file", async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const item = await resumeVaultQueries.getById(req.params.id as string, req.user.id);
-    if (!item) return res.status(404).json({ error: "Resume not found" });
+    if (!item) {
+      if (typeof req.params.id === "string" && req.params.id.startsWith("vault-default")) {
+        const samplePath = path.join(process.cwd(), "sample_resume.pdf");
+        if (fs.existsSync(samplePath)) {
+          res.setHeader("Content-Type", "application/pdf");
+          return res.sendFile(samplePath);
+        }
+      }
+      return res.status(404).json({ error: "Resume not found" });
+    }
 
     const ext = path.extname(item.filename).toLowerCase();
     const filePath = path.join(env.DATA_DIR, "resumes", `resume_${item.id}${ext}`);

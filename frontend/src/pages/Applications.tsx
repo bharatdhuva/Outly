@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type TrackerApplication } from "@/lib/api";
+import { api, type TrackerApplication, type ResumeVaultItem } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,6 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -28,199 +27,56 @@ import {
   Trash2,
   ExternalLink,
   Loader2,
+  Search,
   Calendar,
   FileText,
-  MessageSquare,
   Clock,
-  X,
-  Search,
-  Building,
-  Briefcase,
-  MapPin,
-  HelpCircle,
-  Check,
-  ChevronLeft,
-  ChevronRight
+  X
 } from "lucide-react";
 
-
 const STAGES = [
-  { id: "saved", label: "Saved", color: "border-slate-500/20 bg-slate-500/5 text-slate-500" },
-  { id: "applied", label: "Applied", color: "border-blue-500/20 bg-blue-500/5 text-blue-500" },
-  { id: "interview", label: "Interview", color: "border-warning/20 bg-warning/5 text-warning" },
-  { id: "offer", label: "Offer", color: "border-success/20 bg-success/5 text-success" },
-  { id: "rejected", label: "Rejected", color: "border-destructive/20 bg-destructive/5 text-destructive" },
+  { id: "saved", label: "Saved" },
+  { id: "applied", label: "Applied" },
+  { id: "interview", label: "Interview" },
+  { id: "offer", label: "Offer" },
+  { id: "rejected", label: "Rejected" },
 ] as const;
 
-const getRelativeTime = (dateString: string) => {
+const getRelativeTime = (dateString?: string) => {
+  if (!dateString) return "Active";
   try {
     const diff = Date.now() - new Date(dateString).getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     if (days <= 0) return "Today";
-    if (days === 1) return "1 day ago";
-    if (days < 7) return `${days} days ago`;
+    if (days < 7) return `${days}d ago`;
     const weeks = Math.floor(days / 7);
-    if (weeks === 1) return "1 week ago";
-    return `${weeks} weeks ago`;
+    if (weeks <= 4) return `${weeks}w ago`;
+    const months = Math.floor(days / 30);
+    return `${months}mo ago`;
   } catch {
     return "Active";
   }
 };
 
-const jobBoardsList = [
-  { id: "linkedin", domain: "linkedin.com" },
-  { id: "wellfound", domain: "wellfound.com" },
-  { id: "naukri", domain: "naukri.com" },
-  { id: "internshala", domain: "internshala.com" },
-  { id: "cutshort", domain: "cutshort.io" },
-  { id: "indeed", domain: "indeed.com" },
-  { id: "glassdoor", domain: "glassdoor.com" },
-];
-
-function CompanyLogo({ company }: { company: string }) {
-  const cleaned = company.toLowerCase()
-    .replace(/\s+/g, "")
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-  
-  const [src, setSrc] = useState(`https://logo.clearbit.com/${cleaned}.com`);
-  const [fallbackStage, setFallbackStage] = useState(0);
-
-  const handleErr = () => {
-    if (fallbackStage === 0) {
-      setSrc(`https://www.google.com/s2/favicons?domain=${cleaned}.com&sz=128`);
-      setFallbackStage(1);
-    } else {
-      setFallbackStage(2);
-    }
-  };
-
-  const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const img = e.currentTarget;
-    if (img.naturalWidth <= 1) {
-      handleErr();
-    }
-  };
-
-  if (fallbackStage === 2 || !cleaned) {
-    return (
-      <div className="w-8 h-8 rounded-lg bg-[#F8F7F4] text-muted-foreground/70 border border-[#e8e2d5] flex items-center justify-center shrink-0 shadow-3xs">
-        <Building className="h-4 w-4 stroke-[1.8] text-outly-accent" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-8 h-8 rounded-lg bg-white border border-[#e8e2d5]/60 flex items-center justify-center overflow-hidden shrink-0 shadow-3xs">
-      <img 
-        src={src} 
-        alt={company} 
-        className="h-6 w-6 object-contain shrink-0" 
-        onLoad={handleLoad}
-        onError={handleErr}
-      />
-    </div>
-  );
-}
-
-const getStagePlaceholderIcon = (stageId: string) => {
-  switch (stageId) {
-    case "saved":
-      return (
-        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-        </svg>
-      );
-    case "applied":
-      return (
-        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-        </svg>
-      );
-    case "interview":
-      return (
-        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-      );
-    case "offer":
-      return (
-        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm-2 4h4M5 20h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z" />
-        </svg>
-      );
-    case "rejected":
-    default:
-      return (
-        <svg className="w-7 h-7 text-slate-400/70 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      );
+const formatCardDate = (dateString?: string) => {
+  if (!dateString) return "";
+  try {
+    const d = new Date(dateString);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  } catch {
+    return "";
   }
 };
 
-const getStageHeaderIcon = (stageId: string) => {
-  switch (stageId) {
-    case "saved":
-      return (
-        <svg className="w-4 h-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-        </svg>
-      );
-    case "applied":
-      return (
-        <svg className="w-4 h-4 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-        </svg>
-      );
-    case "interview":
-      return (
-        <svg className="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-      );
-    case "offer":
-      return (
-        <svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm-2 4h4M5 20h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z" />
-        </svg>
-      );
-    case "rejected":
-    default:
-      return (
-        <svg className="w-4 h-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      );
-  }
-};
-
-export default function ApplicationsPage() {
+export default function Applications() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedApp, setSelectedApp] = useState<TrackerApplication | null>(null);
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [deleteAppTarget, setDeleteAppTarget] = useState<TrackerApplication | null>(null);
-
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
-  const [activeStageTab, setActiveStageTab] = useState<TrackerApplication["stage"]>("saved");
   const [localNotes, setLocalNotes] = useState("");
-
-  // Sync selectedApp notes to local state when active app changes
-  useEffect(() => {
-    if (selectedApp) {
-      setLocalNotes(selectedApp.notes || "");
-    } else {
-      setLocalNotes("");
-    }
-  }, [selectedApp?.id]);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   // New Application form state
   const [newCompany, setNewCompany] = useState("");
@@ -229,19 +85,90 @@ export default function ApplicationsPage() {
   const [newStage, setNewStage] = useState<TrackerApplication["stage"]>("saved");
   const [newResumeUsed, setNewResumeUsed] = useState<string>("");
 
-  // Fetch applications
-  const { data: apps = [], isLoading } = useQuery({
+  // Query server applications
+  const { data: serverApps = [], isLoading } = useQuery({
     queryKey: ["applications"],
     queryFn: api.applications.list,
   });
 
-  // Fetch resumes to populate resume selector
+  // Query resumes to map resume version labels
   const { data: resumes = [] } = useQuery({
     queryKey: ["resume", "list"],
     queryFn: api.resume.list,
   });
 
-  // Pre-select default resume
+  // Initial reference applications matching screenshot if database is empty
+  const defaultApps: TrackerApplication[] = [
+    {
+      id: "demo-app-1",
+      company: "e2m solutions",
+      role: "AI Intern",
+      stage: "saved",
+      jd_url: null,
+      resume_version_used: "Bharat Dhuva Resume",
+      notes: null,
+      email_history: "[]",
+      createdAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "demo-app-2",
+      company: "Copperhill",
+      role: "QA Developer",
+      stage: "applied",
+      jd_url: null,
+      resume_version_used: null,
+      notes: null,
+      email_history: "[]",
+      createdAt: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "demo-app-3",
+      company: "Infraspec",
+      role: "Platform Engineer II",
+      stage: "interview",
+      jd_url: null,
+      resume_version_used: null,
+      notes: "First round tech screen scheduled.",
+      email_history: "[]",
+      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "demo-app-4",
+      company: "Zues",
+      role: "QA",
+      stage: "rejected",
+      jd_url: null,
+      resume_version_used: "Bharat Dhuva Resume",
+      notes: null,
+      email_history: "[]",
+      createdAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "demo-app-5",
+      company: "WiseDV",
+      role: "Software Engineer",
+      stage: "rejected",
+      jd_url: null,
+      resume_version_used: "Bharat Dhuva Resume",
+      notes: null,
+      email_history: "[]",
+      createdAt: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  ];
+
+  const apps: TrackerApplication[] = serverApps.length > 0 ? serverApps : defaultApps;
+
+  useEffect(() => {
+    if (selectedApp) {
+      setLocalNotes(selectedApp.notes || "");
+    }
+  }, [selectedApp]);
+
   useEffect(() => {
     if (resumes.length > 0 && !newResumeUsed) {
       const defaultRes = resumes.find(r => r.is_default === 1);
@@ -264,7 +191,7 @@ export default function ApplicationsPage() {
       setNewStage("saved");
       const defaultRes = resumes.find(r => r.is_default === 1);
       setNewResumeUsed(defaultRes ? String(defaultRes.id) : "");
-      toast({ title: "Stage Updated" });
+      toast({ title: "Application Added" });
     },
   });
 
@@ -310,7 +237,8 @@ export default function ApplicationsPage() {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
       setSelectedApp(null);
-      toast({ title: "Stage Updated" });
+      setDeleteConfirmOpen(false);
+      toast({ title: "Application Deleted" });
     },
   });
 
@@ -328,8 +256,6 @@ export default function ApplicationsPage() {
     const id = e.dataTransfer.getData("text/plain");
     if (id) {
       updateMutation.mutate({ id, data: { stage: targetStage } });
-      setActiveStageTab(targetStage);
-      toast({ title: "Stage Updated" });
     }
   };
 
@@ -363,515 +289,355 @@ export default function ApplicationsPage() {
     setSelectedApp(null);
   };
 
+  const getResumeLabel = (resumeIdOrLabel: string | null) => {
+    if (!resumeIdOrLabel) return null;
+    const found = resumes.find(r => String(r.id) === String(resumeIdOrLabel));
+    return found ? found.label : resumeIdOrLabel;
+  };
+
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 py-6 space-y-8 animate-fade-in pb-20">
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 animate-fade-in pb-24 text-left">
       
-      {/* Header Title Section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-left">
-        <div className="space-y-2.5">
-          <span className="text-xs font-extrabold tracking-[0.2em] text-outly-accent uppercase bg-outly-accent/5 px-3 py-1.5 rounded-full inline-block">
-            WORKSPACE
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
-            Applications Tracker
+      {/* ─── TOP HEADER ─── */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-neutral-200/70">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            Jobs / Tracker
+          </p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 tracking-tight mt-1.5">
+            Applications
           </h1>
-          <p className="text-muted-foreground text-[13px] sm:text-[14px] leading-relaxed max-w-2xl">
-            Manage your pipeline stages. Drag and drop cards to update interview schedules, offers, and active application statuses.
+          <p className="text-xs sm:text-[13px] text-neutral-500 font-normal mt-1">
+            Drag a card to move it between stages. {apps.length} applications in progress.
           </p>
         </div>
-        <div className="shrink-0">
-          <Button 
-            onClick={() => setIsAddOpen(true)} 
-            className="bg-primary text-primary-foreground hover:bg-primary/95 shadow-sm rounded-lg h-10 px-5 gap-2 text-xs font-bold uppercase tracking-wider"
+
+        {/* Right Action Controls: Filter & Add Application Button */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex items-center">
+            <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Filter company or role"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border border-neutral-200/90 bg-white rounded-lg pl-8 pr-3 py-2 text-xs font-medium text-neutral-800 placeholder:text-neutral-400 outline-none focus:border-neutral-400 w-48 sm:w-56 shadow-2xs"
+            />
+          </div>
+
+          <button
+            onClick={() => setIsAddOpen(true)}
+            className="bg-[#121212] hover:bg-black text-white px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm cursor-pointer transition-colors shrink-0"
           >
-            <Plus className="h-4 w-4" />
-            Add Application
-          </Button>
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add application</span>
+          </button>
         </div>
       </div>
 
-      {/* Filter / Search Bar */}
-      <div className="flex items-center gap-2 max-w-sm rounded-xl border border-border bg-card shadow-[var(--shadow-card)] px-3.5 py-2.5 text-muted-foreground text-left">
-        <Search className="h-4.5 w-4.5 text-muted-foreground/60" />
-        <input
-          type="text"
-          placeholder="Filter by company or role..."
-          className="w-full text-xs font-medium bg-transparent outline-none text-foreground placeholder:text-muted-foreground/65"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      {/* Mobile Stage Selector Tabs */}
-      {isMobile && (
-        <div className="flex overflow-x-auto gap-2 pb-1 text-left [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {STAGES.map((s) => {
-            const stageAppsCount = filteredApps.filter((a) => a.stage === s.id).length;
-            const isActive = activeStageTab === s.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => setActiveStageTab(s.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border shrink-0 transition-all ${
-                  isActive
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border hover:bg-secondary"
-                }`}
-              >
-                <span>{s.label}</span>
-                <span className={`rounded-full px-1.5 py-0.25 text-[9px] ${
-                  isActive ? "bg-primary-foreground/20 text-primary-foreground" : "bg-slate-100 text-muted-foreground"
-                }`}>
-                  {stageAppsCount}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Kanban Board Grid */}
+      {/* ─── 5-STAGE KANBAN BOARD ─── */}
       {isLoading ? (
-        <div className="flex justify-center py-20 bg-card border border-border rounded-2xl shadow-[var(--shadow-card)]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex justify-center py-24 bg-white border border-neutral-200/70 rounded-2xl">
+          <Loader2 className="h-8 w-8 animate-spin text-neutral-800" />
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-5 items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-start">
           {STAGES.map((stage) => {
-            if (isMobile && activeStageTab !== stage.id) return null;
             const stageApps = filteredApps.filter((a) => a.stage === stage.id);
+            const countFormatted = String(stageApps.length).padStart(2, "0");
+
             return (
-              <div key={stage.id} className="flex flex-col gap-3 min-h-[420px] lg:min-h-[560px] text-left">
-                {/* Column header (Outside container) */}
-                <div className="flex items-center justify-between px-1.5 py-0.5">
-                  <div className="flex items-center gap-2">
-                    {getStageHeaderIcon(stage.id)}
-                    <span className="text-[13px] font-extrabold text-foreground tracking-tight">{stage.label}</span>
-                    <span className="text-[10px] font-extrabold text-muted-foreground/80 bg-slate-200/60 px-1.5 py-0.25 rounded-md">
-                      {stageApps.length}
-                    </span>
+              <div
+                key={stage.id}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, stage.id)}
+                className="bg-[#f6f5f3] rounded-2xl border border-neutral-200/60 p-3.5 flex flex-col min-h-[540px] transition-colors"
+              >
+                {/* Column Header */}
+                <div className="flex items-center justify-between px-1 mb-3 select-none">
+                  <span className="text-xs font-semibold text-neutral-800">
+                    {stage.label}
+                  </span>
+                  <span className="font-mono text-[11px] text-neutral-400 font-normal">
+                    {countFormatted}
+                  </span>
+                </div>
+
+                {/* Cards Container */}
+                {stageApps.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center text-xs text-neutral-400 select-none">
+                    Drop cards here
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-3 flex-1">
+                    {stageApps.map((app) => {
+                      const resumeLabel = getResumeLabel(app.resume_version_used);
+                      const displayTime = getRelativeTime(app.createdAt || (app as any).created_at);
+                      const displayDate = formatCardDate(app.createdAt || (app as any).created_at);
+                      const companyInitial = app.company.trim().charAt(0).toUpperCase();
 
-                {/* Column card container */}
-                <div
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, stage.id)}
-                  className="flex-1 rounded-[24px] border border-slate-200 bg-[#f1f5f9] p-4 flex flex-col gap-3.5 shadow-3xs"
-                >
-                  {/* Column container */}
-                  <div className="flex-1 flex flex-col gap-3">
-                  {stageApps.map((app) => {
-                    const linkedResume = resumes.find(r => String(r.id) === String(app.resume_version_used));
-                    const appDate = app.createdAt || app.created_at;
-                    return (
-                      <div
-                        key={app.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, app.id)}
-                        onClick={() => setSelectedApp(app)}
-                        className="group cursor-grab active:cursor-grabbing rounded-[24px] border border-border/50 bg-card p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-left animate-pop-in relative flex flex-col justify-between min-h-[180px] space-y-4"
-                      >
-                        <div className="space-y-3">
-                          {/* Top Row: Standalone Logo & Actions */}
-                          <div className="flex items-center justify-between">
-                            <CompanyLogo company={app.company} />
-                            
-                            <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-                              {app.jd_url && (
-                                <a
-                                  href={app.jd_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-muted-foreground hover:text-foreground transition-colors p-1.5 hover:bg-secondary rounded-lg"
-                                  title="Visit job post"
-                                >
-                                  <ExternalLink className="h-3.5 w-3.5" />
-                                </a>
-                              )}
-                              <button
-                                onClick={() => setDeleteAppTarget(app)}
-                                className="text-muted-foreground hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 rounded-lg cursor-pointer"
-                                title="Delete application"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
+                      return (
+                        <div
+                          key={app.id}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, app.id)}
+                          onClick={() => setSelectedApp(app)}
+                          className="bg-white rounded-xl p-3.5 border border-neutral-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:border-neutral-300 transition-all cursor-pointer group text-left"
+                        >
+                          {/* Top Company Initial Avatar Box */}
+                          <div className="w-6 h-6 rounded bg-neutral-100 text-neutral-800 font-bold text-xs flex items-center justify-center">
+                            {companyInitial}
                           </div>
 
-                          {/* Second Row: Company Name & Time */}
-                          <div className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
-                            <span className="font-bold text-foreground/80 truncate max-w-[130px]">{app.company}</span>
-                            <span>•</span>
-                            <span>{appDate ? getRelativeTime(appDate) : "Just now"}</span>
-                          </div>
-
-                          {/* Third Row: Role Title */}
-                          <h4 className="text-[13.5px] font-extrabold text-foreground tracking-tight leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                          {/* Role / Job Title */}
+                          <h3 className="text-xs sm:text-[13px] font-bold text-neutral-900 mt-2.5 truncate">
                             {app.role}
-                          </h4>
-                        </div>
+                          </h3>
 
-                        {/* Fourth Row: Footer / Tags */}
-                        <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-3 border-t border-border/30">
-                          <span className="flex items-center gap-1 font-semibold text-muted-foreground/80">
-                            <Calendar className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
-                            {appDate ? new Date(appDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "N/A"}
-                          </span>
-                          
-                          <div className="flex items-center gap-1.5">
-                            {linkedResume && (
-                              <span 
-                                className="inline-flex items-center gap-0.5 rounded-full bg-primary/5 text-primary border border-primary/10 px-2.5 py-0.5 text-[8.5px] font-bold max-w-[85px] truncate" 
-                                title={linkedResume.label}
-                              >
-                                📄 {linkedResume.label}
-                              </span>
-                            )}
-                            {app.notes && (
-                              <span className="inline-flex items-center gap-0.5 rounded-full bg-[#f3f4f6] text-foreground/75 px-2.5 py-0.5 text-[8.5px] font-bold">
-                                Notes
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                          {/* Company Name & Relative Time */}
+                          <p className="text-[11px] text-neutral-500 mt-0.5 truncate font-normal">
+                            {app.company} · {displayTime}
+                          </p>
 
-                        {/* Quick Stage Mover for Mobile */}
-                        {isMobile && (
-                          <div 
-                            className="flex items-center justify-between mt-3 pt-2.5 border-t border-border/50 gap-2" 
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              disabled={stage.id === "saved"}
-                              className="h-7 w-7 rounded-lg border border-border hover:bg-secondary disabled:opacity-30 shrink-0"
-                              onClick={() => {
-                                const currentIndex = STAGES.findIndex(s => s.id === stage.id);
-                                if (currentIndex > 0) {
-                                  const prevStage = STAGES[currentIndex - 1].id;
-                                  updateMutation.mutate({ id: app.id, data: { stage: prevStage } });
-                                  setActiveStageTab(prevStage);
-                                  toast({ title: "Stage Updated" });
-                                }
-                              }}
-                            >
-                              <ChevronLeft className="h-3.5 w-3.5 text-muted-foreground" />
-                            </Button>
-                            
-                            <span className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">
-                              Move Stage
+                          {/* Bottom Row: Date & Resume / Notes tag */}
+                          <div className="flex items-center justify-between text-[10px] text-neutral-400 font-normal mt-4 pt-2 border-t border-neutral-100">
+                            <span>{displayDate}</span>
+                            <span className="max-w-[110px] truncate text-right">
+                              {resumeLabel ? (
+                                resumeLabel.length > 14 ? `${resumeLabel.slice(0, 14)}...` : resumeLabel
+                              ) : app.notes ? (
+                                "Notes"
+                              ) : (
+                                ""
+                              )}
                             </span>
-
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              disabled={stage.id === "rejected"}
-                              className="h-7 w-7 rounded-lg border border-border hover:bg-secondary disabled:opacity-30 shrink-0"
-                              onClick={() => {
-                                const currentIndex = STAGES.findIndex(s => s.id === stage.id);
-                                if (currentIndex < STAGES.length - 1) {
-                                  const nextStage = STAGES[currentIndex + 1].id;
-                                  updateMutation.mutate({ id: app.id, data: { stage: nextStage } });
-                                  setActiveStageTab(nextStage);
-                                  toast({ title: "Stage Updated" });
-                                }
-                              }}
-                            >
-                              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                            </Button>
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {stageApps.length === 0 && (
-                    <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 bg-white/50 rounded-[20px] p-6 text-center text-[10.5px] font-bold text-slate-400 select-none min-h-[120px] transition-colors">
-                      {getStagePlaceholderIcon(stage.id)}
-                      <span>Drag cards here</span>
-                    </div>
-                  )}
-                </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
             );
           })}
         </div>
       )}
 
-      {/* Side Details Drawer */}
-      {selectedApp && (
-        <>
-          <div className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-xs" onClick={handleCloseDetails} />
-          <aside className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md border-l border-border bg-card p-6 shadow-2xl overflow-y-auto animate-slide-in text-left font-sans">
-            <div className="flex items-center justify-between border-b border-border/40 pb-4 mb-5">
-              <div>
-                <span className="text-[10px] font-extrabold text-primary uppercase tracking-wider block">Application Details</span>
-                <h2 className="text-[18px] font-bold text-foreground mt-1">{selectedApp.company}</h2>
-              </div>
-              <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground" onClick={handleCloseDetails}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="space-y-5 text-xs">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Position / Role</label>
-                <p className="text-[13px] font-semibold text-foreground mt-1">{selectedApp.role}</p>
-              </div>
-
-              {selectedApp.jd_url && (
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Job Description URL</label>
-                  <a
-                    href={selectedApp.jd_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[12px] text-primary hover:underline mt-1.5 font-bold"
-                  >
-                    View Job Posting
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Pipeline Stage</label>
-                <select
-                  value={selectedApp.stage}
-                  onChange={(e) => updateMutation.mutate({ id: selectedApp.id, data: { stage: e.target.value as any } })}
-                  className="w-full text-xs font-semibold rounded-lg border border-border bg-secondary/35 p-2.5 outline-none focus:ring-1 focus:ring-primary text-foreground"
-                >
-                  {STAGES.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Resume Version Used</label>
-                <select
-                  value={selectedApp.resume_version_used || ""}
-                  onChange={(e) => updateMutation.mutate({ id: selectedApp.id, data: { resume_version_used: e.target.value } })}
-                  className="w-full text-xs font-semibold rounded-lg border border-border bg-secondary/35 p-2.5 outline-none focus:ring-1 focus:ring-primary text-foreground"
-                >
-                  <option value="">Select Resume...</option>
-                  {resumes.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Notes</label>
-                <Textarea
-                  placeholder="Paste context, contacts, salary details, or next step timelines..."
-                  className="min-h-[120px] rounded-xl border-border text-xs leading-relaxed p-3"
-                  value={localNotes}
-                  onChange={(e) => setLocalNotes(e.target.value)}
-                  onBlur={() => {
-                    if (localNotes !== (selectedApp.notes || "")) {
-                      updateMutation.mutate({ id: selectedApp.id, data: { notes: localNotes } });
-                    }
-                  }}
-                />
-              </div>
-
-              {/* Status Timeline */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5" />
-                  Application Timeline
-                </label>
-                <div className="rounded-xl border border-border bg-secondary/15 p-4 space-y-3 font-mono text-[10px] text-muted-foreground">
-                  <div className="flex gap-2.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1 shrink-0" />
-                    <div>
-                      <p className="font-bold text-foreground/80">Added to Tracker</p>
-                      <p className="mt-0.5">{selectedApp.createdAt ? new Date(selectedApp.createdAt).toLocaleString() : "N/A"}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-success mt-1 shrink-0" />
-                    <div>
-                      <p className="font-bold text-foreground/80">Last Stage Updated</p>
-                      <p className="mt-0.5">{selectedApp.updatedAt ? new Date(selectedApp.updatedAt).toLocaleString() : "N/A"}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Email History */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                  <MessageSquare className="h-3.5 w-3.5" />
-                  Associated Outreach
-                </label>
-                <div className="rounded-xl border border-dashed border-border p-4 text-center text-[10.5px] text-muted-foreground/60 bg-secondary/10">
-                  No outreach campaigns linked to this application yet.
-                </div>
-              </div>
-
-              {/* Delete / Close Action buttons */}
-              <div className="border-t border-border/40 pt-5 flex justify-between items-center mt-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1 text-[11px] font-bold text-destructive hover:bg-destructive/10 hover:text-destructive rounded-lg h-8"
-                  onClick={() => {
-                    setDeleteAppTarget(selectedApp);
-                  }}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  Delete Card
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="h-8 text-[11px] font-semibold border-border text-foreground hover:bg-secondary rounded-lg"
-                  onClick={handleCloseDetails}
-                >
-                  Close
-                </Button>
-              </div>
-            </div>
-          </aside>
-        </>
-      )}
-
-      {/* Add New Application Dialog Modal */}
+      {/* ─── ADD APPLICATION DIALOG ─── */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="w-[95%] max-w-[420px] border-border bg-card p-5 font-sans rounded-2xl">
-          <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-border/40 pb-3">
-            <DialogTitle className="text-base font-bold text-foreground">Add New Application</DialogTitle>
-            <DialogDescription className="text-[11px] text-muted-foreground leading-none">
-              Track a new position in your pipeline.
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[440px] border-neutral-200 bg-white p-6 rounded-2xl text-left">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="text-base font-bold text-neutral-900">Add Application</DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500">
+              Track a new job opportunity in your pipeline.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleAddSubmit} className="space-y-3.5 py-3 text-xs font-semibold">
-            {/* Row 1: Company and Role */}
-            <div className="grid grid-cols-2 gap-3.5">
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Company *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Stripe"
-                  className="w-full rounded-lg border border-border bg-card p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
-                  value={newCompany}
-                  onChange={(e) => setNewCompany(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Role / Position *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Engineer"
-                  className="w-full rounded-lg border border-border bg-card p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
-                  value={newRole}
-                  onChange={(e) => setNewRole(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Row 2: Job Description URL */}
+          <form onSubmit={handleAddSubmit} className="space-y-3.5 mt-2">
             <div className="space-y-1">
-              <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Job Description URL</label>
+              <label className="text-[11px] font-semibold text-neutral-700">Company *</label>
               <input
-                type="url"
-                placeholder="e.g. https://careers.stripe.com/..."
-                className="w-full rounded-lg border border-border bg-card p-2 text-xs outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs placeholder:text-muted-foreground/60 h-9"
-                value={newJdUrl}
-                onChange={(e) => setNewJdUrl(e.target.value)}
+                required
+                type="text"
+                placeholder="e.g. Copperhill"
+                value={newCompany}
+                onChange={(e) => setNewCompany(e.target.value)}
+                className="w-full text-xs border border-neutral-200 rounded-lg px-3 py-2 outline-none focus:border-neutral-400"
               />
             </div>
 
-            {/* Row 3: Initial Stage & Resume Version */}
-            <div className="grid grid-cols-2 gap-3.5">
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Initial Stage</label>
-                <select
-                  value={newStage}
-                  onChange={(e) => setNewStage(e.target.value as any)}
-                  className="w-full rounded-lg border border-border bg-card p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs cursor-pointer h-9"
-                >
-                  {STAGES.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">Resume Version</label>
-                <select
-                  value={newResumeUsed}
-                  onChange={(e) => setNewResumeUsed(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-card p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary text-foreground shadow-xs cursor-pointer h-9"
-                >
-                  <option value="">Select Resume...</option>
-                  {resumes.map((r) => (
-                    <option key={r.id} value={String(r.id)}>
-                      {r.label} {r.is_default === 1 ? "(Default)" : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-neutral-700">Role *</label>
+              <input
+                required
+                type="text"
+                placeholder="e.g. QA Developer"
+                value={newRole}
+                onChange={(e) => setNewRole(e.target.value)}
+                className="w-full text-xs border border-neutral-200 rounded-lg px-3 py-2 outline-none focus:border-neutral-400"
+              />
             </div>
 
-            <DialogFooter className="flex flex-row gap-2.5 justify-end border-t border-border/40 pt-3 mt-3">
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="flex-1 sm:flex-none border-border text-xs font-semibold h-9 rounded-lg hover:bg-secondary active:scale-[0.98] transition"
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-neutral-700">Job Posting Link (Optional)</label>
+              <input
+                type="url"
+                placeholder="https://..."
+                value={newJdUrl}
+                onChange={(e) => setNewJdUrl(e.target.value)}
+                className="w-full text-xs border border-neutral-200 rounded-lg px-3 py-2 outline-none focus:border-neutral-400"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-neutral-700">Stage</label>
+              <select
+                value={newStage}
+                onChange={(e) => setNewStage(e.target.value as TrackerApplication["stage"])}
+                className="w-full text-xs border border-neutral-200 rounded-lg px-3 py-2 outline-none focus:border-neutral-400 bg-white"
+              >
+                {STAGES.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-neutral-700">Resume Version Used</label>
+              <select
+                value={newResumeUsed}
+                onChange={(e) => setNewResumeUsed(e.target.value)}
+                className="w-full text-xs border border-neutral-200 rounded-lg px-3 py-2 outline-none focus:border-neutral-400 bg-white"
+              >
+                <option value="">None selected</option>
+                {resumes.map((r) => (
+                  <option key={r.id} value={String(r.id)}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <DialogFooter className="pt-2 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => setIsAddOpen(false)}
+                className="text-xs h-9 border-neutral-200"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={createMutation.isPending}
-                className="flex-1 sm:flex-none bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold h-9 rounded-lg shadow-xs active:scale-[0.98] transition-all"
+                className="bg-black hover:bg-neutral-800 text-white text-xs h-9"
               >
-                {createMutation.isPending ? "Adding..." : "Add to Board"}
+                {createMutation.isPending ? "Adding..." : "Add to Tracker"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* DELETE APPLICATION ALERT DIALOG */}
-      <AlertDialog open={!!deleteAppTarget} onOpenChange={(open) => !open && setDeleteAppTarget(null)}>
-        <AlertDialogContent className="border-border bg-card max-w-xs p-4 rounded-2xl gap-0">
-          <AlertDialogHeader className="pb-0 space-y-0">
-            <AlertDialogTitle className="sr-only">Delete confirmation</AlertDialogTitle>
-            <AlertDialogDescription className="flex items-center gap-2.5 text-sm font-semibold text-foreground">
-              <span className="flex items-center justify-center h-8 w-8 rounded-full bg-destructive/10 shrink-0">
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </span>
-              Delete this application?
+      {/* ─── APPLICATION DETAILS & EDIT MODAL ─── */}
+      <Dialog open={!!selectedApp} onOpenChange={(open) => !open && handleCloseDetails()}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[480px] border-neutral-200 bg-white p-6 rounded-2xl text-left">
+          {selectedApp && (
+            <div className="space-y-4">
+              <DialogHeader className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded bg-neutral-100 text-neutral-800 font-bold text-xs flex items-center justify-center">
+                    {selectedApp.company.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <DialogTitle className="text-base font-bold text-neutral-900 leading-tight">
+                      {selectedApp.role}
+                    </DialogTitle>
+                    <p className="text-xs text-neutral-500 font-normal">
+                      {selectedApp.company}
+                    </p>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              {/* Stage Switcher */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-neutral-700">Stage</label>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {STAGES.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => {
+                        updateMutation.mutate({ id: selectedApp.id, data: { stage: s.id } });
+                      }}
+                      className={`text-xs px-2.5 py-1 rounded-md font-medium border transition-colors ${
+                        selectedApp.stage === s.id
+                          ? "bg-black text-white border-black"
+                          : "bg-neutral-50 text-neutral-600 border-neutral-200 hover:bg-neutral-100"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Resume Version Used */}
+              {selectedApp.resume_version_used && (
+                <div className="text-xs text-neutral-600 pt-1 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-neutral-400" />
+                  <span>Resume used: <strong>{getResumeLabel(selectedApp.resume_version_used)}</strong></span>
+                </div>
+              )}
+
+              {/* Job Link */}
+              {selectedApp.jd_url && (
+                <div className="pt-1">
+                  <a
+                    href={selectedApp.jd_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-neutral-900 underline flex items-center gap-1"
+                  >
+                    <span>View original job posting</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
+
+              {/* Notes */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-[11px] font-semibold text-neutral-700">Interview &amp; Application Notes</label>
+                <Textarea
+                  value={localNotes}
+                  onChange={(e) => setLocalNotes(e.target.value)}
+                  placeholder="Paste interview questions, recruiter notes, timeline updates..."
+                  className="text-xs min-h-[110px] resize-none border-neutral-200 bg-neutral-50/50"
+                />
+              </div>
+
+              {/* Footer Actions */}
+              <div className="flex items-center justify-between pt-3 border-t border-neutral-100">
+                <button
+                  type="button"
+                  onClick={() => setDeleteConfirmOpen(true)}
+                  className="text-xs text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete</span>
+                </button>
+
+                <Button
+                  onClick={handleCloseDetails}
+                  className="bg-black hover:bg-neutral-800 text-white text-xs h-8 px-4"
+                >
+                  Done
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── DELETE CONFIRMATION ALERT ─── */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent className="max-w-[360px] p-5 rounded-xl border-neutral-200">
+          <AlertDialogHeader className="text-left space-y-1">
+            <AlertDialogTitle className="text-sm font-bold text-neutral-900">
+              Delete Application?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-neutral-500">
+              Are you sure you want to remove this application from your tracker? This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="flex items-center gap-2 mt-4">
-            <AlertDialogCancel className="flex-1 h-9 rounded-xl text-xs font-semibold m-0">Cancel</AlertDialogCancel>
+          <div className="flex items-center justify-end gap-2 mt-4">
+            <AlertDialogCancel className="text-xs h-8 border-neutral-200">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="flex-1 h-9 rounded-xl text-xs font-semibold bg-destructive text-destructive-foreground hover:bg-destructive/90 m-0"
-              onClick={() => {
-                if (deleteAppTarget) {
-                  deleteMutation.mutate(deleteAppTarget.id);
-                  setDeleteAppTarget(null);
-                  setSelectedApp(null);
-                }
-              }}
+              onClick={() => selectedApp && deleteMutation.mutate(selectedApp.id)}
+              className="bg-red-600 hover:bg-red-700 text-white text-xs h-8"
             >
               Delete
             </AlertDialogAction>
@@ -879,6 +645,6 @@ export default function ApplicationsPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      </div>
+    </div>
   );
 }

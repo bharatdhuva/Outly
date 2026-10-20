@@ -611,33 +611,26 @@ export default function AtsScorePage() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 sm:px-8 py-6 sm:py-10 space-y-8 animate-fade-in pb-20 text-left">
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        accept=".pdf,.docx,.txt"
-        onChange={handleFileUpload}
-      />
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left">
+      {/* Top Header matching ResumeTailor & ResumeVault */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            Resume / Checker
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
+            ATS Resume Checker
+          </h1>
+          <p className="text-[13px] text-neutral-500 font-normal mt-1">
+            We check your resume against 27 factors that applicant tracking systems look at, and tell you exactly what to fix.
+          </p>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         
-        {/* ─── LEFT COLUMN: HEADER & UPLOAD / PREVIEW ─── */}
+        {/* ─── LEFT COLUMN: UPLOAD / PREVIEW ─── */}
         <div className="lg:col-span-6 space-y-6 text-left">
-          
-          {/* Header Title Section matching screenshot */}
-          <div className="space-y-3">
-            <span className="text-[11px] font-semibold tracking-[0.25em] text-neutral-400 uppercase font-sans">
-              RESUME / CHECKER
-            </span>
-            <h1 className="text-4xl sm:text-[46px] font-bold text-neutral-900 tracking-tight leading-[1.08] font-sans">
-              Is your resume<br className="hidden sm:inline" /> good enough?
-            </h1>
-            <p className="text-[14px] text-neutral-500 font-normal leading-relaxed max-w-md mt-2">
-              We check your resume against 27 factors that applicant tracking systems look at, and tell you exactly what to fix.
-            </p>
-          </div>
-
           {/* Upload card matching screenshot */}
           <div className="space-y-3">
             {isLimitExceeded ? (
@@ -905,6 +898,14 @@ export default function AtsScorePage() {
       </div>
 
       <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        accept=".pdf,.docx,.txt"
+        onChange={handleFileUpload}
+      />
     </div>
   );
 }

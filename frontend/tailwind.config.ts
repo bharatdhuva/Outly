@@ -20,9 +20,10 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Poppins", "Inter", "system-ui", "sans-serif"],
+        geist: ["Geist", "Inter", "system-ui", "sans-serif"],
         rubik: ["Rubik", "sans-serif"],
         serif: ["Playfair Display", "serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        mono: ["IBM Plex Mono", "JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {
         outly: {
