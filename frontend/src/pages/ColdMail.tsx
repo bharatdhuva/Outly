@@ -80,7 +80,7 @@ const pipelineOrder = [
 export default function ColdMailPage() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Persistent states stored in sessionStorage
   const [selected, setSelected] = useState<string | null>(() => {
     return sessionStorage.getItem("cm_selected") || null;
@@ -120,7 +120,7 @@ export default function ColdMailPage() {
   const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
   const [showSettingsPrompt, setShowSettingsPrompt] = useState(false);
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
-  
+
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024);
   const [mobileDetailsOpen, setMobileDetailsOpen] = useState<boolean>(() => {
     return sessionStorage.getItem("cm_mobileDetailsOpen") === "true";
@@ -412,7 +412,7 @@ export default function ColdMailPage() {
 
       {/* ─── MAIN CONTENT CONTAINER (MATCHING RESUME VAULT & JOB SEARCH) ─── */}
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left font-sans">
-        
+
         {/* Top Header matching ResumeVault, JobSearch, AtsScore & ResumeTailor */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
           <div>
@@ -566,21 +566,19 @@ export default function ColdMailPage() {
         <div className="inline-flex items-center p-1 bg-white border border-neutral-200/90 rounded-xl shadow-3xs select-none">
           <button
             onClick={() => setMainMode("manual")}
-            className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-              mainMode === "manual"
+            className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-all cursor-pointer ${mainMode === "manual"
                 ? "bg-[#141414] text-white shadow-xs"
                 : "text-neutral-500 hover:text-neutral-900"
-            }`}
+              }`}
           >
             Manual Outreach
           </button>
           <button
             onClick={() => setMainMode("csv")}
-            className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-              mainMode === "csv"
+            className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-all cursor-pointer ${mainMode === "csv"
                 ? "bg-[#141414] text-white shadow-xs"
                 : "text-neutral-500 hover:text-neutral-900"
-            }`}
+              }`}
           >
             CSV Bulk Import
           </button>
@@ -679,17 +677,16 @@ export default function ColdMailPage() {
                                 setMobileDetailsOpen(true);
                               }
                             }}
-                            className={`w-full px-4 py-3.5 text-left transition-all border-l-[3px] flex flex-col gap-2 cursor-pointer ${
-                              isSelected
+                            className={`w-full px-4 py-3.5 text-left transition-all border-l-[3px] flex flex-col gap-2 cursor-pointer ${isSelected
                                 ? "bg-neutral-50/80 border-l-[#2DC08D]"
                                 : "border-l-transparent hover:bg-neutral-50/40"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3 w-full">
                               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-100 font-mono text-xs font-bold text-neutral-700 shrink-0 border border-neutral-200/60">
                                 {company.company_name.slice(0, 2).toUpperCase()}
                               </div>
-                              
+
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5">
                                   <p className="text-xs font-bold text-neutral-900 truncate">
@@ -725,9 +722,8 @@ export default function ColdMailPage() {
                                 {pipelineOrder.map((_, si) => (
                                   <div
                                     key={si}
-                                    className={`h-1.5 w-3 rounded-full transition-colors ${
-                                      si <= stepIdx ? "bg-[#2DC08D]" : "bg-neutral-200"
-                                    }`}
+                                    className={`h-1.5 w-3 rounded-full transition-colors ${si <= stepIdx ? "bg-[#2DC08D]" : "bg-neutral-200"
+                                      }`}
                                   />
                                 ))}
                               </div>
@@ -1192,7 +1188,7 @@ export default function ColdMailPage() {
                                 handleGenerateCheck(() => {
                                   setLoadingId(selectedCompany.id);
                                   setGenerationStep("🔍 Researching Company Profile...");
-                                  
+
                                   const steps = [
                                     "🌐 Crawling Website & Tech Stack...",
                                     "📰 Scanning Social Media & News...",
@@ -1355,7 +1351,7 @@ export default function ColdMailPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
+
       <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
     </>
   );

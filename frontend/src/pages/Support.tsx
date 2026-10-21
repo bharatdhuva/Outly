@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from "react";
-import { 
-  Search, 
-  X, 
-  Mail, 
-  Globe, 
-  ArrowUpRight, 
-  FileText, 
-  ShieldCheck, 
-  CreditCard, 
-  Compass, 
+import {
+  Search,
+  X,
+  Mail,
+  Globe,
+  ArrowUpRight,
+  FileText,
+  ShieldCheck,
+  CreditCard,
+  Compass,
   HelpCircle,
   Headset
 } from "lucide-react";
@@ -201,11 +201,11 @@ export default function SupportPage() {
   return (
     <div className="min-h-full w-full font-geist py-8 sm:py-12 px-4 sm:px-6 flex flex-col items-center justify-start animate-fade-in text-neutral-900 select-none">
       <div className="w-full max-w-4xl space-y-12 sm:space-y-16">
-        
+
         {/* ─── SECTION A: COMPACT HERO & SEARCH BAR ─── */}
         <section className="text-center max-w-xl mx-auto space-y-3">
           {/* Eyebrow */}
-          <div className="hidden sm:inline-flex items-center gap-2 mb-1">
+          <div className="inline-flex items-center gap-2 mb-1">
             <Headset className="w-3.5 h-3.5 text-[#2DC08D]" />
             <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
               HELP CENTER
@@ -285,20 +285,18 @@ export default function SupportPage() {
                 <button
                   key={topic.id}
                   onClick={() => handleTopicClick(topic.id)}
-                  className={`group text-left p-6 sm:p-7 rounded-[26px] border bg-white transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 cursor-pointer flex flex-col justify-between ${
-                    isSelected
-                      ? "border-zinc-900 ring-2 ring-zinc-900/10 shadow-md"
-                      : "border-black/[0.06] hover:border-black/15"
-                  }`}
+                  className={`group text-left p-6 sm:p-7 rounded-[26px] border bg-white transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 cursor-pointer flex flex-col justify-between ${isSelected
+                    ? "border-zinc-900 ring-2 ring-zinc-900/10 shadow-md"
+                    : "border-black/[0.06] hover:border-black/15"
+                    }`}
                   aria-pressed={isSelected}
                 >
                   <div className="space-y-4">
                     <div
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 border border-black/[0.03] ${
-                        isSelected
-                          ? "bg-[#111111] text-white shadow-sm"
-                          : "bg-[#F5F5F7] text-zinc-800 group-hover:bg-[#111111] group-hover:text-white"
-                      }`}
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 border border-black/[0.03] ${isSelected
+                        ? "bg-[#111111] text-white shadow-sm"
+                        : "bg-[#F5F5F7] text-zinc-800 group-hover:bg-[#111111] group-hover:text-white"
+                        }`}
                     >
                       <Icon className="w-5 h-5" />
                     </div>
@@ -341,11 +339,10 @@ export default function SupportPage() {
             <div className="flex flex-wrap items-center gap-1.5">
               <button
                 onClick={() => setSelectedCategory("all")}
-                className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer ${
-                  selectedCategory === "all"
-                    ? "bg-neutral-900 text-white shadow-2xs"
-                    : "bg-white border border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
-                }`}
+                className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer ${selectedCategory === "all"
+                  ? "bg-neutral-900 text-white shadow-2xs"
+                  : "bg-white border border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                  }`}
               >
                 All
               </button>
@@ -353,11 +350,10 @@ export default function SupportPage() {
                 <button
                   key={topic.id}
                   onClick={() => setSelectedCategory(topic.id)}
-                  className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer ${
-                    selectedCategory === topic.id
-                      ? "bg-neutral-900 text-white shadow-2xs"
-                      : "bg-white border border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
-                  }`}
+                  className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer ${selectedCategory === topic.id
+                    ? "bg-neutral-900 text-white shadow-2xs"
+                    : "bg-white border border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                    }`}
                 >
                   {topic.title}
                 </button>
@@ -430,7 +426,7 @@ export default function SupportPage() {
 
           {/* Three Compact, Visually Consistent Contact Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            
+
             {/* 1. Email Support */}
             <a
               href={`mailto:${CONTACT_CONFIG.email}?subject=Outly%20Support%20Inquiry`}
@@ -469,7 +465,7 @@ export default function SupportPage() {
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.03] flex items-center justify-center text-zinc-900 group-hover:bg-[#111111] group-hover:text-white transition-all duration-300">
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                   </svg>
                 </div>
                 <div>
