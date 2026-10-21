@@ -177,7 +177,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Sync state FROM localStorage once userEmail is loaded
   useEffect(() => {
     if (token && !userData) return;
-    
+
     const emailToLoad = userData?.user?.email || "anonymous";
     try {
       const saved = localStorage.getItem(`outly_notifications_${emailToLoad}`);
@@ -309,7 +309,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       const isNowPremium = localStorage.getItem("outly_premium_user") === "true";
       setIsPremium(isNowPremium);
-      
+
       // Dispatch notification on upgrade success
       if (isNowPremium) {
         // Read current notifications to see if they already contain "Upgraded to Pro! 🚀"
@@ -485,403 +485,395 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-transparent text-outly-dark flex flex-col font-sans overflow-x-clip">
-      
+
       {/* Header Spacer Wrapper to prevent layout shift */}
       <div className="h-16 w-full shrink-0 relative bg-[#FAF8F5] md:bg-[#EDE9E2]">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
         <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E2DDD3]/60 bg-[#FAF8F5]/95 md:bg-[#EDE9E2]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
-        <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
-          
-          {/* Left: Brand Logo */}
-          <div className="flex h-full items-center gap-10 lg:gap-12">
-            <Link to="/onboarding" className="flex h-full -translate-y-px items-center hover:opacity-90 transition-opacity">
-              <img 
-                src={logoTransparent} 
-                alt="Outly Logo" 
-                className="h-[24px] md:h-7 -translate-y-px w-auto object-contain shrink-0"
-              />
-            </Link>
+          <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
 
-            {/* Middle: Desktop Links & Dropdowns */}
-            <nav className="hidden h-full items-center gap-7 lg:gap-8 font-sans md:flex">
-              
-              {/* Dropdown 1: RESUMES */}
-              <div 
-                className="relative h-full flex items-center"
-                onMouseEnter={() => openDropdown("resumes")}
-                onMouseLeave={scheduleDropdownClose}
-              >
-                <button 
-                  type="button"
-                  onClick={() => toggleDropdown("resumes")}
-                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
-                    (isResumeActive || activeDropdown === "resumes")
-                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
-                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                  }`}
-                >
-                  <span>Resume</span>
-                  <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${
-                    (isResumeActive || activeDropdown === "resumes") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
-                  } ${activeDropdown === "resumes" ? "rotate-180" : ""}`} />
-                </button>
-
-                {activeDropdown === "resumes" && (
-                  <div
-                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
-                    onMouseEnter={() => openDropdown("resumes")}
-                    onMouseLeave={scheduleDropdownClose}
-                  >
-                    {/* Left: Tools */}
-                    <div className="col-span-7 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">Tools</div>
-                      <div className="space-y-1">
-                        <Link 
-                          to="/ats-score" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                            {/* Circle Check (ATS Resume Checker) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10" />
-                              <polyline points="8 12 11 15 16 9" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">ATS Resume Checker</span>
-                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Analyze your resume against ATS algorithms.</span>
-                          </div>
-                        </Link>
-
-                        <Link 
-                          to="/resume-tailor" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                            {/* 3D Cube (AI Resume Builder) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-                              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                              <line x1="12" y1="22.08" x2="12" y2="12" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Tailor Resume</span>
-                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Tailor your CV for specific job descriptions.</span>
-                          </div>
-                        </Link>
-
-                        <Link 
-                          to="/resume-vault" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                            {/* Document List (Resume Examples) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                              <polyline points="14 2 14 8 20 8" />
-                              <line x1="16" y1="13" x2="8" y2="13" />
-                              <line x1="16" y1="17" x2="8" y2="17" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Resume Vault</span>
-                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Manage saved resumes and tailored versions.</span>
-                          </div>
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Right: Learning */}
-                    <div className="col-span-5 border-l border-[#E2DDD3] pl-4 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
-                      <div className="space-y-3.5 pt-1">
-                        <button 
-                          onClick={() => setActiveGuide("how-to-write")}
-                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                        >
-                          How to write a resume
-                        </button>
-                        <button 
-                          onClick={() => setActiveGuide("resume-format")}
-                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                        >
-                          Choosing a resume format
-                        </button>
-                        <button 
-                          onClick={() => setActiveGuide("resume-summary")}
-                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                        >
-                          Writing a resume summary
-                        </button>
-                        <button 
-                          onClick={() => setActiveGuide("one-page")}
-                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                        >
-                          Fit experience on one page
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Dropdown 2: JOBS */}
-              <div 
-                className="relative h-full flex items-center"
-                onMouseEnter={() => openDropdown("jobs")}
-                onMouseLeave={scheduleDropdownClose}
-              >
-                <button 
-                  type="button"
-                  onClick={() => toggleDropdown("jobs")}
-                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
-                    (isJobsActive || activeDropdown === "jobs")
-                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
-                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                  }`}
-                >
-                  <span>Jobs</span>
-                  <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${
-                    (isJobsActive || activeDropdown === "jobs") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
-                  } ${activeDropdown === "jobs" ? "rotate-180" : ""}`} />
-                </button>
-
-                {activeDropdown === "jobs" && (
-                  <div
-                    className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
-                    onMouseEnter={() => openDropdown("jobs")}
-                    onMouseLeave={scheduleDropdownClose}
-                  >
-                    {/* Left: Job Search */}
-                    <div className="col-span-7 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">Job Search</div>
-                      <div className="space-y-1">
-                        <Link 
-                          to="/job-search" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                            {/* Office Building (Job Board) — Enhancv style */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-                              <line x1="9" y1="22" x2="9" y2="16" />
-                              <line x1="9" y1="16" x2="15" y2="16" />
-                              <line x1="15" y1="16" x2="15" y2="22" />
-                              <line x1="9" y1="8" x2="9.01" y2="8" />
-                              <line x1="15" y1="8" x2="15.01" y2="8" />
-                              <line x1="9" y1="12" x2="9.01" y2="12" />
-                              <line x1="15" y1="12" x2="15.01" y2="12" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Job Search</span>
-                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Find matches and track them instantly.</span>
-                          </div>
-                        </Link>
-
-                        <Link 
-                          to="/applications" 
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                            {/* Target/Bullseye (Job Tracker) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10" />
-                              <circle cx="12" cy="12" r="6" />
-                              <circle cx="12" cy="2" r="2" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Job Tracker</span>
-                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Organize your applications in a visual board.</span>
-                          </div>
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Right: Resources */}
-                    <div className="col-span-5 border-l border-[#E2DDD3] pl-4 space-y-2.5">
-                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
-                      <div className="space-y-3.5 pt-1">
-                        <button 
-                          onClick={() => setActiveGuide("interview-prep")}
-                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                        >
-                          Job Interview Guides
-                        </button>
-                        <button 
-                          onClick={() => setActiveGuide("salary-negotiation")}
-                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                        >
-                          Salary negotiation guide
-                        </button>
-                        <button 
-                          onClick={() => setActiveGuide("linkedin-networking")}
-                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                        >
-                          LinkedIn networking tactics
-                        </button>
-                        <button 
-                          onClick={() => setActiveGuide("sprint-strategy")}
-                          className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                        >
-                          Job search sprint strategy
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Dropdown 3: TOOLS */}
-              <div 
-                className="relative h-full flex items-center"
-                onMouseEnter={() => openDropdown("tools")}
-                onMouseLeave={scheduleDropdownClose}
-              >
-                <button 
-                  type="button"
-                  onClick={() => toggleDropdown("tools")}
-                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
-                    (isToolsActive || activeDropdown === "tools")
-                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
-                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                  }`}
-                >
-                  <span>Tools</span>
-                  <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${
-                    (isToolsActive || activeDropdown === "tools") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
-                  } ${activeDropdown === "tools" ? "rotate-180" : ""}`} />
-                </button>
-
-                {activeDropdown === "tools" && (
-                  <div
-                    className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
-                    onMouseEnter={() => openDropdown("tools")}
-                    onMouseLeave={scheduleDropdownClose}
-                  >
-                    <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">AI Outreach</div>
-                    <div className="space-y-1">
-                      <Link 
-                        to="/cold-mail" 
-                        className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                      >
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                          {/* Envelope (Cold Mail) */}
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                            <polyline points="22,6 12,13 2,6" />
-                          </svg>
-                        </div>
-                        <div>
-                          <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Cold Mail Automation</span>
-                          <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Automate personalized emails to recruiters.</span>
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Standalone Link: PRICING */}
-              <Link 
-                to="/pricing"
-                className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
-                  isPricingActive
-                    ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
-                    : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                }`}
-              >
-                <span>Pricing</span>
+            {/* Left: Brand Logo */}
+            <div className="flex h-full items-center gap-10 lg:gap-12">
+              <Link to="/onboarding" className="flex h-full -translate-y-px items-center hover:opacity-90 transition-opacity">
+                <img
+                  src={logoTransparent}
+                  alt="Outly Logo"
+                  className="h-[24px] md:h-7 -translate-y-px w-auto object-contain shrink-0"
+                />
               </Link>
 
-              {/* Standalone Link: SUPPORT */}
-              <Link 
-                to="/support"
-                className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${
-                  isSupportActive
-                    ? "border-[#2DC08D] text-[#2DC08D] font-semibold" 
-                    : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                }`}
-              >
-                <span>Support</span>
-              </Link>
+              {/* Middle: Desktop Links & Dropdowns */}
+              <nav className="hidden h-full items-center gap-7 lg:gap-8 font-sans md:flex">
 
-            </nav>
-          </div>
+                {/* Dropdown 1: RESUMES */}
+                <div
+                  className="relative h-full flex items-center"
+                  onMouseEnter={() => openDropdown("resumes")}
+                  onMouseLeave={scheduleDropdownClose}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleDropdown("resumes")}
+                    className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${(isResumeActive || activeDropdown === "resumes")
+                        ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
+                        : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
+                      }`}
+                  >
+                    <span>Resume</span>
+                    <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${(isResumeActive || activeDropdown === "resumes") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                      } ${activeDropdown === "resumes" ? "rotate-180" : ""}`} />
+                  </button>
 
-          {/* Right Side: Profile initials & Logout CTA */}
-          <div className="flex items-center gap-4">
-
-            {/* Desktop Notification Bell */}
-            <div className="relative hidden md:block" ref={desktopNotificationMenuRef}>
-              <button
-                type="button"
-                className="relative p-2 text-[#4A4844] hover:text-outly-dark active:scale-95 transition-all outline-none rounded-full hover:bg-black/5 cursor-pointer"
-                onClick={() => setNotificationsOpen(prev => !prev)}
-                aria-label="Notifications"
-              >
-                <Bell className="h-[19px] w-[19px]" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#EDE9E2]">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-              
-              {notificationsOpen && (
-                <div className="absolute right-0 top-full mt-2.5 w-[300px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2 animate-in fade-in-0 zoom-in-95">
-                  <div className="px-4 py-2 border-b border-zinc-100 flex items-center justify-between">
-                    <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
-                    {unreadCount > 0 && (
-                      <button 
-                        onClick={markAllNotificationsAsRead}
-                        className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
-                      >
-                        Mark all as read
-                      </button>
-                    )}
-                  </div>
-                  <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
-                        No notifications yet
-                      </div>
-                    ) : (
-                      notifications.map(item => (
-                        <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
-                          {!item.read && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-start gap-2">
-                              <span className="text-[11.5px] font-bold text-zinc-800 truncate">{item.title}</span>
-                              <span className="text-[8.5px] text-zinc-400 font-medium shrink-0">{item.time}</span>
+                  {activeDropdown === "resumes" && (
+                    <div
+                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
+                      onMouseEnter={() => openDropdown("resumes")}
+                      onMouseLeave={scheduleDropdownClose}
+                    >
+                      {/* Left: Tools */}
+                      <div className="col-span-7 space-y-2.5">
+                        <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">Tools</div>
+                        <div className="space-y-1">
+                          <Link
+                            to="/ats-score"
+                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
+                          >
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                              {/* Circle Check (ATS Resume Checker) */}
+                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="8 12 11 15 16 9" />
+                              </svg>
                             </div>
-                            <p className="text-[10px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Desktop Profile Info & Logout Dropdown */}
-            <div className="relative hidden md:block" ref={profileMenuRef}>
-              <button 
-                onClick={() => setProfileMenuOpen(prev => !prev)}
-                className="flex items-center gap-2.5 select-none hover:opacity-85 transition focus:outline-none cursor-pointer py-1.5 px-2.5 rounded-xl hover:bg-black/5"
-              >
-                <PlanStatusAvatar isPremium={isPremium} profilePic={profilePic} fullName={fullName} initials={initials} />
-                <span className="text-[12px] font-bold text-foreground max-w-[120px] truncate">{fullName}</span>
-                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform duration-200 ${profileMenuOpen ? "rotate-180" : ""}`} />
-              </button>
+                            <div>
+                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">ATS Resume Checker</span>
+                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Analyze your resume against ATS algorithms.</span>
+                            </div>
+                          </Link>
 
-              {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#EDE9E2] border border-[#E2DDD3] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                          <Link
+                            to="/resume-tailor"
+                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
+                          >
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                              {/* 3D Cube (AI Resume Builder) */}
+                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                                <line x1="12" y1="22.08" x2="12" y2="12" />
+                              </svg>
+                            </div>
+                            <div>
+                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Tailor Resume</span>
+                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Tailor your CV for specific job descriptions.</span>
+                            </div>
+                          </Link>
+
+                          <Link
+                            to="/resume-vault"
+                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
+                          >
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                              {/* Document List (Resume Examples) */}
+                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                              </svg>
+                            </div>
+                            <div>
+                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Resume Vault</span>
+                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Manage saved resumes and tailored versions.</span>
+                            </div>
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Right: Learning */}
+                      <div className="col-span-5 border-l border-[#E2DDD3] pl-4 space-y-2.5">
+                        <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
+                        <div className="space-y-3.5 pt-1">
+                          <button
+                            onClick={() => setActiveGuide("how-to-write")}
+                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          >
+                            How to write a resume
+                          </button>
+                          <button
+                            onClick={() => setActiveGuide("resume-format")}
+                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          >
+                            Choosing a resume format
+                          </button>
+                          <button
+                            onClick={() => setActiveGuide("resume-summary")}
+                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          >
+                            Writing a resume summary
+                          </button>
+                          <button
+                            onClick={() => setActiveGuide("one-page")}
+                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          >
+                            Fit experience on one page
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Dropdown 2: JOBS */}
+                <div
+                  className="relative h-full flex items-center"
+                  onMouseEnter={() => openDropdown("jobs")}
+                  onMouseLeave={scheduleDropdownClose}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleDropdown("jobs")}
+                    className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${(isJobsActive || activeDropdown === "jobs")
+                        ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
+                        : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
+                      }`}
+                  >
+                    <span>Jobs</span>
+                    <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${(isJobsActive || activeDropdown === "jobs") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                      } ${activeDropdown === "jobs" ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {activeDropdown === "jobs" && (
+                    <div
+                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
+                      onMouseEnter={() => openDropdown("jobs")}
+                      onMouseLeave={scheduleDropdownClose}
+                    >
+                      {/* Left: Job Search */}
+                      <div className="col-span-7 space-y-2.5">
+                        <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">Job Search</div>
+                        <div className="space-y-1">
+                          <Link
+                            to="/job-search"
+                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
+                          >
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                              {/* Office Building (Job Board) — Enhancv style */}
+                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                                <line x1="9" y1="22" x2="9" y2="16" />
+                                <line x1="9" y1="16" x2="15" y2="16" />
+                                <line x1="15" y1="16" x2="15" y2="22" />
+                                <line x1="9" y1="8" x2="9.01" y2="8" />
+                                <line x1="15" y1="8" x2="15.01" y2="8" />
+                                <line x1="9" y1="12" x2="9.01" y2="12" />
+                                <line x1="15" y1="12" x2="15.01" y2="12" />
+                              </svg>
+                            </div>
+                            <div>
+                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Job Search</span>
+                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Find matches and track them instantly.</span>
+                            </div>
+                          </Link>
+
+                          <Link
+                            to="/applications"
+                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
+                          >
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                              {/* Target/Bullseye (Job Tracker) */}
+                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <circle cx="12" cy="12" r="6" />
+                                <circle cx="12" cy="2" r="2" />
+                              </svg>
+                            </div>
+                            <div>
+                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Job Tracker</span>
+                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Organize your applications in a visual board.</span>
+                            </div>
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Right: Resources */}
+                      <div className="col-span-5 border-l border-[#E2DDD3] pl-4 space-y-2.5">
+                        <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
+                        <div className="space-y-3.5 pt-1">
+                          <button
+                            onClick={() => setActiveGuide("interview-prep")}
+                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          >
+                            Job Interview Guides
+                          </button>
+                          <button
+                            onClick={() => setActiveGuide("salary-negotiation")}
+                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          >
+                            Salary negotiation guide
+                          </button>
+                          <button
+                            onClick={() => setActiveGuide("linkedin-networking")}
+                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          >
+                            LinkedIn networking tactics
+                          </button>
+                          <button
+                            onClick={() => setActiveGuide("sprint-strategy")}
+                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
+                          >
+                            Job search sprint strategy
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Dropdown 3: TOOLS */}
+                <div
+                  className="relative h-full flex items-center"
+                  onMouseEnter={() => openDropdown("tools")}
+                  onMouseLeave={scheduleDropdownClose}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleDropdown("tools")}
+                    className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${(isToolsActive || activeDropdown === "tools")
+                        ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
+                        : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
+                      }`}
+                  >
+                    <span>Tools</span>
+                    <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${(isToolsActive || activeDropdown === "tools") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                      } ${activeDropdown === "tools" ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {activeDropdown === "tools" && (
+                    <div
+                      className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
+                      onMouseEnter={() => openDropdown("tools")}
+                      onMouseLeave={scheduleDropdownClose}
+                    >
+                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">AI Outreach</div>
+                      <div className="space-y-1">
+                        <Link
+                          to="/cold-mail"
+                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
+                        >
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                            {/* Envelope (Cold Mail) */}
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                              <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                          </div>
+                          <div>
+                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Cold Mail Automation</span>
+                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Automate personalized emails to recruiters.</span>
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Standalone Link: PRICING */}
+                <Link
+                  to="/pricing"
+                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${isPricingActive
+                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
+                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
+                    }`}
+                >
+                  <span>Pricing</span>
+                </Link>
+
+                {/* Standalone Link: SUPPORT */}
+                <Link
+                  to="/support"
+                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${isSupportActive
+                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
+                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
+                    }`}
+                >
+                  <span>Support</span>
+                </Link>
+
+              </nav>
+            </div>
+
+            {/* Right Side: Profile initials & Logout CTA */}
+            <div className="flex items-center gap-4">
+
+              {/* Desktop Notification Bell */}
+              <div className="relative hidden md:block" ref={desktopNotificationMenuRef}>
+                <button
+                  type="button"
+                  className="relative p-2 text-[#4A4844] hover:text-outly-dark active:scale-95 transition-all outline-none rounded-full hover:bg-black/5 cursor-pointer"
+                  onClick={() => setNotificationsOpen(prev => !prev)}
+                  aria-label="Notifications"
+                >
+                  <Bell className="h-[19px] w-[19px]" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#EDE9E2]">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {notificationsOpen && (
+                  <div className="absolute right-0 top-full mt-2.5 w-[300px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2 animate-in fade-in-0 zoom-in-95">
+                    <div className="px-4 py-2 border-b border-zinc-100 flex items-center justify-between">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllNotificationsAsRead}
+                          className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+                    <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
+                          No notifications yet
+                        </div>
+                      ) : (
+                        notifications.map(item => (
+                          <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
+                            {!item.read && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-start gap-2">
+                                <span className="text-[11.5px] font-bold text-zinc-800 truncate">{item.title}</span>
+                                <span className="text-[8.5px] text-zinc-400 font-medium shrink-0">{item.time}</span>
+                              </div>
+                              <p className="text-[10px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Profile Info & Logout Dropdown */}
+              <div className="relative hidden md:block" ref={profileMenuRef}>
+                <button
+                  onClick={() => setProfileMenuOpen(prev => !prev)}
+                  className="flex items-center gap-2.5 select-none hover:opacity-85 transition focus:outline-none cursor-pointer py-1.5 px-2.5 rounded-xl hover:bg-black/5"
+                >
+                  <PlanStatusAvatar isPremium={isPremium} profilePic={profilePic} fullName={fullName} initials={initials} />
+                  <span className="text-[12px] font-bold text-foreground max-w-[120px] truncate">{fullName}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform duration-200 ${profileMenuOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {profileMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#EDE9E2] border border-[#E2DDD3] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
@@ -893,7 +885,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         </span>
                       </div>
                     ) : (
-                      <button 
+                      <button
                         onClick={() => {
                           setProfileMenuOpen(false);
                           navigate("/pricing");
@@ -904,7 +896,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         Upgrade to Pro
                       </button>
                     )}
-                    <button 
+                    <button
                       onClick={() => {
                         setProfileMenuOpen(false);
                         navigate("/settings");
@@ -914,7 +906,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <SettingsIcon className="h-3.5 w-3.5" />
                       Settings
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         setProfileMenuOpen(false);
                         navigate("/support");
@@ -925,7 +917,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       Support &amp; Help
                     </button>
                     <div className="h-px bg-[#e8e2d5] my-1" />
-                    <button 
+                    <button
                       onClick={() => {
                         setProfileMenuOpen(false);
                         handleLogout();
@@ -936,87 +928,87 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       Sign Out
                     </button>
                   </div>
-              )}
-            </div>
-
-            {/* Mobile Notification Bell */}
-            <div className="relative md:hidden mr-1" ref={mobileNotificationMenuRef}>
-              <button
-                type="button"
-                className="relative p-2 text-[#4A4844] active:scale-95 transition-all outline-none rounded-full hover:bg-black/5"
-                onClick={() => setNotificationsOpen(prev => !prev)}
-                aria-label="Notifications"
-              >
-                <Bell className="h-[21px] w-[21px]" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#FAF8F5] md:ring-[#EDE9E2]">
-                    {unreadCount}
-                  </span>
                 )}
-              </button>
-              
-              {notificationsOpen && (
-                <div className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2.5 animate-in fade-in-0 zoom-in-95">
-                  <div className="px-4 pb-2 border-b border-zinc-50 flex items-center justify-between">
-                    <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
-                    {unreadCount > 0 && (
-                      <button 
-                        onClick={markAllNotificationsAsRead}
-                        className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
-                      >
-                        Mark all as read
-                      </button>
-                    )}
-                  </div>
-                  <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
-                        No notifications yet
-                      </div>
-                    ) : (
-                      notifications.map(item => (
-                        <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
-                          {!item.read && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-start gap-2">
-                              <span className="text-[12px] font-bold text-zinc-800 truncate">{item.title}</span>
-                              <span className="text-[9px] text-zinc-400 font-medium shrink-0">{item.time}</span>
-                            </div>
-                            <p className="text-[10.5px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
-                          </div>
+              </div>
+
+              {/* Mobile Notification Bell */}
+              <div className="relative md:hidden mr-1" ref={mobileNotificationMenuRef}>
+                <button
+                  type="button"
+                  className="relative p-2 text-[#4A4844] active:scale-95 transition-all outline-none rounded-full hover:bg-black/5"
+                  onClick={() => setNotificationsOpen(prev => !prev)}
+                  aria-label="Notifications"
+                >
+                  <Bell className="h-[21px] w-[21px]" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#FAF8F5] md:ring-[#EDE9E2]">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {notificationsOpen && (
+                  <div className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2.5 animate-in fade-in-0 zoom-in-95">
+                    <div className="px-4 pb-2 border-b border-zinc-50 flex items-center justify-between">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllNotificationsAsRead}
+                          className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+                    <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
+                          No notifications yet
                         </div>
-                      ))
-                    )}
+                      ) : (
+                        notifications.map(item => (
+                          <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
+                            {!item.read && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-start gap-2">
+                                <span className="text-[12px] font-bold text-zinc-800 truncate">{item.title}</span>
+                                <span className="text-[9px] text-zinc-400 font-medium shrink-0">{item.time}</span>
+                              </div>
+                              <p className="text-[10.5px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* Mobile Profile Avatar Trigger & Dropdown */}
-            <div className="relative md:hidden" ref={mobileProfileMenuRef}>
-              <button
-                onClick={() => setProfileMenuOpen(prev => !prev)}
-                type="button"
-                className="flex items-center justify-center focus:outline-none cursor-pointer shrink-0"
-                aria-label="Open profile menu"
-              >
-                <PlanStatusAvatar 
-                  isPremium={isPremium} 
-                  profilePic={profilePic} 
-                  fullName={fullName} 
-                  initials={initials} 
-                  sizeClass="h-8 w-8 text-[11px]"
-                />
-              </button>
+              {/* Mobile Profile Avatar Trigger & Dropdown */}
+              <div className="relative md:hidden" ref={mobileProfileMenuRef}>
+                <button
+                  onClick={() => setProfileMenuOpen(prev => !prev)}
+                  type="button"
+                  className="flex items-center justify-center focus:outline-none cursor-pointer shrink-0"
+                  aria-label="Open profile menu"
+                >
+                  <PlanStatusAvatar
+                    isPremium={isPremium}
+                    profilePic={profilePic}
+                    fullName={fullName}
+                    initials={initials}
+                    sizeClass="h-8 w-8 text-[11px]"
+                  />
+                </button>
 
-              {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                {profileMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#f0ece4]">
                       {fullName}
                     </div>
-                    
+
                     {isPremium ? (
                       <div className="px-3 py-2.5 border-b border-[#f0ece4] bg-primary/5 flex items-center gap-2 select-none">
                         <Sparkles className="h-3.5 w-3.5 fill-primary/10 text-primary animate-pulse" />
@@ -1025,7 +1017,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         </span>
                       </div>
                     ) : (
-                      <button 
+                      <button
                         onClick={() => {
                           setProfileMenuOpen(false);
                           navigate("/pricing");
@@ -1037,7 +1029,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       </button>
                     )}
 
-                    <button 
+                    <button
                       onClick={() => {
                         setProfileMenuOpen(false);
                         navigate("/settings");
@@ -1047,7 +1039,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <SettingsIcon className="h-3.5 w-3.5" />
                       Settings
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         setProfileMenuOpen(false);
                         navigate("/support");
@@ -1058,7 +1050,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       Support &amp; Help
                     </button>
                     <div className="h-px bg-[#e8e2d5] my-1" />
-                    <button 
+                    <button
                       onClick={() => {
                         setProfileMenuOpen(false);
                         handleLogout();
@@ -1069,12 +1061,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       Sign Out
                     </button>
                   </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </header>
-    </div>
+        </header>
+      </div>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
       <main className="flex-1 w-full flex flex-col min-h-0 pb-24 md:pb-0 overflow-x-clip">
@@ -1083,28 +1075,26 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       {/* ─── MOBILE BOTTOM TAB BAR ─── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] bg-[#FAF8F5]/95 backdrop-blur-md border-t border-[#E8E4DC]/80 flex items-center justify-around shadow-[0_-2px_12px_rgba(0,0,0,0.03)] select-none">
-        
+
         {/* Tab 1: Resumes */}
-        <Link 
+        <Link
           to="/resumes"
           className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
         >
           {(() => {
             const isActive = location.pathname === "/resumes" ||
-                             location.pathname === "/resume-vault" || 
-                             location.pathname === "/resume-tailor" || 
-                             location.pathname === "/ats-score" || 
-                             location.pathname.startsWith("/resume-");
+              location.pathname === "/resume-vault" ||
+              location.pathname === "/resume-tailor" ||
+              location.pathname === "/ats-score" ||
+              location.pathname.startsWith("/resume-");
             return (
               <>
-                <div className={`transition-all duration-200 ${
-                  isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
-                }`}>
+                <div className={`transition-all duration-200 ${isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
+                  }`}>
                   <ScrollText className="h-5 w-5 transition-colors duration-200" />
                 </div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
-                }`}>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
+                  }`}>
                   Resumes
                 </span>
               </>
@@ -1113,25 +1103,23 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </Link>
 
         {/* Tab 2: Jobs */}
-        <Link 
+        <Link
           to="/jobs"
           className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
         >
           {(() => {
             const isActive = location.pathname === "/jobs" ||
-                             location.pathname === "/applications" || 
-                             location.pathname === "/job-search" || 
-                             location.pathname === "/analytics";
+              location.pathname === "/applications" ||
+              location.pathname === "/job-search" ||
+              location.pathname === "/analytics";
             return (
               <>
-                <div className={`transition-all duration-200 ${
-                  isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
-                }`}>
+                <div className={`transition-all duration-200 ${isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
+                  }`}>
                   <Briefcase className="h-5 w-5 transition-colors duration-200" />
                 </div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
-                }`}>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
+                  }`}>
                   Jobs
                 </span>
               </>
@@ -1140,24 +1128,22 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </Link>
 
         {/* Tab 3: Tools */}
-        <Link 
+        <Link
           to="/tools"
           className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
         >
           {(() => {
             const isActive = location.pathname === "/tools" ||
-                             location.pathname === "/cold-mail" || 
-                             location.pathname === "/logs";
+              location.pathname === "/cold-mail" ||
+              location.pathname === "/logs";
             return (
               <>
-                <div className={`transition-all duration-200 ${
-                  isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
-                }`}>
+                <div className={`transition-all duration-200 ${isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
+                  }`}>
                   <Wrench className="h-5 w-5 transition-colors duration-200" />
                 </div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
-                }`}>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
+                  }`}>
                   Tools
                 </span>
               </>
@@ -1166,24 +1152,22 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </Link>
 
         {/* Tab 4: Profile */}
-        <Link 
+        <Link
           to="/settings"
           className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
         >
           {(() => {
-            const isActive = location.pathname === "/settings" || 
-                             location.pathname === "/pricing" || 
-                             location.pathname === "/support";
+            const isActive = location.pathname === "/settings" ||
+              location.pathname === "/pricing" ||
+              location.pathname === "/support";
             return (
               <>
-                <div className={`transition-all duration-200 ${
-                  isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
-                }`}>
+                <div className={`transition-all duration-200 ${isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
+                  }`}>
                   <User className="h-5 w-5 transition-colors duration-200" />
                 </div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${
-                  isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
-                }`}>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
+                  }`}>
                   Profile
                 </span>
               </>
@@ -1206,7 +1190,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   {guidesData[activeGuide].description}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <div className="py-4 text-left">
                 {guidesData[activeGuide].content}
               </div>

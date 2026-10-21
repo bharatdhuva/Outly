@@ -40,7 +40,7 @@ export default function AnalyticsPage() {
     <div className="mx-auto w-full max-w-6xl space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <div className="inline-flex items-center gap-2 mb-1">
+        <div className="hidden sm:inline-flex items-center gap-2 mb-1">
           <TrendingUp className="w-3.5 h-3.5 text-[#2DC08D]" />
           <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
             Analytics / Dashboard

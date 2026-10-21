@@ -310,7 +310,7 @@ export default function SettingsPage() {
       
       {/* Hero text header */}
       <div className="space-y-3 text-left">
-        <div className="inline-flex items-center gap-2">
+        <div className="hidden sm:inline-flex items-center gap-2">
           <SettingsIcon className="w-3.5 h-3.5 text-[#2DC08D]" />
           <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
             SETTINGS

@@ -616,7 +616,7 @@ export default function AtsScorePage() {
       {/* Top Header matching ResumeTailor & ResumeVault */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div>
-          <div className="inline-flex items-center gap-2 mb-1">
+          <div className="hidden sm:inline-flex items-center gap-2 mb-1">
             <CheckCircle className="w-3.5 h-3.5 text-[#2DC08D]" />
             <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
               Resume / Checker
@@ -635,52 +635,52 @@ export default function AtsScorePage() {
         
         {/* ─── LEFT COLUMN: UPLOAD / PREVIEW ─── */}
         <div className="lg:col-span-6 space-y-6 text-left">
-          {/* Upload card matching screenshot */}
+          {/* Upload card matching Vidyst design */}
           <div className="space-y-3">
             {isLimitExceeded ? (
-              <div className="rounded-2xl border border-neutral-200/80 bg-white p-8 sm:p-10 text-center select-none shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3">
-                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
+              <div className="rounded-[28px] border border-black/[0.06] bg-white p-8 sm:p-10 text-center select-none shadow-[0_4px_24px_rgba(0,0,0,0.025)] space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
                   <Lock className="w-5 h-5 shrink-0" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-neutral-900">
+                  <h3 className="text-sm font-bold text-zinc-900">
                     Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : " (3/3)"}
                   </h3>
-                  <p className="text-xs text-neutral-500 max-w-xs mx-auto leading-relaxed">
+                  <p className="text-xs text-zinc-500 max-w-xs mx-auto leading-relaxed">
                     You've used your 3 free resume checks. Upgrade to Outly Pro for unlimited scans.
                   </p>
                 </div>
                 <Button
                   onClick={() => navigate("/pricing")}
-                  className="bg-neutral-950 hover:bg-neutral-800 text-white text-xs font-semibold px-5 h-9 rounded-lg cursor-pointer"
+                  className="bg-[#111111] hover:bg-black text-white text-xs font-semibold px-6 h-10 rounded-full cursor-pointer shadow-sm active:scale-95"
                 >
                   Upgrade to Pro
                 </Button>
               </div>
             ) : parsingFile || showScanLoader ? (
-              <div className="rounded-2xl border border-neutral-200/80 bg-white p-8 sm:p-12 text-center shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center min-h-[260px] space-y-3">
-                <Loader2 className="w-6 h-6 animate-spin text-neutral-800" />
+              <div className="rounded-[28px] border border-black/[0.06] bg-white p-8 sm:p-12 text-center shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col items-center justify-center min-h-[260px] space-y-3">
+                <Loader2 className="w-6 h-6 animate-spin text-zinc-900" />
                 <div className="space-y-1">
-                  <p className="text-xs font-semibold text-neutral-800">
+                  <p className="text-xs font-semibold text-zinc-900">
                     {parsingFile ? "Uploading resume..." : scanStatus || "Checking 27 factors..."}
                   </p>
-                  <p className="font-mono text-[11px] text-neutral-400">
+                  <p className="font-mono text-[11px] text-zinc-400">
                     {parsingFile ? `${uploadProgress}% processed` : `${scanProgress}% analyzed`}
                   </p>
                 </div>
-                <div className="w-48 h-1 bg-neutral-100 rounded-full overflow-hidden">
+                <div className="w-48 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-neutral-900 rounded-full transition-all duration-300"
+                    className="h-full bg-zinc-900 rounded-full transition-all duration-300"
                     style={{ width: `${parsingFile ? uploadProgress : scanProgress}%` }}
                   />
                 </div>
               </div>
             ) : result ? (
-              <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3.5">
-                <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+              <div className="rounded-[28px] border border-black/[0.06] bg-white p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.025)] space-y-3.5">
+                <div className="flex items-center justify-between pb-3 border-b border-black/[0.04]">
                   <div className="flex items-center gap-2 truncate pr-2">
-                    <FileText className="w-4 h-4 text-neutral-500 shrink-0" />
-                    <span className="text-xs font-semibold text-neutral-900 truncate">
+                    <FileText className="w-4 h-4 text-zinc-500 shrink-0" />
+                    <span className="text-xs font-semibold text-zinc-900 truncate">
                       {resumeFile ? resumeFile.name : resumeFileName || "Uploaded Resume"}
                     </span>
                   </div>
@@ -692,18 +692,18 @@ export default function AtsScorePage() {
                       setResumeFileName("");
                       setSelectedVaultId("custom");
                     }}
-                    className="text-[11px] font-medium text-neutral-400 hover:text-neutral-900 cursor-pointer transition-colors shrink-0"
+                    className="text-[11px] font-semibold text-zinc-400 hover:text-zinc-900 cursor-pointer transition-colors shrink-0"
                   >
                     Change file
                   </button>
                 </div>
 
-                <div className="max-h-[360px] overflow-y-auto rounded-lg border border-neutral-100 bg-neutral-50/50 p-3">
+                <div className="max-h-[360px] overflow-y-auto rounded-2xl border border-black/[0.04] bg-[#F5F5F7]/50 p-3">
                   {result.isValidResume === false ? (
                     <div className="text-center py-6 px-4 space-y-2">
                       <AlertCircle className="w-6 h-6 text-amber-500 mx-auto" />
-                      <p className="text-xs font-semibold text-neutral-900">Invalid Resume Document</p>
-                      <p className="text-[11px] text-neutral-500 leading-relaxed max-w-xs mx-auto">
+                      <p className="text-xs font-semibold text-zinc-900">Invalid Resume Document</p>
+                      <p className="text-[11px] text-zinc-500 leading-relaxed max-w-xs mx-auto">
                         {result.error || "The uploaded document lacks standard resume sections (Experience, Education, Skills)."}
                       </p>
                     </div>
@@ -712,41 +712,41 @@ export default function AtsScorePage() {
                   ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
                     <PdfViewer url={api.resume.getFileUrl(selectedVaultId)} />
                   ) : (
-                    <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-neutral-700">
+                    <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-zinc-700">
                       {resume}
                     </pre>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 sm:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+              <div className="rounded-[28px] border border-black/[0.06] bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.025)]">
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border border-dashed rounded-xl p-8 sm:p-14 text-center flex flex-col items-center justify-center transition-all cursor-pointer ${
+                  className={`border-2 border-dashed rounded-2xl p-8 sm:p-14 text-center flex flex-col items-center justify-center transition-all cursor-pointer ${
                     isDragging
-                      ? "border-neutral-900 bg-neutral-50"
-                      : "border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50/50"
+                      ? "border-zinc-900 bg-zinc-50"
+                      : "border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50/50"
                   }`}
                 >
-                  <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight font-sans">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight font-sans">
                     Drop your resume here
                   </h2>
-                  <p className="text-xs sm:text-sm text-neutral-500 mt-2.5">
-                    or <span className="underline underline-offset-4 text-neutral-900 font-semibold">browse files</span>
+                  <p className="text-xs sm:text-sm text-zinc-500 mt-2.5">
+                    or <span className="underline underline-offset-4 text-zinc-900 font-semibold">browse files</span>
                   </p>
-                  <p className="font-mono text-[11px] text-neutral-400 mt-6 tracking-wide">
+                  <p className="font-mono text-[11px] text-zinc-400 mt-6 tracking-wide">
                     PDF, DOCX, TXT · up to 5 MB
                   </p>
                 </div>
 
                 {resumes.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-neutral-100 flex items-center justify-between text-xs" onClick={(e) => e.stopPropagation()}>
-                    <span className="text-[11px] text-neutral-400 font-medium">Or select from Vault:</span>
+                  <div className="mt-4 pt-4 border-t border-black/[0.04] flex items-center justify-between text-xs" onClick={(e) => e.stopPropagation()}>
+                    <span className="text-[11px] text-zinc-400 font-medium">Or select from Vault:</span>
                     <select
-                      className="text-[11px] bg-neutral-50 border border-neutral-200 rounded-lg px-2.5 py-1 text-neutral-700 focus:outline-none focus:border-neutral-400 cursor-pointer max-w-[200px] truncate"
+                      className="text-[11px] bg-zinc-50 border border-zinc-200 rounded-lg px-2.5 py-1 text-zinc-700 focus:outline-none focus:border-zinc-400 cursor-pointer max-w-[200px] truncate"
                       value={selectedVaultId}
                       onChange={(e) => handleVaultSelect(e.target.value)}
                     >
@@ -762,15 +762,15 @@ export default function AtsScorePage() {
               </div>
             )}
 
-            <div className="flex items-center gap-2 text-xs text-neutral-400 font-normal pl-1">
-              <Lock className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
+            <div className="flex items-center gap-2 text-xs text-zinc-400 font-normal pl-1">
+              <Lock className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
               <span>Your resume stays private and is never shared.</span>
             </div>
           </div>
         </div>
 
         {/* ─── RIGHT COLUMN: ATS REPORT CARD ─── */}
-        <div className="lg:col-span-6 rounded-2xl border border-neutral-200/80 bg-white p-6 sm:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col justify-between text-left">
+        <div className="lg:col-span-6 rounded-[28px] border border-black/[0.06] bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col justify-between text-left">
           
           <div>
             {/* Header */}

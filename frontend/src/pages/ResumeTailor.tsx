@@ -735,7 +735,7 @@ export default function ResumeTailorPage() {
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
           <div>
-            <div className="inline-flex items-center gap-2 mb-1">
+            <div className="hidden sm:inline-flex items-center gap-2 mb-1">
               <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
               <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
                 Resume / Tailor
@@ -878,7 +878,7 @@ export default function ResumeTailorPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div>
-          <div className="inline-flex items-center gap-2 mb-1">
+          <div className="hidden sm:inline-flex items-center gap-2 mb-1">
             <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
             <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
               Resume / Tailor
@@ -917,9 +917,9 @@ export default function ResumeTailorPage() {
             </span>
           </div>
 
-          <div className="rounded-xl border border-neutral-200/80 bg-white p-4 h-[320px] sm:h-[440px] shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col focus-within:border-neutral-400 transition-colors">
+          <div className="rounded-[28px] border border-black/[0.06] bg-white p-6 h-[340px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col focus-within:border-black/20 transition-all">
             <textarea
-              className="flex-1 w-full resize-none border-0 bg-transparent text-[12.5px] leading-relaxed text-neutral-800 placeholder:text-neutral-400 focus:outline-none font-mono"
+              className="flex-1 w-full resize-none border-0 bg-transparent text-[13px] leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:outline-none font-mono"
               placeholder="Paste the job description here..."
               value={jobDesc}
               onChange={(e) => setJobDesc(e.target.value)}
@@ -930,16 +930,16 @@ export default function ResumeTailorPage() {
         {/* Right Column: 02 Your resume */}
         <div className="space-y-2 flex flex-col">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold text-neutral-900 flex items-center gap-1.5">
-              <span className="font-mono text-neutral-400 font-normal">02</span>
+            <h2 className="text-xs font-semibold text-zinc-900 flex items-center gap-1.5">
+              <span className="font-mono text-zinc-400 font-normal">02</span>
               <span>Your resume</span>
             </h2>
-            <span className="text-[11px] font-mono text-neutral-400">
+            <span className="text-[11px] font-mono text-zinc-400">
               PDF, DOCX, TXT · 5 MB
             </span>
           </div>
 
-          <div className="rounded-xl border border-neutral-200/80 bg-white p-4 h-[320px] sm:h-[440px] shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col">
+          <div className="rounded-[28px] border border-black/[0.06] bg-white p-6 h-[340px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col">
             <input
               type="file"
               ref={fileInputRef}
@@ -1078,7 +1078,7 @@ export default function ResumeTailorPage() {
         <button
           onClick={handleTailor}
           disabled={tailoring || !resumeText || !jobDesc.trim() || isValidResume === false}
-          className="self-end sm:self-auto bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:cursor-not-allowed text-white text-xs font-medium px-5 py-2.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-xs"
+          className="self-end sm:self-auto bg-[#111111] hover:bg-black disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-white text-xs font-semibold px-6 py-3 rounded-full flex items-center gap-2 transition-all cursor-pointer shrink-0 shadow-sm active:scale-95"
         >
           {tailoring ? (
             <>
@@ -1095,11 +1095,11 @@ export default function ResumeTailorPage() {
 
       {/* TAILORING ANIMATED PROGRESS LOADER CARD */}
       {tailoring && (
-        <div className="w-full bg-white border border-neutral-200/80 rounded-xl p-10 text-center shadow-xs space-y-3 animate-fade-in">
-          <Loader2 className="h-8 w-8 animate-spin text-neutral-800 mx-auto" />
+        <div className="w-full bg-white border border-black/[0.06] rounded-[28px] p-10 text-center shadow-[0_4px_24px_rgba(0,0,0,0.025)] space-y-3 animate-fade-in">
+          <Loader2 className="h-8 w-8 animate-spin text-zinc-900 mx-auto" />
           <div className="space-y-1 max-w-sm mx-auto">
-            <h3 className="text-xs font-semibold text-neutral-900">AI Tailoring in Progress{tailoringDots}</h3>
-            <p className="text-[11px] text-neutral-500 leading-relaxed">
+            <h3 className="text-xs font-semibold text-zinc-900">AI Tailoring in Progress{tailoringDots}</h3>
+            <p className="text-[11px] text-zinc-500 leading-relaxed font-normal">
               Outly AI is parsing requirements, extracting role skills, and rewriting your resume points. This takes about 10-15 seconds.
             </p>
           </div>

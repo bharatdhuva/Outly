@@ -416,7 +416,7 @@ export default function ColdMailPage() {
         {/* Top Header matching ResumeVault, JobSearch, AtsScore & ResumeTailor */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
           <div>
-            <div className="inline-flex items-center gap-2 mb-1">
+            <div className="hidden sm:inline-flex items-center gap-2 mb-1">
               <Mail className="w-3.5 h-3.5 text-[#2DC08D]" />
               <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
                 Tools / Cold Mail

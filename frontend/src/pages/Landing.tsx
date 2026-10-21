@@ -18,6 +18,14 @@ import {
   Check,
   ArrowRight,
   Sparkles,
+  ShieldCheck,
+  Zap,
+  BarChart3,
+  FolderLock,
+  Mail,
+  Calendar,
+  Search,
+  ChevronDown,
 } from "lucide-react";
 
 // ─── TYPES & DATA STRUCTURES ───
@@ -1161,19 +1169,29 @@ export default function Landing() {
                   We believe that job searching shouldn't feel like a second full-time job. By bringing structure, clarity, and organization to your daily outreach, Outly lets you focus on what really matters: preparing for interviews and doing great work.
                 </p>
               </div>
-              <div className="bg-outly-cream/40 rounded-3xl p-6 sm:p-10 border border-outly-border shadow-soft space-y-4 flex flex-col justify-center">
+              <div className="bg-white rounded-[28px] p-7 sm:p-9 border border-black/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 space-y-6 flex flex-col justify-center">
                 <div className="flex gap-4 items-start">
-                  <div className="w-10 h-10 rounded-xl bg-outly-accent/10 flex items-center justify-center text-outly-accent shrink-0 select-none">🛡️</div>
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 shrink-0">
+                    <ShieldCheck className="w-6 h-6 text-zinc-800" />
+                  </div>
                   <div>
-                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">100% Private & Secure</h5>
-                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">Your data is stored locally or securely in your private cloud. We never sell your personal information or resume data.</p>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <h5 className="font-bold text-sm sm:text-base text-zinc-900 tracking-tight">100% Private &amp; Secure</h5>
+                    </div>
+                    <p className="text-xs text-zinc-500 leading-relaxed font-normal">Your data is stored locally or securely in your private cloud. We never sell your personal information or resume data.</p>
                   </div>
                 </div>
                 <div className="flex gap-4 items-start">
-                  <div className="w-10 h-10 rounded-xl bg-outly-accent/10 flex items-center justify-center text-outly-accent shrink-0 select-none">⚡</div>
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 shrink-0">
+                    <Zap className="w-6 h-6 text-zinc-800" />
+                  </div>
                   <div>
-                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">Zero Configuration</h5>
-                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">No complicated setup. Just upload your master resume and start managing your applications instantly.</p>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <h5 className="font-bold text-sm sm:text-base text-zinc-900 tracking-tight">Zero Configuration</h5>
+                    </div>
+                    <p className="text-xs text-zinc-500 leading-relaxed font-normal">No complicated setup. Just upload your master resume and start managing your applications instantly.</p>
                   </div>
                 </div>
               </div>
@@ -1181,63 +1199,93 @@ export default function Landing() {
           )}
 
           {infoTab === "features" && (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 text-left animate-fade-in">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 text-left animate-fade-in">
               {/* Feature 1 */}
-              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-[26px] border border-black/[0.06] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
-                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">📊</div>
-                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Application Tracker</h4>
-                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 mb-4 select-none">
+                    <BarChart3 className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <h4 className="font-bold text-sm sm:text-base text-zinc-900 tracking-tight">Application Tracker</h4>
+                  </div>
+                  <p className="text-xs text-zinc-500 leading-relaxed font-normal">
                     A visual Kanban board to track your job applications from applied to interviewing to offer stage.
                   </p>
                 </div>
               </div>
               {/* Feature 2 */}
-              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-[26px] border border-black/[0.06] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
-                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">📁</div>
-                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Resume Vault</h4>
-                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 mb-4 select-none">
+                    <FolderLock className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <h4 className="font-bold text-sm sm:text-base text-zinc-900 tracking-tight">Resume Vault</h4>
+                  </div>
+                  <p className="text-xs text-zinc-500 leading-relaxed font-normal">
                     Store your master resume and manage all tailored variants in one secure, accessible repository.
                   </p>
                 </div>
               </div>
               {/* Feature 3 */}
-              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-[26px] border border-black/[0.06] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
-                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">✉️</div>
-                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Outreach Manager</h4>
-                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 mb-4 select-none">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <h4 className="font-bold text-sm sm:text-base text-zinc-900 tracking-tight">Outreach Manager</h4>
+                  </div>
+                  <p className="text-xs text-zinc-500 leading-relaxed font-normal">
                     Organize your recruiter conversations, track follow-ups, and make sure you never miss a reply.
                   </p>
                 </div>
               </div>
               {/* Feature 4 */}
-              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-[26px] border border-black/[0.06] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
-                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">📝</div>
-                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">ATS Analysis</h4>
-                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 mb-4 select-none">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <h4 className="font-bold text-sm sm:text-base text-zinc-900 tracking-tight">ATS Analysis</h4>
+                  </div>
+                  <p className="text-xs text-zinc-500 leading-relaxed font-normal">
                     Analyze job descriptions to see how well your profile matches, with actionable tips to optimize it.
                   </p>
                 </div>
               </div>
               {/* Feature 5 */}
-              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-[26px] border border-black/[0.06] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
-                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">📅</div>
-                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Content Scheduler</h4>
-                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 mb-4 select-none">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <h4 className="font-bold text-sm sm:text-base text-zinc-900 tracking-tight">Content Scheduler</h4>
+                  </div>
+                  <p className="text-xs text-zinc-500 leading-relaxed font-normal">
                     Build your professional brand by scheduling posts for LinkedIn and Twitter directly from your dashboard.
                   </p>
                 </div>
               </div>
               {/* Feature 6 */}
-              <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-[26px] border border-black/[0.06] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
-                  <div className="w-8 h-8 rounded-lg bg-outly-accent/10 flex items-center justify-center text-outly-accent mb-4 select-none">🔍</div>
-                  <h4 className="font-bold text-sm sm:text-base text-outly-dark mb-2">Smart Search</h4>
-                  <p className="text-[11px] sm:text-xs text-outly-dark/50 leading-relaxed">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 mb-4 select-none">
+                    <Search className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <h4 className="font-bold text-sm sm:text-base text-zinc-900 tracking-tight">Smart Search</h4>
+                  </div>
+                  <p className="text-xs text-zinc-500 leading-relaxed font-normal">
                     Filter and find jobs across multiple platforms based on your exact skills and experience level.
                   </p>
                 </div>
@@ -1246,38 +1294,49 @@ export default function Landing() {
           )}
 
           {infoTab === "why-us" && (
-            <div className="grid md:grid-cols-2 gap-8 text-left animate-fade-in">
-              <div className="bg-white rounded-3xl border border-outly-border p-6 sm:p-8 shadow-soft flex flex-col justify-between">
+            <div className="grid md:grid-cols-2 gap-6 text-left animate-fade-in items-stretch">
+              {/* Left: Signature Vidyst contrast dark card */}
+              <div className="bg-[#111111] text-white rounded-[28px] border border-white/10 p-7 sm:p-9 shadow-xl shadow-black/10 flex flex-col justify-between">
                 <div className="space-y-4">
-                  <span className="text-[9px] font-bold text-outly-accent uppercase tracking-widest block">THE OUTLY DIFFERENCE</span>
-                  <h4 className="text-xl sm:text-2xl font-bold text-outly-dark tracking-tight">
-                    Built for <span className="italic-serif text-outly-accent font-normal">privacy,</span> not data harvesting.
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">THE OUTLY DIFFERENCE</span>
+                  </div>
+                  <h4 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
+                    Built for privacy,<br />not data harvesting.
                   </h4>
-                  <p className="text-xs sm:text-sm text-outly-dark/60 leading-relaxed font-medium">
+                  <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-normal">
                     Most career platforms make money by selling your resume data to recruiters or third parties. Outly is different. Your workspace belongs entirely to you. We charge a flat, transparent fee for our cloud features, ensuring our incentives align with your success.
                   </p>
                 </div>
               </div>
-              <div className="space-y-4">
-                <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft flex gap-4 items-start">
-                  <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0 select-none font-bold">✓</div>
+
+              <div className="space-y-4 flex flex-col justify-between">
+                <div className="bg-white rounded-[24px] border border-black/[0.06] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.05)] hover:-translate-y-0.5 transition-all duration-300 flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 select-none font-bold">
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                  </div>
                   <div>
-                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">No Ads or Spam</h5>
-                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">A clean, distraction-free interface focused purely on your productivity.</p>
+                    <h5 className="font-bold text-sm text-zinc-900">No Ads or Spam</h5>
+                    <p className="text-xs text-zinc-500 leading-relaxed mt-1 font-normal">A clean, distraction-free interface focused purely on your productivity.</p>
                   </div>
                 </div>
-                <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft flex gap-4 items-start">
-                  <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0 select-none font-bold">✓</div>
+                <div className="bg-white rounded-[24px] border border-black/[0.06] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.05)] hover:-translate-y-0.5 transition-all duration-300 flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 select-none font-bold">
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                  </div>
                   <div>
-                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">Lightning Fast Performance</h5>
-                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">Optimized React architecture designed for instant transitions and smooth animations.</p>
+                    <h5 className="font-bold text-sm text-zinc-900">Lightning Fast Performance</h5>
+                    <p className="text-xs text-zinc-500 leading-relaxed mt-1 font-normal">Optimized React architecture designed for instant transitions and smooth animations.</p>
                   </div>
                 </div>
-                <div className="bg-white rounded-2xl border border-outly-border p-5 shadow-soft flex gap-4 items-start">
-                  <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0 select-none font-bold">✓</div>
+                <div className="bg-white rounded-[24px] border border-black/[0.06] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.05)] hover:-translate-y-0.5 transition-all duration-300 flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 select-none font-bold">
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                  </div>
                   <div>
-                    <h5 className="font-bold text-xs sm:text-sm text-outly-dark">Active Support</h5>
-                    <p className="text-[10px] sm:text-xs text-outly-dark/50 leading-relaxed mt-1">Direct access to our support team to resolve any queries or custom feature requests.</p>
+                    <h5 className="font-bold text-sm text-zinc-900">Active Support</h5>
+                    <p className="text-xs text-zinc-500 leading-relaxed mt-1 font-normal">Direct access to our support team to resolve any queries or custom feature requests.</p>
                   </div>
                 </div>
               </div>
@@ -1297,227 +1356,242 @@ export default function Landing() {
             Less searching.<br /><span className="italic-serif text-outly-accent">More actual work.</span>
           </h2>
         </div>
-        <div ref={featuresGridRef} className="grid md:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
+        <div ref={featuresGridRef} className="grid md:grid-cols-3 gap-6 mb-4 sm:mb-8">
 
           {/* Card 1 */}
-          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-100 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50 overflow-hidden">
+          <div className={`bg-white p-7 sm:p-9 rounded-[28px] border border-black/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 flex flex-col items-start group cursor-pointer transform transition-all duration-500 ease-out delay-100 ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+            <div className="w-full h-28 sm:h-36 bg-[#F5F5F7] rounded-2xl mb-6 sm:mb-8 flex items-center justify-center border border-black/[0.03] overflow-hidden">
               <div className="flex flex-col gap-3 w-2/3">
-                <div className="h-1 w-full bg-outly-accent/10 rounded-full overflow-hidden">
-                  <div className={`h-full bg-outly-accent/40 rounded-full transition-all duration-1000 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
+                <div className="h-1.5 w-full bg-zinc-200 rounded-full overflow-hidden">
+                  <div className={`h-full bg-zinc-900 rounded-full transition-all duration-1000 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
                 </div>
-                <div className="h-1 w-5/6 bg-outly-accent/10 rounded-full overflow-hidden">
-                  <div className={`h-full bg-outly-accent/40 rounded-full transition-all duration-1000 delay-100 ${visibleCards ? 'w-5/6' : 'w-0'} group-hover:w-5/6`}></div>
+                <div className="h-1.5 w-5/6 bg-zinc-200 rounded-full overflow-hidden">
+                  <div className={`h-full bg-zinc-900 rounded-full transition-all duration-1000 delay-100 ${visibleCards ? 'w-5/6' : 'w-0'} group-hover:w-5/6`}></div>
                 </div>
-                <div className="h-1 w-full bg-outly-accent/10 rounded-full overflow-hidden">
-                  <div className={`h-full bg-outly-accent/40 rounded-full transition-all duration-1000 delay-200 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
+                <div className="h-1.5 w-full bg-zinc-200 rounded-full overflow-hidden">
+                  <div className={`h-full bg-zinc-900 rounded-full transition-all duration-1000 delay-200 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
                 </div>
-                <div className="flex gap-2 items-center mt-2">
-                  <div className={`w-4 h-4 rounded-full bg-outly-accent/20 transition-transform duration-500 ${visibleCards ? 'scale-110' : ''} group-hover:scale-125`}></div>
-                  <div className="h-1 w-12 bg-outly-accent/20 rounded-full"></div>
+                <div className="flex gap-2 items-center mt-1">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  <div className="h-1.5 w-12 bg-zinc-300 rounded-full"></div>
                 </div>
               </div>
             </div>
-            <h4 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight transition-colors ${visibleCards ? 'text-outly-accent' : ''} group-hover:text-outly-accent`}>Smart Outreach</h4>
-            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Outly identifies the best recruiters and drafts personalized messages that sound exactly like you.</p>
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <h4 className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 group-hover:text-black">Smart Outreach</h4>
+            </div>
+            <p className="text-zinc-500 leading-relaxed text-xs sm:text-sm font-normal">Outly identifies the best recruiters and drafts personalized messages that sound exactly like you.</p>
           </div>
 
           {/* Card 2 */}
-          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-300 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
+          <div className={`bg-white p-7 sm:p-9 rounded-[28px] border border-black/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 flex flex-col items-start group cursor-pointer transform transition-all duration-500 ease-out delay-200 ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+            <div className="w-full h-28 sm:h-36 bg-[#F5F5F7] rounded-2xl mb-6 sm:mb-8 flex items-center justify-center border border-black/[0.03]">
               <div className="relative">
-                <div className={`w-12 h-12 rounded-full border-2 border-outly-accent/20 flex items-center justify-center transition-transform duration-700 ${visibleCards ? 'rotate-180 scale-105' : ''} group-hover:rotate-180 group-hover:scale-110`}>
-                  <div className="w-6 h-6 rounded-full bg-outly-accent/20"></div>
+                <div className={`w-14 h-14 rounded-full border-2 border-zinc-300 flex items-center justify-center transition-transform duration-700 ${visibleCards ? 'rotate-180 scale-105' : ''} group-hover:rotate-180 group-hover:scale-110`}>
+                  <span className="text-xs font-bold text-zinc-900">98%</span>
                 </div>
-                <div className={`absolute -top-2 -right-2 w-4 h-4 bg-outly-accent rounded-full border-2 border-white transition-transform duration-500 ${visibleCards ? 'scale-125 animate-pulse' : ''} group-hover:scale-150`}></div>
+                <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-xs"></div>
               </div>
             </div>
-            <h4 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight transition-colors ${visibleCards ? 'text-outly-accent' : ''} group-hover:text-outly-accent`}>ATS Scoring</h4>
-            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Every job application is instantly scored against your profile with tips to hit 95%+ every time.</p>
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <h4 className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 group-hover:text-black">ATS Scoring</h4>
+            </div>
+            <p className="text-zinc-500 leading-relaxed text-xs sm:text-sm font-normal">Every job application is instantly scored against your profile with tips to hit 95%+ every time.</p>
           </div>
 
           {/* Card 3 */}
-          <div className={`bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outly-border shadow-soft flex flex-col items-start group cursor-pointer transform transition-all duration-700 ease-out delay-500 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="w-full h-28 sm:h-40 bg-outly-cream/50 rounded-xl sm:rounded-2xl mb-6 sm:mb-10 flex items-center justify-center border border-outly-border/50">
-              <div className={`w-16 h-20 bg-white border border-outly-border rounded shadow-sm relative p-2 transition-transform duration-500 ${visibleCards ? 'scale-105 -rotate-2 shadow-md' : ''} group-hover:scale-110 group-hover:-rotate-3 group-hover:shadow-lg`}>
-                <div className="h-1 w-full bg-outly-dark/10 rounded mb-1"></div>
-                <div className="h-1 w-2/3 bg-outly-dark/10 rounded mb-4"></div>
-                <div className="h-4 w-full bg-outly-accent/10 rounded overflow-hidden">
-                  <div className={`h-full bg-outly-accent/30 rounded transition-all duration-1000 delay-300 ${visibleCards ? 'w-full' : 'w-0'} group-hover:w-full`}></div>
+          <div className={`bg-white p-7 sm:p-9 rounded-[28px] border border-black/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 flex flex-col items-start group cursor-pointer transform transition-all duration-500 ease-out delay-300 ${visibleCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+            <div className="w-full h-28 sm:h-36 bg-[#F5F5F7] rounded-2xl mb-6 sm:mb-8 flex items-center justify-center border border-black/[0.03]">
+              <div className={`w-16 h-20 bg-white border border-black/[0.06] rounded-xl shadow-xs relative p-2.5 transition-transform duration-500 ${visibleCards ? 'scale-105 -rotate-2 shadow-md' : ''} group-hover:scale-110 group-hover:-rotate-3`}>
+                <div className="h-1 w-full bg-zinc-200 rounded mb-1.5"></div>
+                <div className="h-1 w-2/3 bg-zinc-200 rounded mb-3"></div>
+                <div className="h-4 w-full bg-emerald-500/10 rounded flex items-center justify-center">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 </div>
               </div>
             </div>
-            <h4 className={`text-lg sm:text-xl font-bold mb-2 sm:mb-4 tracking-tight transition-colors ${visibleCards ? 'text-outly-accent' : ''} group-hover:text-outly-accent`}>Resume Vault</h4>
-            <p className="text-outly-dark/50 leading-relaxed text-xs sm:text-sm font-medium">Outly auto-generates tailored resume versions for every single application, saved and ready to send.</p>
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <h4 className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 group-hover:text-black">Resume Vault</h4>
+            </div>
+            <p className="text-zinc-500 leading-relaxed text-xs sm:text-sm font-normal">Outly auto-generates tailored resume versions for every single application, saved and ready to send.</p>
           </div>
         </div>
       </section>
 
       {/* PRICING SECTION */}
       <section id="pricing" className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center select-none">
-        
+
         {/* Hero Header matching in-app Pricing.tsx */}
         <div className="text-center max-w-xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 mb-1">
-            <Tag className="w-3.5 h-3.5 text-[#2DC08D]" />
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-zinc-500">
               PRICING
             </span>
           </div>
 
-          <h2 className="text-4xl sm:text-[48px] md:text-[54px] font-bold text-neutral-900 tracking-[-0.035em] leading-[1.06]">
+          <h2 className="text-4xl sm:text-[48px] md:text-[54px] font-bold text-zinc-950 tracking-[-0.035em] leading-[1.06]">
             A clearer way to move forward.
           </h2>
-          <p className="text-[14px] sm:text-[15px] text-neutral-500 font-normal leading-relaxed max-w-md mx-auto pt-1">
+          <p className="text-[14px] sm:text-[15px] text-zinc-500 font-normal leading-relaxed max-w-md mx-auto pt-1">
             Tools for a more focused job search. Start free, then upgrade when you need more room.
           </p>
         </div>
 
-        {/* Billing Toggle (Pill Capsule matching in-app Pricing.tsx) */}
-        <div className="inline-flex items-center p-1 bg-white border border-neutral-200/90 rounded-full shadow-xs mx-auto mt-7">
+        {/* ─── BILLING TOGGLE (MIRO STYLE CAPSULE) ─── */}
+        <div className="inline-flex items-center p-1 bg-[#ECEEF2] rounded-full mx-auto mt-7 text-xs font-semibold text-neutral-600">
           <button
             onClick={() => setBillingDuration("monthly")}
-            className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
-              billingDuration === "monthly"
-                ? "bg-[#141414] text-white shadow-xs"
-                : "text-neutral-500 hover:text-neutral-900"
-            }`}
+            className={`px-5 py-1.5 rounded-full transition-all cursor-pointer ${billingDuration === "monthly"
+              ? "bg-white text-neutral-900 shadow-xs"
+              : "text-neutral-600 hover:text-neutral-900"
+              }`}
           >
-            <span>Monthly</span>
-            <span className={`text-[10px] font-medium tracking-tight ${
-              billingDuration === "monthly" ? "text-neutral-300" : "text-neutral-400"
-            }`}>
-              ₹1 trial
-            </span>
+            Monthly
           </button>
           <button
             onClick={() => setBillingDuration("yearly")}
-            className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
-              billingDuration === "yearly"
-                ? "bg-[#141414] text-white shadow-xs"
-                : "text-neutral-500 hover:text-neutral-900"
-            }`}
+            className={`px-5 py-1.5 rounded-full transition-all cursor-pointer ${billingDuration === "yearly"
+              ? "bg-white text-neutral-900 shadow-xs"
+              : "text-neutral-600 hover:text-neutral-900"
+              }`}
           >
-            <span>Yearly</span>
-            <span className={`text-[10px] font-medium tracking-tight ${
-              billingDuration === "yearly" ? "text-neutral-300" : "text-neutral-400"
-            }`}>
-              ₹99 trial
-            </span>
+            Yearly (save 20%)
           </button>
         </div>
 
-        {/* Pricing Cards Grid (2 Cards matching in-app Pricing.tsx) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-[760px] mx-auto mt-8 items-stretch text-left">
-          
-          {/* Card 1: Free */}
-          <div className="border border-neutral-200/80 bg-white rounded-[26px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all hover:border-neutral-300">
+        {/* ─── PRICING CARDS GRID (EXACT 2 CARDS: NORMAL + BLUE) ─── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[800px] mx-auto mt-10 items-stretch text-left">
+
+          {/* ─── CARD 1: NORMAL FREE CARD (MIRO STYLE) ─── */}
+          <div className="border border-neutral-300/90 bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300">
             <div>
-              <h3 className="text-xl font-bold text-neutral-900 tracking-tight">Free</h3>
-              <p className="text-xs text-neutral-500 mt-2 min-h-[32px] leading-relaxed">
-                A simple place to start building momentum.
+              <h3 className="text-3xl font-bold text-neutral-900 tracking-tight">Free</h3>
+              <p className="text-xs text-neutral-500 mt-2 min-h-[36px] leading-relaxed font-normal">
+                For individuals getting started with smarter job search
               </p>
 
               {/* Price block */}
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-5xl font-extrabold text-neutral-900 tracking-tight">₹0</span>
-                <span className="text-xs text-neutral-400 font-normal ml-1">/ month</span>
+              <div className="mt-5 flex items-baseline">
+                <span className="text-5xl font-bold text-neutral-900 tracking-tight">₹0</span>
               </div>
-              <p className="text-[11.5px] text-neutral-400 mt-1 font-normal">no commitment</p>
 
               {/* Button */}
               <button
                 onClick={() => navigateTo("/login")}
-                className="w-full border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-800 text-xs font-semibold py-2.5 rounded-xl text-center shadow-2xs mt-6 cursor-pointer transition-colors"
+                className="w-full mt-6 bg-white hover:bg-neutral-50 text-neutral-900 text-sm font-semibold py-3 px-5 rounded-xl border border-neutral-300 transition-colors shadow-2xs text-center cursor-pointer"
               >
-                Get started free
+                Start for free
               </button>
 
-              {/* Divider */}
-              <div className="border-t border-neutral-100 my-6" />
-
-              {/* Includes list */}
-              <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.18em] mb-3.5">
-                INCLUDES
+              {/* Features section header */}
+              <div className="mt-8 flex items-center justify-between text-xs font-semibold text-neutral-900">
+                <span>Key features:</span>
+                <ChevronDown className="w-4 h-4 text-neutral-500" />
               </div>
-              <ul className="space-y-2.5">
-                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                  <span>Resume Vault</span>
+
+              {/* Real Outly Free Features List */}
+              <ul className="mt-4 space-y-3 text-xs text-neutral-700">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                  <span>3 saved job applications</span>
                 </li>
-                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                  <span>3 saved applications</span>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                  <span>Resume Vault (upload &amp; store resumes)</span>
                 </li>
-                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                  <span>Basic resume checker</span>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                  <span>Basic ATS resume score check</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                  <span>Application status tracker board</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                  <span>Outly Chrome extension sync</span>
                 </li>
               </ul>
             </div>
           </div>
 
-          {/* Card 2: Pro */}
-          <div className="border border-neutral-300 bg-white rounded-[26px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative transition-all hover:border-neutral-400">
-            <div>
-              {/* Top Right Badge */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-neutral-900 tracking-tight">Pro</h3>
-                <span className="text-[9px] font-semibold text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2DC08D] inline-block" />
-                  MOST CHOSEN
-                </span>
-              </div>
+          {/* ─── CARD 2: BRAND FEATURED CARD (OUTLY EMERALD THEME) ─── */}
+          <div className="relative border-2 border-[#2DC08D] bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(45,192,141,0.12)] hover:shadow-[0_16px_40px_rgba(45,192,141,0.22)] hover:-translate-y-1 transition-all duration-300">
+            {/* Centered top floating pill badge */}
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#2DC08D] text-white text-[11px] font-semibold px-4 py-0.5 rounded-full shadow-sm whitespace-nowrap">
+              Best for active job seekers
+            </div>
 
-              <p className="text-xs text-neutral-500 mt-2 min-h-[32px] leading-relaxed">
-                Everything you need to apply with intention.
+            <div>
+              <h3 className="text-3xl font-bold text-neutral-900 tracking-tight">Pro</h3>
+              <p className="text-xs text-neutral-500 mt-2 min-h-[36px] leading-relaxed font-normal">
+                For ambitious job seekers looking to land interviews and offers faster with AI
               </p>
 
               {/* Price block */}
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-5xl font-extrabold text-neutral-900 tracking-tight">
+              <div className="mt-5 flex items-baseline gap-1.5 flex-wrap">
+                <span className="text-5xl font-bold text-neutral-900 tracking-tight">
                   {billingDuration === "yearly" ? "₹99" : "₹1"}
                 </span>
-                <span className="text-xs text-neutral-400 font-normal ml-1">
-                  {billingDuration === "yearly" ? "/ year trial" : "/ month trial"}
+                <span className="text-xs text-neutral-600 font-normal">
+                  /month per member, billed {billingDuration === "yearly" ? "yearly" : "monthly"}
                 </span>
               </div>
-              <p className="text-[11.5px] text-neutral-400 mt-1 font-normal">
-                {billingDuration === "yearly" ? "special ₹99 yearly trial" : "special ₹1 monthly trial"}
-              </p>
 
-              {/* Start Pro CTA Button */}
+              {/* Outly Primary Button */}
               <button
                 onClick={() => navigateTo(isLoggedIn ? "/pricing" : "/login")}
-                className="w-full bg-[#121212] hover:bg-black text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm mt-6 cursor-pointer transition-all active:scale-[0.99]"
+                className="w-full mt-6 bg-[#2DC08D] hover:bg-[#25a77a] text-white text-sm font-semibold py-3 px-5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
               >
-                <span>{billingDuration === "yearly" ? "Start Pro (₹99 Trial)" : "Start Pro (₹1 Trial)"}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Try for free</span>
               </button>
 
-              {/* Divider */}
-              <div className="border-t border-neutral-100 my-6" />
-
-              {/* Includes list */}
-              <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.18em] mb-3.5">
-                INCLUDES
+              {/* Sub-button link: or buy now */}
+              <div className="mt-2.5 text-center text-xs text-neutral-500">
+                or{" "}
+                <button
+                  onClick={() => navigateTo(isLoggedIn ? "/pricing" : "/login")}
+                  className="text-[#2DC08D] font-semibold underline underline-offset-2 hover:text-[#25a77a] cursor-pointer"
+                >
+                  buy now
+                </button>
               </div>
-              <ul className="space-y-2.5">
-                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                  <span>Unlimited applications</span>
+
+              {/* Features section header */}
+              <div className="mt-6 flex items-center justify-between text-xs font-semibold text-neutral-900">
+                <span>Everything in Free, plus:</span>
+                <ChevronDown className="w-4 h-4 text-neutral-500" />
+              </div>
+
+              {/* Real Outly Pro Features List */}
+              <ul className="mt-4 space-y-3 text-xs text-neutral-700">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                  <span>Unlimited job applications &amp; tracking</span>
                 </li>
-                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                  <span>Unlimited resume versions</span>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                  <span>AI resume tailoring for any job description</span>
                 </li>
-                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                  <span>ATS score &amp; keyword insights</span>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                  <span>Deep ATS score &amp; keyword match breakdown</span>
                 </li>
-                <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                  <span>Resume tailoring</span>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                  <span>Unlimited tailored resume versions</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                  <span>Instant AI cover letter generator</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                  <span>Priority AI model processing &amp; instant sync</span>
                 </li>
               </ul>
             </div>
@@ -1558,11 +1632,11 @@ export default function Landing() {
       {/* ─── MINIMAL FOOTER ─── */}
       <footer className="bg-[#FAF8F5] border-t border-neutral-200/70 py-12 font-sans select-none text-left">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          
+
           {/* Left: Brand Logo & Tagline */}
           <div className="space-y-2.5 max-w-sm">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
             >

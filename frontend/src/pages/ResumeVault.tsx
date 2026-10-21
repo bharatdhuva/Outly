@@ -400,7 +400,7 @@ export default function ResumeVaultPage() {
       {/* Top Header matching ResumeTailor & AtsScore */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div>
-          <div className="inline-flex items-center gap-2 mb-1">
+          <div className="hidden sm:inline-flex items-center gap-2 mb-1">
             <FolderArchive className="w-3.5 h-3.5 text-[#2DC08D]" />
             <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
               Resume / Vault
@@ -646,28 +646,28 @@ export default function ResumeVaultPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => navigate("/ats-score")}
-                    className="bg-white hover:bg-neutral-50 text-neutral-800 border border-neutral-200/90 rounded-lg text-xs font-medium px-3.5 py-1.5 shadow-sm transition-all cursor-pointer"
+                    className="bg-white hover:bg-zinc-50 text-zinc-900 border border-black/[0.08] rounded-full text-xs font-semibold px-4 py-2 shadow-2xs transition-all cursor-pointer active:scale-95"
                   >
                     Check ATS
                   </button>
                   <button
                     onClick={() => handleCopyText(selectedResume.content)}
-                    className="bg-white hover:bg-neutral-50 text-neutral-800 border border-neutral-200/90 rounded-lg text-xs font-medium px-3.5 py-1.5 shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="bg-white hover:bg-zinc-50 text-zinc-900 border border-black/[0.08] rounded-full text-xs font-semibold px-4 py-2 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                   >
-                    <Copy className="w-3.5 h-3.5 text-neutral-500" />
+                    <Copy className="w-3.5 h-3.5 text-zinc-500" />
                     <span>Copy text</span>
                   </button>
                 </div>
               </div>
 
               {/* Tabs: Preview / Used in applications */}
-              <div className="border-b border-neutral-200 flex items-center gap-6 mb-6">
+              <div className="border-b border-black/[0.06] flex items-center gap-6 mb-6">
                 <button
                   onClick={() => setActivePreviewTab("preview")}
                   className={`pb-2.5 text-xs sm:text-[13px] transition-colors cursor-pointer ${
                     activePreviewTab === "preview"
-                      ? "text-neutral-900 font-semibold border-b-2 border-black -mb-px"
-                      : "text-neutral-400 hover:text-neutral-800 font-normal border-b-2 border-transparent"
+                      ? "text-zinc-950 font-semibold border-b-2 border-black -mb-px"
+                      : "text-zinc-400 hover:text-zinc-800 font-normal border-b-2 border-transparent"
                   }`}
                 >
                   Preview
@@ -676,8 +676,8 @@ export default function ResumeVaultPage() {
                   onClick={() => setActivePreviewTab("applications")}
                   className={`pb-2.5 text-xs sm:text-[13px] transition-colors cursor-pointer ${
                     activePreviewTab === "applications"
-                      ? "text-neutral-900 font-semibold border-b-2 border-black -mb-px"
-                      : "text-neutral-400 hover:text-neutral-800 font-normal border-b-2 border-transparent"
+                      ? "text-zinc-950 font-semibold border-b-2 border-black -mb-px"
+                      : "text-zinc-400 hover:text-zinc-800 font-normal border-b-2 border-transparent"
                   }`}
                 >
                   Used in applications ({linkedApps.length})
@@ -687,9 +687,9 @@ export default function ResumeVaultPage() {
               {/* Sub-tab Content Panel */}
               {activePreviewTab === "preview" ? (
                 /* Light gray container with PDF viewer or parsed document */
-                <div className="bg-[#f4f4f3] rounded-xl border border-neutral-200/70 p-3 sm:p-6 flex justify-center items-start min-h-[560px]">
+                <div className="bg-[#F5F5F7] rounded-[28px] border border-black/[0.06] p-4 sm:p-8 flex justify-center items-start min-h-[560px]">
                   {isPdf && pdfUrl ? (
-                    <div className="w-full max-w-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-neutral-200/70 rounded-xl overflow-hidden p-2 sm:p-4">
+                    <div className="w-full max-w-2xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-black/[0.06] rounded-[24px] overflow-hidden p-3 sm:p-6">
                       <PdfViewer
                         url={pdfUrl}
                         filename={selectedResume.filename}
@@ -698,7 +698,7 @@ export default function ResumeVaultPage() {
                       />
                     </div>
                   ) : (
-                    <div className="bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-neutral-200/50 w-full max-w-xl p-8 sm:p-12 font-sans text-left">
+                    <div className="bg-white shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-black/[0.06] rounded-[24px] w-full max-w-xl p-8 sm:p-12 font-sans text-left">
                       {/* Centered Document Header */}
                       <div className="text-center mb-6">
                         <h3 className="text-xl sm:text-[22px] font-bold text-neutral-900 tracking-tight">

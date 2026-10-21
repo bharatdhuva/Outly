@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Check, ArrowRight, Lock, Loader2, Sparkles, Tag } from "lucide-react";
+import { Check, ArrowRight, Lock, Loader2, Sparkles, Tag, ChevronDown } from "lucide-react";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import { api } from "@/lib/api";
@@ -180,7 +180,7 @@ export default function Pricing() {
 
   return (
     <div className="min-h-full w-full font-geist py-8 sm:py-12 px-4 sm:px-6 flex flex-col items-center justify-start animate-fade-in text-neutral-900 select-none">
-      
+
       {/* ─── HERO HEADER ─── */}
       <div className="text-center max-w-xl mx-auto space-y-3">
         {/* ─── TOP EYEBROW ─── */}
@@ -199,166 +199,170 @@ export default function Pricing() {
         </p>
       </div>
 
-      {/* ─── BILLING TOGGLE (PILL CAPSULE) ─── */}
-      <div className="inline-flex items-center p-1 bg-white border border-neutral-200/90 rounded-full shadow-xs mx-auto mt-7">
+      {/* ─── BILLING TOGGLE (MIRO STYLE CAPSULE) ─── */}
+      <div className="inline-flex items-center p-1 bg-[#ECEEF2] rounded-full mx-auto mt-7 text-xs font-semibold text-neutral-600">
         <button
           onClick={() => setBillingCycle("monthly")}
-          className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
-            billingCycle === "monthly"
-              ? "bg-[#141414] text-white shadow-xs"
-              : "text-neutral-500 hover:text-neutral-900"
-          }`}
+          className={`px-5 py-1.5 rounded-full transition-all cursor-pointer ${billingCycle === "monthly"
+            ? "bg-white text-neutral-900 shadow-xs"
+            : "text-neutral-600 hover:text-neutral-900"
+            }`}
         >
-          <span>Monthly</span>
-          <span className={`text-[10px] font-medium tracking-tight ${
-            billingCycle === "monthly" ? "text-neutral-300" : "text-neutral-400"
-          }`}>
-            ₹1 trial
-          </span>
+          Monthly
         </button>
         <button
           onClick={() => setBillingCycle("yearly")}
-          className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
-            billingCycle === "yearly"
-              ? "bg-[#141414] text-white shadow-xs"
-              : "text-neutral-500 hover:text-neutral-900"
-          }`}
+          className={`px-5 py-1.5 rounded-full transition-all cursor-pointer ${billingCycle === "yearly"
+            ? "bg-white text-neutral-900 shadow-xs"
+            : "text-neutral-600 hover:text-neutral-900"
+            }`}
         >
-          <span>Yearly</span>
-          <span className={`text-[10px] font-medium tracking-tight ${
-            billingCycle === "yearly" ? "text-neutral-300" : "text-neutral-400"
-          }`}>
-            ₹99 trial
-          </span>
+          Yearly (save 20%)
         </button>
       </div>
 
-      {/* ─── PRICING CARDS GRID (2 CARDS) ─── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-[760px] mx-auto mt-8 items-stretch text-left">
-        
-        {/* ─── CARD 1: FREE ─── */}
-        <div className="border border-neutral-200/80 bg-white rounded-[26px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all hover:border-neutral-300">
+      {/* ─── PRICING CARDS GRID (EXACT 2 CARDS: NORMAL + BLUE) ─── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[800px] mx-auto mt-10 items-stretch text-left">
+
+        {/* ─── CARD 1: NORMAL FREE CARD (MIRO STYLE) ─── */}
+        <div className="border border-neutral-300/90 bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300">
           <div>
-            <h2 className="text-xl font-bold text-neutral-900 tracking-tight">Free</h2>
-            <p className="text-xs text-neutral-500 mt-2 min-h-[32px] leading-relaxed">
-              A simple place to start building momentum.
+            <h2 className="text-3xl font-bold text-neutral-900 tracking-tight">Free</h2>
+            <p className="text-xs text-neutral-500 mt-2 min-h-[36px] leading-relaxed font-normal">
+              For individuals getting started with smarter job search
             </p>
 
             {/* Price block */}
-            <div className="mt-4 flex items-baseline gap-1">
-              <span className="text-5xl font-extrabold text-neutral-900 tracking-tight">₹0</span>
-              <span className="text-xs text-neutral-400 font-normal ml-1">/ month</span>
+            <div className="mt-5 flex items-baseline">
+              <span className="text-5xl font-bold text-neutral-900 tracking-tight">₹0</span>
             </div>
-            <p className="text-[11.5px] text-neutral-400 mt-1 font-normal">no commitment</p>
 
             {/* Button */}
             <button
               disabled
-              className="w-full border border-neutral-200 bg-white text-neutral-700 text-xs font-medium py-2.5 rounded-xl text-center shadow-2xs mt-6 cursor-default"
+              className="w-full mt-6 bg-white hover:bg-neutral-50 text-neutral-900 text-sm font-semibold py-3 px-5 rounded-xl border border-neutral-300 transition-colors shadow-2xs text-center cursor-default"
             >
-              Current plan
+              Start for free
             </button>
 
-            {/* Divider */}
-            <div className="border-t border-neutral-100 my-6" />
-
-            {/* Includes list */}
-            <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.18em] mb-3.5">
-              INCLUDES
+            {/* Features section header */}
+            <div className="mt-8 flex items-center justify-between text-xs font-semibold text-neutral-900">
+              <span>Key features:</span>
+              <ChevronDown className="w-4 h-4 text-neutral-500" />
             </div>
-            <ul className="space-y-2.5">
-              <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                <span>Resume Vault</span>
+
+            {/* Real Outly Free Features List */}
+            <ul className="mt-4 space-y-3 text-xs text-neutral-700">
+              <li className="flex items-start gap-2.5">
+                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                <span>3 saved job applications</span>
               </li>
-              <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                <span>3 saved applications</span>
+              <li className="flex items-start gap-2.5">
+                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                <span>Resume Vault (upload &amp; store resumes)</span>
               </li>
-              <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                <span>Basic resume checker</span>
+              <li className="flex items-start gap-2.5">
+                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                <span>Basic ATS resume score check</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                <span>Application status tracker board</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+                <span>Outly Chrome extension sync</span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* ─── CARD 2: PRO ─── */}
-        <div className="border border-neutral-300 bg-white rounded-[26px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative transition-all hover:border-neutral-400">
-          <div>
-            {/* Top Right Badge */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-neutral-900 tracking-tight">Pro</h2>
-              <span className="text-[9px] font-semibold text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-1">
-                <span className="w-1 h-1 rounded-full bg-neutral-400 inline-block" />
-                MOST CHOSEN
-              </span>
-            </div>
+        {/* ─── CARD 2: BRAND FEATURED CARD (OUTLY EMERALD THEME) ─── */}
+        <div className="relative border-2 border-[#2DC08D] bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(45,192,141,0.12)] hover:shadow-[0_16px_40px_rgba(45,192,141,0.22)] hover:-translate-y-1 transition-all duration-300">
+          {/* Centered top floating pill badge */}
+          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#2DC08D] text-white text-[11px] font-semibold px-4 py-0.5 rounded-full shadow-sm whitespace-nowrap">
+            Best for active job seekers
+          </div>
 
-            <p className="text-xs text-neutral-500 mt-2 min-h-[32px] leading-relaxed">
-              Everything you need to apply with intention.
+          <div>
+            <h2 className="text-3xl font-bold text-neutral-900 tracking-tight">Pro</h2>
+            <p className="text-xs text-neutral-500 mt-2 min-h-[36px] leading-relaxed font-normal">
+              For ambitious job seekers looking to land interviews and offers faster with AI
             </p>
 
             {/* Price block */}
-            <div className="mt-4 flex items-baseline gap-1">
-              <span className="text-5xl font-extrabold text-neutral-900 tracking-tight">
+            <div className="mt-5 flex items-baseline gap-1.5 flex-wrap">
+              <span className="text-5xl font-bold text-neutral-900 tracking-tight">
                 {billingCycle === "yearly" ? "₹99" : "₹1"}
               </span>
-              <span className="text-xs text-neutral-400 font-normal ml-1">
-                {billingCycle === "yearly" ? "/ year trial" : "/ month trial"}
+              <span className="text-xs text-neutral-600 font-normal">
+                /month per member, billed {billingCycle === "yearly" ? "yearly" : "monthly"}
               </span>
             </div>
-            <p className="text-[11.5px] text-neutral-400 mt-1 font-normal">
-              {billingCycle === "yearly" ? "special ₹99 yearly trial" : "special ₹1 monthly trial"}
-            </p>
 
-            {/* Start Pro CTA Button */}
+            {/* Outly Primary Button */}
             <button
               onClick={handleRazorpayPayment}
               disabled={isProcessingPayment}
-              className="w-full bg-[#121212] hover:bg-black text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm mt-6 cursor-pointer transition-all active:scale-[0.99] disabled:opacity-85"
+              className="w-full mt-6 bg-[#2DC08D] hover:bg-[#25a77a] text-white text-sm font-semibold py-3 px-5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] disabled:opacity-85"
             >
               {isProcessingPayment ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Processing...</span>
                 </>
               ) : isPremium ? (
                 <>
-                  <Sparkles className="w-3.5 h-3.5 text-neutral-400" />
+                  <Sparkles className="w-4 h-4 text-white" />
                   <span>Active Pro Plan</span>
                 </>
               ) : (
-                <>
-                  <span>{billingCycle === "yearly" ? "Start Pro (₹99 Trial)" : "Start Pro (₹1 Trial)"}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </>
+                <span>Try for free</span>
               )}
             </button>
 
-            {/* Divider */}
-            <div className="border-t border-neutral-100 my-6" />
-
-            {/* Includes list */}
-            <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.18em] mb-3.5">
-              INCLUDES
+            {/* Sub-button link: or buy now */}
+            <div className="mt-2.5 text-center text-xs text-neutral-500">
+              or{" "}
+              <button
+                onClick={handleRazorpayPayment}
+                className="text-[#2DC08D] font-semibold underline underline-offset-2 hover:text-[#25a77a] cursor-pointer"
+              >
+                buy now
+              </button>
             </div>
-            <ul className="space-y-2.5">
-              <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                <span>Unlimited applications</span>
+
+            {/* Features section header */}
+            <div className="mt-6 flex items-center justify-between text-xs font-semibold text-neutral-900">
+              <span>Everything in Free, plus:</span>
+              <ChevronDown className="w-4 h-4 text-neutral-500" />
+            </div>
+
+            {/* Real Outly Pro Features List */}
+            <ul className="mt-4 space-y-3 text-xs text-neutral-700">
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                <span>Unlimited job applications &amp; tracking</span>
               </li>
-              <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                <span>Unlimited resume versions</span>
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                <span>AI resume tailoring for any job description</span>
               </li>
-              <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                <span>ATS score &amp; keyword insights</span>
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                <span>Deep ATS score &amp; keyword match breakdown</span>
               </li>
-              <li className="flex items-center gap-2.5 text-xs text-neutral-700 font-normal">
-                <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={2.5} />
-                <span>Resume tailoring</span>
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                <span>Unlimited tailored resume versions</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                <span>Instant AI cover letter generator</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
+                <span>Priority AI model processing &amp; instant sync</span>
               </li>
             </ul>
           </div>
