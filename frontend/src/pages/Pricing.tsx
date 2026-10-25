@@ -255,15 +255,15 @@ export default function Pricing() {
             <ul className="mt-4 space-y-3 text-xs text-neutral-700">
               <li className="flex items-start gap-2.5">
                 <span className="text-neutral-400 font-bold select-none">&gt;</span>
-                <span>3 saved job applications</span>
+                <span>3 free ATS resume checks per 12 hours</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-neutral-400 font-bold select-none">&gt;</span>
-                <span>Resume Vault (upload &amp; store resumes)</span>
+                <span>Resume Vault (upload &amp; store master resumes)</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-neutral-400 font-bold select-none">&gt;</span>
-                <span>Basic ATS resume score check</span>
+                <span>AI Job Search &amp; match discovery</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-neutral-400 font-bold select-none">&gt;</span>
@@ -271,7 +271,7 @@ export default function Pricing() {
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-neutral-400 font-bold select-none">&gt;</span>
-                <span>Outly Chrome extension sync</span>
+                <span>Recruiter Cold Mail outreach generator</span>
               </li>
             </ul>
           </div>
@@ -342,27 +342,27 @@ export default function Pricing() {
             <ul className="mt-4 space-y-3 text-xs text-neutral-700">
               <li className="flex items-start gap-2.5">
                 <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Unlimited job applications &amp; tracking</span>
+                <span>Unlimited ATS checks with 27-factor scoring</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>AI resume tailoring for any job description</span>
+                <span>Unlimited AI resume tailoring for any job description</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Deep ATS score &amp; keyword match breakdown</span>
+                <span>Deep ATS score, keyword gap &amp; recruiter fixes</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Unlimited tailored resume versions</span>
+                <span>Unlimited Resume Vault storage &amp; tailored versions</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Instant AI cover letter generator</span>
+                <span>Unlimited job tracking on Kanban board</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Priority AI model processing &amp; instant sync</span>
+                <span>Full Cold Mail automation &amp; recruiter outreach</span>
               </li>
             </ul>
           </div>

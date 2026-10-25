@@ -29,7 +29,62 @@ import {
   Lock,
   ChevronRight
 } from "lucide-react";
-import { FileUploadCard, UploadedFile } from "@/components/ui/file-upload-card";
+function getMissingKeywordsArray(kw: any): string[] {
+  if (!kw) return [];
+  if (Array.isArray(kw)) {
+    return kw.filter((k) => typeof k === "string" && k.trim());
+  }
+  if (typeof kw === "object") {
+    return [
+      ...(Array.isArray(kw.hard_skills) ? kw.hard_skills : []),
+      ...(Array.isArray(kw.tools_technologies) ? kw.tools_technologies : []),
+      ...(Array.isArray(kw.soft_skills) ? kw.soft_skills : []),
+    ].filter((k) => typeof k === "string" && k.trim());
+  }
+  return [];
+}
+
+function getKeyRecommendations(res: EvaluationResult): string[] {
+  const list: string[] = [];
+
+  // 1. Resume-specific recommendations from heuristic & AI analysis
+  if (res.suggestions && Array.isArray(res.suggestions)) {
+    res.suggestions.forEach((s) => {
+      if (s && typeof s === "string" && s.trim()) {
+        const trimmed = s.trim();
+        if (!list.includes(trimmed)) list.push(trimmed);
+      }
+    });
+  }
+
+  // 2. Concrete document formatting issues detected
+  if (res.formatting_issues && Array.isArray(res.formatting_issues)) {
+    res.formatting_issues.forEach((f) => {
+      if (f && typeof f === "string" && f.trim()) {
+        const trimmed = f.trim();
+        if (!list.includes(trimmed)) list.push(trimmed);
+      }
+    });
+  }
+
+  // 3. Experience seniority alignment feedback if not optimal
+  if (res.experience_analysis && res.experience_analysis.seniority_match !== "Good" && res.experience_analysis.comments) {
+    const seniorityNote = `Experience Alignment: ${res.experience_analysis.comments}`;
+    if (!list.includes(seniorityNote)) list.push(seniorityNote);
+  }
+
+  // 4. Missing keywords (grouped as ONE concrete recommendation listing top skills)
+  const missing = getMissingKeywordsArray(res.missing_keywords);
+  if (missing.length > 0) {
+    const topMissing = missing.slice(0, 5).join(", ");
+    const keywordNote = `Add role-specific keywords: ${topMissing}${missing.length > 5 ? ` (+${missing.length - 5} more)` : ""}`;
+    if (!list.some(item => item.toLowerCase().includes("keywords"))) {
+      list.push(keywordNote);
+    }
+  }
+
+  return list;
+}
 
 export default function AtsScorePage() {
   const { toast } = useToast();
@@ -40,6 +95,17 @@ export default function AtsScorePage() {
     queryKey: ["currentUser"],
     queryFn: api.auth.me,
     enabled: !!localStorage.getItem("outly_token"),
+  });
+
+  const userEmail = userData?.user?.email || "anonymous";
+  const isPro = userData?.user?.plan === "pro" || localStorage.getItem("outly_premium_user") === "true";
+
+  // Fetch ATS limit status directly from backend
+  const { data: limitData, refetch: refetchLimitStatus } = useQuery({
+    queryKey: ["atsLimitStatus", userEmail],
+    queryFn: api.ats.getLimitStatus,
+    enabled: !!localStorage.getItem("outly_token"),
+    staleTime: 0,
   });
 
   const [mode, setMode] = useState<"general" | "targeted">("general");
@@ -54,6 +120,7 @@ export default function AtsScorePage() {
   const [selectedVaultId, setSelectedVaultId] = useState<string>("custom");
   const [isDragging, setIsDragging] = useState(false);
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
+  const [scanCount, setScanCount] = useState<number>(0);
 
   const uploadedFiles: UploadedFile[] = resumeFile
     ? [
@@ -96,7 +163,6 @@ export default function AtsScorePage() {
   }, [result]);
 
   const [isStateLoaded, setIsStateLoaded] = useState(false);
-  const userEmail = userData?.user?.email || "anonymous";
   const [prevUserEmail, setPrevUserEmail] = useState("anonymous");
 
   // Reset loading flag if userEmail changes to prevent overwrites
@@ -215,6 +281,17 @@ export default function AtsScorePage() {
 
   // Switch vault resume
   const handleVaultSelect = (idStr: string) => {
+    if ((isLimitExceeded || scanCount >= 3) && idStr !== "custom") {
+      window.dispatchEvent(
+        new CustomEvent("outly_limit_exceeded", {
+          detail: {
+            code: "LIMIT_ATS_EXCEEDED",
+            message: "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+          },
+        })
+      );
+      return;
+    }
     setSelectedVaultId(idStr);
     setResumeFile(null); // Clear uploaded file when vault item is selected
     setResumeFileName("");
@@ -245,32 +322,51 @@ export default function AtsScorePage() {
     return `${mins}m ${pad(secs)}s`;
   };
 
-  // Load user-specific limit status from localStorage (timestamp-based auto-expiry)
+  // Load user-specific limit status from frontend storage and backend
   useEffect(() => {
     const userPrefix = userData?.user?.email || "anonymous";
-    const storageKey = `ats_limit_unlock_${userPrefix}`;
-    const isPro = userData?.user?.plan === "pro" || localStorage.getItem("outly_premium_user") === "true";
-
     if (isPro) {
       setIsLimitExceeded(false);
-    } else {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        const unlockTime = new Date(stored).getTime();
-        if (Date.now() >= unlockTime) {
-          localStorage.removeItem(storageKey);
-          setIsLimitExceeded(false);
-          setUnlockAtTime(null);
-        } else {
-          setIsLimitExceeded(true);
-          setUnlockAtTime(stored);
-          setCountdownText(getCountdown(stored));
-        }
-      } else {
-        setIsLimitExceeded(false);
-      }
+      setUnlockAtTime(null);
+      setCountdownText("");
+      return;
     }
-  }, [userData]);
+
+    const savedCount = parseInt(localStorage.getItem(`ats_scan_count_${userPrefix}`) || "0", 10);
+    setScanCount(savedCount);
+
+    const stored = localStorage.getItem(`ats_limit_unlock_${userPrefix}`);
+    if (stored) {
+      const unlockTime = new Date(stored).getTime();
+      if (Date.now() >= unlockTime) {
+        localStorage.removeItem(`ats_limit_unlock_${userPrefix}`);
+        localStorage.removeItem(`ats_scan_count_${userPrefix}`);
+        setScanCount(0);
+        setIsLimitExceeded(false);
+        setUnlockAtTime(null);
+        setCountdownText("");
+      } else {
+        setIsLimitExceeded(true);
+        setUnlockAtTime(stored);
+        setCountdownText(getCountdown(stored));
+      }
+    } else if (savedCount >= 3) {
+      const unlockIso = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
+      localStorage.setItem(`ats_limit_unlock_${userPrefix}`, unlockIso);
+      setIsLimitExceeded(true);
+      setUnlockAtTime(unlockIso);
+      setCountdownText(getCountdown(unlockIso));
+    } else if (limitData?.isLimitExceeded) {
+      setIsLimitExceeded(true);
+      if (limitData.unlockAt) {
+        setUnlockAtTime(limitData.unlockAt);
+        setCountdownText(getCountdown(limitData.unlockAt));
+        localStorage.setItem(`ats_limit_unlock_${userPrefix}`, limitData.unlockAt);
+      }
+    } else {
+      setIsLimitExceeded(false);
+    }
+  }, [isPro, limitData, userEmail, userData]);
 
   // Tick countdown every second and auto-unlock when time passes
   useEffect(() => {
@@ -315,6 +411,18 @@ export default function AtsScorePage() {
   };
 
   const processResumeFile = async (file: File) => {
+    if (isLimitExceeded || scanCount >= 3) {
+      window.dispatchEvent(
+        new CustomEvent("outly_limit_exceeded", {
+          detail: {
+            code: "LIMIT_ATS_EXCEEDED",
+            message: "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+          },
+        })
+      );
+      return;
+    }
+
     const ext = file.name.split(".").pop()?.toLowerCase();
     if (ext !== "txt" && ext !== "pdf" && ext !== "docx") {
       toast({
@@ -355,7 +463,39 @@ export default function AtsScorePage() {
       setSelectedVaultId("custom");
       // Automatically trigger evaluation scan after parsing
       triggerAtsScan(data.content);
-    } catch (err) {
+    } catch (err: any) {
+      const errStr = String(err?.message || err);
+      const isLimit =
+        errStr.includes("LIMIT_ATS_EXCEEDED") ||
+        err?.status === 403 ||
+        err?.data?.code === "LIMIT_ATS_EXCEEDED" ||
+        errStr.toLowerCase().includes("limit reached");
+
+      if (isLimit) {
+        setIsLimitExceeded(true);
+        const unlockIso = err?.data?.unlockAt || null;
+        if (unlockIso) {
+          setUnlockAtTime(unlockIso);
+          setCountdownText(getCountdown(unlockIso));
+          const userPrefix = userData?.user?.email || "anonymous";
+          localStorage.setItem(`ats_limit_unlock_${userPrefix}`, unlockIso);
+        }
+        window.dispatchEvent(
+          new CustomEvent("outly_limit_exceeded", {
+            detail: {
+              code: "LIMIT_ATS_EXCEEDED",
+              message:
+                err?.data?.message ||
+                err?.message ||
+                "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+            },
+          })
+        );
+        setResumeFile(null);
+        setResumeFileName("");
+        return;
+      }
+
       try {
         const text = await file.text();
         setResume(text);
@@ -399,24 +539,18 @@ export default function AtsScorePage() {
 
   // Trigger evaluation scan with loader simulation
   const triggerAtsScan = async (resumeText: string) => {
-    if (isLimitExceeded) {
-      window.dispatchEvent(new CustomEvent("outly_limit_exceeded", {
-        detail: {
-          code: "LIMIT_ATS_EXCEEDED",
-          message: "Free tier is limited to 3 ATS checks per 12 hours."
-        }
-      }));
+    if (isLimitExceeded || scanCount >= 3) {
+      window.dispatchEvent(
+        new CustomEvent("outly_limit_exceeded", {
+          detail: {
+            code: "LIMIT_ATS_EXCEEDED",
+            message: "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+          },
+        })
+      );
       return;
     }
     if (!resumeText.trim()) return;
-    if (mode === "targeted" && !jd.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Job Description Required",
-        description: "Please paste the job description to match against in Targeted Mode.",
-      });
-      return;
-    }
 
     const loadingStatuses = [
       "Extracting text profile & layout structure...",
@@ -452,7 +586,7 @@ export default function AtsScorePage() {
 
     setLoading(true);
     try {
-      const data = await api.ats.score(resumeText, mode === "targeted" ? jd : "");
+      const data = await api.ats.score(resumeText, "");
       
       // Stop the timers
       clearInterval(statusTimer);
@@ -464,6 +598,38 @@ export default function AtsScorePage() {
       await new Promise(resolve => setTimeout(resolve, 800));
       
       setResult(data);
+      
+      // Frontend-level lock: count successful scans and lock after 3
+      if (!isPro) {
+        const userPrefix = userData?.user?.email || "anonymous";
+        const currentCount = parseInt(localStorage.getItem(`ats_scan_count_${userPrefix}`) || "0", 10);
+        const newCount = currentCount + 1;
+        localStorage.setItem(`ats_scan_count_${userPrefix}`, String(newCount));
+        setScanCount(newCount);
+
+        if (newCount >= 3) {
+          const unlockIso = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
+          localStorage.setItem(`ats_limit_unlock_${userPrefix}`, unlockIso);
+          setIsLimitExceeded(true);
+          setUnlockAtTime(unlockIso);
+          setCountdownText(getCountdown(unlockIso));
+
+          // Immediately give popup to upgrade!
+          setTimeout(() => {
+            window.dispatchEvent(
+              new CustomEvent("outly_limit_exceeded", {
+                detail: {
+                  code: "LIMIT_ATS_EXCEEDED",
+                  message: "You have completed your 3 free ATS scans. Upgrade to Outly Pro for unlimited scans and AI tailoring.",
+                  unlockAt: unlockIso,
+                },
+              })
+            );
+          }, 600);
+        }
+      }
+
+      refetchLimitStatus();
       window.dispatchEvent(new CustomEvent("outly-notification", {
         detail: {
           title: "Resume Scanned 🔍",
@@ -482,22 +648,37 @@ export default function AtsScorePage() {
           description: `Analysis complete with match score: ${data.score}/100.`,
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       clearInterval(statusTimer);
       clearInterval(progressTimer);
       
-      const errStr = String(err);
-      const isLimitError = errStr.includes("LIMIT_ATS_EXCEEDED") || errStr.toLowerCase().includes("limit reached");
+      const errStr = String(err?.message || err);
+      const isLimitError =
+        errStr.includes("LIMIT_ATS_EXCEEDED") ||
+        errStr.toLowerCase().includes("limit reached") ||
+        err?.status === 403 ||
+        err?.data?.code === "LIMIT_ATS_EXCEEDED";
       
       if (isLimitError) {
         setIsLimitExceeded(true);
-        const unlockIso = (err as any)?.data?.unlockAt || null;
+        const unlockIso = err?.data?.unlockAt || null;
         if (unlockIso) {
           setUnlockAtTime(unlockIso);
           setCountdownText(getCountdown(unlockIso));
           const userPrefix = userData?.user?.email || "anonymous";
           localStorage.setItem(`ats_limit_unlock_${userPrefix}`, unlockIso);
         }
+        window.dispatchEvent(
+          new CustomEvent("outly_limit_exceeded", {
+            detail: {
+              code: "LIMIT_ATS_EXCEEDED",
+              message:
+                err?.data?.message ||
+                err?.message ||
+                "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+            },
+          })
+        );
       } else {
         const isAiError = errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404");
         if (isAiError) {
@@ -511,6 +692,7 @@ export default function AtsScorePage() {
         }
       }
       setResult(null);
+      refetchLimitStatus();
     } finally {
       setShowScanLoader(false);
       setLoading(false);
@@ -559,49 +741,6 @@ export default function AtsScorePage() {
       ? 65 
       : 40;
 
-  // Compute genuine, resume-specific recommendations
-  const getKeyRecommendations = (res: EvaluationResult): string[] => {
-    const list: string[] = [];
-
-    // 1. Resume-specific recommendations from heuristic & AI analysis
-    if (res.suggestions && Array.isArray(res.suggestions)) {
-      res.suggestions.forEach((s) => {
-        if (s && typeof s === "string" && s.trim()) {
-          const trimmed = s.trim();
-          if (!list.includes(trimmed)) list.push(trimmed);
-        }
-      });
-    }
-
-    // 2. Concrete document formatting issues detected
-    if (res.formatting_issues && Array.isArray(res.formatting_issues)) {
-      res.formatting_issues.forEach((f) => {
-        if (f && typeof f === "string" && f.trim()) {
-          const trimmed = f.trim();
-          if (!list.includes(trimmed)) list.push(trimmed);
-        }
-      });
-    }
-
-    // 3. Experience seniority alignment feedback if not optimal
-    if (res.experience_analysis && res.experience_analysis.seniority_match !== "Good" && res.experience_analysis.comments) {
-      const seniorityNote = `Experience Alignment: ${res.experience_analysis.comments}`;
-      if (!list.includes(seniorityNote)) list.push(seniorityNote);
-    }
-
-    // 4. Missing keywords (grouped as ONE concrete recommendation listing top skills)
-    const missing = getMissingKeywordsArray(res.missing_keywords);
-    if (missing.length > 0) {
-      const topMissing = missing.slice(0, 5).join(", ");
-      const keywordNote = `Add role-specific keywords: ${topMissing}${missing.length > 5 ? ` (+${missing.length - 5} more)` : ""}`;
-      if (!list.some(item => item.toLowerCase().includes("keywords"))) {
-        list.push(keywordNote);
-      }
-    }
-
-    return list;
-  };
-
   const keyRecommendations = result ? getKeyRecommendations(result) : [];
   const issuesCount = keyRecommendations.length;
 
@@ -616,16 +755,6 @@ export default function AtsScorePage() {
     if (scoreNum >= 75) return "stroke-success text-success";
     if (scoreNum >= 50) return "stroke-warning text-warning";
     return "stroke-amber-500 text-amber-500";
-  };
-
-  const getMissingKeywordsArray = (kw: any): string[] => {
-    if (!kw) return [];
-    if (Array.isArray(kw)) return kw;
-    return [
-      ...(kw.hard_skills || []),
-      ...(kw.tools_technologies || []),
-      ...(kw.soft_skills || [])
-    ];
   };
 
   const FACTORS = [
@@ -664,21 +793,30 @@ export default function AtsScorePage() {
         <div className="lg:col-span-6 space-y-6 text-left">
           {/* Upload card matching Vidyst design */}
           <div className="space-y-3">
-            {isLimitExceeded ? (
+            {isLimitExceeded || scanCount >= 3 ? (
               <div className="rounded-[28px] border border-black/[0.06] bg-white p-8 sm:p-10 text-center select-none shadow-[0_4px_24px_rgba(0,0,0,0.025)] space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
                   <Lock className="w-5 h-5 shrink-0" />
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-sm font-bold text-zinc-900">
-                    Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : " (3/3)"}
+                    Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : ""}
                   </h3>
                   <p className="text-xs text-zinc-500 max-w-xs mx-auto leading-relaxed">
-                    You've used your 3 free resume checks. Upgrade to Outly Pro for unlimited scans.
+                    You've reached your free check limit. Upgrade to Outly Pro for unlimited scans.
                   </p>
                 </div>
                 <Button
-                  onClick={() => navigate("/pricing")}
+                  onClick={() => {
+                    window.dispatchEvent(
+                      new CustomEvent("outly_limit_exceeded", {
+                        detail: {
+                          code: "LIMIT_ATS_EXCEEDED",
+                          message: "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+                        },
+                      })
+                    );
+                  }}
                   className="bg-[#111111] hover:bg-black text-white text-xs font-semibold px-6 h-10 rounded-full cursor-pointer shadow-sm active:scale-95"
                 >
                   Upgrade to Pro
@@ -715,15 +853,39 @@ export default function AtsScorePage() {
                     <button
                       type="button"
                       onClick={() => {
+                        if (isLimitExceeded || scanCount >= 3) {
+                          window.dispatchEvent(
+                            new CustomEvent("outly_limit_exceeded", {
+                              detail: {
+                                code: "LIMIT_ATS_EXCEEDED",
+                                message: "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+                              },
+                            })
+                          );
+                          return;
+                        }
                         if (fileInputRef.current) fileInputRef.current.value = "";
                         fileInputRef.current?.click();
                       }}
-                      className="text-[11px] font-medium text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
-                      title="Select another resume file"
+                      className={`text-[11px] font-medium px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer ${
+                        isLimitExceeded || scanCount >= 3
+                          ? "bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
+                          : "text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200"
+                      }`}
+                      title={isLimitExceeded || scanCount >= 3 ? "Free limit reached" : "Select another resume file"}
                     >
-                      <RefreshCw className="w-3 h-3" />
-                      <span className="hidden sm:inline">Select another resume</span>
-                      <span className="sm:hidden">Change</span>
+                      {isLimitExceeded || scanCount >= 3 ? (
+                        <>
+                          <Lock className="w-3 h-3 text-amber-600" />
+                          <span>Limit reached</span>
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="w-3 h-3" />
+                          <span className="hidden sm:inline">Select another resume</span>
+                          <span className="sm:hidden">Change</span>
+                        </>
+                      )}
                     </button>
                     <button
                       type="button"
@@ -924,10 +1086,32 @@ export default function AtsScorePage() {
             ) : (
               <div className="flex flex-wrap items-center gap-3">
                 <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="bg-neutral-950 hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-sm cursor-pointer transition-colors"
+                  onClick={() => {
+                    if (isLimitExceeded || scanCount >= 3) {
+                      window.dispatchEvent(
+                        new CustomEvent("outly_limit_exceeded", {
+                          detail: {
+                            code: "LIMIT_ATS_EXCEEDED",
+                            message: "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+                          },
+                        })
+                      );
+                      return;
+                    }
+                    fileInputRef.current?.click();
+                  }}
+                  className={`text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-sm cursor-pointer transition-colors flex items-center gap-1.5 ${
+                    isLimitExceeded || scanCount >= 3 ? "bg-neutral-900 hover:bg-black" : "bg-neutral-950 hover:bg-neutral-800"
+                  }`}
                 >
-                  Scan another resume
+                  {isLimitExceeded || scanCount >= 3 ? (
+                    <>
+                      <Lock className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Free Limit Reached · Upgrade</span>
+                    </>
+                  ) : (
+                    <span>Scan another resume</span>
+                  )}
                 </button>
                 <button
                   onClick={() => navigate("/resume-tailor")}

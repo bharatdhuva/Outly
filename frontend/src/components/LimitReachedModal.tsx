@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Lock, Sparkles, Loader2 } from "lucide-react";
+import { Lock, Sparkles, Loader2, Check, Zap, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
@@ -9,6 +9,8 @@ import confetti from "canvas-confetti";
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 const loadRazorpayScript = () => {
@@ -192,75 +194,121 @@ export default function LimitReachedModal() {
 
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!showSuccess) setOpen(val); }}>
-      <DialogContent className={`max-h-[90vh] overflow-y-auto w-[90%] select-none border-none transition-all duration-300 flex items-center justify-center ${
-        showSuccess 
-          ? "max-w-[380px] bg-card p-6 shadow-2xl rounded-[32px] border border-slate-100/50" 
-          : "max-w-[350px] bg-transparent p-0 shadow-none overflow-hidden rounded-2xl"
-      }`}>
+      <DialogContent className="max-h-[85vh] sm:max-h-[90vh] overflow-y-auto w-[90%] max-w-[360px] sm:max-w-[440px] md:max-w-[580px] lg:max-w-[620px] select-none p-0 border border-black/[0.08] bg-white shadow-[0_24px_70px_rgba(0,0,0,0.22)] rounded-[22px] md:rounded-[32px]">
         {showSuccess ? (
-          <div className="flex flex-col items-center justify-center bg-transparent text-center gap-3 p-6">
-            <Sparkles className="h-12 w-12 text-outly-accent" />
-            <h2 className="text-xl font-black text-foreground">Welcome to Cloud Pro! 🚀</h2>
-            <p className="text-xs text-muted-foreground">All features are now unlocked with lifetime access.</p>
+          <div className="flex flex-col items-center justify-center bg-white text-center gap-2.5 p-5 sm:p-7 md:p-10">
+            <div className="w-11 h-11 md:w-16 md:h-16 rounded-2xl bg-[#2DC08D]/10 border border-[#2DC08D]/20 text-[#2DC08D] flex items-center justify-center mx-auto shadow-inner">
+              <Sparkles className="h-5 w-5 md:h-8 md:w-8 text-[#2DC08D]" />
+            </div>
+            <DialogTitle className="text-lg md:text-2xl font-bold text-neutral-900 tracking-tight">Welcome to Cloud Pro! 🎉</DialogTitle>
+            <DialogDescription className="text-xs md:text-sm text-neutral-500 max-w-sm leading-relaxed">
+              All features including unlimited ATS checks, AI resume tailoring, and deep factor analysis are now unlocked.
+            </DialogDescription>
+            <Button
+              onClick={() => setOpen(false)}
+              className="mt-2 bg-[#111111] hover:bg-black text-white rounded-xl text-xs md:text-sm font-semibold px-5 h-9 md:h-11 cursor-pointer shadow-sm active:scale-95 transition-all"
+            >
+              Continue Scanning
+            </Button>
           </div>
         ) : (
-          <div className="relative w-full rounded-2xl p-[1.5px] overflow-hidden bg-slate-200 isolate shadow-2xl">
-            {/* Conic glowing background */}
-            <div className="absolute inset-[-150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2DC08D_0%,#E6B800_25%,#ff4e50_50%,#2dc08d_75%,#2DC08D_100%)]" />
+          <div className="relative bg-white p-4 sm:p-6 md:p-8 text-center flex flex-col">
+            {/* Lock / Security Badge */}
+            <div className="mx-auto flex h-9 w-9 md:h-12 md:w-12 items-center justify-center rounded-xl md:rounded-2xl bg-[#2DC08D]/10 border border-[#2DC08D]/20 text-[#2DC08D] mt-1 shadow-sm">
+              <Lock className="h-4 w-4 md:h-5 md:w-5 stroke-[2.2]" />
+            </div>
 
-            {/* Inner Content Card */}
-            <div className="relative bg-card rounded-[15px] p-5 text-center flex flex-col gap-4 overflow-hidden">
-              {/* Lock Badge */}
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 shadow-inner text-primary mt-3">
-                <Lock className="h-6 w-6 stroke-[2]" />
+            {/* Header / Title Details (free limit badge completely removed as requested) */}
+            <div className="space-y-1 md:space-y-1.5 text-center mt-2.5 md:mt-3">
+              <DialogTitle className="text-lg sm:text-xl md:text-[25px] font-bold md:font-extrabold text-neutral-900 tracking-tight">
+                Unlock Unlimited Scans
+              </DialogTitle>
+              <DialogDescription className="text-xs md:text-[13px] text-neutral-500 leading-relaxed px-1 max-w-md mx-auto">
+                {limitMessage || "You've reached your free limit. Upgrade to Outly Pro for unlimited scans and AI tailoring."}
+              </DialogDescription>
+            </div>
+
+            {/* Value Proposition: 1 column on mobile, 2 columns on laptop/desktop */}
+            <div className="bg-neutral-50/80 border border-neutral-100 rounded-xl md:rounded-2xl p-2.5 sm:p-3.5 md:p-4 text-left my-2.5 md:my-3.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-x-4 md:gap-y-3">
+                <div className="flex items-start gap-2 text-[11.5px] sm:text-xs md:text-[12.5px] text-neutral-700">
+                  <div className="w-3.5 h-3.5 md:w-4 md:h-4 rounded-full bg-[#2DC08D]/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-2 h-2 md:w-2.5 md:h-2.5 text-[#2DC08D] stroke-[2.5]" />
+                  </div>
+                  <span><strong>Unlimited ATS checks</strong> with 27-factor scoring</span>
+                </div>
+                <div className="flex items-start gap-2 text-[11.5px] sm:text-xs md:text-[12.5px] text-neutral-700">
+                  <div className="w-3.5 h-3.5 md:w-4 md:h-4 rounded-full bg-[#2DC08D]/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-2.5 h-2.5 text-[#2DC08D] stroke-[2.5]" />
+                  </div>
+                  <span><strong>AI Resume Tailor</strong> for any target job description</span>
+                </div>
+                <div className="flex items-start gap-2 text-[11.5px] sm:text-xs md:text-[12.5px] text-neutral-700">
+                  <div className="w-3.5 h-3.5 md:w-4 md:h-4 rounded-full bg-[#2DC08D]/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-2.5 h-2.5 text-[#2DC08D] stroke-[2.5]" />
+                  </div>
+                  <span><strong>Recruiter keyword gap</strong> engine &amp; fixes</span>
+                </div>
+                <div className="flex items-start gap-2 text-[11.5px] sm:text-xs md:text-[12.5px] text-neutral-700">
+                  <div className="w-3.5 h-3.5 md:w-4 md:h-4 rounded-full bg-[#2DC08D]/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-2.5 h-2.5 text-[#2DC08D] stroke-[2.5]" />
+                  </div>
+                  <span><strong>Resume Vault</strong> with unlimited saved versions</span>
+                </div>
               </div>
+            </div>
 
-              {/* Title & Limits Details */}
-              <div className="space-y-2 text-center pt-1">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-destructive/10 text-destructive text-[9px] font-extrabold uppercase tracking-wider">
-                  FREE TIER LIMIT REACHED
-                </span>
-                <h2 className="text-lg font-extrabold text-foreground tracking-tight">
-                  Uff! Free Tier Limit Reached 🚀
-                </h2>
-                <p className="text-[11.5px] text-muted-foreground leading-relaxed px-1 font-medium">
-                  {limitMessage} Upgrade to Cloud Pro for unlimited job searches, resume scans, tailoring, and priority cold mail outreach.
-                </p>
+            {/* Pricing Callout Banner */}
+            <div className="flex items-center justify-between p-2.5 sm:p-3.5 md:p-4 rounded-xl md:rounded-2xl border border-[#2DC08D]/30 bg-[#2DC08D]/5 text-left mb-2.5 md:mb-3.5">
+              <div>
+                <span className="text-xs md:text-sm font-semibold text-neutral-900 block">Outly Cloud Pro</span>
+                <span className="text-[10px] md:text-xs text-neutral-500">Lifetime access · Instant unlock</span>
               </div>
-
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-col gap-2">
-                <Button
-                  onClick={handleRazorpayPayment}
-                  disabled={isProcessingPayment}
-                  className="w-full bg-gradient-to-r from-primary to-[#25a97b] text-white hover:brightness-105 rounded-full font-bold text-[11.5px] h-10 shadow-md shadow-primary/25 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
-                >
-                  {isProcessingPayment ? (
-                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                  ) : (
-                    <>
-                      <Sparkles className="h-3.5 w-3.5 fill-white/10" />
-                      <span>Unlock Lifetime Pro for ₹1</span>
-                    </>
-                  )}
-                </Button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpen(false);
-                    navigate("/pricing");
-                  }}
-                  className="w-full text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors h-8 cursor-pointer text-center mt-0.5"
-                >
-                  View pricing plans &rarr;
-                </button>
+              <div className="text-right">
+                <div className="flex items-baseline gap-1 justify-end">
+                  <span className="text-xl sm:text-2xl md:text-3xl font-extrabold text-neutral-900">₹1</span>
+                  <span className="text-[10px] md:text-xs text-neutral-400 line-through">₹99</span>
+                </div>
+                <span className="text-[9px] md:text-[10px] font-semibold text-[#2DC08D] uppercase tracking-wide">Launch Price</span>
               </div>
+            </div>
 
-              {/* Footer */}
-              <div className="text-[9.5px] text-muted-foreground/60 border-t border-slate-100 pt-3 mt-2 flex items-center justify-center gap-1 font-medium select-none">
-                <span>🔒 Secured by 256-bit Razorpay Gateway</span>
-              </div>
+            {/* CTA Button */}
+            <div className="space-y-1.5 md:space-y-2">
+              <Button
+                onClick={handleRazorpayPayment}
+                disabled={isProcessingPayment}
+                className="w-full bg-[#111111] hover:bg-black text-white rounded-xl md:rounded-2xl font-semibold text-xs sm:text-[13px] md:text-sm h-10 md:h-12 transition-all shadow-sm active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
+              >
+                {isProcessingPayment ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Processing upgrade...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#2DC08D] fill-[#2DC08D]" />
+                    <span>Upgrade to Pro for ₹1</span>
+                  </>
+                )}
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  navigate("/pricing");
+                }}
+                className="w-full text-[10.5px] md:text-xs font-medium text-neutral-500 hover:text-neutral-900 transition-colors py-0.5 md:py-1 cursor-pointer text-center"
+              >
+                View all pricing plans &rarr;
+              </button>
+            </div>
+
+            {/* Footer Trust Badge */}
+            <div className="text-[10px] md:text-[11px] text-neutral-400 border-t border-neutral-100 pt-2 md:pt-3 mt-2 md:mt-3 flex items-center justify-center gap-1.5 font-mono select-none">
+              <Lock className="w-3 h-3 text-neutral-400" />
+              <span>Secured by 256-bit Razorpay checkout</span>
             </div>
           </div>
         )}

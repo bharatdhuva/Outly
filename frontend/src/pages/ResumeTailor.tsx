@@ -439,6 +439,16 @@ export default function ResumeTailorPage() {
   };
 
   const processResumeFile = async (file: File) => {
+    if (isLimitExceeded) {
+      window.dispatchEvent(new CustomEvent("outly_limit_exceeded", {
+        detail: {
+          code: "LIMIT_TAILOR_EXCEEDED",
+          message: "Free tier is limited to 3 tailor attempts per 12 hours. Upgrade to Outly Pro for unlimited tailoring."
+        }
+      }));
+      return;
+    }
+
     const ext = file.name.split(".").pop()?.toLowerCase();
     if (ext !== "txt" && ext !== "pdf" && ext !== "docx") {
       toast({

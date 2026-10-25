@@ -9,7 +9,6 @@ export default defineConfig(({ mode }) => ({
     port: 3000,
     hmr: { overlay: false },
     proxy: {
-      "/api/ats": { target: "http://localhost:8000", changeOrigin: true },
       "/api": { target: "http://localhost:3001", changeOrigin: true },
     },
 

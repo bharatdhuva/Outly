@@ -193,12 +193,20 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ resume, jd }),
       }),
+    getLimitStatus: () =>
+      fetchApi<{
+        plan: string;
+        used: number;
+        limit: number | null;
+        isLimitExceeded: boolean;
+        unlockAt: string | null;
+      }>("/ats/limit-status"),
     match: (resume: string, jd: string) =>
       fetchApi<JdMatchResult>("/ats/match", {
         method: "POST",
         body: JSON.stringify({ resume, jd }),
       }),
-    parseFile: (file: File) => {
+    parseFile: async (file: File) => {
       const form = new FormData();
       form.append("file", file);
       const token = localStorage.getItem("outly_token");
@@ -206,17 +214,47 @@ export const api = {
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
-      return fetch(`${API_BASE}/ats/parse-file`, {
+      const r = await fetch(`${API_BASE}/ats/parse-file`, {
         method: "POST",
         headers,
         body: form,
         credentials: "include",
-      }).then((r) => {
-        if (!r.ok) {
-          return r.text().then((text) => { throw new Error(text || r.statusText); });
-        }
-        return r.json() as Promise<{ filename: string; content: string }>;
       });
+      if (!r.ok) {
+        let errorMsg = r.statusText || `Request failed (${r.status})`;
+        let errorData: any = null;
+        try {
+          const text = await r.text();
+          try {
+            const json = JSON.parse(text);
+            errorData = json;
+            if (json && (json.error || json.message)) {
+              errorMsg = json.error || json.message;
+            } else if (text) {
+              errorMsg = text;
+            }
+          } catch {
+            if (text) errorMsg = text;
+          }
+        } catch {}
+
+        if (r.status === 403 && (errorData?.code?.startsWith("LIMIT_") || String(errorMsg).includes("LIMIT_"))) {
+          window.dispatchEvent(
+            new CustomEvent("outly_limit_exceeded", {
+              detail: {
+                code: errorData?.code || "LIMIT_ATS_EXCEEDED",
+                message: errorData?.message || errorMsg,
+                unlockAt: errorData?.unlockAt,
+              },
+            })
+          );
+        }
+
+        const err = new Error(errorMsg) as Error & { data?: any };
+        if (errorData) err.data = errorData;
+        throw err;
+      }
+      return r.json() as Promise<{ filename: string; content: string }>;
     },
   },
   applications: {

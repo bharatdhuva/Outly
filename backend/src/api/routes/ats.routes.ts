@@ -3,6 +3,7 @@ import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkAtsLimit, checkTailorLimit } from "../../middleware/limits.js";
+import { ActivityLog as ActivityLogModel } from "../../db/models.js";
 import { activityQueries } from "../../db/queries.js";
 import { uploadResume } from "../../middleware/upload.js";
 import fs from "fs";
@@ -10,6 +11,52 @@ import path from "path";
 
 const router = Router();
 router.use(requireAuth);
+
+router.get("/limit-status", async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (req.user.plan === "pro") {
+    return res.json({
+      plan: "pro",
+      used: 0,
+      limit: null,
+      isLimitExceeded: false,
+      unlockAt: null,
+    });
+  }
+
+  try {
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    const checks = await ActivityLogModel.find({
+      userId: req.user.id,
+      type: "ats_check",
+      createdAt: { $gte: twelveHoursAgo },
+    })
+      .sort({ createdAt: 1 })
+      .lean();
+
+    const used = checks.length;
+    const isLimitExceeded = used >= 3;
+    let unlockAt: string | null = null;
+    if (isLimitExceeded && checks.length > 0) {
+      const oldestCheck = checks[0];
+      unlockAt = new Date(new Date(oldestCheck.createdAt).getTime() + 12 * 60 * 60 * 1000).toISOString();
+    }
+
+    return res.json({
+      plan: "free",
+      used,
+      limit: 3,
+      isLimitExceeded,
+      unlockAt,
+    });
+  } catch (error) {
+    logger.error("Failed to check ATS limit status", { error: String(error) });
+    return res.status(500).json({ error: "Failed to fetch limit status" });
+  }
+});
 
 const pythonBase = env.PYTHON_ATS_URL.replace(/\/$/, "");
 
@@ -131,7 +178,7 @@ async function parseResumeLocally(filePath: string, originalName: string): Promi
   return fs.readFileSync(filePath, "utf-8");
 }
 
-router.post("/parse-file", uploadResume.single("file"), async (req: AuthenticatedRequest, res: Response) => {
+router.post("/parse-file", checkAtsLimit, uploadResume.single("file"), async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded." });
   }
