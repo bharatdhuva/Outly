@@ -727,7 +727,7 @@ export default function ResumeTailorPage() {
   const totalKeywords = matchedKeywords.length + flatMissingKeywords.length;
   const matchPercentage = totalKeywords > 0
     ? Math.round((matchedKeywords.length / totalKeywords) * 100)
-    : 80;
+    : (matchedKeywords.length > 0 ? 100 : 0);
 
   if (tailoredResult && !isEditing) {
     return (

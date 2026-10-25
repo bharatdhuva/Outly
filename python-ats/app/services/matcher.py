@@ -111,7 +111,7 @@ async def match_resume_to_jd(
     resume_skills = extract_skills(resume)
     req = extract_jd_requirements(jd)
     overlap, matched, missing_must, missing_nice = skill_overlap_score(
-        resume_skills.set, req.must_have, req.nice_to_have
+        resume_skills.set, req.must_have, req.nice_to_have, resume_text=resume
     )
     skill_pct = clamp_percent(overlap)
 

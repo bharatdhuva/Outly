@@ -16,7 +16,7 @@ from app.models.schemas import (
 from app.services.ats import score_resume
 from app.services.llm import get_llm_client
 from app.services.parser import ParseError, parse_bytes, sanitise_text
-from app.services.skills import classify_skill, extract_jd_requirements, extract_skills
+from app.services.skills import classify_skill, extract_jd_requirements, extract_skills, is_skill_in_text
 from app.services.validator import validate_job_description_text, validate_resume_text
 
 router = APIRouter(tags=["ats"])
@@ -81,13 +81,12 @@ async def tailor(payload: TailorTextRequest, request: Request) -> TailorResponse
     llm = await client.tailor_resume(resume, jd) if client.available else None
     if llm is None:
         req = extract_jd_requirements(jd)
-        resume_skills = extract_skills(resume)
-        matched = [s for s in req.all_skills if s in resume_skills.set]
+        matched = [s for s in req.all_skills if is_skill_in_text(s, resume)]
         missing_hard: list[str] = []
         missing_soft: list[str] = []
         missing_tools: list[str] = []
         for skill in [*req.must_have, *req.nice_to_have]:
-            if skill in resume_skills.set:
+            if is_skill_in_text(skill, resume):
                 continue
             bucket = classify_skill(skill)
             if bucket == "soft_skills":
