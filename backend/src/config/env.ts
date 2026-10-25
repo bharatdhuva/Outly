@@ -13,8 +13,19 @@ export const env = {
   CLIENT_ORIGIN: process.env.CLIENT_ORIGIN ?? `http://localhost:${process.env.CLIENT_PORT ?? "3000"}`,
   NODE_ENV: process.env.NODE_ENV ?? "development",
 
-  PYTHON_ATS_URL: process.env.PYTHON_ATS_URL ?? "http://localhost:8000",
-  PYTHON_ATS_INTERNAL_KEY: process.env.PYTHON_ATS_INTERNAL_KEY ?? "",
+  PYTHON_ATS_URL: (() => {
+    const raw = (process.env.PYTHON_ATS_URL ?? "").trim();
+    if (
+      !raw ||
+      raw === "https://outly-python-ats.onrender.com" ||
+      raw.includes("ai-features-gpm9") ||
+      raw.includes("outly-python-ats")
+    ) {
+      return "https://ai-features-qpw9.onrender.com";
+    }
+    return raw;
+  })(),
+  PYTHON_ATS_INTERNAL_KEY: (process.env.PYTHON_ATS_INTERNAL_KEY || "outly_internal_secret_token").trim(),
 
   GEMINI_API_KEY: process.env.GEMINI_API_KEY ?? "",
   GROK_API_KEY: process.env.GROK_API_KEY ?? "",

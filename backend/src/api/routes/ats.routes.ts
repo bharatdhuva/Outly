@@ -21,19 +21,39 @@ function pythonHeaders(extra?: Record<string, string>): Record<string, string> {
   return headers;
 }
 
+const FALLBACK_PYTHON_URL = "https://ai-features-qpw9.onrender.com";
+
 async function proxyJson(
   req: AuthenticatedRequest,
   res: Response,
   path: string
 ): Promise<void> {
-  const url = `${pythonBase}${path}`;
+  const primaryUrl = `${pythonBase}${path}`;
   try {
-    const response = await fetch(url, {
+    let response = await fetch(primaryUrl, {
       method: "POST",
       headers: pythonHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(req.body ?? {}),
       signal: AbortSignal.timeout(45000),
     });
+
+    if ((response.status === 404 || response.status >= 500) && pythonBase !== FALLBACK_PYTHON_URL) {
+      logger.warn(`Primary Python ATS responded with ${response.status} at ${primaryUrl}. Retrying with fallback ${FALLBACK_PYTHON_URL}${path}`);
+      try {
+        const fallbackRes = await fetch(`${FALLBACK_PYTHON_URL}${path}`, {
+          method: "POST",
+          headers: pythonHeaders({ "Content-Type": "application/json" }),
+          body: JSON.stringify(req.body ?? {}),
+          signal: AbortSignal.timeout(45000),
+        });
+        if (fallbackRes.ok) {
+          response = fallbackRes;
+        }
+      } catch (fbErr) {
+        logger.error("Fallback Python ATS call failed", { error: String(fbErr) });
+      }
+    }
+
     const text = await response.text();
     let payload: unknown = { error: text || "Python ATS service error." };
     try {
@@ -43,6 +63,26 @@ async function proxyJson(
     }
     res.status(response.status).json(payload);
   } catch (error) {
+    if (pythonBase !== FALLBACK_PYTHON_URL) {
+      try {
+        const fallbackRes = await fetch(`${FALLBACK_PYTHON_URL}${path}`, {
+          method: "POST",
+          headers: pythonHeaders({ "Content-Type": "application/json" }),
+          body: JSON.stringify(req.body ?? {}),
+          signal: AbortSignal.timeout(45000),
+        });
+        const text = await fallbackRes.text();
+        let payload: unknown = { error: text || "Python ATS service error." };
+        try {
+          payload = JSON.parse(text);
+        } catch {}
+        res.status(fallbackRes.status).json(payload);
+        return;
+      } catch (fbErr) {
+        logger.error("Fallback Python ATS also failed after network error", { error: String(fbErr) });
+      }
+    }
+
     logger.error("Python ATS proxy failed", {
       path,
       error: String(error),
@@ -105,12 +145,28 @@ router.post("/parse-file", uploadResume.single("file"), async (req: Authenticate
     const form = new FormData();
     form.append("file", new Blob([new Uint8Array(buffer)]), originalName);
 
-    const response = await fetch(`${pythonBase}/api/ats/parse-file`, {
+    let response = await fetch(`${pythonBase}/api/ats/parse-file`, {
       method: "POST",
       headers: pythonHeaders(),
       body: form,
       signal: AbortSignal.timeout(6000),
     });
+
+    if (!response.ok && pythonBase !== FALLBACK_PYTHON_URL) {
+      const fallbackForm = new FormData();
+      fallbackForm.append("file", new Blob([new Uint8Array(buffer)]), originalName);
+      try {
+        const fbRes = await fetch(`${FALLBACK_PYTHON_URL}/api/ats/parse-file`, {
+          method: "POST",
+          headers: pythonHeaders(),
+          body: fallbackForm,
+          signal: AbortSignal.timeout(6000),
+        });
+        if (fbRes.ok) {
+          response = fbRes;
+        }
+      } catch (_) {}
+    }
 
     if (response.ok) {
       const data = await response.json();
