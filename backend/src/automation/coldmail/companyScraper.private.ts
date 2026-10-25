@@ -3,6 +3,7 @@ import * as cheerio from "cheerio";
 import { companyQueries } from "../../db/queries.js";
 import { logger } from "../../lib/logger.js";
 import { env } from "../../config/env.js";
+import { getChatModel } from "../../ai/llm.js";
 
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
@@ -253,6 +254,58 @@ async function findCompanyWebsite(companyName: string): Promise<string | null> {
   return null;
 }
 
+/**
+ * Uses Gemini to perform real, deep research on a company:
+ * - What the company actually does (core products, platforms, services)
+ * - Specific tech stack used/specialized in
+ * - Recent company initiatives, AI integrations, or milestones
+ * - Company engineering culture and authentic personalization hooks
+ */
+export async function researchCompanyWithGemini(
+  companyName: string,
+  websiteUrl?: string | null,
+  targetRole?: string | null
+): Promise<Partial<ScrapedContext>> {
+  try {
+    const model = getChatModel({ temperature: 0.2 });
+    const prompt = `You are an elite corporate intelligence and technology researcher.
+Research and return factual, specific, up-to-date knowledge about the company: "${companyName}".
+${websiteUrl ? `Website URL: "${websiteUrl}".` : ""}
+${targetRole ? `Target Engineering Role: "${targetRole}".` : ""}
+
+Provide authentic, detailed company insights in strict JSON format:
+{
+  "description": "2-3 comprehensive sentences explaining what ${companyName} actually does: their primary industry, core products, SaaS platforms or digital services, target customers, and business model.",
+  "techStack": ["5-10 specific programming languages, frameworks, cloud platforms, AI/ML tools, or databases commonly associated with or used by ${companyName}"],
+  "recentNews": ["2-3 specific recent company developments, product launches, AI initiatives, client solutions, or domain achievements"],
+  "culture": "A short, crisp statement capturing their engineering philosophy, innovation focus, and delivery culture.",
+  "hookCandidates": [
+    "2-3 specific, conversational personalization hooks referencing their real business, core products, or engineering initiatives that a candidate can mention naturally in outreach"
+  ]
+}
+
+Return ONLY valid JSON matching this schema without markdown code blocks.`;
+
+    const res = await model.invoke(prompt);
+    const text = typeof res.content === "string" ? res.content : JSON.stringify(res.content);
+    const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+    const parsed = JSON.parse(cleaned);
+
+    return {
+      description: typeof parsed.description === "string" ? parsed.description : undefined,
+      techStack: Array.isArray(parsed.techStack) ? parsed.techStack : [],
+      recentNews: Array.isArray(parsed.recentNews) ? parsed.recentNews : [],
+      culture: typeof parsed.culture === "string" ? parsed.culture : undefined,
+      hookCandidates: Array.isArray(parsed.hookCandidates) ? parsed.hookCandidates : [],
+    };
+  } catch (error: any) {
+    logger.warn(`[CompanyScraper] Gemini company research failed: ${error?.message || error}`, {
+      source: "scraper",
+    });
+    return {};
+  }
+}
+
 export async function scrapeCompany(companyId: string): Promise<void> {
   const company = await companyQueries.getById(companyId);
   if (!company) return;
@@ -270,10 +323,37 @@ export async function scrapeCompany(companyId: string): Promise<void> {
     }
   }
 
+  // 1. Perform deep AI research with Gemini to guarantee accurate company facts, products, tech stack, and news
+  try {
+    const aiCtx = await researchCompanyWithGemini(company.company_name, websiteUrl, company.role);
+    if (aiCtx.description) ctx.description = aiCtx.description;
+    if (aiCtx.techStack && aiCtx.techStack.length > 0) ctx.techStack = aiCtx.techStack;
+    if (aiCtx.recentNews && aiCtx.recentNews.length > 0) ctx.recentNews = aiCtx.recentNews;
+    if (aiCtx.culture) ctx.culture = aiCtx.culture;
+    if (aiCtx.hookCandidates && aiCtx.hookCandidates.length > 0) ctx.hookCandidates = aiCtx.hookCandidates;
+    logger.info(`Gemini AI intelligence gathered for ${company.company_name}`, { source: "scraper" });
+  } catch (err: any) {
+    logger.warn(`Gemini research step error: ${err?.message || err}`, { source: "scraper" });
+  }
+
+  // 2. Scrape company website if reachable, and augment/merge
   if (websiteUrl) {
     try {
       const webCtx = await scrapeCompanyWebsite(websiteUrl);
-      Object.assign(ctx, webCtx);
+      if (webCtx.description) {
+        ctx.description = ctx.description
+          ? `${ctx.description}\n\nWebsite Highlights: ${webCtx.description.slice(0, 1000)}`
+          : webCtx.description;
+      }
+      if (webCtx.techStack && webCtx.techStack.length > 0) {
+        ctx.techStack = uniqueStrings([...(ctx.techStack || []), ...webCtx.techStack], 15);
+      }
+      if (webCtx.pageHighlights && webCtx.pageHighlights.length > 0) {
+        ctx.pageHighlights = webCtx.pageHighlights;
+      }
+      if (webCtx.socialLinks && webCtx.socialLinks.length > 0) {
+        ctx.socialLinks = webCtx.socialLinks;
+      }
       logger.info(`Website scraped for ${company.company_name}`, { source: "scraper" });
     } catch (e) {
       logger.warn(`Failed to scrape ${company.company_name} website`, {
@@ -283,16 +363,18 @@ export async function scrapeCompany(companyId: string): Promise<void> {
     }
   }
 
+  // 3. NewsAPI if configured
   try {
     const news = await fetchCompanyNews(company.company_name);
     if (news.length > 0) {
-      ctx.recentNews = news;
+      ctx.recentNews = uniqueStrings([...(ctx.recentNews || []), ...news], 6);
       logger.info(`Found ${news.length} news articles for ${company.company_name}`, { source: "scraper" });
     }
   } catch (e) {
     logger.warn(`News fetch failed for ${company.company_name}`, { error: String(e), source: "scraper" });
   }
 
+  // 4. Social links and signals
   try {
     const explicitLinks: Array<{ platform: string; url: string }> = [];
     if (company.linkedin_url) {
@@ -311,7 +393,9 @@ export async function scrapeCompany(companyId: string): Promise<void> {
     logger.warn(`Social research failed for ${company.company_name}`, { error: String(e), source: "scraper" });
   }
 
-  ctx.hookCandidates = buildHookCandidates(ctx, company.company_name);
+  // 5. Hooks
+  const generatedHooks = buildHookCandidates(ctx, company.company_name);
+  ctx.hookCandidates = uniqueStrings([...(ctx.hookCandidates || []), ...generatedHooks], 8);
 
   await companyQueries.updateStatus(companyId, "scraped", {
     scraped_context: JSON.stringify(ctx),

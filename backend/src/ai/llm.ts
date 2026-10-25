@@ -27,7 +27,7 @@ export interface ModelOptions {
  * Using gemini-2.5-flash as the primary fast & capable model.
  * Easily switchable or overridable per chain call.
  */
-export const DEFAULT_MODEL_NAME = "gemini-2.5-flash";
+export const DEFAULT_MODEL_NAME = "gemini-3.5-flash";
 export const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-001";
 
 /**

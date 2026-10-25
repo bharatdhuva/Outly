@@ -97,7 +97,8 @@ router.post("/companies", checkColdMailLimit, async (req: AuthenticatedRequest, 
     // Run scraper and AI generator in the background asynchronously
     Promise.resolve().then(async () => {
       try {
-        await generateMailForCompany(result.id, "gemini", "gemini-2.5-flash");
+        await scrapeCompany(result.id);
+        await generateMailForCompany(result.id, "gemini", "gemini-3.5-flash");
       } catch (err) {
         logger.error(`Background auto-generation failed for company ID ${result.id}`, { error: String(err), source: "coldmail" });
       }
@@ -165,7 +166,7 @@ router.post("/generate/:id", checkColdMailLimit, async (req: AuthenticatedReques
     if (!company) return res.status(404).json({ error: "Company not found" });
 
     const provider = (req.body.provider as "gemini" | "grok" | "openrouter") || "gemini";
-    const model = (req.body.model as string) || "gemini-2.5-flash";
+    const model = (req.body.model as string) || "gemini-3.5-flash";
     const result = await generateMailForCompany(id, provider, model);
     if (!result) {
       const updated = await companyQueries.getById(id, req.user.id);
@@ -183,7 +184,7 @@ router.post("/generate-all", checkColdMailLimit, async (req: AuthenticatedReques
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const provider = (req.body.provider as "gemini" | "grok" | "openrouter") || "gemini";
-    const model = (req.body.model as string) || "gemini-2.5-flash";
+    const model = (req.body.model as string) || "gemini-3.5-flash";
     const pending = await companyQueries.getByStatus("pending", req.user.id);
     const scraped = await companyQueries.getByStatus("scraped", req.user.id);
     const targets = [...pending, ...scraped];

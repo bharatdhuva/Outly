@@ -152,7 +152,7 @@ export async function generateColdEmailChain(input: ColdMailInput): Promise<Cold
 
   // Step 2: Initialize Chat Model (Gemini)
   const model = getChatModel({
-    modelName: input.modelName ?? "gemini-2.5-flash",
+    modelName: input.modelName,
     temperature: 0.3,
   });
 

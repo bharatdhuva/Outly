@@ -1,6 +1,7 @@
 import { logger } from "../../lib/logger.js";
 import { companyQueries } from "../../db/queries.js";
 import { generateColdEmailChain } from "../../ai/coldMailChain.js";
+import { scrapeCompany } from "./companyScraper.js";
 
 export interface GeneratedMail {
   subject: string;
@@ -16,24 +17,63 @@ export interface GeneratedMail {
 export async function generateMailForCompany(
   companyId: string,
   provider: "gemini" | "grok" | "openrouter" = "gemini",
-  modelName: string = "gemini-2.5-flash",
+  modelName: string = "gemini-3.5-flash",
 ): Promise<GeneratedMail | null> {
   logger.info(`[MailGenerator] Generating mail for company ID: ${companyId} using LangChain...`);
 
   try {
-    const company = await companyQueries.getById(companyId);
+    let company = await companyQueries.getById(companyId);
     if (!company) {
       logger.error(`[MailGenerator] Company with ID ${companyId} not found`);
       return null;
     }
 
-    // Parse scraped context if available
+    // Check if scraped context is present and has meaningful company intelligence
     let scrapedContextData: any = company.scraped_context;
-    if (typeof company.scraped_context === "string" && company.scraped_context.trim()) {
+    let hasRichContext = false;
+
+    if (typeof scrapedContextData === "string" && scrapedContextData.trim()) {
       try {
-        scrapedContextData = JSON.parse(company.scraped_context);
+        const parsed = JSON.parse(scrapedContextData);
+        if (
+          parsed &&
+          ((typeof parsed.description === "string" && parsed.description.trim().length > 30) ||
+            (Array.isArray(parsed.techStack) && parsed.techStack.length > 0) ||
+            (Array.isArray(parsed.recentNews) && parsed.recentNews.length > 0) ||
+            (Array.isArray(parsed.pageHighlights) && parsed.pageHighlights.length > 0))
+        ) {
+          hasRichContext = true;
+          scrapedContextData = parsed;
+        }
       } catch {
-        scrapedContextData = company.scraped_context;
+        if (scrapedContextData.trim().length > 50) {
+          hasRichContext = true;
+        }
+      }
+    } else if (scrapedContextData && typeof scrapedContextData === "object") {
+      if (
+        (typeof scrapedContextData.description === "string" && scrapedContextData.description.trim().length > 30) ||
+        (Array.isArray(scrapedContextData.techStack) && scrapedContextData.techStack.length > 0) ||
+        (Array.isArray(scrapedContextData.recentNews) && scrapedContextData.recentNews.length > 0)
+      ) {
+        hasRichContext = true;
+      }
+    }
+
+    // If context is missing, empty, or dummy, automatically research and scrape the company first!
+    if (!hasRichContext) {
+      logger.info(`[MailGenerator] Company ${company.company_name} is missing rich intelligence. Running research/scraper now...`);
+      await scrapeCompany(companyId);
+      const reloadedCompany = await companyQueries.getById(companyId);
+      if (reloadedCompany) {
+        company = reloadedCompany;
+        if (reloadedCompany.scraped_context) {
+          try {
+            scrapedContextData = JSON.parse(reloadedCompany.scraped_context);
+          } catch {
+            scrapedContextData = reloadedCompany.scraped_context;
+          }
+        }
       }
     }
 
