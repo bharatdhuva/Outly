@@ -28,7 +28,7 @@ export interface ModelOptions {
  * Easily switchable or overridable per chain call.
  */
 export const DEFAULT_MODEL_NAME = "gemini-2.5-flash";
-export const DEFAULT_EMBEDDING_MODEL = "text-embedding-004";
+export const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-001";
 
 /**
  * Returns a configured LangChain ChatGoogleGenerativeAI model instance.

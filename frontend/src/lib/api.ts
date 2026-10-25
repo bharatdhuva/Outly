@@ -194,31 +194,7 @@ export const api = {
         body: JSON.stringify({ resume, jd }),
       }),
     match: (resume: string, jd: string) =>
-      fetchApi<{
-        matchScore: number;
-        match_score: number;
-        embeddingSimilarity: number;
-        matchedSkills: string[];
-        matched_skills: string[];
-        missingSkills: string[];
-        missing_must_have: string[];
-        missing_nice_to_have: string[];
-        recommendations: string[];
-        summary: string;
-        explanation: string;
-        breakdown: {
-          technicalSkillsScore: number;
-          experienceAlignmentScore: number;
-          roleReadinessScore: number;
-        };
-        section_similarity: {
-          summary: number;
-          skills: number;
-          experience: number;
-          overall: number;
-        };
-        embedding_provider: string;
-      }>("/ats/match", {
+      fetchApi<JdMatchResult>("/ats/match", {
         method: "POST",
         body: JSON.stringify({ resume, jd }),
       }),
@@ -483,4 +459,34 @@ export interface EvaluationResult {
   };
   formatting_issues?: string[];
   suggestions: string[];
+  warnings?: string[];
+  isValidResume?: boolean;
+  error?: string | null;
+}
+
+export interface JdMatchResult {
+  matchScore: number;
+  match_score: number;
+  embeddingSimilarity: number;
+  matchedSkills: string[];
+  matched_skills: string[];
+  missingSkills: string[];
+  missing_must_have: string[];
+  missing_nice_to_have: string[];
+  recommendations: string[];
+  summary: string;
+  explanation: string;
+  breakdown: {
+    technicalSkillsScore: number;
+    experienceAlignmentScore: number;
+    roleReadinessScore: number;
+  };
+  section_similarity: {
+    summary: number;
+    skills: number;
+    experience: number;
+    overall: number;
+  };
+  embedding_provider: string;
+  error?: string | null;
 }

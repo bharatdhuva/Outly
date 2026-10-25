@@ -37,8 +37,9 @@ export async function generateMailForCompany(
       }
     }
 
-    // Call LangChain Cold Mail Chain
+    // Call LangChain Cold Mail RAG Chain
     const aiResult = await generateColdEmailChain({
+      companyId: (company as any).id || (company as any)._id?.toString() || companyId,
       companyName: company.company_name,
       targetRole: company.role,
       websiteUrl: company.website_url || undefined,

@@ -1,31 +1,33 @@
 import { z } from "zod";
 import { getChatModel } from "./llm.js";
 import { coldMailPrompt } from "./prompts.js";
+import { retrieveCompanyContext, type RetrievedSnippet } from "./rag/index.js";
 import { logger } from "../lib/logger.js";
 
 /**
- * Zod schema for single email variant
+ * Zod schema for single email variant (A/B testing)
  */
 export const ColdMailVariantSchema = z.object({
-  variant_name: z.string().describe("e.g. 'Variant A: Metrics-Driven' or 'Variant B: Problem-Solver'"),
-  subject: z.string().describe("Engaging subject line under 60 characters"),
-  body: z.string().describe("Full email body text without markdown placeholders"),
-  angle: z.string().describe("Brief note explaining the psychological angle of this variant"),
+  variant_name: z.string().describe("e.g. 'Variant A: Impact & Metrics' or 'Variant B: Problem-Solver & Tech-Synergy'"),
+  subject: z.string().describe("Engaging, non-spammy subject line under 60 characters"),
+  body: z.string().describe("Full email body text strictly formatted with paragraph breaks"),
+  angle: z.string().describe("Brief note explaining the psychological outreach angle of this variant"),
 });
 
 /**
- * Zod schema for complete Cold Mail generation output
+ * Zod schema for complete Cold Mail generation output with primary email and A/B variants
  */
 export const ColdMailResultSchema = z.object({
   subject: z.string().describe("Primary high-converting subject line"),
-  body: z.string().describe("Primary personalized cold email body"),
-  personalization_hook: z.string().describe("The specific sentence or observation used to hook the recipient"),
+  body: z.string().describe("Primary personalized cold email body grounded in retrieved context"),
+  personalization_hook: z.string().describe("The specific verified company insight used to hook the recipient"),
   variants: z.array(ColdMailVariantSchema).describe("2 distinct A/B testing variants with different angles"),
 });
 
 export type ColdMailResult = z.infer<typeof ColdMailResultSchema>;
 
 export interface ColdMailInput {
+  companyId?: string;
   companyName: string;
   targetRole?: string;
   websiteUrl?: string;
@@ -41,6 +43,12 @@ export interface ColdMailInput {
   modelName?: string;
 }
 
+/**
+ * Helper to ensure professional email formatting:
+ * - Proper paragraph separation with blank lines (\n\n)
+ * - Salutation
+ * - Signature
+ */
 function formatEmailBody(
   rawBody: string,
   recipient: string,
@@ -81,7 +89,22 @@ function formatEmailBody(
 }
 
 /**
- * Executes the Cold Email LangChain chain with Structured Output
+ * Executes the Cold Email LangChain RAG pipeline:
+ * 
+ * 1. Semantic Chunking & Embedding:
+ *    - Cleans the company website content.
+ *    - Splits it into discrete semantic chunks using RecursiveCharacterTextSplitter.
+ *    - Generates embeddings using Google text-embedding-004.
+ *    - Indexes chunks into an in-memory VectorStore.
+ * 
+ * 2. Targeted Semantic Retrieval:
+ *    - Builds a targeted query from the candidate profile (target role, key skills, hook).
+ *    - Retrieves ONLY the top-k most relevant chunks using vector cosine similarity.
+ * 
+ * 3. Grounded Generation (LCEL + Anti-Hallucination):
+ *    - Injects only the retrieved relevant chunks into the prompt.
+ *    - Enforces strict anti-hallucination rules (no made-up facts or funding).
+ *    - Produces a Primary Email + 2 distinct A/B variants using Zod structured output.
  */
 export async function generateColdEmailChain(input: ColdMailInput): Promise<ColdMailResult> {
   const startTime = Date.now();
@@ -89,24 +112,49 @@ export async function generateColdEmailChain(input: ColdMailInput): Promise<Cold
   const sender = input.senderName || "Bharat Dhuva";
   const location = input.senderLocation || "";
 
-  logger.info(`[ColdMailChain] Starting cold email generation for company: ${input.companyName}`, {
+  logger.info(`[ColdMailChain] Starting RAG cold email generation for: ${input.companyName}`, {
     role: input.targetRole,
     recipient: input.targetPerson,
     source: "ai/coldMailChain",
   });
 
+  // Step 1: Perform RAG retrieval to get only the most relevant chunks from the vector store
+  let retrievedContext = "No prior website scrape available.";
+  let retrievedSnippets: RetrievedSnippet[] = [];
+
+  try {
+    const ragResult = await retrieveCompanyContext({
+      companyId: input.companyId,
+      companyName: input.companyName,
+      targetRole: input.targetRole,
+      keySkills: input.keySkills,
+      personalizationHook: input.personalizationHook,
+      scrapedData: input.scrapedContext,
+      websiteUrl: input.websiteUrl,
+      topK: 4,
+    });
+
+    retrievedContext = ragResult.formattedContext;
+    retrievedSnippets = ragResult.snippets;
+
+    logger.info(`[ColdMailChain] RAG retrieval complete: ${ragResult.retrievedCount} chunks from ${ragResult.totalChunksIndexed} total indexed`, {
+      company: input.companyName,
+      source: "ai/coldMailChain",
+    });
+  } catch (ragError: any) {
+    logger.warn(`[ColdMailChain] RAG retrieval encountered error, falling back to basic context: ${ragError?.message}`, {
+      source: "ai/coldMailChain",
+    });
+    if (typeof input.scrapedContext === "string" && input.scrapedContext.trim()) {
+      retrievedContext = input.scrapedContext.slice(0, 1500);
+    }
+  }
+
+  // Step 2: Initialize Chat Model (Gemini)
   const model = getChatModel({
     modelName: input.modelName ?? "gemini-2.5-flash",
     temperature: 0.3,
   });
-
-  // Convert scraped context to readable string if it's an object
-  let formattedScrapedContext = "No prior website scrape available.";
-  if (typeof input.scrapedContext === "string" && input.scrapedContext.trim()) {
-    formattedScrapedContext = input.scrapedContext;
-  } else if (input.scrapedContext && typeof input.scrapedContext === "object") {
-    formattedScrapedContext = JSON.stringify(input.scrapedContext, null, 2);
-  }
 
   const promptVariables = {
     companyName: input.companyName || "the team",
@@ -119,12 +167,12 @@ export async function generateColdEmailChain(input: ColdMailInput): Promise<Cold
     senderName: sender,
     senderLocation: location,
     personalizationHook: input.personalizationHook || "Focus on recent product momentum and modern tech stack.",
-    scrapedContext: formattedScrapedContext,
+    scrapedContext: retrievedContext, // Only the retrieved relevant context chunks passed!
     resumeSummary: input.resumeSummary || "Hands-on builder proficient in React, Node.js, LangChain, and AI APIs.",
   };
 
   try {
-    // Attempt withStructuredOutput using Zod schema
+    // Step 3: LCEL Chain with Zod Structured Output
     const structuredLlm = model.withStructuredOutput(ColdMailResultSchema, {
       name: "cold_mail_result",
     });
@@ -132,7 +180,7 @@ export async function generateColdEmailChain(input: ColdMailInput): Promise<Cold
     const chain = coldMailPrompt.pipe(structuredLlm);
     const result = await chain.invoke(promptVariables);
 
-    // Apply strict formatting rules to ensure proper paragraphs, greeting, and signature
+    // Apply strict formatting rules to ensure clean, scannable paragraphs and sign-offs
     result.body = formatEmailBody(result.body, recipient, sender, location);
     if (Array.isArray(result.variants)) {
       result.variants = result.variants.map((v) => ({
@@ -141,9 +189,10 @@ export async function generateColdEmailChain(input: ColdMailInput): Promise<Cold
       }));
     }
 
-    logger.info(`[ColdMailChain] Generated successfully in ${Date.now() - startTime}ms`, {
+    logger.info(`[ColdMailChain] Cold email generated via RAG in ${Date.now() - startTime}ms`, {
       company: input.companyName,
       variantsCount: result.variants?.length ?? 0,
+      retrievedSnippetsCount: retrievedSnippets.length,
       source: "ai/coldMailChain",
     });
 
@@ -154,7 +203,7 @@ export async function generateColdEmailChain(input: ColdMailInput): Promise<Cold
     });
 
     try {
-      // Fallback invocation requesting JSON
+      // Fallback invocation requesting JSON directly
       const fallbackPrompt = await coldMailPrompt.formatMessages(promptVariables);
       const rawResponse = await model.invoke([
         ...fallbackPrompt,
@@ -183,19 +232,19 @@ export async function generateColdEmailChain(input: ColdMailInput): Promise<Cold
       });
 
       // Deterministic emergency fallback so the user/workflow is never broken
-      const role = input.targetRole || "AI / Software Engineer";
+      const role = input.targetRole || "Software Engineer";
       const company = input.companyName;
 
       return {
         subject: `Quick question regarding ${role} at ${company}`,
-        body: `Hi ${recipient},\n\nI noticed ${company}'s impressive work in engineering and AI solutions. With strong hands-on experience in full-stack architecture, LLMs, and API integrations, I would love to contribute to your engineering velocity.\n\nI've attached my resume for your reference. Would you be open to a brief 10-minute chat this week?\n\nBest regards,\n${sender}${location ? `\n${location}` : ""}`,
-        personalization_hook: `I've been following ${company}'s tech innovations and client delivery standards.`,
+        body: `Hi ${recipient},\n\nI noticed ${company}'s impressive engineering work. With hands-on experience in full-stack architecture, LLMs, and API integrations, I would love to contribute to your engineering velocity.\n\nI've attached my resume for your reference. Would you be open to a brief 10-minute chat this week?\n\nBest regards,\n${sender}${location ? `\n${location}` : ""}`,
+        personalization_hook: `I've been following ${company}'s technology initiatives and client solutions.`,
         variants: [
           {
             variant_name: "Variant A: Impact-Driven",
             subject: `Impact on ${company}'s ${role} initiatives`,
             body: `Hi ${recipient},\n\nHaving shipped real-world full-stack web applications and automated AI workflows, I wanted to reach out regarding the ${role} opening at ${company}.\n\nI've attached my resume for your reference. Would you be open to a 5-minute sync to discuss how my skillset directly aligns with your team's goals?\n\nBest regards,\n${sender}${location ? `\n${location}` : ""}`,
-            angle: "Focuses on rapid execution, shipped products, and engineering impact.",
+            angle: "Focuses on rapid execution, shipped products, and engineering velocity.",
           },
           {
             variant_name: "Variant B: Tech Synergy",
