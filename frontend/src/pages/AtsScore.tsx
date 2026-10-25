@@ -387,6 +387,7 @@ export default function AtsScorePage() {
     if (file) {
       processResumeFile(file);
     }
+    e.target.value = "";
   };
 
   const handleFilesSelect = (selectedFiles: File[]) => {
@@ -703,25 +704,43 @@ export default function AtsScorePage() {
               </div>
             ) : result ? (
               <div className="rounded-[28px] border border-black/[0.06] bg-white p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.025)] space-y-3.5">
-                <div className="flex items-center justify-between pb-3 border-b border-black/[0.04]">
-                  <div className="flex items-center gap-2 truncate pr-2">
+                <div className="flex items-center justify-between pb-3 border-b border-black/[0.04] gap-2">
+                  <div className="flex items-center gap-2 truncate pr-2 min-w-0">
                     <FileText className="w-4 h-4 text-zinc-500 shrink-0" />
                     <span className="text-xs font-semibold text-zinc-900 truncate">
                       {resumeFile ? resumeFile.name : resumeFileName || "Uploaded Resume"}
                     </span>
                   </div>
-                  <button
-                    onClick={() => {
-                      setResult(null);
-                      setResume("");
-                      setResumeFile(null);
-                      setResumeFileName("");
-                      setSelectedVaultId("custom");
-                    }}
-                    className="text-[11px] font-semibold text-zinc-400 hover:text-zinc-900 cursor-pointer transition-colors shrink-0"
-                  >
-                    Change file
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                        fileInputRef.current?.click();
+                      }}
+                      className="text-[11px] font-medium text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                      title="Select another resume file"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      <span className="hidden sm:inline">Select another resume</span>
+                      <span className="sm:hidden">Change</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResult(null);
+                        setResume("");
+                        setResumeFile(null);
+                        setResumeFileName("");
+                        setSelectedVaultId("custom");
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      className="text-[11px] font-medium text-zinc-400 hover:text-red-600 cursor-pointer transition-colors p-1 rounded hover:bg-red-50"
+                      title="Remove resume"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="max-h-[360px] overflow-y-auto rounded-2xl border border-black/[0.04] bg-[#F5F5F7]/50 p-3">

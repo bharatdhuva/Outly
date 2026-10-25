@@ -37,7 +37,8 @@ import {
   Layers,
   Zap,
   ArrowUpRight,
-  ArrowRight
+  ArrowRight,
+  Trash2
 } from "lucide-react";
 import { FileUploadCard, UploadedFile } from "@/components/ui/file-upload-card";
 
@@ -257,6 +258,7 @@ export default function ResumeTailorPage() {
   const [showAiErrorModal, setShowAiErrorModal] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const jdTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [mobileStep, setMobileStep] = useState(1);
@@ -912,17 +914,57 @@ export default function ResumeTailorPage() {
               <span className="font-mono text-neutral-400 font-normal">01</span>
               <span>Job description</span>
             </h2>
-            <span className="text-[11px] font-mono text-neutral-400">
-              {jobDesc.trim() ? `${jobDesc.trim().split(/\s+/).length} words` : "0 words"}
-            </span>
+            <div className="flex items-center gap-1.5">
+              {jobDesc.trim().length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (jdTextareaRef.current) {
+                        jdTextareaRef.current.focus();
+                        jdTextareaRef.current.select();
+                      }
+                    }}
+                    title="Select all text (Ctrl+A)"
+                    className="text-[11px] font-medium text-neutral-500 hover:text-neutral-900 px-2 py-0.5 rounded-md hover:bg-neutral-100 transition-colors cursor-pointer flex items-center gap-1"
+                  >
+                    Select all
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setJobDesc("");
+                      if (jdTextareaRef.current) {
+                        jdTextareaRef.current.focus();
+                      }
+                    }}
+                    title="Clear job description"
+                    className="text-[11px] font-medium text-red-600 hover:text-red-700 px-2 py-0.5 rounded-md hover:bg-red-50 transition-colors cursor-pointer flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Clear</span>
+                  </button>
+                  <span className="text-neutral-300">·</span>
+                </>
+              )}
+              <span className="text-[11px] font-mono text-neutral-400">
+                {jobDesc.trim() ? `${jobDesc.trim().split(/\s+/).length} words` : "0 words"}
+              </span>
+            </div>
           </div>
 
           <div className="rounded-[28px] border border-black/[0.06] bg-white p-6 h-[340px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col focus-within:border-black/20 transition-all">
             <textarea
+              ref={jdTextareaRef}
               className="flex-1 w-full resize-none border-0 bg-transparent text-[13px] leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:outline-none font-mono"
               placeholder="Paste the job description here..."
               value={jobDesc}
               onChange={(e) => setJobDesc(e.target.value)}
+              onKeyDown={(e) => {
+                if ((e.ctrlKey || e.metaKey) && (e.key === "a" || e.key === "A")) {
+                  e.currentTarget.select();
+                }
+              }}
             />
           </div>
         </div>
@@ -948,6 +990,7 @@ export default function ResumeTailorPage() {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) processResumeFile(file);
+                e.target.value = "";
               }}
             />
 
@@ -1016,24 +1059,66 @@ export default function ResumeTailorPage() {
             ) : (
               /* Resume Preview / Uploaded state */
               <div className="flex-1 flex flex-col min-h-0">
-                <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-100">
-                  <span className="truncate text-xs font-medium text-neutral-800 flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5 text-neutral-500" />
-                    {resumeFile ? resumeFile.name : (resumes.find(r => String(r.id) === selectedVaultId)?.label || "Vault Resume")}
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-100 gap-2">
+                  <span className="truncate text-xs font-medium text-neutral-800 flex items-center gap-1.5 min-w-0">
+                    <FileText className="h-3.5 w-3.5 text-neutral-500 shrink-0" />
+                    <span className="truncate">{resumeFile ? resumeFile.name : (resumes.find(r => String(r.id) === selectedVaultId)?.label || "Vault Resume")}</span>
                   </span>
-                  <button
-                    onClick={() => {
-                      setResumeFile(null);
-                      setResumeText(null);
-                      setSelectedVaultId("custom");
-                      setIsValidResume(null);
-                      setResumeValidationError(null);
-                    }}
-                    className="text-neutral-400 hover:text-neutral-800 text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                    Remove
-                  </button>
+                  
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {resumes.length > 0 && (
+                      <select
+                        className="text-[11px] bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 rounded-md px-2 py-1 text-neutral-700 focus:outline-none focus:border-neutral-400 cursor-pointer max-w-[125px] sm:max-w-[150px] truncate transition-colors"
+                        value={selectedVaultId}
+                        onChange={(e) => {
+                          if (e.target.value === "upload_new") {
+                            if (fileInputRef.current) fileInputRef.current.value = "";
+                            fileInputRef.current?.click();
+                          } else {
+                            handleVaultSelect(e.target.value);
+                          }
+                        }}
+                      >
+                        <option value="custom" disabled>Switch resume...</option>
+                        {resumes.map((r) => (
+                          <option key={r.id} value={String(r.id)}>
+                            {r.label}
+                          </option>
+                        ))}
+                        <option value="upload_new">+ Upload file...</option>
+                      </select>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                        fileInputRef.current?.click();
+                      }}
+                      className="text-neutral-700 hover:text-neutral-950 bg-neutral-100 hover:bg-neutral-200 text-[11px] font-medium px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                      title="Select another resume file"
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                      <span className="hidden sm:inline">Select another resume</span>
+                      <span className="sm:hidden">Change</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResumeFile(null);
+                        setResumeText(null);
+                        setSelectedVaultId("custom");
+                        setIsValidResume(null);
+                        setResumeValidationError(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      className="text-neutral-400 hover:text-red-600 text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors p-1 rounded hover:bg-red-50"
+                      title="Remove resume"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto rounded-lg border border-neutral-100 bg-neutral-50/50 p-3">
