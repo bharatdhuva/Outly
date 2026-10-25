@@ -558,25 +558,51 @@ export default function AtsScorePage() {
       ? 65 
       : 40;
 
-  // Compute overall issue count
-  const getIssuesCount = (res: EvaluationResult) => {
-    let count = 0;
-    if (res.formatting_issues) count += res.formatting_issues.length;
-    if (res.missing_keywords) {
-      if (Array.isArray(res.missing_keywords)) {
-        count += res.missing_keywords.length;
-      } else {
-        const mk = res.missing_keywords as any;
-        count += (mk.hard_skills?.length || 0) + (mk.tools_technologies?.length || 0) + (mk.soft_skills?.length || 0);
+  // Compute genuine, resume-specific recommendations
+  const getKeyRecommendations = (res: EvaluationResult): string[] => {
+    const list: string[] = [];
+
+    // 1. Resume-specific recommendations from heuristic & AI analysis
+    if (res.suggestions && Array.isArray(res.suggestions)) {
+      res.suggestions.forEach((s) => {
+        if (s && typeof s === "string" && s.trim()) {
+          const trimmed = s.trim();
+          if (!list.includes(trimmed)) list.push(trimmed);
+        }
+      });
+    }
+
+    // 2. Concrete document formatting issues detected
+    if (res.formatting_issues && Array.isArray(res.formatting_issues)) {
+      res.formatting_issues.forEach((f) => {
+        if (f && typeof f === "string" && f.trim()) {
+          const trimmed = f.trim();
+          if (!list.includes(trimmed)) list.push(trimmed);
+        }
+      });
+    }
+
+    // 3. Experience seniority alignment feedback if not optimal
+    if (res.experience_analysis && res.experience_analysis.seniority_match !== "Good" && res.experience_analysis.comments) {
+      const seniorityNote = `Experience Alignment: ${res.experience_analysis.comments}`;
+      if (!list.includes(seniorityNote)) list.push(seniorityNote);
+    }
+
+    // 4. Missing keywords (grouped as ONE concrete recommendation listing top skills)
+    const missing = getMissingKeywordsArray(res.missing_keywords);
+    if (missing.length > 0) {
+      const topMissing = missing.slice(0, 5).join(", ");
+      const keywordNote = `Add role-specific keywords: ${topMissing}${missing.length > 5 ? ` (+${missing.length - 5} more)` : ""}`;
+      if (!list.some(item => item.toLowerCase().includes("keywords"))) {
+        list.push(keywordNote);
       }
     }
-    if (res.experience_analysis && res.experience_analysis.seniority_match !== "Good") {
-      count += 1;
-    }
-    return count || 8; // baseline
+
+    return list;
   };
 
-  const issuesCount = result ? getIssuesCount(result) : 18;
+  const keyRecommendations = result ? getKeyRecommendations(result) : [];
+  const issuesCount = keyRecommendations.length;
 
   // Helpers for category grades coloring
   const getBadgeColorClass = (scoreNum: number) => {
@@ -840,20 +866,17 @@ export default function AtsScorePage() {
             {/* Detailed recommendations if result is present */}
             {result && (
               <div className="mt-4 pt-4 border-t border-neutral-100 space-y-3">
-                {issuesCount > 0 ? (
-                  <div className="bg-neutral-50 rounded-xl p-3.5 space-y-2 border border-neutral-200/60">
+                {keyRecommendations.length > 0 ? (
+                  <div className="bg-neutral-50 rounded-xl p-3.5 space-y-2.5 border border-neutral-200/60">
                     <span className="text-[11px] font-bold text-neutral-800 uppercase tracking-wider block">
-                      Key Recommendations ({issuesCount})
+                      Key Recommendations ({keyRecommendations.length})
                     </span>
-                    <ul className="text-xs text-neutral-600 space-y-1.5 list-disc list-inside">
-                      {activeResult.formatting_issues?.slice(0, 3).map((issue, i) => (
-                        <li key={i} className="leading-relaxed">{issue}</li>
-                      ))}
-                      {getMissingKeywordsArray(activeResult.missing_keywords).slice(0, 3).length > 0 && (
-                        <li className="leading-relaxed">
-                          Add keywords: <span className="font-medium text-neutral-900">{getMissingKeywordsArray(activeResult.missing_keywords).slice(0, 3).join(", ")}</span>
+                    <ul className="text-xs text-neutral-700 space-y-2 list-disc list-inside">
+                      {keyRecommendations.map((rec, i) => (
+                        <li key={i} className="leading-relaxed">
+                          {rec}
                         </li>
-                      )}
+                      ))}
                     </ul>
                   </div>
                 ) : (
