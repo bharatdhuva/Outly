@@ -1,0 +1,12 @@
+Perform an ATS audit. Suggest concrete rewrites per section using only resume facts.
+
+<resume>
+{resume}
+</resume>
+
+<job_description>
+{jd}
+</job_description>
+
+Deterministic findings (for context, do not copy blindly):
+{deterministic_notes}

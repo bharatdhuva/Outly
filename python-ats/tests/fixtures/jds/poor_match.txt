@@ -1,0 +1,22 @@
+Staff Machine Learning Engineer
+About us
+We are hiring a Staff Machine Learning Engineer for ranking and NLP systems.
+
+Responsibilities
+- Train and deploy deep learning models
+- Own feature stores and offline evaluation
+- Partner with research on transformer experiments
+
+Must have qualifications
+- 8+ years of experience
+- Python
+- PyTorch or TensorFlow
+- NLP and Deep Learning
+- Spark and Airflow
+- BigQuery or Snowflake
+- Kubernetes
+
+Preferred
+- Scala
+- Kafka
+- Terraform

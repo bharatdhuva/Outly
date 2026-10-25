@@ -1,0 +1,27 @@
+Priya Sharma
+Bengaluru, India | priya.sharma@email.com | +91 98765 43210 | linkedin.com/in/priyasharma | github.com/priya
+
+Professional Summary
+Senior Software Engineer with 6 years of experience building production Node.js and TypeScript APIs, React dashboards, and cloud-native services on AWS. Comfortable with Docker, Kubernetes (k8s), Redis, and PostgreSQL.
+
+Skills
+JavaScript, TypeScript, Python, React, Node.js, Express, FastAPI, REST, GraphQL, MongoDB, PostgreSQL, Redis, Docker, Kubernetes, AWS, Terraform, Git, CI/CD, System Design, Microservices, Leadership, Communication
+
+Experience
+Senior Software Engineer, Northstar Cloud — 2021 to Present
+- Architected a Node.js microservices platform that reduced p95 latency 38% and served 2 million monthly users.
+- Deployed workloads to Kubernetes on AWS EKS and automated releases with GitHub Actions CI/CD.
+- Implemented Redis caching and PostgreSQL partitioning that cut database cost 22%.
+- Mentored 4 mid-level engineers and led weekly system design reviews.
+
+Software Engineer, Helio Apps — 2018 to 2021
+- Built React and TypeScript dashboards used by 120 enterprise customers.
+- Designed REST and GraphQL APIs in Express and shipped Docker images to AWS ECS.
+- Wrote Python FastAPI internal tools for data quality checks covering 15 million rows.
+
+Education
+B.Tech in Computer Science, NIT Trichy, 2018
+
+Projects
+- Outbox Monitor: Python + FastAPI + Redis service that tracked 50k Kafka events/day.
+- Resume Radar: React + Node.js matcher using embeddings and skill taxonomies.

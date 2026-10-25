@@ -1,0 +1,25 @@
+Alex Chen
+alex.chen@email.com | (415) 555-0199 | linkedin.com/in/alexchen
+
+Summary
+Full-stack developer with 3 years of experience in JavaScript, React, and Node.js. Interested in backend APIs and cloud.
+
+Skills
+JavaScript, React, Node.js, Express, MongoDB, HTML, CSS, Git, REST
+
+Experience
+Software Developer, Brightleaf Studio — 2023 to Present
+- Developed React components for a marketing site used by 8,000 weekly visitors.
+- Built Express REST endpoints for a content CMS and stored documents in MongoDB.
+- Collaborated with designers in Agile sprints.
+
+Junior Developer, Pixel Forge — 2021 to 2023
+- Implemented landing pages in HTML/CSS and a small Node.js script to generate sitemaps.
+- Fixed bugs and wrote Jest tests for checkout widgets.
+
+Education
+B.S. Computer Science, State University, 2021
+
+Projects
+- Personal portfolio in React.
+- Weekend Node.js bot that posts GitHub commit stats.

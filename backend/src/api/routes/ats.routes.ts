@@ -1,324 +1,55 @@
 import { Router, Response } from "express";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkAtsLimit, checkTailorLimit } from "../../middleware/limits.js";
 import { activityQueries } from "../../db/queries.js";
 import { uploadResume } from "../../middleware/upload.js";
-import { validateResumeText, validateJobDescriptionText } from "../../lib/resumeValidator.js";
-import { scoreResumeChain } from "../../ai/atsScoreChain.js";
-import { tailorResumeChain } from "../../ai/resumeTailorChain.js";
-import { matchResumeToJd } from "../../ai/resumeJdMatcher.js";
-import path from "path";
 import fs from "fs";
-import axios from "axios";
-import CSSMatrix from "dommatrix";
-import { createRequire } from "module";
-
-// Polyfill DOMMatrix globally for pdfjs-dist / pdf-parse in Node.js
-if (!(globalThis as any).DOMMatrix) {
-  (globalThis as any).DOMMatrix = CSSMatrix;
-}
-
-const require = createRequire(import.meta.url);
-let mammoth: any;
-try {
-  mammoth = require("mammoth");
-} catch (e) {
-  mammoth = null;
-}
 
 const router = Router();
-
-// Protect all ATS routes with authentication
 router.use(requireAuth);
 
-// Helper to extract content wrapped in custom tags
-function extractTagContent(text: string, tag: string): string {
-  const regex = new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, "i");
-  const match = text.match(regex);
-  return match ? match[1].trim() : "";
+const pythonBase = env.PYTHON_ATS_URL.replace(/\/$/, "");
+
+function pythonHeaders(extra?: Record<string, string>): Record<string, string> {
+  const headers: Record<string, string> = { ...extra };
+  if (env.PYTHON_ATS_INTERNAL_KEY) {
+    headers["X-Internal-Key"] = env.PYTHON_ATS_INTERNAL_KEY;
+  }
+  return headers;
 }
 
-// Helper to extract a list of items wrapped in custom tags
-function extractTagList(text: string, tag: string): string[] {
-  const content = extractTagContent(text, tag);
-  if (!content) return [];
-  return content
-    .split("\n")
-    .map(line => line.replace(/^[\s\-\*\d\.\)]+/, "").trim())
-    .filter(line => line.length > 0);
-}
-
-// Helper to parse Gemini response trying JSON first and XML-like tags as fallback
-function parseGeminiResponse(text: string, isScore: boolean) {
+async function proxyJson(
+  req: AuthenticatedRequest,
+  res: Response,
+  path: string
+): Promise<void> {
+  const url = `${pythonBase}${path}`;
   try {
-    const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-    const parsed = JSON.parse(cleaned);
-    if (isScore && parsed) {
-      if (parsed.is_valid_resume !== undefined) {
-        parsed.isValidResume = (parsed.is_valid_resume === true || parsed.is_valid_resume === "true");
-      }
-      if (parsed.isValidResume === undefined) {
-        parsed.isValidResume = true;
-      }
+    const response = await fetch(url, {
+      method: "POST",
+      headers: pythonHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify(req.body ?? {}),
+    });
+    const text = await response.text();
+    let payload: unknown = { error: text || "Python ATS service error." };
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      // keep text payload
     }
-    return parsed;
-  } catch (e) {
-    logger.info("JSON parsing failed, falling back to XML tag parsing", { error: String(e), source: "ats" });
-    if (isScore) {
-      const score = parseInt(extractTagContent(text, "score"), 10) || 0;
-      const isValidResumeVal = extractTagContent(text, "is_valid_resume").toLowerCase();
-      const isValidResume = isValidResumeVal === "" ? true : (isValidResumeVal === "true");
-      const skills_match = parseInt(extractTagContent(text, "skills_match"), 10) || 0;
-      const experience_match = parseInt(extractTagContent(text, "experience_match"), 10) || 0;
-      const formatting_readability = parseInt(extractTagContent(text, "formatting_readability"), 10) || 0;
-      const impact_metrics = parseInt(extractTagContent(text, "impact_metrics"), 10) || 0;
-      const matched_keywords = extractTagList(text, "matched_keywords");
-      const hard_skills = extractTagList(text, "missing_hard_skills");
-      const soft_skills = extractTagList(text, "missing_soft_skills");
-      const tools_technologies = extractTagList(text, "missing_tools_technologies");
-      const seniority_match = extractTagContent(text, "seniority_match") || "Fair";
-      const seniority_comments = extractTagContent(text, "seniority_comments");
-      const formatting_issues = extractTagList(text, "formatting_issues");
-      const suggestions = extractTagList(text, "suggestions");
-
-      return {
-        score,
-        isValidResume,
-        breakdown: {
-          skills_match,
-          experience_match,
-          formatting_readability,
-          impact_metrics
-        },
-        matched_keywords,
-        missing_keywords: {
-          hard_skills,
-          soft_skills,
-          tools_technologies
-        },
-        experience_analysis: {
-          seniority_match,
-          comments: seniority_comments
-        },
-        formatting_issues,
-        suggestions
-      };
-    } else {
-      const tailoredResume = extractTagContent(text, "tailored_resume");
-      const matchedKeywords = extractTagList(text, "matched_keywords");
-      const hard_skills = extractTagList(text, "missing_hard_skills");
-      const soft_skills = extractTagList(text, "missing_soft_skills");
-      const tools_technologies = extractTagList(text, "missing_tools_technologies");
-
-      return {
-        tailoredResume,
-        matchedKeywords,
-        missingKeywords: {
-          hard_skills,
-          soft_skills,
-          tools_technologies
-        }
-      };
-    }
+    res.status(response.status).json(payload);
+  } catch (error) {
+    logger.error("Python ATS proxy failed", {
+      path,
+      error: String(error),
+      source: "ats",
+    });
+    res.status(503).json({ error: "ATS service unavailable. Please retry shortly." });
   }
 }
 
-// Helper to evaluate resume using Anthropic Claude API
-async function evaluateWithClaude(resume: string, jd: string | undefined, apiKey: string) {
-  logger.info("Running ATS resume evaluation fallback via Claude", { source: "ats" });
-
-  let prompt = "";
-  if (jd && jd.trim()) {
-    prompt = `You are an expert Applicant Tracking System (ATS) evaluator and SRE/SDE recruiter.
-Analyze the provided resume against the job description below.
-Perform a strict and highly accurate evaluation. Return a JSON object with:
-1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
-2. "score": Overall score from 0 to 100 based on key metrics (must be 0 if isValidResume is false).
-3. "breakdown": An object containing (all must be 0 if isValidResume is false):
-   - "skills_match": Score 0-100 of how well the skills match.
-   - "experience_match": Score 0-100 of how well the years of experience and seniority align.
-   - "formatting_readability": Score 0-100 of structural suitability (penalize headers, footers, multi-column layouts, graphics, complex styling).
-   - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
-4. "matched_keywords": An array of technical/hard skills and tools found in both.
-5. "missing_keywords": An object containing arrays:
-   - "hard_skills": Crucial technologies, programming languages, or domain expertise in the JD but missing from the resume.
-   - "soft_skills": Interpersonal, leadership, or execution-style terms from the JD missing from the resume.
-   - "tools_technologies": Frameworks, platforms, tools (e.g., Redis, Git, Docker, JIRA) from the JD missing from the resume.
-6. "experience_analysis": An object containing:
-   - "seniority_match": A string ("Good" | "Fair" | "Poor") rating.
-   - "comments": A brief summary of seniority match (e.g., "Resume shows 3 years React, JD asks for 5 years Senior SDE").
-7. "formatting_issues": An array of strings outlining potential ATS readability issues (e.g., "Detected complex formatting or columns", "Ensure email is in the main body").
-8. "suggestions": An array of 3-5 high-impact, actionable changes (e.g., "Add Redis under technical skills", "Rephrase React bullet point to include performance metrics"). If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
-
-Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
-
-Resume:
-${resume}
-
-Job Description:
-${jd}`;
-  } else {
-    prompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
-Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
-Analyze the resume for general ATS compatibility, formatting issues, action-verb usage, impact/quantifiable metrics, and overall professional quality.
-
-Return a JSON object with:
-1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
-2. "score": General ATS readiness score from 0 to 100 (must be 0 if isValidResume is false).
-3. "breakdown": An object containing (all must be 0 if isValidResume is false):
-   - "skills_match": Score 0-100 indicating depth and layout of technical skills.
-   - "experience_match": Score 0-100 evaluating the structure, formatting, and relevance of work history.
-   - "formatting_readability": Score 0-100 of structural suitability for ATS scanners (penalize multi-columns, tables, graphics, contact info in headers).
-   - "impact_metrics": Score 0-100 assessing the use of strong action verbs and quantified achievements (e.g. percentages, revenue, time savings).
-4. "matched_keywords": An array of the primary technical/hard skills, tools, and methodologies detected in the resume.
-5. "missing_keywords": An object containing arrays:
-   - "hard_skills": Crucial industry-standard technologies or skills related to the candidate's target field (inferred from the resume) that are currently missing or could be added.
-   - "soft_skills": Interpersonal or execution-oriented keywords standard for this domain that are missing.
-   - "tools_technologies": Essential tools, platforms, or systems commonly expected in this role that are missing.
-6. "experience_analysis": An object containing:
-   - "seniority_match": A string ("Good" | "Fair" | "Poor") representing the clarity of the candidate's experience progression.
-   - "comments": A brief summary of the experience layout and career progression.
-7. "formatting_issues": An array of strings outlining potential ATS readability bottlenecks found in the resume (e.g., "Found multi-column layout", "Contact details in header/footer", "Non-standard section headers").
-8. "suggestions": An array of 3-5 high-impact, actionable improvements to make the resume beat automated filters. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
-
-Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
-
-Resume:
-${resume}`;
-  }
-
-  const response = await axios.post(
-    "https://api.anthropic.com/v1/messages",
-    {
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 4000,
-      messages: [
-        {
-          role: "user",
-          content: prompt
-        }
-      ]
-    },
-    {
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json"
-      }
-    }
-  );
-
-  const text = response.data.content[0].text.trim();
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch (e) {
-    const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-    parsed = JSON.parse(cleaned);
-  }
-  return parsed;
-}
-
-// Helper to evaluate resume using Groq Llama API
-async function scoreWithGroq(resume: string, jd: string | undefined, apiKey: string) {
-  logger.info("Running ATS resume evaluation fallback via Groq", { source: "ats" });
-
-  let prompt = "";
-  if (jd && jd.trim()) {
-    prompt = `You are an expert Applicant Tracking System (ATS) evaluator and recruiter.
-Analyze the provided resume against the job description below.
-Perform a strict and highly accurate evaluation. Return a JSON object with:
-1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
-2. "score": Overall score from 0 to 100 based on key metrics (must be 0 if isValidResume is false).
-3. "breakdown": An object containing (all must be 0 if isValidResume is false):
-   - "skills_match": Score 0-100 of how well the skills match.
-   - "experience_match": Score 0-100 of how well the years of experience and seniority align.
-   - "formatting_readability": Score 0-100 of structural suitability.
-   - "impact_metrics": Score 0-100 assessing achievements and action verbs.
-4. "matched_keywords": An array of technical/hard skills and tools found in both.
-5. "missing_keywords": An object containing arrays:
-   - "hard_skills": Crucial technologies or domain expertise missing from the resume.
-   - "soft_skills": Interpersonal or execution terms missing.
-   - "tools_technologies": Frameworks, platforms, tools missing.
-6. "experience_analysis": An object containing:
-   - "seniority_match": A string ("Good" | "Fair" | "Poor") rating.
-   - "comments": A brief summary of seniority match.
-7. "formatting_issues": An array of strings outlining potential ATS readability issues.
-8. "suggestions": An array of 3-5 high-impact, actionable changes. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
-
-Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
-
-Resume:
-${resume}
-
-Job Description:
-${jd}`;
-  } else {
-    prompt = `You are an expert Applicant Tracking System (ATS) evaluator and professional resume auditor.
-Perform a comprehensive audit of the provided resume *without* matching it to a specific job description. 
-Return a JSON object with:
-1. "isValidResume": A boolean indicating whether the uploaded document is actually a valid resume/CV (set to false if it is a cover letter, tax form, receipt, ID card, certificate, or other non-resume text).
-2. "score": General ATS readiness score from 0 to 100 (must be 0 if isValidResume is false).
-3. "breakdown": An object containing (all must be 0 if isValidResume is false):
-   - "skills_match": Score 0-100.
-   - "experience_match": Score 0-100.
-   - "formatting_readability": Score 0-100.
-   - "impact_metrics": Score 0-100.
-4. "matched_keywords": An array of technical/hard skills, tools, and methodologies.
-5. "missing_keywords": An object containing arrays:
-   - "hard_skills": Crucial industry-standard technologies or skills missing.
-   - "soft_skills": Interpersonal keywords missing.
-   - "tools_technologies": Essential tools/platforms missing.
-6. "experience_analysis": An object containing:
-   - "seniority_match": A string ("Good" | "Fair" | "Poor") rating.
-   - "comments": A brief summary of experience layout.
-7. "formatting_issues": An array of strings.
-8. "suggestions": An array of 3-5 high-impact improvements. If isValidResume is false, include a suggestion: "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume."
-
-Do not include any Markdown code fencing like \`\`\`json. Return only the raw JSON.
-
-Resume:
-${resume}`;
-  }
-
-  const response = await axios.post(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert ATS evaluator and recruiter. Return valid JSON only.",
-        },
-        { role: "user", content: prompt },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.2,
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-    }
-  );
-
-  const text = response.data.choices[0].message.content.trim();
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch (e) {
-    const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-    parsed = JSON.parse(cleaned);
-  }
-  return parsed;
-}
-
-
-// POST parse uploaded file to plain text
 router.post("/parse-file", uploadResume.single("file"), async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded." });
@@ -326,462 +57,85 @@ router.post("/parse-file", uploadResume.single("file"), async (req: Authenticate
 
   const filePath = req.file.path;
   const originalName = req.file.originalname;
-  const ext = path.extname(originalName).toLowerCase();
 
   try {
-    let text = "";
+    const buffer = fs.readFileSync(filePath);
+    const form = new FormData();
+    form.append("file", new Blob([new Uint8Array(buffer)]), originalName);
 
-    if (ext === ".txt") {
-      text = fs.readFileSync(filePath, "utf-8");
-    } else if (ext === ".pdf") {
-      try {
-        if (!(globalThis as any).DOMMatrix) {
-          try { (globalThis as any).DOMMatrix = require("dommatrix"); } catch (_) {}
-        }
-        const pdfModule = require("pdf-parse");
-        const buffer = fs.readFileSync(filePath);
-        if (typeof pdfModule === "function") {
-          const data = await pdfModule(buffer);
-          text = data.text;
-        } else if (pdfModule.PDFParse) {
-          const parser = new pdfModule.PDFParse({ data: buffer });
-          const data = await parser.getText();
-          text = data.text;
-          await parser.destroy().catch(() => {});
-        } else if (pdfModule.default && typeof pdfModule.default === "function") {
-          const data = await pdfModule.default(buffer);
-          text = data.text;
-        } else {
-          throw new Error("Unknown pdf-parse export structure");
-        }
-      } catch (e: any) {
-        logger.error("PDF parsing failed in ats route", { error: e?.message || String(e), source: "ats" });
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        return res.status(500).json({ error: e?.message || "Failed to parse PDF document." });
-      }
-    } else if (ext === ".docx") {
-      if (!mammoth) mammoth = require("mammoth");
-      const result = await mammoth.extractRawText({ path: filePath });
-      text = result.value;
-    } else {
-      fs.unlinkSync(filePath);
-      return res.status(400).json({ error: "Unsupported file type. Please upload a .txt, .pdf, or .docx file." });
+    const response = await fetch(`${pythonBase}/api/ats/parse-file`, {
+      method: "POST",
+      headers: pythonHeaders(),
+      body: form,
+    });
+    const text = await response.text();
+    let payload: unknown = { error: text || "Failed to parse file." };
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      // keep text
     }
-
-    // Clean up file after parsing
-    fs.unlinkSync(filePath);
-    res.json({ filename: originalName, content: text });
+    res.status(response.status).json(payload);
   } catch (error) {
-    logger.error("File parsing failed", { filename: originalName, error: String(error), source: "ats" });
+    logger.error("Python ATS parse proxy failed", {
+      filename: originalName,
+      error: String(error),
+      source: "ats",
+    });
+    res.status(503).json({ error: "ATS service unavailable. Please retry shortly." });
+  } finally {
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
-    res.status(500).json({ error: `Failed to parse file: ${String(error)}` });
   }
 });
 
-// POST score resume against job description
 router.post("/score", checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
-  const { resume, jd } = req.body;
-
+  const { resume } = req.body ?? {};
   if (!resume) {
     return res.status(400).json({ error: "Resume is required." });
   }
-
-  // Scan and validate that the content is a resume
-  const validation = validateResumeText(resume);
-  if (!validation.isValid) {
-    return res.json({
-      score: 0,
-      isValidResume: false,
-      error: validation.error || "The uploaded document does not appear to be a valid resume/CV. Please upload a valid resume.",
-      breakdown: {
-        skills_match: 0,
-        experience_match: 0,
-        formatting_readability: 0,
-        impact_metrics: 0
-      },
-      matched_keywords: [],
-      missing_keywords: {
-        hard_skills: [],
-        soft_skills: [],
-        tools_technologies: []
-      },
-      experience_analysis: {
-        seniority_match: "Poor",
-        comments: "The uploaded document is not a valid resume/CV."
-      },
-      formatting_issues: ["The document structure is invalid for resume analysis."],
-      suggestions: ["Please upload a valid resume/CV containing standard sections like Experience, Education, or Skills."]
-    });
-  }
-
-  // Validate Job Description if provided
-  if (jd && jd.trim()) {
-    const jdValidation = validateJobDescriptionText(jd);
-    if (!jdValidation.isValid) {
-      return res.status(400).json({ error: jdValidation.error });
+  if (req.user) {
+    try {
+      await activityQueries.add(req.user.id, "ats_check", "Ran ATS resume score check");
+    } catch (err) {
+      logger.error("Failed to log ATS check activity", { error: String(err), userId: req.user.id });
     }
   }
-
-  if (!req.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  // Log ATS check activity
-  try {
-    await activityQueries.add(req.user.id, "ats_check", "Ran ATS resume score check");
-  } catch (err) {
-    logger.error("Failed to log ATS check activity", { error: String(err), userId: req.user.id });
-  }
-
-  // Run LangChain ATS Scoring Chain
-  try {
-    logger.info("Evaluating resume score with LangChain ATS chain", { source: "ats" });
-    const parsed = await scoreResumeChain({ resume, jd });
-    return res.json(parsed);
-  } catch (geminiError) {
-    logger.warn("ATS score evaluation via LangChain chain failed, checking fallbacks", { error: String(geminiError), source: "ats" });
-
-    // Fallback 1: Try Groq
-    if (env.GROK_API_KEY) {
-      try {
-        const parsed = await scoreWithGroq(resume, jd, env.GROK_API_KEY);
-        return res.json(parsed);
-      } catch (groqError) {
-        logger.warn("ATS score evaluation fallback via Groq failed", { error: String(groqError), source: "ats" });
-      }
-    }
-
-    // Fallback 2: Try Claude
-    if (env.CLAUDE_API_KEY) {
-      try {
-        const parsed = await evaluateWithClaude(resume, jd, env.CLAUDE_API_KEY);
-        return res.json(parsed);
-      } catch (claudeError) {
-        logger.warn("ATS score evaluation fallback via Claude failed", { error: String(claudeError), source: "ats" });
-      }
-    }
-
-    logger.error("ATS score evaluation failed with no fallback available", { error: String(geminiError), source: "ats" });
-    res.status(500).json({ error: `All evaluations failed.\nGemini Error: ${String(geminiError)}` });
-  }
+  await proxyJson(req, res, "/api/ats/score");
 });
 
-// Helper to tailor resume using Anthropic Claude API
-async function tailorWithClaude(resume: string, jd: string, apiKey: string) {
-  logger.info("Running resume tailoring fallback via Claude", { source: "ats" });
-
-  const prompt = `You are an expert resume writer, professional editor, and career coach.
-Your task is to tailor the candidate's resume specifically for the target job description provided.
-
-Here is the original resume:
-${resume}
-
-Here is the target job description:
-${jd}
-
-Please optimize the resume to maximize ATS match score and professional appeal:
-1. **Align Summary/Headline**: Revise the professional summary or headline to directly highlight the core competencies required for this role.
-2. **Tailor Work Experience**: Rewrite bullet points under work history to emphasize relevant projects, technical skills, and tools mentioned in the job description. Keep dates, job titles, and company names exactly as in the original resume.
-3. **Keyword Integration**: Naturally integrate critical hard skills, soft skills, and tools from the job description. Do not fabricate experience.
-4. **Quantify Achievements**: Ensure achievements use strong action verbs and quantified impact metrics where possible.
-
-You must return a JSON object containing:
-1. "tailoredResume": The tailored resume in clean, professionally-structured Markdown format.
-2. "matchedKeywords": An array of technical/hard skills, tools, and methodologies successfully incorporated/matched in the tailored resume.
-3. "missingKeywords": An object containing arrays of recommended keywords that were NOT matching or could be added to other sections:
-   - "hard_skills": Crucial industry-standard technologies or skills related to the candidate's target field that are missing or could be added.
-   - "soft_skills": Interpersonal or execution-oriented keywords standard for this domain that are missing.
-   - "tools_technologies": Essential tools, platforms, or systems commonly expected in this role that are missing.
-
-Do not include any chat prefix or suffix (like "Here is your tailored resume..."). Return only the raw JSON.`;
-
-  const response = await axios.post(
-    "https://api.anthropic.com/v1/messages",
-    {
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 4000,
-      messages: [
-        {
-          role: "user",
-          content: prompt
-        }
-      ]
-    },
-    {
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json"
-      }
-    }
-  );
-
-  const text = response.data.content[0].text.trim();
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch (e) {
-    const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-    parsed = JSON.parse(cleaned);
-  }
-  return parsed;
-}
-
-// Helper to tailor resume using Groq Llama API
-async function tailorWithGroq(resume: string, jd: string, apiKey: string) {
-  logger.info("Running resume tailoring fallback via Groq", { source: "ats" });
-
-  const prompt = `You are an expert resume writer, professional editor, and career coach.
-Your task is to tailor the candidate's resume specifically for the target job description provided.
-
-Here is the original resume:
-${resume}
-
-Here is the target job description:
-${jd}
-
-Please optimize the resume to maximize ATS match score and professional appeal:
-1. **Align Summary/Headline**: Revise the professional summary or headline to directly highlight the core competencies required for this role.
-2. **Tailor Work Experience**: Rewrite bullet points under work history to emphasize relevant projects, technical skills, and tools mentioned in the job description. Keep dates, job titles, and company names exactly as in the original resume.
-3. **Keyword Integration**: Naturally integrate critical hard skills, soft skills, and tools from the job description. Do not fabricate experience.
-4. **Quantify Achievements**: Ensure achievements use strong action verbs and quantified impact metrics where possible.
-
-You must return a JSON object containing:
-1. "tailoredResume": The tailored resume in clean, professionally-structured Markdown format.
-2. "matchedKeywords": An array of technical/hard skills, tools, and methodologies successfully incorporated/matched in the tailored resume.
-3. "missingKeywords": An object containing arrays of recommended keywords that were NOT matching or could be added to other sections:
-   - "hard_skills": Crucial industry-standard technologies or skills related to the candidate's target field that are missing or could be added.
-   - "soft_skills": Interpersonal or execution-oriented keywords standard for this domain that are missing.
-   - "tools_technologies": Essential tools, platforms, or systems commonly expected in this role that are missing.
-
-Do not include any chat prefix or suffix (like "Here is your tailored resume..."). Return only the raw JSON.`;
-
-  const response = await axios.post(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert resume writer and career coach. Return the response as valid JSON matching the requested schema.",
-        },
-        { role: "user", content: prompt },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-    }
-  );
-
-  const text = response.data.choices[0].message.content.trim();
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch (e) {
-    const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-    parsed = JSON.parse(cleaned);
-  }
-  return parsed;
-}
-
-// POST tailor resume to job description
 router.post("/tailor", checkTailorLimit, async (req: AuthenticatedRequest, res: Response) => {
-  const { resume, jd } = req.body;
-
+  const { resume, jd } = req.body ?? {};
   if (!resume) {
     return res.status(400).json({ error: "Resume content is required." });
   }
-
-  // Scan and validate that the content is a resume
-  const validation = validateResumeText(resume);
-  if (!validation.isValid) {
-    return res.status(400).json({ error: validation.error });
-  }
-
   if (!jd) {
     return res.status(400).json({ error: "Job description is required." });
   }
-
-  // Scan and validate that the content is a valid job description
-  const jdValidation = validateJobDescriptionText(jd);
-  if (!jdValidation.isValid) {
-    return res.status(400).json({ error: jdValidation.error });
-  }
-
-  if (!req.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  // Log ATS check activity
-  try {
-    await activityQueries.add(req.user.id, "ats_tailor", "Tailored resume to job description");
-  } catch (err) {
-    logger.error("Failed to log ATS check activity for tailoring", { error: String(err), userId: req.user.id });
-  }
-
-  const geminiPrompt = `You are an expert resume writer, professional editor, and career coach.
-Your task is to tailor the candidate's resume specifically for the target job description provided.
-
-CRITICAL: You MUST use Google Search to do an internet search for this role/company on Twitter/X, Reddit, LinkedIn, and related career sites.
-Specifically, search for:
-1. Recent Twitter/X posts, Reddit threads, or discussions about the target role ("${jd.substring(0, 100).replace(/[^a-zA-Z0-9 ]/g, '')}") or the technology stack to understand what SDEs/SREs are currently highlighting.
-2. Career portals (like LinkedIn, Indeed, Glassdoor) or the target company's career page to see specific skill requirements and company culture/mission.
-3. Industry standards and trends for this role.
-
-Use the insights from your Google Search (especially Twitter/X, Reddit, and career portals) to enrich the tailored resume, updating the candidate's professional summary and experience bullet points to reflect these real-world trends, while keeping original company names, job titles, dates, and locations exactly the same.
-
-Here is the original resume:
-${resume}
-
-Here is the target job description:
-${jd}
-
-Please optimize the resume to maximize ATS match score and professional appeal:
-1. **Align Summary/Headline**: Revise the professional summary or headline to directly highlight the core competencies required for this role.
-2. **Tailor Work Experience**: Rewrite bullet points under work history to emphasize relevant projects, technical skills, and tools mentioned in the job description. Keep dates, job titles, and company names exactly as in the original resume.
-3. **Keyword Integration**: Naturally integrate critical hard skills, soft skills, and tools from the job description. Do not fabricate experience.
-4. **Quantify Achievements**: Ensure achievements use strong action verbs and quantified impact metrics where possible.
-
-You must wrap the sections of your response in the following XML-like tags:
-- Wrap the tailored resume in clean, professionally-structured Markdown format inside <tailored_resume>...</tailored_resume>
-- Wrap the list of matched keywords in <matched_keywords>
-- List item 1
-- List item 2
-...
-</matched_keywords>
-- Wrap recommended missing hard skills to add in <missing_hard_skills>
-- List item 1
-...
-</missing_hard_skills>
-- Wrap recommended missing soft skills to add in <missing_soft_skills>
-- List item 1
-...
-</missing_soft_skills>
-- Wrap recommended missing tools/technologies to add in <missing_tools_technologies>
-- List item 1
-...
-</missing_tools_technologies>
-
-Do not return JSON. Use the tags listed above.`;
-
-  const fallbackPrompt = `You are an expert resume writer, professional editor, and career coach.
-Your task is to tailor the candidate's resume specifically for the target job description provided.
-
-Here is the original resume:
-${resume}
-
-Here is the target job description:
-${jd}
-
-Please optimize the resume to maximize ATS match score and professional appeal:
-1. **Align Summary/Headline**: Revise the professional summary or headline to directly highlight the core competencies required for this role.
-2. **Tailor Work Experience**: Rewrite bullet points under work history to emphasize relevant projects, technical skills, and tools mentioned in the job description. Keep dates, job titles, and company names exactly as in the original resume.
-3. **Keyword Integration**: Naturally integrate critical hard skills, soft skills, and tools from the job description. Do not fabricate experience.
-4. **Quantify Achievements**: Ensure achievements use strong action verbs and quantified impact metrics where possible.
-
-You must return a JSON object containing:
-1. "tailoredResume": The tailored resume in clean, professionally-structured Markdown format.
-2. "matchedKeywords": An array of technical/hard skills, tools, and methodologies successfully incorporated/matched in the tailored resume.
-3. "missingKeywords": An object containing arrays of recommended keywords that were NOT matching or could be added to other sections:
-   - "hard_skills": Crucial industry-standard technologies or skills related to the candidate's target field that are missing or could be added.
-   - "soft_skills": Interpersonal or execution-oriented keywords standard for this domain that are missing.
-   - "tools_technologies": Essential tools, platforms, or systems commonly expected in this role that are missing.
-
-Do not include any chat prefix or suffix (like "Here is your tailored resume..."). Return only the raw JSON.`;
-
-  // Run LangChain Resume Tailor Engine
-  try {
-    logger.info("Generating tailored resume via LangChain ResumeTailorChain", { source: "ats" });
-    const aiResult = await tailorResumeChain({ resume, jd });
-    return res.json({
-      tailoredResume: aiResult.tailoredResume || "",
-      matchedKeywords: aiResult.matchedKeywords || [],
-      matchCount: aiResult.matchedKeywords?.length || 0,
-      missingKeywords: aiResult.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] },
-      sources: [],
-      sections: aiResult.sections,
-      modificationsSummary: aiResult.modificationsSummary
-    });
-  } catch (geminiError) {
-    logger.warn("ATS tailoring via LangChain failed, checking legacy fallbacks", { error: String(geminiError), source: "ats" });
-
-    // Fallback 1: Try Groq
-    if (env.GROK_API_KEY) {
-      try {
-        const parsed = await tailorWithGroq(resume, jd, env.GROK_API_KEY);
-        return res.json({
-          tailoredResume: parsed.tailoredResume || "",
-          matchedKeywords: parsed.matchedKeywords || [],
-          missingKeywords: parsed.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] },
-          sources: []
-        });
-      } catch (groqError) {
-        logger.warn("ATS tailoring fallback via Groq failed", { error: String(groqError), source: "ats" });
-      }
+  if (req.user) {
+    try {
+      await activityQueries.add(req.user.id, "ats_tailor", "Tailored resume to job description");
+    } catch (err) {
+      logger.error("Failed to log ATS check activity for tailoring", { error: String(err), userId: req.user.id });
     }
-
-    // Fallback 2: Try Claude
-    if (env.CLAUDE_API_KEY) {
-      try {
-        const parsed = await tailorWithClaude(resume, jd, env.CLAUDE_API_KEY);
-        return res.json({
-          tailoredResume: parsed.tailoredResume || "",
-          matchedKeywords: parsed.matchedKeywords || [],
-          missingKeywords: parsed.missingKeywords || { hard_skills: [], soft_skills: [], tools_technologies: [] },
-          sources: []
-        });
-      } catch (claudeError) {
-        logger.warn("ATS tailoring fallback via Claude failed", { error: String(claudeError), source: "ats" });
-      }
-    }
-
-    logger.error("ATS tailoring failed with no fallback available", { error: String(geminiError), source: "ats" });
-    res.status(500).json({ error: `All tailoring attempts failed.\nGemini Error: ${String(geminiError)}` });
   }
+  await proxyJson(req, res, "/api/ats/tailor");
 });
 
-// POST match resume to JD using LangChain Embeddings + Cosine Similarity + LCEL
 router.post("/match", checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
-  const { resume, jd } = req.body;
+  const { resume, jd } = req.body ?? {};
   if (!resume || !jd) {
     return res.status(400).json({ error: "Both resume and jd are required." });
   }
-
-  const validation = validateResumeText(resume);
-  if (!validation.isValid) {
-    return res.status(400).json({ error: validation.error });
-  }
-
-  const jdValidation = validateJobDescriptionText(jd);
-  if (!jdValidation.isValid) {
-    return res.status(400).json({ error: jdValidation.error });
-  }
-
-  try {
-    if (req.user) {
-      await activityQueries.add(req.user.id, "ats_match", "Ran LangChain Resume to JD matching with Embeddings");
+  if (req.user) {
+    try {
+      await activityQueries.add(req.user.id, "ats_match", "Ran Resume to JD matching");
+    } catch (err) {
+      logger.error("Failed to log match activity", { error: String(err) });
     }
-  } catch (err) {
-    logger.error("Failed to log match activity", { error: String(err) });
   }
-
-  try {
-    const matchResult = await matchResumeToJd({
-      resumeText: resume,
-      jobDescription: jd,
-    });
-    res.json(matchResult);
-  } catch (err: any) {
-    logger.error("LangChain Resume-JD match failed", { error: err?.message || String(err) });
-    res.status(500).json({ error: "Failed to evaluate resume match against JD." });
-  }
+  await proxyJson(req, res, "/api/ats/match");
 });
 
 export default router;

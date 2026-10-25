@@ -1,0 +1,24 @@
+Senior Backend Engineer
+About the role
+We are hiring a Senior Backend Engineer to own APIs and platform reliability for our career-automation product.
+
+Responsibilities
+- Design and ship production Node.js and TypeScript services
+- Operate Docker and Kubernetes workloads on AWS
+- Improve PostgreSQL and Redis performance
+- Partner with frontend engineers on React integrations
+
+Requirements / Must have
+- 5+ years of experience
+- JavaScript and TypeScript
+- Node.js, REST APIs
+- Docker and Kubernetes (k8s)
+- PostgreSQL or Redis
+- System Design and microservices
+- Git and CI/CD
+
+Nice to have / Preferred
+- Python and FastAPI
+- GraphQL
+- Terraform
+- Leadership and mentoring

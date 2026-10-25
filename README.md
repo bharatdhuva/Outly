@@ -78,25 +78,21 @@ flowchart TD
     style OUTPUTS fill:#1e1e2e,stroke:#8b5cf6,stroke-width:2px,color:#fff
 ```
 
-### 1. Vector Embeddings & Semantic Resume-JD Matching (`resumeJdMatcher.ts`)
-* **Vector Model**: LangChain `GoogleGenerativeAIEmbeddings` (`text-embedding-004`).
-* **Cosine Similarity Engine**: Outly computes vector embeddings for both the candidate's resume and the job description, calculating exact mathematical cosine similarity (`dotProduct / (normA * normB)`).
-* **Hybrid Scoring**: Blends raw geometric vector proximity with qualitative LLM reasoning to evaluate role readiness, seniority trajectory, and critical skills alignment.
+### 1. Vector Embeddings & Semantic Resume-JD Matcher (`python-ats/app/services/matcher.py`)
+* **Service Architecture**: Migrated to Python 3.11+ FastAPI microservice using LangChain and Pydantic v2.
+* **Vector Models**: LangChain Google Gemini embeddings (`models/gemini-embedding-001`) with automatic SHA-256 vector caching, and an offline local **TF-IDF cosine similarity fallback**.
+* **Hybrid Multi-Factor Scoring**: Blends weighted normalized skill taxonomy overlap (must-have skills count 2x vs nice-to-have), semantic vector proximity, and experience seniority alignment into an advisory non-rejecting score.
 
-### 2. LangChain ATS Resume Audit Engine (`atsScoreChain.ts`)
-* **Structured Outputs**: Bound via `.withStructuredOutput(AtsScoreResultSchema)` ensuring zero JSON formatting parse errors.
-* **Granular Breakdown**: Evaluates documents across four discrete weighted dimensions:
-  * **Skills Match (0-100)**: Direct technical stack alignment.
-  * **Experience Match (0-100)**: Career progression and seniority depth.
-  * **Formatting Readability (0-100)**: Multi-column detection, table traps, and machine readability.
-  * **Impact Metrics (0-100)**: Verification of quantifiable metrics (%, $, latency, scale) and strong action verbs.
-* **Document Integrity Guard**: Dedicated heuristic + LLM validation (`isValidResume`) to reject receipts, cover letters, or non-resume documents before scoring.
+### 2. Explainable ATS Resume Audit Engine (`python-ats/app/services/ats.py`)
+* **Deterministic Rules Engine**: Audits 27 concrete factors across 6 categories: Contact Info (10 pts), Section Structure (20 pts), Length & Format (10 pts), Bullet Point Quality (20 pts), Keyword Coverage (25 pts), and Readability (15 pts).
+* **LangChain LCEL Structured Output Layer**: Uses Google Gemini (`gemini-2.5-flash`) structured output to deliver concrete section rewrite suggestions and strengths/weaknesses strictly bounded to facts present in the resume.
+* **Offline Resilient**: If no API key is provided or the LLM is unavailable, returns the complete deterministic report with `llm_analysis = null`.
 
-### 3. Precision Resume Tailor Engine (`resumeTailorChain.ts`)
+### 3. Precision Resume Tailor Engine (`python-ats/app/services/ats.py` & `llm.py`)
 * **Context-Aware Section Rewrites**: Tailors the resume section-by-section (Summary, Skills, Experience Bullets, Projects) to mirror the exact competencies prioritized in the JD.
 * **Anti-Hallucination Integrity Rules**: Strict prompt governance forbids fabricating degrees, past employers, dates, or non-existent job titles.
 * **Google XYZ Formula**: Automatically rephrases bullet points into *"Accomplished [X], as measured by [Y], by doing [Z]"* format.
-* **Export Pipeline**: Generates clean Markdown that can be inspected, live-edited in the UI, and compiled into a downloadable PDF.
+
 
 ### 4. RAG-Augmented Cold Email Outreach Engine (`coldMailChain.ts`)
 * **Live Web Retrieval (RAG)**: Playwright + Cheerio scrape the target company's landing page, engineering blog, and value proposition in real time.

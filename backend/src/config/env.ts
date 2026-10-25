@@ -13,6 +13,9 @@ export const env = {
   CLIENT_ORIGIN: process.env.CLIENT_ORIGIN ?? `http://localhost:${process.env.CLIENT_PORT ?? "3000"}`,
   NODE_ENV: process.env.NODE_ENV ?? "development",
 
+  PYTHON_ATS_URL: process.env.PYTHON_ATS_URL ?? "http://localhost:8000",
+  PYTHON_ATS_INTERNAL_KEY: process.env.PYTHON_ATS_INTERNAL_KEY ?? "",
+
   GEMINI_API_KEY: process.env.GEMINI_API_KEY ?? "",
   GROK_API_KEY: process.env.GROK_API_KEY ?? "",
   CLAUDE_API_KEY: process.env.CLAUDE_API_KEY ?? "",

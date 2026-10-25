@@ -1,0 +1,9 @@
+Tailor this resume for the job description. Do not fabricate experience.
+
+<job_description>
+{jd}
+</job_description>
+
+<resume>
+{resume}
+</resume>

@@ -193,6 +193,35 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ resume, jd }),
       }),
+    match: (resume: string, jd: string) =>
+      fetchApi<{
+        matchScore: number;
+        match_score: number;
+        embeddingSimilarity: number;
+        matchedSkills: string[];
+        matched_skills: string[];
+        missingSkills: string[];
+        missing_must_have: string[];
+        missing_nice_to_have: string[];
+        recommendations: string[];
+        summary: string;
+        explanation: string;
+        breakdown: {
+          technicalSkillsScore: number;
+          experienceAlignmentScore: number;
+          roleReadinessScore: number;
+        };
+        section_similarity: {
+          summary: number;
+          skills: number;
+          experience: number;
+          overall: number;
+        };
+        embedding_provider: string;
+      }>("/ats/match", {
+        method: "POST",
+        body: JSON.stringify({ resume, jd }),
+      }),
     parseFile: (file: File) => {
       const form = new FormData();
       form.append("file", file);
