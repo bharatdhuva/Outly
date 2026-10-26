@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type TrackerApplication, type ResumeVaultItem } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
 import {
   Dialog,
   DialogContent,
@@ -103,7 +103,6 @@ const formatCardDate = (dateString?: string) => {
 };
 
 export default function Applications() {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -166,7 +165,7 @@ export default function Applications() {
       setNewCompany(""); setNewRole(""); setNewJdUrl(""); setNewStage("saved");
       const def = resumes.find((r: any) => r.is_default === 1);
       setNewResumeUsed(def ? String(def.id) : "");
-      toast({ title: "Application Added" });
+      notify.success("Application added");
     },
   });
 
@@ -188,9 +187,8 @@ export default function Applications() {
       }
       return { prev };
     },
-    onError: (err, _variables, context) => {
-      if (context?.prev) queryClient.setQueryData(["applications"], context.prev);
-      toast({ variant: "destructive", title: "Update Failed", description: String(err) });
+    onError: () => {
+      notify.error("Update failed");
     },
     onSuccess: (_, variables) => {
       if (selectedApp?.id === variables.id) {
@@ -215,7 +213,7 @@ export default function Applications() {
       queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
       setSelectedApp(null);
       setDeleteConfirmOpen(false);
-      toast({ title: "Application Deleted" });
+      notify.success("Application deleted");
     },
   });
 
@@ -227,13 +225,27 @@ export default function Applications() {
   const handleDrop = (e: React.DragEvent, targetStage: StageId) => {
     e.preventDefault();
     const id = e.dataTransfer.getData("text/plain");
-    if (id) updateMutation.mutate({ id, data: { stage: targetStage } });
+    if (!id) return;
+    const app = apps.find((a) => a.id === id);
+    if (!app || app.stage === targetStage) return;
+    const prevStage = app.stage;
+    updateMutation.mutate({ id, data: { stage: targetStage } });
+    const targetObj = STAGES.find((s) => s.id === targetStage);
+    notify.success(`Moved to ${targetObj?.label || targetStage}`, {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          updateMutation.mutate({ id, data: { stage: prevStage } });
+          const prevIdx = STAGES.findIndex((s) => s.id === prevStage);
+          if (prevIdx !== -1) setMobileStageIdx(prevIdx);
+        },
+      },
+    });
   };
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCompany.trim() || !newRole.trim()) {
-      toast({ variant: "destructive", title: "Error", description: "Company and Role are required." });
       return;
     }
     createMutation.mutate({
@@ -265,13 +277,23 @@ export default function Applications() {
   const moveAppToStage = (appId: string, direction: "next" | "prev") => {
     const app = apps.find((a) => a.id === appId);
     if (!app) return;
-    const currIdx = STAGES.findIndex((s) => s.id === app.stage);
+    const prevStage = app.stage;
+    const currIdx = STAGES.findIndex((s) => s.id === prevStage);
     const nextIdx = direction === "next" ? currIdx + 1 : currIdx - 1;
     if (nextIdx < 0 || nextIdx >= STAGES.length) return;
     const nextStage = STAGES[nextIdx].id;
     setMobileStageIdx(nextIdx);
     updateMutation.mutate({ id: appId, data: { stage: nextStage } });
-    toast({ title: `Moved to ${STAGES[nextIdx].label}` });
+    notify.success(`Moved to ${STAGES[nextIdx].label}`, {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          updateMutation.mutate({ id: appId, data: { stage: prevStage } });
+          const prevIdx = STAGES.findIndex((s) => s.id === prevStage);
+          if (prevIdx !== -1) setMobileStageIdx(prevIdx);
+        },
+      },
+    });
   };
 
   useEffect(() => {
@@ -575,9 +597,21 @@ export default function Applications() {
                         key={s.id}
                         type="button"
                         onClick={() => {
+                          if (selectedApp.stage === s.id) return;
+                          const prevStage = selectedApp.stage;
                           const sIdx = STAGES.findIndex((st) => st.id === s.id);
                           if (sIdx !== -1) setMobileStageIdx(sIdx);
                           updateMutation.mutate({ id: selectedApp.id, data: { stage: s.id } });
+                          notify.success(`Moved to ${s.label}`, {
+                            action: {
+                              label: "Undo",
+                              onClick: () => {
+                                updateMutation.mutate({ id: selectedApp.id, data: { stage: prevStage } });
+                                const prevIdx = STAGES.findIndex((st) => st.id === prevStage);
+                                if (prevIdx !== -1) setMobileStageIdx(prevIdx);
+                              },
+                            },
+                          });
                         }}
                         className="text-xs px-2.5 py-1 rounded-full font-semibold border transition-colors cursor-pointer"
                         style={
