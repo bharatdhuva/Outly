@@ -95,10 +95,10 @@ export default function MobileHub({ category }: MobileHubProps) {
   return (
     <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full flex flex-col font-sans text-outly-dark animate-fade-in text-left bg-transparent">
       {/* Tab bar header */}
-      <div className="sticky z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E4DC]/80 px-6 pt-3 select-none shadow-xs transition-[top] duration-150 ease-out top-16 sticky-tabs-container">
+      <div className="sticky z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E4DC]/80 px-4 sm:px-6 pt-3 select-none shadow-xs transition-[top] duration-150 ease-out top-16 sticky-tabs-container">
         <div className="relative w-full overflow-hidden">
           <div 
-            className="flex gap-6 overflow-x-auto -mx-6 px-6 scrollbar-none"
+            className="flex gap-4 sm:gap-6 overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6 scrollbar-none"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {tabs.map((tab) => {
@@ -132,7 +132,7 @@ export default function MobileHub({ category }: MobileHubProps) {
       </div>
 
       {/* Content area */}
-      <div className="flex-1 w-full min-h-0">
+      <div className="flex-1 w-full min-h-0 max-w-full overflow-x-hidden">
         {category === "resumes" && activeTab === "ats" && <AtsScore />}
         {category === "resumes" && activeTab === "tailor" && <ResumeTailor />}
         {category === "resumes" && activeTab === "vault" && <ResumeVault />}

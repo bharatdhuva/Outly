@@ -411,7 +411,7 @@ export default function ColdMailPage() {
       </AlertDialog>
 
       {/* ─── MAIN CONTENT CONTAINER (MATCHING RESUME VAULT & JOB SEARCH) ─── */}
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left font-sans">
+      <div className="mx-auto w-full max-w-6xl px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-20 text-left font-sans min-w-0 max-w-full">
 
         {/* Top Header matching ResumeVault, JobSearch, AtsScore & ResumeTailor */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
@@ -443,13 +443,13 @@ export default function ColdMailPage() {
               <DialogTrigger asChild>
                 <button
                   type="button"
-                  className="self-start inline-flex items-center justify-center gap-1.5 bg-[#111111] hover:bg-black text-white px-4 py-2.5 rounded-lg text-xs sm:text-[13px] font-medium transition-all shadow-sm shrink-0 cursor-pointer"
+                  className="self-start inline-flex items-center justify-center gap-1.5 bg-[#111111] hover:bg-black text-white px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-[13px] font-medium transition-all shadow-sm shrink-0 cursor-pointer"
                 >
                   <Plus className="w-4 h-4 text-white" />
                   <span>Add Company Data</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="w-[95%] max-w-[460px] border-neutral-200 bg-white p-6 font-sans rounded-2xl shadow-xl">
+              <DialogContent className="w-[94%] max-w-[460px] border-neutral-200 bg-white p-4 sm:p-6 font-sans rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-neutral-100 pb-3">
                   <DialogTitle className="text-base font-bold text-neutral-900">Add Company Data</DialogTitle>
                   <DialogDescription className="text-xs text-neutral-500">
@@ -458,7 +458,7 @@ export default function ColdMailPage() {
                 </DialogHeader>
                 <form onSubmit={handleCreate} className="space-y-3.5 py-3 text-xs font-medium">
                   {/* Row 1: Company Name & Target Email */}
-                  <div className="grid grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Company Name *</label>
                       <input
@@ -487,7 +487,7 @@ export default function ColdMailPage() {
                   </div>
 
                   {/* Row 2: Target Person Name & Target Role */}
-                  <div className="grid grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Contact Name</label>
                       <input
@@ -563,10 +563,10 @@ export default function ColdMailPage() {
         </div>
 
         {/* ─── MODE SWITCHER (PILL CAPSULE) ─── */}
-        <div className="inline-flex items-center p-1 bg-white border border-neutral-200/90 rounded-xl shadow-3xs select-none">
+        <div className="inline-flex max-w-full overflow-x-auto items-center p-1 bg-white border border-neutral-200/90 rounded-xl shadow-3xs select-none scrollbar-none">
           <button
             onClick={() => setMainMode("manual")}
-            className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-all cursor-pointer ${mainMode === "manual"
+            className={`text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${mainMode === "manual"
                 ? "bg-[#141414] text-white shadow-xs"
                 : "text-neutral-500 hover:text-neutral-900"
               }`}
@@ -575,7 +575,7 @@ export default function ColdMailPage() {
           </button>
           <button
             onClick={() => setMainMode("csv")}
-            className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-all cursor-pointer ${mainMode === "csv"
+            className={`text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${mainMode === "csv"
                 ? "bg-[#141414] text-white shadow-xs"
                 : "text-neutral-500 hover:text-neutral-900"
               }`}
@@ -585,7 +585,7 @@ export default function ColdMailPage() {
         </div>
 
         {mainMode === "csv" ? (
-          <div className="rounded-2xl border border-neutral-200/80 bg-white p-12 text-center shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center">
+          <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 sm:p-12 text-center shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center">
             <dotlottie-wc
               src="https://lottie.host/675a6e97-8b37-4b95-925a-fe86629539f8/xtVl1jJ2z3.lottie"
               style={{ width: 'min(80vw, 320px)', height: 'min(80vw, 320px)' }}
@@ -600,7 +600,7 @@ export default function ColdMailPage() {
         ) : (
           <>
             {/* ─── STATS ROW (ELEVATED SUMMARY CARDS) ─── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 select-none">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 select-none w-full min-w-0">
               {[
                 { label: "Pending", count: counts.pending, badge: "bg-amber-50 text-amber-700 border-amber-200/70" },
                 { label: "Approved", count: counts.approved, badge: "bg-emerald-50 text-emerald-700 border-emerald-200/70" },
@@ -609,13 +609,13 @@ export default function ColdMailPage() {
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center justify-between"
+                  className="rounded-xl sm:rounded-2xl border border-neutral-200/80 bg-white p-3 sm:p-4 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center justify-between min-w-0"
                 >
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{s.label}</span>
-                    <p className="font-mono text-2xl font-bold text-neutral-900 mt-0.5">{s.count}</p>
+                  <div className="min-w-0 pr-1">
+                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-neutral-400 block truncate">{s.label}</span>
+                    <p className="font-mono text-xl sm:text-2xl font-bold text-neutral-900 mt-0.5">{s.count}</p>
                   </div>
-                  <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border ${s.badge}`}>
+                  <span className={`text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg border shrink-0 ${s.badge}`}>
                     {s.count}
                   </span>
                 </div>
@@ -623,33 +623,33 @@ export default function ColdMailPage() {
             </div>
 
             {/* ─── TWO COLUMN PIPELINE & DETAIL WORKSPACE ─── */}
-            <div className="grid gap-6 lg:grid-cols-12 items-start pt-1">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start pt-1 w-full min-w-0 max-w-full">
               {/* Left Column: Company Pipeline List */}
               {(!isMobile || !mobileDetailsOpen) && (
-                <div className="lg:col-span-5 rounded-2xl border border-neutral-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col">
+                <div className="w-full min-w-0 max-w-full lg:col-span-5 rounded-2xl border border-neutral-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col">
                   {/* Pipeline Header */}
-                  <div className="border-b border-neutral-100 px-5 py-3.5 bg-neutral-50/50 flex items-center justify-between">
+                  <div className="border-b border-neutral-100 px-3.5 sm:px-5 py-3 sm:py-3.5 bg-neutral-50/50 flex flex-wrap gap-2 items-center justify-between">
                     <div>
                       <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-700">
                         Company Pipeline ({companies.length})
                       </h3>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       <button
                         onClick={() => approveAllMutation.mutate()}
                         disabled={counts.approved === 0 || approveAllMutation.isPending}
-                        className="h-7 px-2.5 text-[11px] font-semibold rounded-lg border border-neutral-200 hover:bg-neutral-100 disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer text-neutral-700"
+                        className="h-7 px-2 sm:px-2.5 text-[10px] sm:text-[11px] font-semibold rounded-lg border border-neutral-200 hover:bg-neutral-100 disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer text-neutral-700 shrink-0"
                       >
                         <Check className="h-3 w-3 text-emerald-600" />
-                        Approve All
+                        <span>Approve All</span>
                       </button>
                       <button
                         onClick={() => sendApprovedMutation.mutate()}
                         disabled={counts.approved === 0 || sendApprovedMutation.isPending}
-                        className="h-7 px-2.5 text-[11px] font-semibold rounded-lg bg-[#2DC08D] hover:bg-[#25a77a] text-white disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
+                        className="h-7 px-2 sm:px-2.5 text-[10px] sm:text-[11px] font-semibold rounded-lg bg-[#2DC08D] hover:bg-[#25a77a] text-white disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer shadow-xs shrink-0"
                       >
                         <Send className="h-3 w-3 text-white" />
-                        Send Approved
+                        <span>Send Approved</span>
                       </button>
                     </div>
                   </div>
@@ -741,9 +741,9 @@ export default function ColdMailPage() {
 
               {/* Right Column: Selected Company Detail & AI Outreach Preview */}
               {(!isMobile || mobileDetailsOpen) && (
-                <div className="lg:col-span-7 space-y-4">
+                <div className="w-full min-w-0 max-w-full lg:col-span-7 space-y-4">
                   {selectedCompany ? (
-                    <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-5">
+                    <div className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4 sm:space-y-5 w-full min-w-0 max-w-full overflow-hidden">
                       {isMobile && (
                         <button
                           type="button"
@@ -755,13 +755,13 @@ export default function ColdMailPage() {
                       )}
 
                       {/* Target Info Header */}
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between border-b border-neutral-100 pb-4">
-                        <div>
-                          <h3 className="text-lg font-bold text-neutral-900 tracking-tight">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between border-b border-neutral-100 pb-3 sm:pb-4 min-w-0">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-base sm:text-lg font-bold text-neutral-900 tracking-tight break-words">
                             {selectedCompany.company_name}
                           </h3>
-                          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-neutral-500 font-normal">
-                            <span>{selectedCompany.role}</span>
+                          <div className="mt-0.5 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-neutral-500 font-normal">
+                            <span className="break-words">{selectedCompany.role}</span>
                             {(selectedCompany.createdAt || selectedCompany.created_at) && (
                               <>
                                 <span>•</span>
@@ -778,7 +778,7 @@ export default function ColdMailPage() {
                             href={selectedCompany.website_url}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs text-neutral-600 hover:text-black font-medium border border-neutral-200 px-2.5 py-1 rounded-lg self-start transition-colors"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-600 hover:text-black font-medium border border-neutral-200 px-2.5 py-1 rounded-lg self-start transition-colors shrink-0"
                           >
                             <span>Website</span>
                             <ExternalLink className="h-3 w-3" />
@@ -787,23 +787,23 @@ export default function ColdMailPage() {
                       </div>
 
                       {/* Contact Details Grid */}
-                      <div className="grid grid-cols-2 gap-3 bg-neutral-50/60 border border-neutral-100 rounded-xl p-3.5">
-                        <div className="space-y-0.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 bg-neutral-50/60 border border-neutral-100 rounded-xl p-3 sm:p-3.5 w-full min-w-0">
+                        <div className="space-y-0.5 min-w-0">
                           <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
-                            <User className="h-3 w-3" /> Target Contact
+                            <User className="h-3 w-3 shrink-0" /> Target Contact
                           </p>
-                          <p className="text-xs font-semibold text-neutral-900">
+                          <p className="text-xs font-semibold text-neutral-900 truncate">
                             {selectedCompany.target_person_name || "Hiring Team"}
                           </p>
-                          <p className="text-[11px] text-neutral-500">
+                          <p className="text-[11px] text-neutral-500 truncate">
                             {selectedCompany.target_person_role || "Recruiter"}
                           </p>
                         </div>
-                        <div className="space-y-0.5">
+                        <div className="space-y-0.5 min-w-0">
                           <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
-                            <Mail className="h-3 w-3" /> Recipient Email
+                            <Mail className="h-3 w-3 shrink-0" /> Recipient Email
                           </p>
-                          <p className="text-xs font-semibold text-neutral-900 truncate">
+                          <p className="text-xs font-semibold text-neutral-900 truncate" title={selectedCompany.hr_email}>
                             {selectedCompany.hr_email}
                           </p>
                           <p className="text-[11px] text-neutral-500">
@@ -813,32 +813,32 @@ export default function ColdMailPage() {
                       </div>
 
                       {/* Personalization Hook Card */}
-                      <div className="rounded-xl border border-emerald-200/60 bg-emerald-50/40 p-4 relative overflow-hidden">
+                      <div className="rounded-xl border border-emerald-200/60 bg-emerald-50/40 p-3 sm:p-4 relative overflow-hidden w-full min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1">
-                            <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                            <Sparkles className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                             Personalization Hook
                           </span>
                         </div>
-                        <p className="text-xs leading-relaxed text-emerald-950 font-medium">
+                        <p className="text-xs leading-relaxed text-emerald-950 font-medium break-words [overflow-wrap:anywhere]">
                           {selectedCompany.personalization_hook || "Waiting for generation..."}
                         </p>
                       </div>
 
                       {selectedCompany.error_message && (
-                        <div className="rounded-xl border border-red-200/60 bg-red-50/50 p-4">
+                        <div className="rounded-xl border border-red-200/60 bg-red-50/50 p-3 sm:p-4 w-full min-w-0">
                           <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-red-700">
                             Generation Error
                           </p>
-                          <p className="text-xs leading-relaxed text-red-900 break-words">
+                          <p className="text-xs leading-relaxed text-red-900 break-words [overflow-wrap:anywhere]">
                             {selectedCompany.error_message}
                           </p>
                         </div>
                       )}
 
                       {/* AI Draft Content */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
+                      <div className="space-y-3 w-full min-w-0">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
                             AI Outreach Draft
                           </span>
@@ -871,15 +871,15 @@ export default function ColdMailPage() {
                           };
 
                           return (
-                            <div className="space-y-4">
+                            <div className="space-y-4 w-full min-w-0">
                               {/* Subject & Body Container */}
-                              <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/40 overflow-hidden">
-                                <div className="border-b border-neutral-200/80 px-4 py-2.5 bg-neutral-100/50 flex items-center justify-between">
-                                  <div className="flex-1 min-w-0 pr-3">
+                              <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/40 overflow-hidden w-full min-w-0">
+                                <div className="border-b border-neutral-200/80 px-3 sm:px-4 py-2 sm:py-2.5 bg-neutral-100/50 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 min-w-0">
+                                  <div className="flex-1 min-w-0 pr-1 sm:pr-3">
                                     <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-400 block mb-0.5">
                                       Subject
                                     </span>
-                                    <p className="text-xs font-semibold text-neutral-900 truncate">
+                                    <p className="text-xs font-semibold text-neutral-900 truncate" title={selectedCompany.generated_subject || ""}>
                                       {selectedCompany.generated_subject || "No subject generated yet."}
                                     </p>
                                   </div>
@@ -896,8 +896,8 @@ export default function ColdMailPage() {
                                     </button>
                                   )}
                                 </div>
-                                <div className="p-4">
-                                  <div className="font-sans text-xs sm:text-[13px] leading-relaxed text-neutral-800 whitespace-pre-wrap select-text">
+                                <div className="p-3 sm:p-4 w-full min-w-0">
+                                  <div className="font-sans text-xs sm:text-[13px] leading-relaxed text-neutral-800 whitespace-pre-wrap break-words [overflow-wrap:anywhere] select-text">
                                     {selectedCompany.generated_mail
                                       ? cleanDraft(selectedCompany.generated_mail, selectedCompany)
                                       : "Click Auto-Generate Mail below to conduct AI research and generate tailored outreach."}
@@ -907,18 +907,18 @@ export default function ColdMailPage() {
 
                               {/* Follow up sequence items */}
                               {showFollowUps && variantsData?.followups && (
-                                <div className="space-y-3 animate-slide-up border-t border-neutral-100 pt-4">
+                                <div className="space-y-3 animate-slide-up border-t border-neutral-100 pt-4 w-full min-w-0">
                                   <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
                                     Follow-up Sequence
                                   </span>
 
                                   {/* Day 4 */}
-                                  <div className="rounded-xl border border-neutral-200/80 bg-white p-3.5 space-y-2 shadow-3xs">
+                                  <div className="rounded-xl border border-neutral-200/80 bg-white p-3.5 space-y-2 shadow-3xs w-full min-w-0">
                                     <div className="flex justify-between items-center border-b border-neutral-100 pb-1.5">
                                       <span className="text-xs font-semibold text-neutral-800">Follow-up 1 (Day 4)</span>
                                       <button
                                         type="button"
-                                        className="text-[11px] font-medium text-neutral-500 hover:text-black transition-colors cursor-pointer"
+                                        className="text-[11px] font-medium text-neutral-500 hover:text-black transition-colors cursor-pointer shrink-0"
                                         onClick={() => handleCopyText(
                                           `Subject: ${variantsData.followups.day4.subject_options?.[0] || 'Followup 4'}\n\n${variantsData.followups.day4.body}`
                                         )}
@@ -929,18 +929,18 @@ export default function ColdMailPage() {
                                     <p className="text-[11px] font-semibold text-neutral-500 truncate">
                                       Re: {variantsData.followups.day4.subject_options?.[0]}
                                     </p>
-                                    <p className="text-xs text-neutral-700 font-sans whitespace-pre-wrap leading-relaxed">
+                                    <p className="text-xs text-neutral-700 font-sans whitespace-pre-wrap leading-relaxed break-words [overflow-wrap:anywhere]">
                                       {cleanDraft(variantsData.followups.day4.body, selectedCompany)}
                                     </p>
                                   </div>
 
                                   {/* Day 7 */}
-                                  <div className="rounded-xl border border-neutral-200/80 bg-white p-3.5 space-y-2 shadow-3xs">
+                                  <div className="rounded-xl border border-neutral-200/80 bg-white p-3.5 space-y-2 shadow-3xs w-full min-w-0">
                                     <div className="flex justify-between items-center border-b border-neutral-100 pb-1.5">
                                       <span className="text-xs font-semibold text-neutral-800">Follow-up 2 (Day 7)</span>
                                       <button
                                         type="button"
-                                        className="text-[11px] font-medium text-neutral-500 hover:text-black transition-colors cursor-pointer"
+                                        className="text-[11px] font-medium text-neutral-500 hover:text-black transition-colors cursor-pointer shrink-0"
                                         onClick={() => handleCopyText(
                                           `Subject: ${variantsData.followups.day7.subject_options?.[0] || 'Followup 7'}\n\n${variantsData.followups.day7.body}`
                                         )}
@@ -951,7 +951,7 @@ export default function ColdMailPage() {
                                     <p className="text-[11px] font-semibold text-neutral-500 truncate">
                                       Re: {variantsData.followups.day7.subject_options?.[0]}
                                     </p>
-                                    <p className="text-xs text-neutral-700 font-sans whitespace-pre-wrap leading-relaxed">
+                                    <p className="text-xs text-neutral-700 font-sans whitespace-pre-wrap leading-relaxed break-words [overflow-wrap:anywhere]">
                                       {cleanDraft(variantsData.followups.day7.body, selectedCompany)}
                                     </p>
                                   </div>
@@ -963,24 +963,24 @@ export default function ColdMailPage() {
                       </div>
 
                       {/* Action Buttons Bar */}
-                      <div className="pt-2">
+                      <div className="pt-2 w-full min-w-0">
                         {selectedCompany.status === "mail_generated" ? (
-                          <div className="flex w-full items-center gap-2">
+                          <div className="flex w-full items-center gap-2 min-w-0">
                             <button
                               type="button"
-                              className="flex-1 h-10 gap-2 border-none bg-[#2DC08D] hover:bg-[#25a77a] text-white rounded-xl font-medium text-xs cursor-pointer transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
+                              className="flex-1 min-w-0 h-10 px-3 gap-1.5 sm:gap-2 border-none bg-[#2DC08D] hover:bg-[#25a77a] text-white rounded-xl font-medium text-xs cursor-pointer transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
                               disabled={approveSingleMutation.isPending}
                               onClick={() => approveSingleMutation.mutate(selectedCompany.id)}
                             >
                               <Check className="h-4 w-4 text-white shrink-0" />
-                              <span>Approve Email</span>
+                              <span className="truncate">Approve Email</span>
                             </button>
 
                             <Dialog open={isEditing} onOpenChange={setIsEditing}>
                               <DialogTrigger asChild>
                                 <button
                                   type="button"
-                                  className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 transition-colors cursor-pointer shadow-3xs"
+                                  className="h-10 px-3 sm:px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 transition-colors cursor-pointer shadow-3xs shrink-0"
                                   title="Edit Mail & Details"
                                   onClick={() => {
                                     setEditData({
@@ -994,7 +994,7 @@ export default function ColdMailPage() {
                                   <Edit className="h-4 w-4" />
                                 </button>
                               </DialogTrigger>
-                              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-6 shadow-xl">
+                              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-4 sm:p-6 shadow-xl">
                                 <DialogHeader>
                                   <DialogTitle className="text-base font-bold text-neutral-900">Edit Mail & Details</DialogTitle>
                                 </DialogHeader>
@@ -1057,7 +1057,7 @@ export default function ColdMailPage() {
 
                             <button
                               type="button"
-                              className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-red-50 hover:text-red-600 text-neutral-500 transition-colors cursor-pointer shadow-3xs"
+                              className="h-10 px-3 sm:px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-red-50 hover:text-red-600 text-neutral-500 transition-colors cursor-pointer shadow-3xs shrink-0"
                               title="Delete Lead"
                               onClick={() => {
                                 setDeleteTarget(selectedCompany);
@@ -1067,10 +1067,10 @@ export default function ColdMailPage() {
                             </button>
                           </div>
                         ) : ["approved", "mail_sent", "replied"].includes(selectedCompany.status) ? (
-                          <div className="flex w-full items-center gap-2">
+                          <div className="flex w-full items-center gap-2 min-w-0">
                             <button
                               type="button"
-                              className="flex-1 h-10 gap-2 border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-900 rounded-xl font-medium text-xs shadow-xs cursor-pointer flex items-center justify-center transition-colors"
+                              className="flex-1 min-w-0 h-10 px-3 gap-1.5 sm:gap-2 border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-900 rounded-xl font-medium text-xs shadow-xs cursor-pointer flex items-center justify-center transition-colors"
                               title="Open direct compose window in Gmail web app"
                               onClick={() => {
                                 const mailBody = cleanDraft(selectedCompany.generated_mail || "", selectedCompany);
@@ -1085,14 +1085,14 @@ export default function ColdMailPage() {
                               }}
                             >
                               <GmailIcon />
-                              <span>Draft in Gmail</span>
+                              <span className="truncate">Draft in Gmail</span>
                             </button>
 
                             <Dialog open={isEditing} onOpenChange={setIsEditing}>
                               <DialogTrigger asChild>
                                 <button
                                   type="button"
-                                  className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 transition-colors cursor-pointer shadow-3xs"
+                                  className="h-10 px-3 sm:px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 transition-colors cursor-pointer shadow-3xs shrink-0"
                                   title="Edit Mail & Details"
                                   onClick={() => {
                                     setEditData({
@@ -1106,7 +1106,7 @@ export default function ColdMailPage() {
                                   <Edit className="h-4 w-4" />
                                 </button>
                               </DialogTrigger>
-                              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-6 shadow-xl">
+                              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-4 sm:p-6 shadow-xl">
                                 <DialogHeader>
                                   <DialogTitle className="text-base font-bold text-neutral-900">Edit Mail & Details</DialogTitle>
                                 </DialogHeader>
@@ -1169,7 +1169,7 @@ export default function ColdMailPage() {
 
                             <button
                               type="button"
-                              className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-red-50 hover:text-red-600 text-neutral-500 transition-colors cursor-pointer shadow-3xs"
+                              className="h-10 px-3 sm:px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-red-50 hover:text-red-600 text-neutral-500 transition-colors cursor-pointer shadow-3xs shrink-0"
                               title="Delete Lead"
                               onClick={() => {
                                 setDeleteTarget(selectedCompany);
@@ -1179,10 +1179,10 @@ export default function ColdMailPage() {
                             </button>
                           </div>
                         ) : (
-                          <div className="flex w-full items-center gap-2">
+                          <div className="flex w-full items-center gap-2 min-w-0">
                             <button
                               type="button"
-                              className="flex-1 h-10 gap-2 bg-[#111111] hover:bg-black text-white rounded-xl font-medium text-xs cursor-pointer transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
+                              className="flex-1 min-w-0 h-10 px-3 gap-1.5 sm:gap-2 bg-[#111111] hover:bg-black text-white rounded-xl font-medium text-xs cursor-pointer transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
                               disabled={loadingId === selectedCompany.id}
                               onClick={() => {
                                 handleGenerateCheck(() => {
@@ -1237,14 +1237,14 @@ export default function ColdMailPage() {
                                   <RefreshCw className="h-4 w-4 animate-spin shrink-0 text-white" />
                                   <span className="text-xs font-semibold text-white truncate">
                                     {isMobile && generationStep
-                                      ? `${generationStep.split(" ")[0]} ${generationStep.split(" ")[1].slice(0, 11)}...`
+                                      ? `${generationStep.split(" ")[0]} ${generationStep.split(" ")[1]?.slice(0, 11) || ""}...`
                                       : generationStep}
                                   </span>
                                 </>
                               ) : (
                                 <>
                                   <Sparkles className="h-4 w-4 text-[#2DC08D] shrink-0" />
-                                  <span className="font-semibold text-xs text-white">
+                                  <span className="font-semibold text-xs text-white truncate">
                                     {isMobile ? "Generate Mail" : "Auto-Generate Mail"}
                                   </span>
                                 </>
@@ -1253,7 +1253,7 @@ export default function ColdMailPage() {
 
                             <button
                               type="button"
-                              className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-red-50 hover:text-red-600 text-neutral-500 transition-colors cursor-pointer shadow-3xs"
+                              className="h-10 px-3 sm:px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-red-50 hover:text-red-600 text-neutral-500 transition-colors cursor-pointer shadow-3xs shrink-0"
                               title="Delete Lead"
                               onClick={() => {
                                 setDeleteTarget(selectedCompany);
@@ -1264,7 +1264,7 @@ export default function ColdMailPage() {
 
                             <button
                               type="button"
-                              className="h-10 px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-600 transition-colors cursor-pointer shadow-3xs"
+                              className="h-10 px-3 sm:px-3.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-600 transition-colors cursor-pointer shadow-3xs shrink-0"
                               title="Skip Lead"
                               onClick={() => {
                                 api.coldmail.skip(selectedCompany.id).then(() =>
@@ -1279,36 +1279,44 @@ export default function ColdMailPage() {
                       </div>
 
                       {/* Sender Profile Details */}
-                      <div className="pt-4 border-t border-neutral-100 mt-2">
+                      <div className="pt-4 border-t border-neutral-100 mt-2 w-full min-w-0">
                         <div className="flex items-center justify-between mb-3">
                           <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
                             Sender Profile Context
                           </p>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 text-xs">
-                          <div className="space-y-0.5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs w-full min-w-0">
+                          <div className="space-y-0.5 min-w-0">
                             <p className="text-[10px] text-neutral-400 flex items-center gap-1">
-                              <MapPin className="h-3 w-3" /> Location
+                              <MapPin className="h-3 w-3 shrink-0" /> Location
                             </p>
-                            <p className="font-medium text-neutral-800">{selectedCompany.sender_location || "Not specified"}</p>
+                            <p className="font-medium text-neutral-800 truncate" title={selectedCompany.sender_location || ""}>
+                              {selectedCompany.sender_location || "Not specified"}
+                            </p>
                           </div>
-                          <div className="space-y-0.5">
+                          <div className="space-y-0.5 min-w-0">
                             <p className="text-[10px] text-neutral-400 flex items-center gap-1">
-                              <User className="h-3 w-3" /> Sender Name
+                              <User className="h-3 w-3 shrink-0" /> Sender Name
                             </p>
-                            <p className="font-medium text-neutral-800">{selectedCompany.sender_name || "Outly User"}</p>
+                            <p className="font-medium text-neutral-800 truncate" title={selectedCompany.sender_name || ""}>
+                              {selectedCompany.sender_name || "Outly User"}
+                            </p>
                           </div>
-                          <div className="space-y-0.5">
+                          <div className="space-y-0.5 min-w-0">
                             <p className="text-[10px] text-neutral-400 flex items-center gap-1">
-                              <Wrench className="h-3 w-3" /> Key Skills
+                              <Wrench className="h-3 w-3 shrink-0" /> Key Skills
                             </p>
-                            <p className="font-medium text-neutral-800 truncate">{selectedCompany.key_skills || "General"}</p>
+                            <p className="font-medium text-neutral-800 truncate" title={selectedCompany.key_skills || ""}>
+                              {selectedCompany.key_skills || "General"}
+                            </p>
                           </div>
-                          <div className="space-y-0.5">
+                          <div className="space-y-0.5 min-w-0">
                             <p className="text-[10px] text-neutral-400 flex items-center gap-1">
-                              <GraduationCap className="h-3 w-3" /> Experience
+                              <GraduationCap className="h-3 w-3 shrink-0" /> Experience
                             </p>
-                            <p className="font-medium text-neutral-800 truncate">{selectedCompany.experience_level || "Not specified"}</p>
+                            <p className="font-medium text-neutral-800 truncate" title={selectedCompany.experience_level || ""}>
+                              {selectedCompany.experience_level || "Not specified"}
+                            </p>
                           </div>
                         </div>
                       </div>
