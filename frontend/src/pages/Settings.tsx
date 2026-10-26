@@ -348,7 +348,7 @@ export default function SettingsPage() {
                 <Input 
                   value={form.full_name} 
                   onChange={(e) => updateField("full_name", e.target.value)} 
-                  placeholder={userData?.fullName || userData?.name ? `e.g. ${userData.fullName || userData.name}` : "e.g. Your Name"}
+                  placeholder="Enter your full name"
                   className="h-10 text-xs rounded-xl"
                 />
               </div>
@@ -358,7 +358,7 @@ export default function SettingsPage() {
                 <Input 
                   value={form.target_roles} 
                   onChange={(e) => updateField("target_roles", e.target.value)} 
-                  placeholder="e.g. Software Development Engineer, Full Stack"
+                  placeholder="Enter target roles"
                   className="h-10 text-xs rounded-xl"
                 />
               </div>
@@ -368,7 +368,7 @@ export default function SettingsPage() {
                 <Input 
                   value={form.skills} 
                   onChange={(e) => updateField("skills", e.target.value)} 
-                  placeholder="e.g. React, TypeScript, Node.js, Go"
+                  placeholder="Enter skills and technologies"
                   className="h-10 text-xs rounded-xl"
                 />
               </div>
@@ -378,7 +378,7 @@ export default function SettingsPage() {
                 <Input 
                   value={form.experience} 
                   onChange={(e) => updateField("experience", e.target.value)} 
-                  placeholder="e.g. 2 years in web development, CS graduate"
+                  placeholder="Enter experience and background"
                   className="h-10 text-xs rounded-xl"
                 />
               </div>
@@ -388,7 +388,7 @@ export default function SettingsPage() {
                 <Input 
                   value={form.target_cities} 
                   onChange={(e) => updateField("target_cities", e.target.value)} 
-                  placeholder="e.g. Mumbai, Bangalore, Remote"
+                  placeholder="Enter preferred locations or remote"
                   className="h-10 text-xs rounded-xl"
                 />
               </div>

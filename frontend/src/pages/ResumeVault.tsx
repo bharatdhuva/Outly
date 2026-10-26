@@ -594,7 +594,7 @@ export default function ResumeVaultPage() {
                           }
                         }}
                         className="text-lg sm:text-[22px] font-bold text-neutral-900 tracking-tight bg-white border border-neutral-300 rounded-md px-2 py-0.5 outline-none focus:ring-1 focus:ring-black shadow-inner max-w-sm"
-                        placeholder="Resume version name"
+                        placeholder="Enter resume name"
                       />
                       <button
                         type="button"
@@ -817,7 +817,7 @@ export default function ResumeVaultPage() {
             <input
               type="text"
               required
-              placeholder="e.g. dotnet resume"
+              placeholder="Enter resume name"
               className="w-full rounded-lg border border-neutral-200 bg-white p-2.5 text-xs font-medium outline-none focus:ring-1 focus:ring-black text-neutral-900 shadow-sm placeholder:text-neutral-400"
               value={resumeLabel}
               onChange={(e) => setResumeLabel(e.target.value)}
@@ -866,7 +866,7 @@ export default function ResumeVaultPage() {
             <input
               type="text"
               required
-              placeholder="e.g. dotnet resume"
+              placeholder="Enter resume name"
               className="w-full rounded-lg border border-neutral-200 bg-white p-2.5 text-xs font-medium outline-none focus:ring-1 focus:ring-black text-neutral-900 shadow-sm placeholder:text-neutral-400"
               value={editLabelText}
               onChange={(e) => setEditLabelText(e.target.value)}

@@ -409,7 +409,7 @@ export default function JobSearchPage() {
             </label>
             <Input
               required
-              placeholder="e.g. Backend Engineer, Full Stack"
+              placeholder="Enter role or job title"
               value={scrapeRole}
               onChange={(e) => setScrapeRole(e.target.value)}
               className="bg-neutral-50/50 hover:bg-white focus:bg-white border-neutral-200 text-xs h-10 focus-visible:ring-1 focus-visible:ring-black placeholder:text-neutral-400 rounded-xl shadow-none transition-all"
@@ -421,7 +421,7 @@ export default function JobSearchPage() {
               <MapPin className="h-3.5 w-3.5 text-neutral-400" /> Location
             </label>
             <Input
-              placeholder="e.g. Bengaluru, Remote, Delhi"
+              placeholder="Enter location or remote"
               value={scrapeLocation}
               onChange={(e) => setScrapeLocation(e.target.value)}
               className="bg-neutral-50/50 hover:bg-white focus:bg-white border-neutral-200 text-xs h-10 focus-visible:ring-1 focus-visible:ring-black placeholder:text-neutral-400 rounded-xl shadow-none transition-all"

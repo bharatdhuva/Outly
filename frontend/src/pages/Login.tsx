@@ -428,7 +428,7 @@ export default function Login() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Digital labour"
+                  placeholder="Enter your name"
                   className="mt-1.5 w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-accent focus:outline-none focus:ring-1 focus:ring-outly-accent transition-all shadow-xs"
                   disabled={isLoading}
                 />
@@ -445,7 +445,7 @@ export default function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="labour@company.com"
+                placeholder="Enter your email"
                 className="mt-1.5 w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-accent focus:outline-none focus:ring-1 focus:ring-outly-accent transition-all shadow-xs"
                 disabled={isLoading}
               />
@@ -462,7 +462,7 @@ export default function Login() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={authMode === "signin" ? "••••••••" : "At least 8 characters"}
+                  placeholder="Enter your password"
                   className="w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-accent focus:outline-none focus:ring-1 focus:ring-outly-accent transition-all pr-12 shadow-xs"
                   disabled={isLoading}
                 />

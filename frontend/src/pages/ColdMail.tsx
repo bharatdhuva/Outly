@@ -463,7 +463,7 @@ export default function ColdMailPage() {
                       <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Company Name *</label>
                       <input
                         required
-                        placeholder="e.g. Stripe"
+                        placeholder="Enter company name"
                         className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                         value={newCompany.company_name}
                         onChange={(e) =>
@@ -476,7 +476,7 @@ export default function ColdMailPage() {
                       <input
                         required
                         type="email"
-                        placeholder="recruiter@stripe.com"
+                        placeholder="Enter email address"
                         className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                         value={newCompany.hr_email}
                         onChange={(e) =>
@@ -491,7 +491,7 @@ export default function ColdMailPage() {
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Contact Name</label>
                       <input
-                        placeholder="e.g. Sarah Jenkins"
+                        placeholder="Enter contact name"
                         className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                         value={newCompany.target_person_name || ""}
                         onChange={(e) =>
@@ -502,7 +502,7 @@ export default function ColdMailPage() {
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Target Role</label>
                       <input
-                        placeholder="e.g. Tech Lead / Recruiter"
+                        placeholder="Enter role"
                         className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                         value={newCompany.target_person_role || ""}
                         onChange={(e) =>
@@ -517,7 +517,7 @@ export default function ColdMailPage() {
                     <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Website URL (optional)</label>
                     <input
                       type="url"
-                      placeholder="https://stripe.com"
+                      placeholder="Enter website URL"
                       className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 h-9 transition-all"
                       value={newCompany.website_url || ""}
                       onChange={(e) =>
@@ -531,7 +531,7 @@ export default function ColdMailPage() {
                     <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Personalization Hook / Note (optional)</label>
                     <textarea
                       rows={2}
-                      placeholder="e.g. Passionate about developer APIs and Stripe's recent SDK releases."
+                      placeholder="Enter personalization note or context..."
                       className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5 text-xs outline-none focus:bg-white focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 resize-none min-h-[55px] transition-all"
                       value={newCompany.personalization_hook || ""}
                       onChange={(e) =>

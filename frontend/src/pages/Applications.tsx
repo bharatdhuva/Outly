@@ -139,70 +139,8 @@ export default function Applications() {
     queryFn: api.resume.list,
   });
 
-  const defaultApps: TrackerApplication[] = [
-    {
-      id: "demo-app-1",
-      company: "e2m solutions",
-      role: "AI Intern",
-      stage: "saved",
-      jd_url: null,
-      resume_version_used: "Bharat Dhuva Resume",
-      notes: null,
-      email_history: "[]",
-      createdAt: new Date(Date.now() - 35 * 86400000).toISOString(),
-      updatedAt: new Date(Date.now() - 35 * 86400000).toISOString(),
-    },
-    {
-      id: "demo-app-2",
-      company: "Copperhill",
-      role: "QA Developer",
-      stage: "applied",
-      jd_url: null,
-      resume_version_used: null,
-      notes: null,
-      email_history: "[]",
-      createdAt: new Date(Date.now() - 42 * 86400000).toISOString(),
-      updatedAt: new Date(Date.now() - 42 * 86400000).toISOString(),
-    },
-    {
-      id: "demo-app-3",
-      company: "Infraspec",
-      role: "Platform Engineer II",
-      stage: "interview",
-      jd_url: null,
-      resume_version_used: null,
-      notes: "First round tech screen scheduled.",
-      email_history: "[]",
-      createdAt: new Date(Date.now() - 14 * 86400000).toISOString(),
-      updatedAt: new Date(Date.now() - 14 * 86400000).toISOString(),
-    },
-    {
-      id: "demo-app-4",
-      company: "Zues",
-      role: "QA",
-      stage: "rejected",
-      jd_url: null,
-      resume_version_used: "Bharat Dhuva Resume",
-      notes: null,
-      email_history: "[]",
-      createdAt: new Date(Date.now() - 35 * 86400000).toISOString(),
-      updatedAt: new Date(Date.now() - 35 * 86400000).toISOString(),
-    },
-    {
-      id: "demo-app-5",
-      company: "WiseDV",
-      role: "Software Engineer",
-      stage: "rejected",
-      jd_url: null,
-      resume_version_used: "Bharat Dhuva Resume",
-      notes: null,
-      email_history: "[]",
-      createdAt: new Date(Date.now() - 42 * 86400000).toISOString(),
-      updatedAt: new Date(Date.now() - 42 * 86400000).toISOString(),
-    },
-  ];
-
-  const apps: TrackerApplication[] = serverApps.length > 0 ? serverApps : defaultApps;
+  // All data comes from the user's own database — no demo/placeholder fallback
+  const apps: TrackerApplication[] = serverApps;
 
   useEffect(() => {
     if (selectedApp) setLocalNotes(selectedApp.notes || "");
@@ -217,10 +155,14 @@ export default function Applications() {
 
   const createMutation = useMutation({
     mutationFn: api.applications.create,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
       setIsAddOpen(false);
+      if (variables.stage) {
+        const stageIdx = STAGES.findIndex((s) => s.id === variables.stage);
+        if (stageIdx !== -1) setMobileStageIdx(stageIdx);
+      }
       setNewCompany(""); setNewRole(""); setNewJdUrl(""); setNewStage("saved");
       const def = resumes.find((r: any) => r.is_default === 1);
       setNewResumeUsed(def ? String(def.id) : "");
@@ -240,6 +182,10 @@ export default function Applications() {
           prev.map((app) => (app.id === id ? { ...app, ...data } : app))
         );
       }
+      if (data.stage) {
+        const stageIdx = STAGES.findIndex((s) => s.id === data.stage);
+        if (stageIdx !== -1) setMobileStageIdx(stageIdx);
+      }
       return { prev };
     },
     onError: (err, _variables, context) => {
@@ -250,6 +196,10 @@ export default function Applications() {
       if (selectedApp?.id === variables.id) {
         const updated = apps.find((a) => a.id === variables.id);
         if (updated) setSelectedApp({ ...updated, ...variables.data });
+      }
+      if (variables.data.stage) {
+        const stageIdx = STAGES.findIndex((s) => s.id === variables.data.stage);
+        if (stageIdx !== -1) setMobileStageIdx(stageIdx);
       }
     },
     onSettled: () => {
@@ -319,9 +269,19 @@ export default function Applications() {
     const nextIdx = direction === "next" ? currIdx + 1 : currIdx - 1;
     if (nextIdx < 0 || nextIdx >= STAGES.length) return;
     const nextStage = STAGES[nextIdx].id;
+    setMobileStageIdx(nextIdx);
     updateMutation.mutate({ id: appId, data: { stage: nextStage } });
     toast({ title: `Moved to ${STAGES[nextIdx].label}` });
   };
+
+  useEffect(() => {
+    if (isMobile) {
+      const activeTab = document.getElementById(`mobile-stage-tab-${STAGES[mobileStageIdx]?.id}`);
+      if (activeTab) {
+        activeTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }
+    }
+  }, [mobileStageIdx, isMobile]);
 
   // ─── Mobile View ──────────────────────────────────────────────────────────
   if (isMobile) {
@@ -343,7 +303,7 @@ export default function Applications() {
             <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              placeholder="Filter company or role"
+              placeholder="Enter company or role..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full border border-neutral-200 bg-white rounded-xl pl-8 pr-3 py-2 text-xs font-medium text-neutral-800 placeholder:text-neutral-400 outline-none focus:border-neutral-400 shadow-xs"
@@ -370,6 +330,7 @@ export default function Applications() {
               return (
                 <button
                   key={stage.id}
+                  id={`mobile-stage-tab-${stage.id}`}
                   onClick={() => setMobileStageIdx(idx)}
                   className="flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all cursor-pointer"
                   style={
@@ -536,9 +497,9 @@ export default function Applications() {
 
             <form onSubmit={handleAddSubmit} className="space-y-3.5 mt-2">
               {[
-                { label: "Company *", value: newCompany, setter: setNewCompany, placeholder: "e.g. Copperhill", required: true, type: "text" },
-                { label: "Role *", value: newRole, setter: setNewRole, placeholder: "e.g. QA Developer", required: true, type: "text" },
-                { label: "Job Posting Link (Optional)", value: newJdUrl, setter: setNewJdUrl, placeholder: "https://...", required: false, type: "url" },
+                { label: "Company *", value: newCompany, setter: setNewCompany, placeholder: "Enter company name", required: true, type: "text" },
+                { label: "Role *", value: newRole, setter: setNewRole, placeholder: "Enter role", required: true, type: "text" },
+                { label: "Job Posting Link (Optional)", value: newJdUrl, setter: setNewJdUrl, placeholder: "Enter job posting link", required: false, type: "url" },
               ].map(({ label, value, setter, placeholder, required, type }) => (
                 <div key={label} className="space-y-1">
                   <label className="text-[11px] font-semibold text-neutral-700">{label}</label>
@@ -613,7 +574,11 @@ export default function Applications() {
                       <button
                         key={s.id}
                         type="button"
-                        onClick={() => updateMutation.mutate({ id: selectedApp.id, data: { stage: s.id } })}
+                        onClick={() => {
+                          const sIdx = STAGES.findIndex((st) => st.id === s.id);
+                          if (sIdx !== -1) setMobileStageIdx(sIdx);
+                          updateMutation.mutate({ id: selectedApp.id, data: { stage: s.id } });
+                        }}
                         className="text-xs px-2.5 py-1 rounded-full font-semibold border transition-colors cursor-pointer"
                         style={
                           selectedApp.stage === s.id
@@ -651,7 +616,7 @@ export default function Applications() {
                   <Textarea
                     value={localNotes}
                     onChange={(e) => setLocalNotes(e.target.value)}
-                    placeholder="Paste interview questions, recruiter notes, timeline updates..."
+                    placeholder="Enter notes, interview details, or updates..."
                     className="text-xs min-h-[110px] resize-none border-neutral-200 bg-neutral-50/50"
                   />
                 </div>
@@ -713,7 +678,9 @@ export default function Applications() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 tracking-tight mt-1.5">Applications</h1>
           <p className="text-xs sm:text-[13px] text-neutral-500 font-normal mt-1">
-            Drag a card to move it between stages. {apps.length} applications in progress.
+            {apps.length === 0
+              ? "Track every job you apply to — from saved to offer."
+              : `Drag a card to move it between stages. ${apps.length} application${apps.length === 1 ? "" : "s"} in progress.`}
           </p>
         </div>
 
@@ -722,7 +689,7 @@ export default function Applications() {
             <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 pointer-events-none" />
             <input
               type="text"
-              placeholder="Filter company or role"
+              placeholder="Enter company or role..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="border border-neutral-200/90 bg-white rounded-lg pl-8 pr-3 py-2 text-xs font-medium text-neutral-800 placeholder:text-neutral-400 outline-none focus:border-neutral-400 w-48 sm:w-56 shadow-2xs"
@@ -742,6 +709,24 @@ export default function Applications() {
       {isLoading ? (
         <div className="flex justify-center py-24 bg-white border border-neutral-200/70 rounded-2xl">
           <Loader2 className="h-8 w-8 animate-spin text-neutral-800" />
+        </div>
+      ) : apps.length === 0 ? (
+        /* ─── Global Empty State for new users ─── */
+        <div className="flex flex-col items-center justify-center py-24 rounded-2xl border-2 border-dashed border-neutral-200 bg-[#fafaf9] text-center">
+          <div className="w-16 h-16 rounded-2xl bg-neutral-100 flex items-center justify-center mb-5">
+            <Briefcase className="w-7 h-7 text-neutral-400" />
+          </div>
+          <h3 className="text-base font-bold text-neutral-800">No applications yet</h3>
+          <p className="text-xs text-neutral-500 mt-1.5 max-w-[260px]">
+            Start tracking your job search. Add your first application to get started.
+          </p>
+          <button
+            onClick={() => setIsAddOpen(true)}
+            className="mt-6 bg-[#121212] hover:bg-black text-white px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm cursor-pointer transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add your first application
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-start">
