@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import DotLottieLoader from "@/components/DotLottieLoader";
 import AiErrorModal from "@/components/AiErrorModal";
@@ -89,9 +89,8 @@ export default function ColdMailPage() {
     return (val as "manual" | "csv") || "manual";
   });
   const [isAdding, setIsAdding] = useState(false);
-  const [activeTab, setActiveTab] = useState<"formal" | "casual" | "short">(() => {
-    const val = sessionStorage.getItem("cm_activeTab");
-    return (val as "formal" | "casual" | "short") || "formal";
+  const [selectedVariantId, setSelectedVariantId] = useState<string>(() => {
+    return sessionStorage.getItem("cm_selectedVariantId") || "primary";
   });
   const [showFollowUps, setShowFollowUps] = useState<boolean>(() => {
     return sessionStorage.getItem("cm_showFollowUps") === "true";
@@ -139,8 +138,8 @@ export default function ColdMailPage() {
   }, [mainMode]);
 
   useEffect(() => {
-    sessionStorage.setItem("cm_activeTab", activeTab);
-  }, [activeTab]);
+    sessionStorage.setItem("cm_selectedVariantId", selectedVariantId);
+  }, [selectedVariantId]);
 
   useEffect(() => {
     sessionStorage.setItem("cm_showFollowUps", showFollowUps ? "true" : "false");
@@ -188,6 +187,120 @@ export default function ColdMailPage() {
       setSelected(companies[0].id);
     }
   }, [companies, selected]);
+
+  // Parse all available email variants (Recommended, Variant A, Variant B, or Formal/Casual/Short)
+  const parsedVariants = useMemo(() => {
+    if (!selectedCompany) return [];
+    const list: {
+      id: string;
+      variant_name: string;
+      subject: string;
+      body: string;
+      angle?: string;
+    }[] = [];
+
+    let rawData: any = null;
+    if (selectedCompany.generated_variants_json) {
+      try {
+        rawData = JSON.parse(selectedCompany.generated_variants_json);
+      } catch (e) {
+        console.error("Variants parse error:", e);
+      }
+    }
+
+    const rawVariants = rawData?.variants || (Array.isArray(rawData) ? rawData : null);
+
+    if (Array.isArray(rawVariants) && rawVariants.length > 0) {
+      const hasPrimary = rawVariants.some(
+        (v: any) =>
+          v.id === "primary" ||
+          v.variant_name?.toLowerCase().includes("recommended") ||
+          v.variant_name?.toLowerCase().includes("primary")
+      );
+      if (!hasPrimary && selectedCompany.generated_mail) {
+        list.push({
+          id: "primary",
+          variant_name: "Option 1: Recommended",
+          subject: selectedCompany.generated_subject || "",
+          body: selectedCompany.generated_mail || "",
+          angle: "Balanced value proposition tailored to company profile.",
+        });
+      }
+      rawVariants.forEach((v: any, idx: number) => {
+        list.push({
+          id: v.id || `variant_${idx + 1}`,
+          variant_name: v.variant_name || `Option ${list.length + 1}`,
+          subject: v.subject || selectedCompany.generated_subject || "",
+          body: v.body || "",
+          angle: v.angle || "",
+        });
+      });
+    } else if (rawData?.formal || rawData?.casual || rawData?.short) {
+      if (rawData.formal) {
+        list.push({
+          id: "formal",
+          variant_name: "Formal Tone",
+          subject: rawData.formal.subject_options?.[0] || selectedCompany.generated_subject || "",
+          body: rawData.formal.body || "",
+          angle: "Professional and structured tone, ideal for enterprise teams.",
+        });
+      }
+      if (rawData.casual) {
+        list.push({
+          id: "casual",
+          variant_name: "Casual Tone",
+          subject: rawData.casual.subject_options?.[0] || selectedCompany.generated_subject || "",
+          body: rawData.casual.body || "",
+          angle: "Conversational peer-to-peer outreach, great for startups.",
+        });
+      }
+      if (rawData.short) {
+        list.push({
+          id: "short",
+          variant_name: "Short & Punchy",
+          subject: rawData.short.subject_options?.[0] || selectedCompany.generated_subject || "",
+          body: rawData.short.body || "",
+          angle: "Under 75 words, quick to read on mobile devices.",
+        });
+      }
+    }
+
+    if (list.length === 0 && selectedCompany.generated_mail) {
+      list.push({
+        id: "primary",
+        variant_name: "Option 1: Recommended",
+        subject: selectedCompany.generated_subject || "",
+        body: selectedCompany.generated_mail || "",
+        angle: "Personalized outreach based on company research and candidate skills.",
+      });
+    }
+
+    return list;
+  }, [selectedCompany]);
+
+  useEffect(() => {
+    if (parsedVariants.length > 0) {
+      const exists = parsedVariants.some((v) => v.id === selectedVariantId);
+      if (!exists) {
+        setSelectedVariantId(parsedVariants[0].id);
+      }
+    }
+  }, [parsedVariants, selectedVariantId]);
+
+  const activeVariant =
+    parsedVariants.find((v) => v.id === selectedVariantId) ||
+    parsedVariants[0] || {
+      id: "primary",
+      variant_name: "Option 1: Recommended",
+      subject: selectedCompany?.generated_subject || "",
+      body: selectedCompany?.generated_mail || "",
+      angle: "",
+    };
+
+  const isCurrentActiveEmail =
+    Boolean(selectedCompany?.generated_mail) &&
+    ((activeVariant.body && selectedCompany?.generated_mail?.trim() === activeVariant.body.trim()) ||
+      parsedVariants.length <= 1);
 
   useEffect(() => {
     if (!settings) return;
@@ -375,7 +488,7 @@ export default function ColdMailPage() {
     // 5. Ensure professional sign-off at the end
     const hasSignOff = /(best regards|warm regards|kind regards|regards|sincerely|best,)\s*\n?/i.test(formatted);
     if (!hasSignOff) {
-      const sender = company?.sender_name?.trim() || settings?.full_name?.trim() || "Bharat Dhuva";
+      const sender = company?.sender_name?.trim() || settings?.full_name?.trim() || "Applicant";
       const location = company?.sender_location?.trim() || settings?.target_cities?.split(",")[0]?.trim() || "";
       formatted = `${formatted}\n\nBest regards,\n${sender}${location ? `\n${location}` : ""}`;
     }
@@ -838,9 +951,16 @@ export default function ColdMailPage() {
                       {/* AI Draft Content */}
                       <div className="space-y-3 w-full min-w-0">
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                            AI Outreach Draft
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                              AI Outreach Draft
+                            </span>
+                            {parsedVariants.length > 1 && (
+                              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 border border-neutral-200/80 px-2 py-0.5 rounded-full">
+                                {parsedVariants.length} versions available
+                              </span>
+                            )}
+                          </div>
                           <div className="flex items-center gap-2">
                             <label className="text-[11px] font-medium text-neutral-500 flex items-center gap-1.5 cursor-pointer select-none">
                               <input
@@ -853,6 +973,75 @@ export default function ColdMailPage() {
                             </label>
                           </div>
                         </div>
+
+                        {/* Interactive Variant Chooser */}
+                        {parsedVariants.length > 1 && (
+                          <div className="space-y-2.5 bg-neutral-50/70 border border-neutral-200/80 rounded-xl p-2.5 sm:p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                                Choose Outreach Option:
+                              </span>
+                              {!isCurrentActiveEmail && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    updateMutation.mutate({
+                                      id: selectedCompany.id,
+                                      data: {
+                                        generated_subject: activeVariant.subject,
+                                        generated_mail: activeVariant.body,
+                                      },
+                                    });
+                                    toast.success(`Applied "${activeVariant.variant_name}" as active email`);
+                                  }}
+                                  disabled={updateMutation.isPending}
+                                  className="text-[11px] font-bold text-white bg-[#2DC08D] hover:bg-[#25a77a] px-3 py-1 rounded-lg transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <Check className="w-3.5 h-3.5 text-white" />
+                                  <span>Use This Version</span>
+                                </button>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5">
+                              {parsedVariants.map((v) => {
+                                const isSelected = selectedVariantId === v.id;
+                                const isActiveInDb = Boolean(
+                                  selectedCompany.generated_mail &&
+                                    v.body &&
+                                    cleanDraft(selectedCompany.generated_mail, selectedCompany).trim() ===
+                                      cleanDraft(v.body, selectedCompany).trim()
+                                );
+                                return (
+                                  <button
+                                    key={v.id}
+                                    type="button"
+                                    onClick={() => setSelectedVariantId(v.id)}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                      isSelected
+                                        ? "bg-white text-neutral-900 shadow-xs border border-neutral-300"
+                                        : "bg-white/60 text-neutral-600 hover:text-neutral-900 hover:bg-white border border-neutral-200/60"
+                                    }`}
+                                  >
+                                    <span>{v.variant_name}</span>
+                                    {isActiveInDb && (
+                                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-1.5 py-0.2 rounded-md flex items-center gap-0.5">
+                                        <Check className="w-2.5 h-2.5" /> Active
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {activeVariant.angle && (
+                              <p className="text-[11px] text-neutral-600 font-medium pl-1">
+                                <span className="font-bold text-neutral-700">Angle: </span>
+                                {activeVariant.angle}
+                              </p>
+                            )}
+                          </div>
+                        )}
 
                         {(() => {
                           let variantsData: any = null;
@@ -869,36 +1058,73 @@ export default function ColdMailPage() {
                             toast.success("Copied to clipboard!");
                           };
 
+                          const displayedSubject = activeVariant.subject || selectedCompany.generated_subject || "";
+                          const displayedBody = activeVariant.body || selectedCompany.generated_mail || "";
+
                           return (
                             <div className="space-y-4 w-full min-w-0">
                               {/* Subject & Body Container */}
                               <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/40 overflow-hidden w-full min-w-0">
                                 <div className="border-b border-neutral-200/80 px-3 sm:px-4 py-2 sm:py-2.5 bg-neutral-100/50 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 min-w-0">
                                   <div className="flex-1 min-w-0 pr-1 sm:pr-3">
-                                    <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-400 block mb-0.5">
-                                      Subject
-                                    </span>
-                                    <p className="text-xs font-semibold text-neutral-900 truncate" title={selectedCompany.generated_subject || ""}>
-                                      {selectedCompany.generated_subject || "No subject generated yet."}
+                                    <div className="flex items-center gap-2 mb-0.5">
+                                      <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-400 block">
+                                        Subject
+                                      </span>
+                                      {parsedVariants.length > 1 && (
+                                        isCurrentActiveEmail ? (
+                                          <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-1.5 py-0.2 rounded-md">
+                                            Active for Send & Draft
+                                          </span>
+                                        ) : (
+                                          <span className="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200/70 px-1.5 py-0.2 rounded-md">
+                                            Previewing Alternative
+                                          </span>
+                                        )
+                                      )}
+                                    </div>
+                                    <p className="text-xs font-semibold text-neutral-900 truncate" title={displayedSubject}>
+                                      {displayedSubject || "No subject generated yet."}
                                     </p>
                                   </div>
-                                  {selectedCompany.generated_subject && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        navigator.clipboard.writeText(selectedCompany.generated_subject || "");
-                                        toast.success("Subject copied!");
-                                      }}
-                                      className="text-[11px] font-medium text-neutral-500 hover:text-black transition-colors shrink-0 cursor-pointer"
-                                    >
-                                      Copy Subject
-                                    </button>
-                                  )}
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    {displayedSubject && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          navigator.clipboard.writeText(displayedSubject);
+                                          toast.success("Subject copied!");
+                                        }}
+                                        className="text-[11px] font-medium text-neutral-500 hover:text-black transition-colors cursor-pointer"
+                                      >
+                                        Copy Subject
+                                      </button>
+                                    )}
+                                    {!isCurrentActiveEmail && parsedVariants.length > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          updateMutation.mutate({
+                                            id: selectedCompany.id,
+                                            data: {
+                                              generated_subject: activeVariant.subject,
+                                              generated_mail: activeVariant.body,
+                                            },
+                                          });
+                                          toast.success(`Applied "${activeVariant.variant_name}" as active email`);
+                                        }}
+                                        disabled={updateMutation.isPending}
+                                        className="text-[11px] font-bold text-[#2DC08D] hover:text-[#25a77a] transition-colors cursor-pointer"
+                                      >
+                                        Use This Version
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="p-3 sm:p-4 w-full min-w-0">
                                   <div className="font-sans text-xs sm:text-[13px] leading-relaxed text-neutral-800 whitespace-pre-wrap break-words [overflow-wrap:anywhere] select-text">
-                                    {selectedCompany.generated_mail
-                                      ? cleanDraft(selectedCompany.generated_mail, selectedCompany)
+                                    {displayedBody
+                                      ? cleanDraft(displayedBody, selectedCompany)
                                       : "Click Auto-Generate Mail below to conduct AI research and generate tailored outreach."}
                                   </div>
                                 </div>
@@ -1225,9 +1451,7 @@ export default function ColdMailPage() {
                                       });
                                   };
 
-                                  api.coldmail.scrape(selectedCompany.id)
-                                    .then(() => runGenerate())
-                                    .catch(() => runGenerate());
+                                  runGenerate();
                                 });
                               }}
                             >
@@ -1298,7 +1522,7 @@ export default function ColdMailPage() {
                               <User className="h-3 w-3 shrink-0" /> Sender Name
                             </p>
                             <p className="font-medium text-neutral-800 truncate" title={selectedCompany.sender_name || ""}>
-                              {selectedCompany.sender_name || "Outly User"}
+                              {selectedCompany.sender_name || settings?.full_name || "Applicant"}
                             </p>
                           </div>
                           <div className="space-y-0.5 min-w-0">

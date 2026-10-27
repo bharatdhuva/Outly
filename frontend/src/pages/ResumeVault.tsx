@@ -60,20 +60,20 @@ function parseResumeDocument(
   fallbackEmail: string
 ): ParsedResumeDoc {
   const defaultDoc: ParsedResumeDoc = {
-    name: fallbackName || "Bharat Dhuva",
-    subtitle: `Software Engineer · ${fallbackEmail || "bharatdhuva276@gmail.com"}`,
+    name: fallbackName || "Candidate",
+    subtitle: `Software Engineer${fallbackEmail ? ` · ${fallbackEmail}` : ""}`,
     sections: [
       {
         title: "EDUCATION",
-        content: "B.E. Computer Science & Engineering — The Maharaja Sayajirao University of Baroda, 2024–2027",
+        content: "B.E. Computer Science & Engineering — University Degree Program",
       },
       {
         title: "SKILLS",
-        content: "JavaScript, TypeScript, Java, Python, SQL · React, Node.js, Express · Git, Docker, Vercel",
+        content: "JavaScript, TypeScript, Java, Python, SQL · React, Node.js, Express · Git, Docker, CI/CD",
       },
       {
         title: "PROJECTS",
-        content: "Outly — AI-powered career automation platform serving 100+ users, with ATS scoring, resume vault and job tracker.",
+        content: "Full-Stack Web Applications — Production-ready scalable software platforms with modern cloud architecture.",
       },
     ],
   };
@@ -92,8 +92,8 @@ function parseResumeDocument(
     "PROFESSIONAL EXPERIENCE", "SUMMARY", "ABOUT", "CERTIFICATIONS", "ACHIEVEMENTS"
   ];
 
-  let name = fallbackName || "Bharat Dhuva";
-  let subtitle = `Software Engineer · ${fallbackEmail || "bharatdhuva276@gmail.com"}`;
+  let name = fallbackName || "Candidate";
+  let subtitle = `Software Engineer${fallbackEmail ? ` · ${fallbackEmail}` : ""}`;
   const sections: ResumeDocSection[] = [];
 
   let firstSectionIdx = -1;
@@ -199,8 +199,8 @@ export default function ResumeVaultPage() {
     queryFn: api.auth.me,
   });
 
-  const userName = userData?.user?.fullName || settings?.full_name || "Bharat Dhuva";
-  const userEmail = userData?.user?.email || "bharatdhuva276@gmail.com";
+  const userName = userData?.user?.fullName || settings?.full_name || "Candidate";
+  const userEmail = userData?.user?.email || "";
 
   const resumes: ResumeVaultItem[] = serverResumes;
 

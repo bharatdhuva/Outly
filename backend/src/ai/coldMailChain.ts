@@ -109,7 +109,7 @@ function formatEmailBody(
 export async function generateColdEmailChain(input: ColdMailInput): Promise<ColdMailResult> {
   const startTime = Date.now();
   const recipient = input.targetPerson || (input.companyName ? `${input.companyName} Team` : "Hiring Team");
-  const sender = input.senderName || "Bharat Dhuva";
+  const sender = input.senderName?.trim() || "Applicant";
   const location = input.senderLocation || "";
 
   logger.info(`[ColdMailChain] Starting RAG cold email generation for: ${input.companyName}`, {

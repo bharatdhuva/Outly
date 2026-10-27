@@ -13,6 +13,8 @@ import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkColdMailLimit } from "../../middleware/limits.js";
+import { User } from "../../db/models.js";
+import { getEditableSettings } from "../../config/appSettings.js";
 import fs from "fs";
 
 const router = Router();
@@ -69,6 +71,24 @@ router.post("/companies", checkColdMailLimit, async (req: AuthenticatedRequest, 
       return res.status(400).json({ error: "Company name and HR email are required." });
     }
 
+    // Resolve user sender name & location if omitted
+    let effectiveSenderName = sender_name?.trim();
+    let effectiveSenderLocation = sender_location?.trim();
+    if (!effectiveSenderName || !effectiveSenderLocation) {
+      try {
+        const userSettings = await getEditableSettings(req.user.id);
+        const userObj = await User.findById(req.user.id);
+        if (!effectiveSenderName) {
+          effectiveSenderName = userSettings?.full_name?.trim() || userObj?.fullName?.trim() || "";
+        }
+        if (!effectiveSenderLocation) {
+          effectiveSenderLocation = userSettings?.target_cities ? userSettings.target_cities.split(",")[0]?.trim() : "";
+        }
+      } catch (err) {
+        logger.warn(`[ColdMailRoutes] Could not fetch user settings for default sender: ${err}`);
+      }
+    }
+
     const result = await companyQueries.insert(req.user.id, {
       company_name,
       website_url: website_url || null,
@@ -79,8 +99,8 @@ router.post("/companies", checkColdMailLimit, async (req: AuthenticatedRequest, 
       target_person_role: target_person_role || null,
       key_skills: key_skills || null,
       experience_level: experience_level || null,
-      sender_name: sender_name || null,
-      sender_location: sender_location || null,
+      sender_name: effectiveSenderName || null,
+      sender_location: effectiveSenderLocation || null,
       status: "pending",
       scraped_context: null,
       generated_subject: null,
@@ -92,16 +112,6 @@ router.post("/companies", checkColdMailLimit, async (req: AuthenticatedRequest, 
       followup_status: null,
       error_message: null,
       generated_variants_json: null
-    });
-
-    // Run scraper and AI generator in the background asynchronously
-    Promise.resolve().then(async () => {
-      try {
-        await scrapeCompany(result.id);
-        await generateMailForCompany(result.id, "gemini", "gemini-3.5-flash");
-      } catch (err) {
-        logger.error(`Background auto-generation failed for company ID ${result.id}`, { error: String(err), source: "coldmail" });
-      }
     });
     
     res.json({ id: result.id });
