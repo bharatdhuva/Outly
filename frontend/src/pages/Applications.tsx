@@ -509,7 +509,7 @@ export default function Applications() {
       <>
         {/* Add Dialog */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[440px] border-neutral-200 bg-white p-6 rounded-2xl text-left">
+          <DialogContent className="w-[94%] max-w-[440px] border-neutral-200 bg-white p-4 sm:p-6 rounded-2xl text-left max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-base font-bold text-neutral-900">Add Application</DialogTitle>
               <DialogDescription className="text-xs text-neutral-500">
@@ -573,7 +573,7 @@ export default function Applications() {
 
         {/* Details Dialog */}
         <Dialog open={!!selectedApp} onOpenChange={(open) => !open && handleCloseDetails()}>
-          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[480px] border-neutral-200 bg-white p-6 rounded-2xl text-left">
+          <DialogContent className="w-[94%] max-w-[480px] border-neutral-200 bg-white p-4 sm:p-6 rounded-2xl text-left max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll">
             {selectedApp && (
               <div className="space-y-4">
                 <DialogHeader className="space-y-1">
@@ -656,7 +656,7 @@ export default function Applications() {
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between pt-3 border-t border-neutral-100">
+                <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => setDeleteConfirmOpen(true)}

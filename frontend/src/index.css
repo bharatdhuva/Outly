@@ -1793,3 +1793,44 @@ body {
     overscroll-behavior-y: none;
   }
 }
+
+/* ─── HIGH-QUALITY MOBILE & MODAL SCROLLER ────────────────────────── */
+.modal-scroll,
+[role="dialog"] {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  touch-action: pan-y !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+}
+
+.modal-scroll::-webkit-scrollbar,
+[role="dialog"]::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.modal-scroll::-webkit-scrollbar-track,
+[role="dialog"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb,
+[role="dialog"]::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover,
+[role="dialog"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* Dynamically cap modal height above mobile keyboard */
+@media (max-width: 640px) {
+  [role="dialog"] {
+    max-height: calc(var(--visual-viewport-height, 100dvh) - 1.5rem) !important;
+  }
+}

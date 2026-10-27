@@ -561,7 +561,7 @@ export default function ColdMailPage() {
                   <span>Add Company Data</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="w-[94%] max-w-[460px] border-neutral-200 bg-white p-4 sm:p-6 font-sans rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="w-[94%] max-w-[460px] border-neutral-200 bg-white p-4 sm:p-6 font-sans rounded-2xl shadow-xl max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll">
                 <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-neutral-100 pb-3">
                   <DialogTitle className="text-base font-bold text-neutral-900">Add Company Data</DialogTitle>
                   <DialogDescription className="text-xs text-neutral-500">
@@ -1219,7 +1219,7 @@ export default function ColdMailPage() {
                                   <Edit className="h-4 w-4" />
                                 </button>
                               </DialogTrigger>
-                              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-4 sm:p-6 shadow-xl">
+                              <DialogContent className="max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-4 sm:p-6 shadow-xl">
                                 <DialogHeader>
                                   <DialogTitle className="text-base font-bold text-neutral-900">Edit Mail & Details</DialogTitle>
                                 </DialogHeader>
@@ -1257,7 +1257,7 @@ export default function ColdMailPage() {
                                     />
                                   </div>
                                 </div>
-                                <DialogFooter className="flex-col gap-2 sm:flex-row">
+                                <DialogFooter className="flex-col gap-2 sm:flex-row pt-3 border-t border-neutral-100">
                                   <button
                                     type="button"
                                     className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors cursor-pointer"
@@ -1331,7 +1331,7 @@ export default function ColdMailPage() {
                                   <Edit className="h-4 w-4" />
                                 </button>
                               </DialogTrigger>
-                              <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-4 sm:p-6 shadow-xl">
+                              <DialogContent className="max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-4 sm:p-6 shadow-xl">
                                 <DialogHeader>
                                   <DialogTitle className="text-base font-bold text-neutral-900">Edit Mail & Details</DialogTitle>
                                 </DialogHeader>
@@ -1369,7 +1369,7 @@ export default function ColdMailPage() {
                                     />
                                   </div>
                                 </div>
-                                <DialogFooter className="flex-col gap-2 sm:flex-row">
+                                <DialogFooter className="flex-col gap-2 sm:flex-row pt-3 border-t border-neutral-100">
                                   <button
                                     type="button"
                                     className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors cursor-pointer"

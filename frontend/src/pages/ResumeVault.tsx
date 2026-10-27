@@ -804,7 +804,7 @@ export default function ResumeVaultPage() {
 
       {/* Upload Label Confirmation Modal */}
       <Dialog open={fileToUpload !== null} onOpenChange={(open) => !open && setFileToUpload(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-neutral-200 bg-white p-6 font-sans rounded-xl">
+        <DialogContent className="w-[94%] sm:max-w-[420px] max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll border-neutral-200 bg-white p-6 font-sans rounded-xl">
           <DialogHeader className="text-left space-y-1.5">
             <DialogTitle className="text-base font-bold text-neutral-900">Label New Resume Version</DialogTitle>
             <DialogDescription className="text-xs text-neutral-500 leading-relaxed">
@@ -853,7 +853,7 @@ export default function ResumeVaultPage() {
       
       {/* Edit Resume Label Modal */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[420px] border-neutral-200 bg-white p-6 font-sans rounded-xl">
+        <DialogContent className="w-[94%] sm:max-w-[420px] max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll border-neutral-200 bg-white p-6 font-sans rounded-xl">
           <DialogHeader className="text-left space-y-1.5">
             <DialogTitle className="text-base font-bold text-neutral-900">Rename Resume Version</DialogTitle>
             <DialogDescription className="text-xs text-neutral-500 leading-relaxed">
