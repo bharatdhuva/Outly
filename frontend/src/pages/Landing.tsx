@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { usePageTransition } from "../components/PageTransition";
 import { api } from "../lib/api";
 import gsap from "gsap";
@@ -1123,41 +1124,64 @@ export default function Landing() {
         {/* Interactive Tabs Header */}
         <div className="flex justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 border-b border-outly-border pb-3 max-w-lg mx-auto">
           <button
+            type="button"
             onClick={() => setInfoTab("about")}
-            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${infoTab === "about" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
+            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-colors duration-200 relative cursor-pointer active:scale-[0.97] ${infoTab === "about" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
               }`}
           >
             What is Outly?
             {infoTab === "about" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-outly-accent rounded-full animate-fade-in"></div>
+              <motion.div
+                layoutId="landing-info-tab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-outly-accent rounded-full"
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              />
             )}
           </button>
           <button
+            type="button"
             onClick={() => setInfoTab("features")}
-            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${infoTab === "features" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
+            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-colors duration-200 relative cursor-pointer active:scale-[0.97] ${infoTab === "features" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
               }`}
           >
             Core Features
             {infoTab === "features" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-outly-accent rounded-full animate-fade-in"></div>
+              <motion.div
+                layoutId="landing-info-tab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-outly-accent rounded-full"
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              />
             )}
           </button>
           <button
+            type="button"
             onClick={() => setInfoTab("why-us")}
-            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-all relative ${infoTab === "why-us" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
+            className={`text-xs sm:text-sm font-bold pb-2 px-4 transition-colors duration-200 relative cursor-pointer active:scale-[0.97] ${infoTab === "why-us" ? "text-outly-accent" : "text-outly-dark/40 hover:text-outly-dark"
               }`}
           >
             Why Choose Us?
             {infoTab === "why-us" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-outly-accent rounded-full animate-fade-in"></div>
+              <motion.div
+                layoutId="landing-info-tab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-outly-accent rounded-full"
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              />
             )}
           </button>
         </div>
 
         {/* Interactive Content Area */}
         <div className="max-w-4xl mx-auto min-h-[350px]">
+          <AnimatePresence mode="wait" initial={false}>
           {infoTab === "about" && (
-            <div className="grid md:grid-cols-2 gap-8 items-center text-left animate-fade-in">
+            <motion.div
+              key="about"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+              className="grid md:grid-cols-2 gap-8 items-center text-left"
+            >
               <div className="space-y-4 sm:space-y-6">
                 <h3 className="text-2xl sm:text-3xl font-bold text-outly-dark tracking-tight">
                   Your complete professional <span className="italic-serif text-outly-accent font-normal">command center.</span>
@@ -1171,7 +1195,7 @@ export default function Landing() {
               </div>
               <div className="bg-white rounded-[28px] p-7 sm:p-9 border border-black/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 space-y-6 flex flex-col justify-center">
                 <div className="flex gap-4 items-start">
-                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F2EB] border border-[#E8E4DC] flex items-center justify-center text-zinc-900 shrink-0">
                     <ShieldCheck className="w-6 h-6 text-zinc-800" />
                   </div>
                   <div>
@@ -1183,7 +1207,7 @@ export default function Landing() {
                   </div>
                 </div>
                 <div className="flex gap-4 items-start">
-                  <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-center text-zinc-900 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F5F2EB] border border-[#E8E4DC] flex items-center justify-center text-zinc-900 shrink-0">
                     <Zap className="w-6 h-6 text-zinc-800" />
                   </div>
                   <div>
@@ -1195,11 +1219,18 @@ export default function Landing() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {infoTab === "features" && (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 text-left animate-fade-in">
+            <motion.div
+              key="features"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+              className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 text-left"
+            >
               {/* Feature 1 */}
               <div className="bg-white rounded-[26px] border border-black/[0.06] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
@@ -1290,11 +1321,18 @@ export default function Landing() {
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {infoTab === "why-us" && (
-            <div className="grid md:grid-cols-2 gap-6 text-left animate-fade-in items-stretch">
+            <motion.div
+              key="why-us"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+              className="grid md:grid-cols-2 gap-6 text-left items-stretch"
+            >
               {/* Left: Signature Vidyst contrast dark card */}
               <div className="bg-[#111111] text-white rounded-[28px] border border-white/10 p-7 sm:p-9 shadow-xl shadow-black/10 flex flex-col justify-between">
                 <div className="space-y-4">
@@ -1340,8 +1378,9 @@ export default function Landing() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
       </section>
 
@@ -1441,33 +1480,52 @@ export default function Landing() {
           </p>
         </div>
 
-        {/* ─── BILLING TOGGLE (MIRO STYLE CAPSULE) ─── */}
-        <div className="inline-flex items-center p-1 bg-[#ECEEF2] rounded-full mx-auto mt-7 text-xs font-semibold text-neutral-600">
+        {/* ─── BILLING TOGGLE (iOS-STYLE WARM LINEN SLIDING PILL) ─── */}
+        <div className="inline-flex items-center p-1 bg-[#EDE9E2]/90 border border-[#E2DDD3]/80 rounded-full mx-auto mt-7 text-xs font-semibold text-neutral-600 relative select-none">
           <button
+            type="button"
             onClick={() => setBillingDuration("monthly")}
-            className={`px-5 py-1.5 rounded-full transition-all cursor-pointer ${billingDuration === "monthly"
-              ? "bg-white text-neutral-900 shadow-xs"
+            className={`relative z-10 px-5 py-1.5 rounded-full transition-colors duration-200 cursor-pointer active:scale-[0.97] ${billingDuration === "monthly"
+              ? "text-neutral-900"
               : "text-neutral-600 hover:text-neutral-900"
               }`}
           >
+            {billingDuration === "monthly" && (
+              <motion.div
+                layoutId="landing-billing-pill"
+                className="absolute inset-0 rounded-full bg-white shadow-sm -z-10"
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
+              />
+            )}
             Monthly
           </button>
           <button
+            type="button"
             onClick={() => setBillingDuration("yearly")}
-            className={`px-5 py-1.5 rounded-full transition-all cursor-pointer ${billingDuration === "yearly"
-              ? "bg-white text-neutral-900 shadow-xs"
+            className={`relative z-10 px-5 py-1.5 rounded-full transition-colors duration-200 cursor-pointer active:scale-[0.97] ${billingDuration === "yearly"
+              ? "text-neutral-900"
               : "text-neutral-600 hover:text-neutral-900"
               }`}
           >
+            {billingDuration === "yearly" && (
+              <motion.div
+                layoutId="landing-billing-pill"
+                className="absolute inset-0 rounded-full bg-white shadow-sm -z-10"
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
+              />
+            )}
             Yearly (save 20%)
           </button>
         </div>
 
-        {/* ─── PRICING CARDS GRID (EXACT 2 CARDS: NORMAL + BLUE) ─── */}
+        {/* ─── PRICING CARDS GRID ─── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[800px] mx-auto mt-10 items-stretch text-left">
 
-          {/* ─── CARD 1: NORMAL FREE CARD (MIRO STYLE) ─── */}
-          <div className="border border-neutral-300/90 bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300">
+          {/* ─── CARD 1: FREE CARD ─── */}
+          <motion.div
+            whileHover={{ y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
+            className="border border-[#E2DDD3] bg-white rounded-[28px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] transition-shadow duration-300"
+          >
             <div>
               <h3 className="text-3xl font-bold text-neutral-900 tracking-tight">Free</h3>
               <p className="text-xs text-neutral-500 mt-2 min-h-[36px] leading-relaxed font-normal">
@@ -1480,12 +1538,14 @@ export default function Landing() {
               </div>
 
               {/* Button */}
-              <button
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.97 }}
                 onClick={() => navigateTo("/login")}
-                className="w-full mt-6 bg-white hover:bg-neutral-50 text-neutral-900 text-sm font-semibold py-3 px-5 rounded-xl border border-neutral-300 transition-colors shadow-2xs text-center cursor-pointer"
+                className="w-full mt-6 bg-white hover:bg-[#FAF8F5] text-neutral-900 text-sm font-semibold py-3 px-5 rounded-xl border border-[#E2DDD3] hover:border-neutral-400 transition-colors shadow-2xs text-center cursor-pointer"
               >
                 Start for free
-              </button>
+              </motion.button>
 
               {/* Features section header */}
               <div className="mt-8 flex items-center justify-between text-xs font-semibold text-neutral-900">
@@ -1517,10 +1577,13 @@ export default function Landing() {
                 </li>
               </ul>
             </div>
-          </div>
+          </motion.div>
 
           {/* ─── CARD 2: BRAND FEATURED CARD (OUTLY EMERALD THEME) ─── */}
-          <div className="relative border-2 border-[#2DC08D] bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(45,192,141,0.12)] hover:shadow-[0_16px_40px_rgba(45,192,141,0.22)] hover:-translate-y-1 transition-all duration-300">
+          <motion.div
+            whileHover={{ y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
+            className="relative border-2 border-[#2DC08D] bg-white rounded-[28px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(45,192,141,0.12)] hover:shadow-[0_16px_40px_rgba(45,192,141,0.22)] transition-shadow duration-300"
+          >
             {/* Centered top floating pill badge */}
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#2DC08D] text-white text-[11px] font-semibold px-4 py-0.5 rounded-full shadow-sm whitespace-nowrap">
               Best for active job seekers
@@ -1533,22 +1596,33 @@ export default function Landing() {
               </p>
 
               {/* Price block */}
-              <div className="mt-5 flex items-baseline gap-1.5 flex-wrap">
-                <span className="text-5xl font-bold text-neutral-900 tracking-tight">
-                  {billingDuration === "yearly" ? "₹99" : "₹1"}
-                </span>
+              <div className="mt-5 flex items-baseline gap-1.5 flex-wrap overflow-hidden">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={billingDuration}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="text-5xl font-bold text-neutral-900 tracking-tight inline-block"
+                  >
+                    {billingDuration === "yearly" ? "₹99" : "₹1"}
+                  </motion.span>
+                </AnimatePresence>
                 <span className="text-xs text-neutral-600 font-normal">
                   /month per member, billed {billingDuration === "yearly" ? "yearly" : "monthly"}
                 </span>
               </div>
 
               {/* Outly Primary Button */}
-              <button
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.97 }}
                 onClick={() => navigateTo(isLoggedIn ? "/pricing" : "/login")}
-                className="w-full mt-6 bg-[#2DC08D] hover:bg-[#25a77a] text-white text-sm font-semibold py-3 px-5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                className="w-full mt-6 bg-[#2DC08D] hover:bg-[#25a77a] text-white text-sm font-semibold py-3 px-5 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Try for free</span>
-              </button>
+              </motion.button>
 
               {/* Sub-button link: or buy now */}
               <div className="mt-2.5 text-center text-xs text-neutral-500">
@@ -1595,7 +1669,7 @@ export default function Landing() {
                 </li>
               </ul>
             </div>
-          </div>
+          </motion.div>
 
         </div>
 

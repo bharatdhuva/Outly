@@ -200,8 +200,8 @@ export default function Pricing() {
         </p>
       </div>
 
-      {/* ─── BILLING TOGGLE (iOS-STYLE SLIDING PILL) ─── */}
-      <div className="inline-flex items-center p-1 bg-[#ECEEF2] rounded-full mx-auto mt-7 text-xs font-semibold text-neutral-600 relative select-none">
+      {/* ─── BILLING TOGGLE (iOS-STYLE WARM LINEN SLIDING PILL) ─── */}
+      <div className="inline-flex items-center p-1 bg-[#EDE9E2]/90 border border-[#E2DDD3]/80 rounded-full mx-auto mt-7 text-xs font-semibold text-neutral-600 relative select-none">
         <button
           type="button"
           onClick={() => setBillingCycle("monthly")}
@@ -239,12 +239,13 @@ export default function Pricing() {
       {/* ─── PRICING CARDS GRID (EXACT 2 CARDS: NORMAL + BLUE) ─── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[800px] mx-auto mt-10 items-stretch text-left">
 
-        {/* ─── CARD 1: NORMAL FREE CARD (MIRO STYLE) ─── */}
+        {/* ─── CARD 1: NORMAL FREE CARD ─── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0, ease: [0.16, 1, 0.3, 1] }}
-          className="border border-neutral-300/90 bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-shadow transition-transform duration-300"
+          whileHover={{ y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
+          className="border border-[#E2DDD3] bg-white rounded-[28px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] transition-shadow duration-300"
         >
           <div>
             <h2 className="text-3xl font-bold text-neutral-900 tracking-tight">Free</h2>
@@ -302,8 +303,8 @@ export default function Pricing() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          whileHover={{ y: -3, transition: { duration: 0.2 } }}
-          className="relative border-2 border-[#2DC08D] bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(45,192,141,0.12)] hover:shadow-[0_16px_40px_rgba(45,192,141,0.22)] transition-shadow duration-300"
+          whileHover={{ y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
+          className="relative border-2 border-[#2DC08D] bg-white rounded-[28px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(45,192,141,0.12)] hover:shadow-[0_16px_40px_rgba(45,192,141,0.22)] transition-shadow duration-300"
         >
           {/* Centered top floating pill badge */}
           <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#2DC08D] text-white text-[11px] font-semibold px-4 py-0.5 rounded-full shadow-sm whitespace-nowrap">

@@ -409,7 +409,7 @@ export default function SettingsPage() {
 
                 <div className="space-y-2 pt-2">
                   <label className="text-xs font-semibold text-foreground/80">Connected Sender Email</label>
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 overflow-hidden">
+                  <div className="p-3.5 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 overflow-hidden">
                     <div className="flex items-center gap-2">
                       <MailIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="font-mono text-xs font-semibold text-foreground">
