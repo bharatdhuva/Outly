@@ -1,4 +1,4 @@
-import { config } from "dotenv";
+﻿import { config } from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -15,15 +15,16 @@ export const env = {
 
   PYTHON_ATS_URL: (() => {
     const raw = (process.env.PYTHON_ATS_URL ?? "").trim();
-    if (
-      !raw ||
-      raw === "https://outly-python-ats.onrender.com" ||
-      raw.includes("ai-features-gpm9") ||
-      raw.includes("outly-python-ats")
-    ) {
-      return "https://ai-features-qpw9.onrender.com";
+    // If explicitly set to a non-Render URL, use it (e.g. local dev, custom host)
+    if (raw && !raw.includes("onrender.com") && !raw.includes("outly-python-ats")) {
+      return raw;
     }
-    return raw;
+    // On Vercel: Python ATS is co-deployed on the same domain via /python-ats/*
+    if (process.env.VERCEL_URL) {
+      return "https://" + process.env.VERCEL_URL + "/python-ats";
+    }
+    // Local development fallback
+    return raw || "http://localhost:8000";
   })(),
   PYTHON_ATS_INTERNAL_KEY: (process.env.PYTHON_ATS_INTERNAL_KEY || "outly_internal_secret_token").trim(),
 
@@ -114,4 +115,5 @@ export const env = {
 
   BREVO_API_KEY: process.env.BREVO_API_KEY ?? "",
 } as const;
+
 

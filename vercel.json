@@ -3,11 +3,27 @@
   "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.js": {
+      "runtime": "nodejs20.x",
       "includeFiles": "{backend/dist/**,node_modules/pdf-parse/**,node_modules/mammoth/**,node_modules/dommatrix/**,backend/node_modules/pdf-parse/**,backend/node_modules/mammoth/**,backend/node_modules/dommatrix/**}"
+    },
+    "api/python_ats.py": {
+      "runtime": "python3.12",
+      "maxDuration": 60,
+      "includeFiles": "python-ats/app/**"
     }
   },
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api?originalPath=/api/:path*" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/python-ats/:path*",
+      "destination": "/api/python_ats?originalPath=/python-ats/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api?originalPath=/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

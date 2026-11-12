@@ -5,6 +5,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -16,8 +17,6 @@ from app.logging import RequestIdMiddleware, configure_logging, get_request_id
 settings = get_settings()
 configure_logging(settings.log_level)
 logger = logging.getLogger("outly.main")
-
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Outly Python ATS",
@@ -34,7 +33,6 @@ app.add_middleware(
 )
 
 app.add_middleware(RequestIdMiddleware)
-
 
 
 @app.middleware("http")
@@ -80,30 +78,8 @@ async def unhandled_handler(request: Request, exc: Exception) -> JSONResponse:
     )
 
 
-import asyncio
-import os
-import urllib.request
-
-
-async def _keep_alive_loop(external_url: str) -> None:
-    await asyncio.sleep(60)  # Wait 1 minute after boot
-    ping_url = f"{external_url.rstrip('/')}/health"
-    while True:
-        try:
-            req = urllib.request.Request(ping_url, headers={"User-Agent": "OutlyKeepAlive/1.0"})
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                logger.info("Keep-alive self-ping sent to %s [status: %s]", ping_url, resp.status)
-        except Exception as e:
-            logger.warning("Keep-alive self-ping warning for %s: %s", ping_url, e)
-        await asyncio.sleep(600)  # Sleep 10 minutes
-
-
-@app.on_event("startup")
-async def on_startup() -> None:
-    render_url = os.environ.get("RENDER_EXTERNAL_URL") or os.environ.get("APP_URL")
-    if render_url:
-        logger.info("Starting background keep-alive task for %s", render_url)
-        asyncio.create_task(_keep_alive_loop(render_url))
+# Keep-alive loop removed: not applicable on Vercel serverless.
+# (Previously self-pinged Render to prevent cold starts.)
 
 
 @app.get("/health")

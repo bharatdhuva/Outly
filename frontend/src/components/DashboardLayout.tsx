@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -43,6 +44,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -8, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] } },
+  exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } },
+};
+
+const popoverVariants = {
+  hidden: { opacity: 0, y: -6, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 450, damping: 32 } },
+  exit: { opacity: 0, y: -4, scale: 0.96, transition: { duration: 0.14, ease: [0.4, 0, 1, 1] } },
+};
 
 const pageTitles: Record<string, string> = {
   "/onboarding": "Overview",
@@ -524,11 +537,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       } ${activeDropdown === "resumes" ? "rotate-180" : ""}`} />
                   </button>
 
+                  <AnimatePresence>
                   {activeDropdown === "resumes" && (
-                    <div
-                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl select-none -mt-px"
                       onMouseEnter={() => openDropdown("resumes")}
                       onMouseLeave={scheduleDropdownClose}
+                      style={{ transformOrigin: "top center" }}
                     >
                       {/* Left: Tools */}
                       <div className="col-span-7 space-y-2.5">
@@ -620,8 +639,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Dropdown 2: JOBS */}
@@ -643,11 +663,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       } ${activeDropdown === "jobs" ? "rotate-180" : ""}`} />
                   </button>
 
+                  <AnimatePresence>
                   {activeDropdown === "jobs" && (
-                    <div
-                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl select-none -mt-px"
                       onMouseEnter={() => openDropdown("jobs")}
                       onMouseLeave={scheduleDropdownClose}
+                      style={{ transformOrigin: "top center" }}
                     >
                       {/* Left: Job Search */}
                       <div className="col-span-7 space-y-2.5">
@@ -726,8 +752,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Dropdown 3: TOOLS */}
@@ -745,15 +772,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       }`}
                   >
                     <span>Tools</span>
-                    <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${(isToolsActive || activeDropdown === "tools") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
+                    <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${(isToolsActive || activeDropdown === "tools") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
                       } ${activeDropdown === "tools" ? "rotate-180" : ""}`} />
                   </button>
 
+                  <AnimatePresence>
                   {activeDropdown === "tools" && (
-                    <div
-                      className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl animate-slide-up select-none -mt-px"
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl select-none -mt-px"
                       onMouseEnter={() => openDropdown("tools")}
                       onMouseLeave={scheduleDropdownClose}
+                      style={{ transformOrigin: "top center" }}
                     >
                       <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">AI Outreach</div>
                       <div className="space-y-1">
@@ -774,8 +807,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           </div>
                         </Link>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Standalone Link: PRICING */}
@@ -822,8 +856,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   )}
                 </button>
 
+                <AnimatePresence>
                 {notificationsOpen && (
-                  <div className="absolute right-0 top-full mt-2.5 w-[300px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2 animate-in fade-in-0 zoom-in-95">
+                  <motion.div
+                    variants={popoverVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    style={{ transformOrigin: "top right" }}
+                    className="absolute right-0 top-full mt-2.5 w-[300px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2"
+                  >
                     <div className="px-4 py-2 border-b border-zinc-100 flex items-center justify-between">
                       <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
                       {unreadCount > 0 && (
@@ -857,8 +899,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         ))
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </div>
 
               {/* Desktop Profile Info & Logout Dropdown */}
@@ -872,8 +915,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform duration-200 ${profileMenuOpen ? "rotate-180" : ""}`} />
                 </button>
 
+                <AnimatePresence>
                 {profileMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#EDE9E2] border border-[#E2DDD3] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                  <motion.div
+                    variants={popoverVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    style={{ transformOrigin: "top right" }}
+                    className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#EDE9E2] border border-[#E2DDD3] font-sans shadow-xl z-[120] py-1.5 overflow-hidden"
+                  >
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
@@ -927,15 +978,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <LogOut className="h-3.5 w-3.5" />
                       Sign Out
                     </button>
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </div>
 
               {/* Mobile Notification Bell */}
               <div className="relative md:hidden mr-1" ref={mobileNotificationMenuRef}>
                 <button
                   type="button"
-                  className="relative p-2 text-[#4A4844] active:scale-95 transition-all outline-none rounded-full hover:bg-black/5"
+                  className="relative p-2 text-[#4A4844] active:scale-90 transition-transform duration-150 outline-none rounded-full hover:bg-black/5"
                   onClick={() => setNotificationsOpen(prev => !prev)}
                   aria-label="Notifications"
                 >
@@ -947,8 +999,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   )}
                 </button>
 
+                <AnimatePresence>
                 {notificationsOpen && (
-                  <div className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2.5 animate-in fade-in-0 zoom-in-95">
+                  <motion.div
+                    variants={popoverVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    style={{ transformOrigin: "top right" }}
+                    className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2.5"
+                  >
                     <div className="px-4 pb-2 border-b border-zinc-50 flex items-center justify-between">
                       <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
                       {unreadCount > 0 && (
@@ -982,8 +1042,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         ))
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </div>
 
               {/* Mobile Profile Avatar Trigger & Dropdown */}
@@ -1003,8 +1064,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   />
                 </button>
 
+                <AnimatePresence>
                 {profileMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] font-sans shadow-xl z-[120] py-1.5 overflow-hidden animate-in fade-in-0 zoom-in-95">
+                  <motion.div
+                    variants={popoverVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    style={{ transformOrigin: "top right" }}
+                    className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] font-sans shadow-xl z-[120] py-1.5 overflow-hidden"
+                  >
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#f0ece4]">
                       {fullName}
                     </div>
@@ -1060,8 +1129,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <LogOut className="h-3.5 w-3.5" />
                       Sign Out
                     </button>
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
@@ -1073,13 +1143,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      {/* ─── MOBILE BOTTOM TAB BAR ─── */}
+      {/* ─── MOBILE BOTTOM TAB BAR (iOS-STYLE SPRING INDICATOR) ─── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] bg-[#FAF8F5]/95 backdrop-blur-md border-t border-[#E8E4DC]/80 flex items-center justify-around shadow-[0_-2px_12px_rgba(0,0,0,0.03)] select-none">
 
         {/* Tab 1: Resumes */}
         <Link
           to="/resumes"
-          className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
+          className="relative flex-1 h-full flex flex-col items-center justify-center focus:outline-none active:scale-90 transition-transform duration-150"
         >
           {(() => {
             const isActive = location.pathname === "/resumes" ||
@@ -1089,12 +1159,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               location.pathname.startsWith("/resume-");
             return (
               <>
-                <div className={`transition-all duration-200 ${isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
-                  }`}>
-                  <ScrollText className="h-5 w-5 transition-colors duration-200" />
-                </div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
-                  }`}>
+                {isActive && (
+                  <motion.div
+                    layoutId="mobile-bottom-indicator"
+                    className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <motion.div
+                  animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 28 }}
+                  className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
+                >
+                  <ScrollText className="h-5 w-5" />
+                </motion.div>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
                   Resumes
                 </span>
               </>
@@ -1105,7 +1184,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         {/* Tab 2: Jobs */}
         <Link
           to="/jobs"
-          className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
+          className="relative flex-1 h-full flex flex-col items-center justify-center focus:outline-none active:scale-90 transition-transform duration-150"
         >
           {(() => {
             const isActive = location.pathname === "/jobs" ||
@@ -1114,12 +1193,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               location.pathname === "/analytics";
             return (
               <>
-                <div className={`transition-all duration-200 ${isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
-                  }`}>
-                  <Briefcase className="h-5 w-5 transition-colors duration-200" />
-                </div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
-                  }`}>
+                {isActive && (
+                  <motion.div
+                    layoutId="mobile-bottom-indicator"
+                    className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <motion.div
+                  animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 28 }}
+                  className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
+                >
+                  <Briefcase className="h-5 w-5" />
+                </motion.div>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
                   Jobs
                 </span>
               </>
@@ -1130,7 +1218,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         {/* Tab 3: Tools */}
         <Link
           to="/tools"
-          className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
+          className="relative flex-1 h-full flex flex-col items-center justify-center focus:outline-none active:scale-90 transition-transform duration-150"
         >
           {(() => {
             const isActive = location.pathname === "/tools" ||
@@ -1138,12 +1226,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               location.pathname === "/logs";
             return (
               <>
-                <div className={`transition-all duration-200 ${isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
-                  }`}>
-                  <Wrench className="h-5 w-5 transition-colors duration-200" />
-                </div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
-                  }`}>
+                {isActive && (
+                  <motion.div
+                    layoutId="mobile-bottom-indicator"
+                    className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <motion.div
+                  animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 28 }}
+                  className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
+                >
+                  <Wrench className="h-5 w-5" />
+                </motion.div>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
                   Tools
                 </span>
               </>
@@ -1154,7 +1251,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         {/* Tab 4: Profile */}
         <Link
           to="/settings"
-          className="flex-1 h-full flex flex-col items-center justify-center focus:outline-none"
+          className="relative flex-1 h-full flex flex-col items-center justify-center focus:outline-none active:scale-90 transition-transform duration-150"
         >
           {(() => {
             const isActive = location.pathname === "/settings" ||
@@ -1162,12 +1259,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               location.pathname === "/support";
             return (
               <>
-                <div className={`transition-all duration-200 ${isActive ? "text-[#2DC08D] scale-105" : "text-zinc-500/70"
-                  }`}>
-                  <User className="h-5 w-5 transition-colors duration-200" />
-                </div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"
-                  }`}>
+                {isActive && (
+                  <motion.div
+                    layoutId="mobile-bottom-indicator"
+                    className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <motion.div
+                  animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 28 }}
+                  className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
+                >
+                  <User className="h-5 w-5" />
+                </motion.div>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
                   Profile
                 </span>
               </>

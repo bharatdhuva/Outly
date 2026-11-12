@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import { 
   FileCheck, 
@@ -108,11 +109,11 @@ export default function MobileHub({ category }: MobileHubProps) {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`relative pb-3 pt-1 text-[11px] font-bold uppercase tracking-wider transition-all duration-155 cursor-pointer outline-none shrink-0 flex items-center gap-1.5 ${
+                  className={`relative pb-3 pt-1 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 cursor-pointer outline-none shrink-0 flex items-center gap-1.5 active:scale-[0.96] ${
                     isActive ? "text-[#2DC08D]" : "text-zinc-500/80 hover:text-zinc-800"
                   }`}
                 >
-                  {tab.icon && <tab.icon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-[#2DC08D]" : "text-zinc-400"}`} />}
+                  {tab.icon && <tab.icon className={`h-3.5 w-3.5 shrink-0 transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-400"}`} />}
                   <span>{tab.label}</span>
                   {showBadge && (
                     <span className="flex h-3.5 min-w-3.5 px-1 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white leading-none scale-90 translate-y-[-1px]">
@@ -120,7 +121,11 @@ export default function MobileHub({ category }: MobileHubProps) {
                     </span>
                   )}
                   {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#2DC08D] rounded-full" />
+                    <motion.div
+                      layoutId={`mobile-hub-underline-${category}`}
+                      className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#2DC08D] rounded-full"
+                      transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                    />
                   )}
                 </button>
               );
@@ -133,14 +138,25 @@ export default function MobileHub({ category }: MobileHubProps) {
 
       {/* Content area */}
       <div className="flex-1 w-full min-h-0 max-w-full overflow-x-hidden">
-        {category === "resumes" && activeTab === "ats" && <AtsScore />}
-        {category === "resumes" && activeTab === "tailor" && <ResumeTailor />}
-        {category === "resumes" && activeTab === "vault" && <ResumeVault />}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={`${category}-${activeTab}`}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full h-full"
+          >
+            {category === "resumes" && activeTab === "ats" && <AtsScore />}
+            {category === "resumes" && activeTab === "tailor" && <ResumeTailor />}
+            {category === "resumes" && activeTab === "vault" && <ResumeVault />}
 
-        {category === "jobs" && activeTab === "tracker" && <Applications />}
-        {category === "jobs" && activeTab === "search" && <JobSearch />}
+            {category === "jobs" && activeTab === "tracker" && <Applications />}
+            {category === "jobs" && activeTab === "search" && <JobSearch />}
 
-        {category === "tools" && activeTab === "mail" && <ColdMail />}
+            {category === "tools" && activeTab === "mail" && <ColdMail />}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

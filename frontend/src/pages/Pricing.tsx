@@ -5,6 +5,7 @@ import { Check, ArrowRight, Lock, Loader2, Sparkles, Tag, ChevronDown } from "lu
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import { api } from "@/lib/api";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -199,24 +200,38 @@ export default function Pricing() {
         </p>
       </div>
 
-      {/* ─── BILLING TOGGLE (MIRO STYLE CAPSULE) ─── */}
-      <div className="inline-flex items-center p-1 bg-[#ECEEF2] rounded-full mx-auto mt-7 text-xs font-semibold text-neutral-600">
+      {/* ─── BILLING TOGGLE (iOS-STYLE SLIDING PILL) ─── */}
+      <div className="inline-flex items-center p-1 bg-[#ECEEF2] rounded-full mx-auto mt-7 text-xs font-semibold text-neutral-600 relative select-none">
         <button
+          type="button"
           onClick={() => setBillingCycle("monthly")}
-          className={`px-5 py-1.5 rounded-full transition-all cursor-pointer ${billingCycle === "monthly"
-            ? "bg-white text-neutral-900 shadow-xs"
-            : "text-neutral-600 hover:text-neutral-900"
-            }`}
+          className={`relative z-10 px-5 py-1.5 rounded-full transition-colors duration-200 cursor-pointer active:scale-[0.97] ${
+            billingCycle === "monthly" ? "text-neutral-900" : "text-neutral-600 hover:text-neutral-900"
+          }`}
         >
+          {billingCycle === "monthly" && (
+            <motion.div
+              layoutId="billing-pill"
+              className="absolute inset-0 rounded-full bg-white shadow-sm -z-10"
+              transition={{ type: "spring", stiffness: 450, damping: 32 }}
+            />
+          )}
           Monthly
         </button>
         <button
+          type="button"
           onClick={() => setBillingCycle("yearly")}
-          className={`px-5 py-1.5 rounded-full transition-all cursor-pointer ${billingCycle === "yearly"
-            ? "bg-white text-neutral-900 shadow-xs"
-            : "text-neutral-600 hover:text-neutral-900"
-            }`}
+          className={`relative z-10 px-5 py-1.5 rounded-full transition-colors duration-200 cursor-pointer active:scale-[0.97] ${
+            billingCycle === "yearly" ? "text-neutral-900" : "text-neutral-600 hover:text-neutral-900"
+          }`}
         >
+          {billingCycle === "yearly" && (
+            <motion.div
+              layoutId="billing-pill"
+              className="absolute inset-0 rounded-full bg-white shadow-sm -z-10"
+              transition={{ type: "spring", stiffness: 450, damping: 32 }}
+            />
+          )}
           Yearly (save 20%)
         </button>
       </div>
@@ -225,7 +240,12 @@ export default function Pricing() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[800px] mx-auto mt-10 items-stretch text-left">
 
         {/* ─── CARD 1: NORMAL FREE CARD (MIRO STYLE) ─── */}
-        <div className="border border-neutral-300/90 bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0, ease: [0.16, 1, 0.3, 1] }}
+          className="border border-neutral-300/90 bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-shadow transition-transform duration-300"
+        >
           <div>
             <h2 className="text-3xl font-bold text-neutral-900 tracking-tight">Free</h2>
             <p className="text-xs text-neutral-500 mt-2 min-h-[36px] leading-relaxed font-normal">
@@ -275,10 +295,16 @@ export default function Pricing() {
               </li>
             </ul>
           </div>
-        </div>
+        </motion.div>
 
         {/* ─── CARD 2: BRAND FEATURED CARD (OUTLY EMERALD THEME) ─── */}
-        <div className="relative border-2 border-[#2DC08D] bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(45,192,141,0.12)] hover:shadow-[0_16px_40px_rgba(45,192,141,0.22)] hover:-translate-y-1 transition-all duration-300">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          className="relative border-2 border-[#2DC08D] bg-white rounded-[24px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(45,192,141,0.12)] hover:shadow-[0_16px_40px_rgba(45,192,141,0.22)] transition-shadow duration-300"
+        >
           {/* Centered top floating pill badge */}
           <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#2DC08D] text-white text-[11px] font-semibold px-4 py-0.5 rounded-full shadow-sm whitespace-nowrap">
             Best for active job seekers
@@ -291,20 +317,30 @@ export default function Pricing() {
             </p>
 
             {/* Price block */}
-            <div className="mt-5 flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-5xl font-bold text-neutral-900 tracking-tight">
-                {billingCycle === "yearly" ? "₹99" : "₹1"}
-              </span>
+            <div className="mt-5 flex items-baseline gap-1.5 flex-wrap overflow-hidden">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={billingCycle}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-5xl font-bold text-neutral-900 tracking-tight inline-block"
+                >
+                  {billingCycle === "yearly" ? "₹99" : "₹1"}
+                </motion.span>
+              </AnimatePresence>
               <span className="text-xs text-neutral-600 font-normal">
                 /month per member, billed {billingCycle === "yearly" ? "yearly" : "monthly"}
               </span>
             </div>
 
             {/* Outly Primary Button */}
-            <button
+            <motion.button
               onClick={handleRazorpayPayment}
               disabled={isProcessingPayment}
-              className="w-full mt-6 bg-[#2DC08D] hover:bg-[#25a77a] text-white text-sm font-semibold py-3 px-5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] disabled:opacity-85"
+              whileTap={{ scale: 0.97 }}
+              className="w-full mt-6 bg-[#2DC08D] hover:bg-[#25a77a] text-white text-sm font-semibold py-3 px-5 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-85"
             >
               {isProcessingPayment ? (
                 <>
@@ -319,7 +355,7 @@ export default function Pricing() {
               ) : (
                 <span>Try for free</span>
               )}
-            </button>
+            </motion.button>
 
             {/* Sub-button link: or buy now */}
             <div className="mt-2.5 text-center text-xs text-neutral-500">
@@ -366,7 +402,7 @@ export default function Pricing() {
               </li>
             </ul>
           </div>
-        </div>
+        </motion.div>
 
       </div>
 
