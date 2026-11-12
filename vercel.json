@@ -3,11 +3,9 @@
   "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.js": {
-      "runtime": "nodejs20.x",
       "includeFiles": "{backend/dist/**,node_modules/pdf-parse/**,node_modules/mammoth/**,node_modules/dommatrix/**,backend/node_modules/pdf-parse/**,backend/node_modules/mammoth/**,backend/node_modules/dommatrix/**}"
     },
     "api/python_ats.py": {
-      "runtime": "python3.12",
       "maxDuration": 60,
       "includeFiles": "python-ats/app/**"
     }
