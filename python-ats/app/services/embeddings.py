@@ -4,16 +4,62 @@ import asyncio
 import hashlib
 import logging
 import math
+import re
 from abc import ABC, abstractmethod
+from collections import Counter
 from collections.abc import Sequence
 from functools import lru_cache
-
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 from app.config import Settings, get_settings
 
 logger = logging.getLogger("outly.embeddings")
+
+_STOP_WORDS = frozenset({
+    "a", "about", "above", "after", "again", "against", "all", "am", "an", "and",
+    "any", "are", "as", "at", "be", "because", "been", "before", "being", "below",
+    "between", "both", "but", "by", "can", "could", "did", "do", "does", "doing",
+    "down", "during", "each", "few", "for", "from", "further", "had", "has", "have",
+    "having", "he", "her", "here", "hers", "herself", "him", "himself", "his", "how",
+    "i", "if", "in", "into", "is", "it", "its", "itself", "just", "me", "more",
+    "most", "my", "myself", "no", "nor", "not", "now", "of", "off", "on", "once",
+    "only", "or", "other", "our", "ours", "ourselves", "out", "over", "own", "s",
+    "same", "she", "should", "so", "some", "such", "t", "than", "that", "the",
+    "their", "theirs", "them", "themselves", "then", "there", "these", "they",
+    "this", "those", "through", "to", "too", "under", "until", "up", "very", "was",
+    "we", "were", "what", "when", "where", "which", "while", "who", "whom", "why",
+    "will", "with", "you", "your", "yours", "yourself", "yourselves",
+})
+_TOKEN_RE = re.compile(r"(?u)\b\w\w+\b")
+
+
+def _tokenize_ngrams(text: str) -> list[str]:
+    tokens = [t for t in _TOKEN_RE.findall(text.lower()) if t not in _STOP_WORDS]
+    bigrams = [f"{tokens[i]} {tokens[i + 1]}" for i in range(len(tokens) - 1)]
+    return tokens + bigrams
+
+
+def _tfidf_vectors(texts: list[str], max_features: int = 4096) -> list[list[float]]:
+    doc_counts = [Counter(_tokenize_ngrams(t)) for t in texts]
+    n_docs = len(doc_counts)
+    df: Counter[str] = Counter()
+    for counts in doc_counts:
+        for term in counts:
+            df[term] += 1
+
+    vocab = [term for term, _ in df.most_common(max_features)]
+    if not vocab:
+        return [[0.0] for _ in texts]
+
+    idf = {term: math.log((1 + n_docs) / (1 + df[term])) + 1.0 for term in vocab}
+    vectors: list[list[float]] = []
+    for counts in doc_counts:
+        vec = [counts[term] * idf[term] for term in vocab]
+        norm = math.sqrt(sum(v * v for v in vec))
+        if norm > 0:
+            vec = [v / norm for v in vec]
+        vectors.append(vec)
+    return vectors
+
 
 _CACHE: dict[str, list[float]] = {}
 _CACHE_MAX = 256
@@ -27,13 +73,13 @@ def _content_hash(text: str, model: str) -> str:
 def cosine_similarity(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
     if len(vec_a) == 0 or len(vec_a) != len(vec_b):
         return 0.0
-    a = np.asarray(vec_a, dtype=np.float64)
-    b = np.asarray(vec_b, dtype=np.float64)
-    denom = float(np.linalg.norm(a) * np.linalg.norm(b))
-    if denom == 0:
+    dot = sum(a * b for a, b in zip(vec_a, vec_b))
+    norm_a = math.sqrt(sum(a * a for a in vec_a))
+    norm_b = math.sqrt(sum(b * b for b in vec_b))
+    denom = norm_a * norm_b
+    if denom == 0.0:
         return 0.0
-    value = float(np.dot(a, b) / denom)
-    return max(0.0, min(1.0, value))
+    return max(0.0, min(1.0, dot / denom))
 
 
 class EmbeddingProvider(ABC):
@@ -49,20 +95,9 @@ class TfidfEmbeddingProvider(EmbeddingProvider):
 
     name = "tfidf"
 
-    def __init__(self) -> None:
-        self._vectorizer = TfidfVectorizer(
-            lowercase=True,
-            ngram_range=(1, 2),
-            min_df=1,
-            max_features=4096,
-            stop_words="english",
-        )
-
     async def embed(self, texts: list[str]) -> list[list[float]]:
         cleaned = [t if t.strip() else "empty" for t in texts]
-        matrix = await asyncio.to_thread(self._vectorizer.fit_transform, cleaned)
-        dense = matrix.toarray()
-        return [row.tolist() for row in dense]
+        return await asyncio.to_thread(_tfidf_vectors, cleaned)
 
 
 class GeminiEmbeddingProvider(EmbeddingProvider):
@@ -178,13 +213,8 @@ def tfidf_similarity(a: str, b: str) -> float:
     """Synchronous helper used by unit tests and as a last-resort semantic score."""
     if not a.strip() or not b.strip():
         return 0.0
-    vectorizer = TfidfVectorizer(lowercase=True, ngram_range=(1, 2), stop_words="english")
-    matrix = vectorizer.fit_transform([a, b])
-    va, vb = matrix.toarray()
-    denom = float(np.linalg.norm(va) * np.linalg.norm(vb))
-    if denom == 0:
-        return 0.0
-    return max(0.0, min(1.0, float(np.dot(va, vb) / denom)))
+    va, vb = _tfidf_vectors([a, b])
+    return cosine_similarity(va, vb)
 
 
 def clamp_percent(value: float) -> int:
