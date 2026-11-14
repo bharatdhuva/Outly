@@ -11,6 +11,11 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Ensure VERCEL_URL is set from host header for internal co-hosted microservice calls
+  if (req.headers.host && !process.env.VERCEL_URL) {
+    process.env.VERCEL_URL = req.headers.host;
+  }
+
   // Vercel rewrites lose the original path. Reconstruct it from the query parameter.
   const url = new URL(req.url, `http://${req.headers.host}`);
   const originalPath = url.searchParams.get("originalPath");

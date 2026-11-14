@@ -13,18 +13,36 @@ export const env = {
   CLIENT_ORIGIN: process.env.CLIENT_ORIGIN ?? `http://localhost:${process.env.CLIENT_PORT ?? "3000"}`,
   NODE_ENV: process.env.NODE_ENV ?? "development",
 
+  getPythonAtsUrl: (host?: string) => {
+    const raw = (process.env.PYTHON_ATS_URL ?? "").trim();
+    if (raw && !raw.includes("onrender.com") && !raw.includes("outly-python-ats") && !raw.includes("localhost")) {
+      return raw.replace(/\/$/, "");
+    }
+    const targetHost = host || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || (process.env.VERCEL ? "www.outly.online" : "");
+    if (targetHost) {
+      const cleanHost = targetHost.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      return `https://${cleanHost}/python-ats`;
+    }
+    return (raw || "http://localhost:8000").replace(/\/$/, "");
+  },
   PYTHON_ATS_URL: (() => {
     const raw = (process.env.PYTHON_ATS_URL ?? "").trim();
-    // If explicitly set to a non-Render URL, use it (e.g. local dev, custom host)
-    if (raw && !raw.includes("onrender.com") && !raw.includes("outly-python-ats")) {
-      return raw;
+    // If explicitly set to a non-Render, non-localhost URL, use it
+    if (raw && !raw.includes("onrender.com") && !raw.includes("outly-python-ats") && !raw.includes("localhost")) {
+      return raw.replace(/\/$/, "");
     }
     // On Vercel: Python ATS is co-deployed on the same domain via /python-ats/*
+    if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+      return ("https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL + "/python-ats").replace(/\/$/, "");
+    }
     if (process.env.VERCEL_URL) {
-      return "https://" + process.env.VERCEL_URL + "/python-ats";
+      return ("https://" + process.env.VERCEL_URL + "/python-ats").replace(/\/$/, "");
+    }
+    if (process.env.VERCEL) {
+      return "https://www.outly.online/python-ats";
     }
     // Local development fallback
-    return raw || "http://localhost:8000";
+    return (raw || "http://localhost:8000").replace(/\/$/, "");
   })(),
   PYTHON_ATS_INTERNAL_KEY: (process.env.PYTHON_ATS_INTERNAL_KEY || "outly_internal_secret_token").trim(),
 

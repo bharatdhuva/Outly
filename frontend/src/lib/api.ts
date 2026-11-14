@@ -1,4 +1,6 @@
-export const API_BASE = import.meta.env.VITE_API_URL || "/api";
+const rawEnvUrl = (import.meta.env.VITE_API_URL || "").trim();
+// Never use legacy onrender.com backend; route directly to unified Vercel /api
+export const API_BASE = (rawEnvUrl && !rawEnvUrl.includes("onrender.com")) ? rawEnvUrl : "/api";
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
   const token = localStorage.getItem("outly_token");
