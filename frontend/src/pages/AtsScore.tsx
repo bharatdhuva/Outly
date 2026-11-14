@@ -680,7 +680,14 @@ export default function AtsScorePage() {
           })
         );
       } else {
-        const isAiError = errStr.includes("Gemini") || errStr.includes("GoogleGenerativeAI") || errStr.includes("evaluations failed") || errStr.includes("rate limit") || errStr.includes("404");
+        const isAiError =
+          err?.status === 429 ||
+          errStr.includes("Gemini") ||
+          errStr.includes("GoogleGenerativeAI") ||
+          errStr.includes("evaluations failed") ||
+          errStr.toLowerCase().includes("rate limit") ||
+          errStr.toLowerCase().includes("too many requests") ||
+          errStr.includes("404");
         if (isAiError) {
           setShowAiErrorModal(true);
         } else {

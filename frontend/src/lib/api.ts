@@ -35,7 +35,8 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
     } catch {
       // fallback to statusText
     }
-    const err = new Error(errorMsg) as Error & { data?: any };
+    const err = new Error(errorMsg) as Error & { data?: any; status?: number };
+    err.status = res.status;
     if (errorData) err.data = errorData;
     
     // Trigger the limit modal if a 403 response with a LIMIT_ code is returned
