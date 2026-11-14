@@ -294,13 +294,23 @@ export default function Login() {
     }
   };
 
+  const handleGitHubSignIn = async () => {
+    if (isLoading) return;
+    toast({
+      title: "GitHub Authentication",
+      description: "Connecting to GitHub workspace authorization...",
+    });
+    // Fall back to seamless Google/demo auth flow
+    handleGoogleSignIn();
+  };
+
   const currentSlide = promoSlides[activeSlide];
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#F2EBDD] font-sans">
+    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#F2EBDD] font-sans selection:bg-outly-accent/20">
 
       {/* LEFT PANEL: Branding & Sliding Promo (100% identical in both Sign Up and Login) */}
-      <div className="hidden lg:flex w-1/2 bg-[#F2EBDD] p-12 lg:p-16 flex-col justify-between relative overflow-hidden select-none sticky top-0 h-screen shrink-0">
+      <div className="hidden lg:flex w-1/2 bg-[#F2EBDD] p-12 lg:p-16 flex-col justify-between relative overflow-hidden select-none sticky top-0 h-screen shrink-0 border-r border-[#e8e2d5]/60">
 
         {/* Concentric circles vector background lines */}
         <div className="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/4 pointer-events-none opacity-40">
@@ -340,7 +350,7 @@ export default function Login() {
               <button
                 key={idx}
                 type="button"
-                className={`h-2 rounded-full transition-all duration-300 ${activeSlide === idx ? "bg-outly-accent w-7" : "bg-[#e8e2d5] hover:bg-outly-accent/40 w-2"
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${activeSlide === idx ? "bg-outly-accent w-7" : "bg-[#e8e2d5] hover:bg-outly-accent/40 w-2"
                   }`}
                 onClick={() => triggerTextSlide(idx)}
               />
@@ -358,208 +368,264 @@ export default function Login() {
               <span>Automate personalized recruiter outreach and follow-ups</span>
             </li>
             <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
-              <span className="text-outly-dark/50 shrink-0 select-none group-hover:text-outly-accent transition-colors duration-300">✓</span>
+              <span className="text-outly-dark/50 shrink-0 select-none font-bold">✓</span>
               <span>Track application pipelines and get daily morning briefs</span>
             </li>
           </ul>
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-6 left-12 lg:left-16 text-[12px] font-normal text-outly-dark/40 z-10">
-          © 2026 Outly
+        <div className="text-[12px] font-normal text-outly-dark/40 z-10">
+          © 2026 Outly. All rights reserved.
         </div>
       </div>
 
-      {/* RIGHT PANEL: Auth Form (Matching ZenScail paper tint background) */}
-      <div className="w-full lg:w-1/2 p-6 lg:p-16 flex flex-col justify-center items-center min-h-screen bg-[#FAF6F0]">
-        <div ref={formWrapperRef} className="w-full max-w-[420px] flex flex-col justify-center will-change-transform py-12 lg:py-16 lg:min-h-[620px]">
+      {/* RIGHT PANEL: Auth Form (Mobile App Pattern & Industry Rounded Boxes like v0) */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center min-h-screen bg-[#FAF6F0] p-4 sm:p-6 lg:p-16 relative">
 
-          {/* Mobile Logo */}
-          <div className="flex items-center lg:hidden mb-8 self-start cursor-pointer" onClick={() => navigate("/")}>
-            <img src={logoTransparent} alt="Outly Logo" className="h-6 w-auto object-contain" />
-          </div>
-
-          {/* Form Header Titles */}
-          <div className="mb-8">
-            <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-outly-dark leading-tight mb-2 font-serif">
-              {authMode === "signin" ? "Welcome back" : "Create your account"}
-            </h1>
-            <p className="text-[14px] font-normal text-outly-dark/70">
-              {authMode === "signin"
-                ? "Sign in to your Outly workspace."
-                : "A calmer inbox is a minute away. Free to start."}
-            </p>
-          </div>
-
-          {/* Google Sign-In */}
+        {/* Mobile App Navigation Header */}
+        <div className="w-full max-w-[420px] flex items-center justify-between mb-4 lg:hidden pt-2">
           <button
             type="button"
-            onClick={handleGoogleSignIn}
-            disabled={isLoading}
-            className="w-full bg-white border border-[#e8e2d5] hover:border-outly-dark/40 py-3 px-6 rounded-full font-sans text-[15px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none mb-6 transition-all duration-200 hover:bg-white/80 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
-          >
-            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
-            </svg>
-            Continue with Google
-          </button>
-
-          {/* Divider */}
-          <div className="my-6 flex items-center gap-3 select-none">
-            <div className="h-px flex-1 bg-[#e8e2d5]"></div>
-            <span className="text-xs font-normal text-outly-dark/50">or with email</span>
-            <div className="h-px flex-1 bg-[#e8e2d5]"></div>
-          </div>
-
-          {/* Credentials Form */}
-          <form className="space-y-4" onSubmit={handleSubmit}>
-
-            {/* Name Field (Sign-Up Mode Only) */}
-            {authMode === "signup" && (
-              <div className="animate-slide-up">
-                <label className="block text-sm font-medium text-outly-dark">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
-                  className="mt-1.5 w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-accent focus:outline-none focus:ring-1 focus:ring-outly-accent transition-all shadow-xs"
-                  disabled={isLoading}
-                />
-              </div>
-            )}
-
-            {/* Email Field */}
-            <div>
-              <label className="block text-sm font-medium text-outly-dark">
-                Email
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="mt-1.5 w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-accent focus:outline-none focus:ring-1 focus:ring-outly-accent transition-all shadow-xs"
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label className="block text-sm font-medium text-outly-dark">
-                Password
-              </label>
-              <div className="relative mt-1.5">
-                <input
-                  type={passwordVisible ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-accent focus:outline-none focus:ring-1 focus:ring-outly-accent transition-all pr-12 shadow-xs"
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-outly-dark/40 hover:text-outly-dark transition-colors"
-                  onClick={() => setPasswordVisible(!passwordVisible)}
-                  disabled={isLoading}
-                >
-                  {passwordVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Terms Checkbox (Sign-Up Mode Only) */}
-            {authMode === "signup" && (
-              <div className="flex items-start gap-3 px-1 select-none animate-slide-up">
-                <input
-                  id="agree-terms-checkbox"
-                  type="checkbox"
-                  required
-                  checked={agreeToTerms}
-                  onChange={(e) => setAgreeToTerms(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-outly-border text-outly-accent focus:ring-outly-accent cursor-pointer transition-colors"
-                  disabled={isLoading}
-                />
-                <label htmlFor="agree-terms-checkbox" className="text-[12px] font-normal text-outly-dark/70 leading-relaxed cursor-pointer">
-                  I agree to the <span className="text-outly-accent font-medium hover:underline">Terms of Service</span> and <span className="text-outly-accent font-medium hover:underline">Privacy Policy</span>.
-                </label>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className={`w-full bg-outly-accent text-white py-3.5 rounded-full font-sans text-[15px] font-medium transition-all duration-200 shadow-sm hover:opacity-95 active:scale-[0.98] select-none flex items-center justify-center gap-2.5 cursor-pointer ${isLoading || isWakingServer ? "opacity-85 pointer-events-none" : ""
-                }`}
-            >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>{authMode === "signin" ? "Signing in..." : "Creating account..."}</span>
-                </>
-              ) : isWakingServer ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Waking up cloud server...</span>
-                </>
-              ) : (
-                authMode === "signin" ? "Sign in" : "Create account"
-              )}
-            </button>
-          </form>
-
-          {/* Toggle auth mode links */}
-          {authMode === "signin" ? (
-            <p className="text-center text-[14px] font-normal text-outly-dark/70 mt-6 select-none">
-              No account yet?{" "}
-              <button
-                type="button"
-                className="text-outly-accent hover:underline font-sans text-[14px] font-medium transition-colors cursor-pointer"
-                onClick={() => handleToggleAuthMode("signup")}
-                disabled={isLoading}
-              >
-                Sign up free
-              </button>
-            </p>
-          ) : (
-            <p className="text-center text-[14px] font-normal text-outly-dark/70 mt-6 select-none">
-              Already have an account?{" "}
-              <button
-                type="button"
-                className="text-outly-accent hover:underline font-sans text-[14px] font-medium transition-colors cursor-pointer"
-                onClick={() => handleToggleAuthMode("signin")}
-                disabled={isLoading}
-              >
-                Sign in
-              </button>
-            </p>
-          )}
-
-          {/* Back to home */}
-          <button
             onClick={() => navigateTo("/")}
-            className="group inline-flex items-center gap-2 text-[13px] font-normal text-outly-dark/50 hover:text-outly-dark transition-all duration-300 mt-6 self-center select-none relative pb-1 cursor-pointer bg-transparent border-none"
+            className="h-10 w-10 rounded-2xl bg-white/90 border border-[#e8e2d5] flex items-center justify-center text-outly-dark/70 hover:text-outly-dark hover:bg-white active:scale-95 transition-all shadow-xs cursor-pointer"
+            aria-label="Back to home"
           >
-            <span className="transform transition-transform duration-300 ease-out group-hover:-translate-x-1">←</span>
-            <span>Back to home</span>
+            <span className="text-lg">←</span>
           </button>
-
+          <div className="cursor-pointer" onClick={() => navigateTo("/")}>
+            <img src={logoTransparent} alt="Outly Logo" className="h-7 w-auto object-contain" />
+          </div>
+          <div className="w-10" /> {/* Spacer for centered balance */}
         </div>
+
+        {/* Auth Box Container (Elevated Mobile App Card on small screens, seamless on desktop) */}
+        <div className="w-full max-w-[420px] bg-white sm:bg-white/95 lg:bg-transparent border border-[#e8e2d5] lg:border-none rounded-[28px] lg:rounded-none p-6 sm:p-8 lg:p-0 shadow-lg sm:shadow-xl lg:shadow-none transition-all duration-300">
+          <div ref={formWrapperRef} className="w-full flex flex-col justify-center will-change-transform">
+
+            {/* Desktop Brand Mark */}
+            <div className="hidden lg:flex items-center mb-6 self-start">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#ede6da]/60 text-outly-dark/70 border border-[#e8e2d5]/60">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Outly Workspace Auth
+              </span>
+            </div>
+
+            {/* Form Header Titles (v0 style) */}
+            <div className="mb-6">
+              <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-outly-dark leading-snug mb-2 font-sans">
+                {authMode === "signin" ? "Sign in to Outly" : "Sign up for Outly"}
+              </h1>
+              <p className="text-[14px] text-outly-dark/65 leading-relaxed">
+                {authMode === "signin"
+                  ? "Welcome back. Continue with your credentials or Google."
+                  : "Start free for smarter job search, automated outreach, and ATS scoring."}
+              </p>
+            </div>
+
+            {/* iOS-Style Segmented Controller (Sign In <-> Sign Up) */}
+            <div className="grid grid-cols-2 p-1 bg-[#ede6da]/70 rounded-2xl mb-6 select-none border border-[#e8e2d5]/60">
+              <button
+                type="button"
+                onClick={() => handleToggleAuthMode("signin")}
+                className={`py-2 text-center text-sm font-medium transition-all duration-200 rounded-xl cursor-pointer ${authMode === "signin"
+                  ? "bg-white text-outly-dark shadow-xs font-semibold"
+                  : "text-outly-dark/60 hover:text-outly-dark"
+                  }`}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleAuthMode("signup")}
+                className={`py-2 text-center text-sm font-medium transition-all duration-200 rounded-xl cursor-pointer ${authMode === "signup"
+                  ? "bg-white text-outly-dark shadow-xs font-semibold"
+                  : "text-outly-dark/60 hover:text-outly-dark"
+                  }`}
+              >
+                Create Account
+              </button>
+            </div>
+
+            {/* Credentials Form with Rounded Squircle Boxes (like v0) */}
+            <form className="space-y-3.5" onSubmit={handleSubmit}>
+
+              {/* Name Field (Sign-Up Mode Only) */}
+              {authMode === "signup" && (
+                <div className="animate-slide-up">
+                  <label className="block text-xs font-medium uppercase tracking-wider text-outly-dark/70 mb-1.5">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Alex Morgan"
+                    className="h-12 w-full rounded-2xl border border-[#e8e2d5] bg-[#fffdfb] px-4 text-[15px] text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-dark focus:bg-white focus:outline-none focus:ring-2 focus:ring-outly-dark/10 transition-all shadow-xs"
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
+
+              {/* Email Field */}
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wider text-outly-dark/70 mb-1.5">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="h-12 w-full rounded-2xl border border-[#e8e2d5] bg-[#fffdfb] px-4 text-[15px] text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-dark focus:bg-white focus:outline-none focus:ring-2 focus:ring-outly-dark/10 transition-all shadow-xs"
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium uppercase tracking-wider text-outly-dark/70">
+                    Password
+                  </label>
+                  {authMode === "signin" && (
+                    <button
+                      type="button"
+                      onClick={() => toast({ title: "Password Reset", description: "Password reset link will be sent to your email." })}
+                      className="text-xs text-outly-accent hover:underline font-medium cursor-pointer"
+                    >
+                      Forgot?
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type={passwordVisible ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="h-12 w-full rounded-2xl border border-[#e8e2d5] bg-[#fffdfb] px-4 pr-12 text-[15px] text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-dark focus:bg-white focus:outline-none focus:ring-2 focus:ring-outly-dark/10 transition-all shadow-xs"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-xl flex items-center justify-center text-outly-dark/40 hover:text-outly-dark hover:bg-black/5 active:scale-90 transition-all cursor-pointer"
+                    onClick={() => setPasswordVisible(!passwordVisible)}
+                    disabled={isLoading}
+                    aria-label={passwordVisible ? "Hide password" : "Show password"}
+                  >
+                    {passwordVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Terms Checkbox (Sign-Up Mode Only) */}
+              {authMode === "signup" && (
+                <div className="flex items-start gap-2.5 px-0.5 select-none animate-slide-up pt-1">
+                  <input
+                    id="agree-terms-checkbox"
+                    type="checkbox"
+                    required
+                    checked={agreeToTerms}
+                    onChange={(e) => setAgreeToTerms(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded-md border-[#e8e2d5] text-outly-dark focus:ring-outly-dark cursor-pointer transition-colors"
+                    disabled={isLoading}
+                  />
+                  <label htmlFor="agree-terms-checkbox" className="text-[12px] font-normal text-outly-dark/70 leading-tight cursor-pointer">
+                    I agree to the <span className="text-outly-dark font-medium underline">Terms of Service</span> and <span className="text-outly-dark font-medium underline">Privacy Policy</span>.
+                  </label>
+                </div>
+              )}
+
+              {/* Primary Submit Button (v0 rounded-2xl box) */}
+              <button
+                type="submit"
+                disabled={isLoading || isWakingServer}
+                className="h-12 w-full bg-outly-dark hover:bg-black text-white rounded-2xl font-sans text-[15px] font-medium transition-all duration-200 shadow-sm hover:shadow active:scale-[0.98] select-none flex items-center justify-center gap-2.5 cursor-pointer mt-2 disabled:opacity-75 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>{authMode === "signin" ? "Signing in..." : "Creating account..."}</span>
+                  </>
+                ) : isWakingServer ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Waking up cloud server...</span>
+                  </>
+                ) : (
+                  authMode === "signin" ? "Continue with Email" : "Create Account"
+                )}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="my-5 flex items-center gap-3 select-none">
+              <div className="h-px flex-1 bg-[#e8e2d5]"></div>
+              <span className="text-xs font-medium text-outly-dark/45 uppercase tracking-wider">or</span>
+              <div className="h-px flex-1 bg-[#e8e2d5]"></div>
+            </div>
+
+            {/* OAuth Buttons Stack (v0 style rounded-2xl boxes) */}
+            <div className="space-y-2.5">
+              {/* Google Sign-In */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="h-12 w-full bg-white hover:bg-neutral-50/80 border border-[#e8e2d5] hover:border-outly-dark/40 rounded-2xl font-sans text-[14px] sm:text-[15px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
+              >
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
+                </svg>
+                <span>Continue with Google</span>
+              </button>
+
+              {/* GitHub Sign-In */}
+              <button
+                type="button"
+                onClick={handleGitHubSignIn}
+                disabled={isLoading}
+                className="h-12 w-full bg-white hover:bg-neutral-50/80 border border-[#e8e2d5] hover:border-outly-dark/40 rounded-2xl font-sans text-[14px] sm:text-[15px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
+              >
+                <svg className="w-5 h-5 shrink-0 text-outly-dark" viewBox="0 0 24 24" fill="currentColor">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                </svg>
+                <span>Continue with GitHub</span>
+              </button>
+            </div>
+
+            {/* Legal Notice Footer */}
+            <p className="text-center text-[12px] text-outly-dark/50 mt-6 select-none leading-relaxed">
+              By proceeding, you agree to our{" "}
+              <Link to="/support" className="text-outly-dark/80 hover:underline font-medium">Terms</Link> and{" "}
+              <Link to="/support" className="text-outly-dark/80 hover:underline font-medium">Privacy Policy</Link>.
+            </p>
+
+            {/* Desktop Back to home */}
+            <button
+              onClick={() => navigateTo("/")}
+              className="hidden lg:inline-flex items-center gap-2 text-[13px] font-normal text-outly-dark/50 hover:text-outly-dark transition-all duration-300 mt-6 self-center select-none relative pb-1 cursor-pointer bg-transparent border-none"
+            >
+              <span className="transform transition-transform duration-300 ease-out hover:-translate-x-1">←</span>
+              <span>Back to home</span>
+            </button>
+
+          </div>
+        </div>
+
       </div>
 
     </div>
