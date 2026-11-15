@@ -411,7 +411,7 @@ async function parseResumeLocally(filePath: string, originalName: string): Promi
     } else if (pdfModule?.PDFParse) {
       const parser = new pdfModule.PDFParse({ data: buffer });
       const data = await parser.getText();
-      await parser.destroy().catch(() => {});
+      await parser.destroy().catch(() => { });
       if (typeof data === "string") return data;
       if (data && typeof data.text === "string") return data.text;
       if (data && Array.isArray(data.pages)) return data.pages.map((p: any) => p.text).join("\n");
@@ -449,7 +449,7 @@ router.post("/parse-file", checkAtsLimit, uploadResume.single("file"), async (re
     const text = await parseResumeLocally(filePath, originalName);
     if (text && text.trim().length > 0) {
       if (fs.existsSync(filePath)) {
-        try { fs.unlinkSync(filePath); } catch (_) {}
+        try { fs.unlinkSync(filePath); } catch (_) { }
       }
       return res.json({
         filename: originalName,
@@ -494,7 +494,7 @@ router.post("/parse-file", checkAtsLimit, uploadResume.single("file"), async (re
     });
   } finally {
     if (fs.existsSync(filePath)) {
-      try { fs.unlinkSync(filePath); } catch (_) {}
+      try { fs.unlinkSync(filePath); } catch (_) { }
     }
   }
 
