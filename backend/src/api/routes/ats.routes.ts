@@ -8,6 +8,9 @@ import { activityQueries } from "../../db/queries.js";
 import { uploadResume } from "../../middleware/upload.js";
 import fs from "fs";
 import path from "path";
+import { createRequire } from "module";
+
+const requireLocal = createRequire(import.meta.url);
 
 const router = Router();
 router.use(requireAuth);
@@ -115,16 +118,21 @@ async function parseResumeLocally(filePath: string, originalName: string): Promi
   if (ext === ".txt") {
     return fs.readFileSync(filePath, "utf-8");
   }
+
   if (ext === ".pdf") {
-    if (!(globalThis as any).DOMMatrix) {
-      try {
-        const domMatrixModule = await import("dommatrix");
-        (globalThis as any).DOMMatrix = domMatrixModule.default || domMatrixModule;
-      } catch (_) {}
-    }
-    const pdfParseImport: any = await import("pdf-parse");
-    const pdfModule = pdfParseImport.default || pdfParseImport;
     const buffer = fs.readFileSync(filePath);
+    let pdfModule: any;
+    try {
+      pdfModule = requireLocal("pdf-parse");
+    } catch {
+      try {
+        const imp: any = await import("pdf-parse");
+        pdfModule = imp.default || imp;
+      } catch (impErr) {
+        logger.error("Failed to load pdf-parse module", { error: String(impErr) });
+      }
+    }
+
     if (typeof pdfModule === "function") {
       const data = await pdfModule(buffer);
       if (typeof data === "string") return data;
@@ -142,14 +150,20 @@ async function parseResumeLocally(filePath: string, originalName: string): Promi
     }
     return "";
   }
+
   if (ext === ".docx") {
     if (!mammothInstance) {
-      mammothInstance = (await import("mammoth")).default as any;
+      try {
+        mammothInstance = requireLocal("mammoth");
+      } catch {
+        mammothInstance = (await import("mammoth")).default as any;
+      }
     }
     const buffer = fs.readFileSync(filePath);
     const result = await mammothInstance.extractRawText({ buffer });
     return result.value || "";
   }
+
   return fs.readFileSync(filePath, "utf-8");
 }
 
@@ -161,57 +175,61 @@ router.post("/parse-file", checkAtsLimit, uploadResume.single("file"), async (re
   const filePath = req.file.path;
   const originalName = req.file.originalname;
 
-  // 1. Try parsing via Python FastAPI microservice
-  try {
-    const buffer = fs.readFileSync(filePath);
-    const form = new FormData();
-    form.append("file", new Blob([new Uint8Array(buffer)]), originalName);
-
-    const pythonBase = getPythonBase(req);
-    let response = await fetch(`${pythonBase}/api/ats/parse-file`, {
-      method: "POST",
-      headers: pythonHeaders(),
-      body: form,
-      signal: AbortSignal.timeout(12000),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data && data.content) {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        return res.json(data);
-      }
-    }
-  } catch (pythonError) {
-    logger.warn("Python ATS parse failed or timed out, using local Node fallback parser", {
-      filename: originalName,
-      error: String(pythonError),
-      source: "ats",
-    });
-  }
-
-  // 2. Local Node.js fallback parser (pdf-parse / mammoth)
+  // 1. Primary: Fast, direct local parser (PDF via pdf-parse, DOCX via mammoth, TXT)
   try {
     const text = await parseResumeLocally(filePath, originalName);
     if (text && text.trim().length > 0) {
+      if (fs.existsSync(filePath)) {
+        try { fs.unlinkSync(filePath); } catch (_) {}
+      }
       return res.json({
         filename: originalName,
         content: text.trim(),
       });
     }
-    throw new Error("Parsed content is empty");
   } catch (localError: any) {
-    logger.error("Both Python and local file parsing failed", {
+    logger.warn("Local parser failed, trying Python ATS fallback", {
       filename: originalName,
       error: String(localError),
       source: "ats",
     });
-    return res.status(500).json({ error: "Failed to extract text from file. Please upload a valid PDF, DOCX, or TXT." });
+  }
+
+  // 2. Secondary: Python FastAPI microservice fallback
+  try {
+    if (fs.existsSync(filePath)) {
+      const buffer = fs.readFileSync(filePath);
+      const form = new FormData();
+      form.append("file", new Blob([new Uint8Array(buffer)]), originalName);
+
+      const pythonBase = getPythonBase(req);
+      const response = await fetch(`${pythonBase}/api/ats/parse-file`, {
+        method: "POST",
+        headers: pythonHeaders(),
+        body: form,
+        signal: AbortSignal.timeout(6000),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.content) {
+          return res.json(data);
+        }
+      }
+    }
+  } catch (pythonError) {
+    logger.error("Both local and Python file parsing failed", {
+      filename: originalName,
+      error: String(pythonError),
+      source: "ats",
+    });
   } finally {
     if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+      try { fs.unlinkSync(filePath); } catch (_) {}
     }
   }
+
+  return res.status(500).json({ error: "Failed to extract text from file. Please upload a valid PDF, DOCX, or TXT." });
 });
 
 router.post("/score", checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
