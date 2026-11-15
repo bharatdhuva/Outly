@@ -37,6 +37,49 @@ const promoSlides: SlideText[] = [
   }
 ];
 
+/**
+ * iOS-style 12-blade stepped radial loading spinner (exact match to UIActivityIndicator)
+ */
+function IosRadialSpinner({ className = "w-5 h-5 text-outly-dark" }: { className?: string }) {
+  const blades = [
+    { deg: 0, opacity: 1.0 },
+    { deg: 30, opacity: 0.18 },
+    { deg: 60, opacity: 0.25 },
+    { deg: 90, opacity: 0.32 },
+    { deg: 120, opacity: 0.40 },
+    { deg: 150, opacity: 0.48 },
+    { deg: 180, opacity: 0.56 },
+    { deg: 210, opacity: 0.64 },
+    { deg: 240, opacity: 0.73 },
+    { deg: 270, opacity: 0.82 },
+    { deg: 300, opacity: 0.90 },
+    { deg: 330, opacity: 0.96 },
+  ];
+
+  return (
+    <svg
+      className={`${className} animate-[spin_0.85s_steps(12,end)_infinite] shrink-0`}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      {blades.map(({ deg, opacity }) => (
+        <rect
+          key={deg}
+          x="10.85"
+          y="1.5"
+          width="2.3"
+          height="5.8"
+          rx="1.15"
+          opacity={opacity}
+          transform={`rotate(${deg} 12 12)`}
+        />
+      ))}
+    </svg>
+  );
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const navigateTo = usePageTransition();
@@ -57,6 +100,7 @@ export default function Login() {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isWakingServer, setIsWakingServer] = useState(false);
 
   useEffect(() => {
@@ -208,12 +252,14 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (isLoading) return;
+    if (isLoading || isGoogleLoading) return;
+
+    setIsGoogleLoading(true);
+    setIsLoading(true);
 
     const google = (window as any).google;
     if (typeof google === "undefined" || !google.accounts) {
       // Bypassing Google OAuth block and doing immediate simulated Google login for demo stability
-      setIsLoading(true);
       try {
         const res = await api.auth.googleLogin("mock_bypass_token");
         localStorage.setItem("outly_token", res.token);
@@ -232,6 +278,7 @@ export default function Login() {
           variant: "destructive"
         });
         setIsLoading(false);
+        setIsGoogleLoading(false);
       }
       return;
     }
@@ -249,10 +296,10 @@ export default function Login() {
               variant: "destructive"
             });
             setIsLoading(false);
+            setIsGoogleLoading(false);
             return;
           }
           if (response.access_token) {
-            setIsLoading(true);
             try {
               const res = await api.auth.googleLogin(response.access_token);
               localStorage.setItem("outly_token", res.token);
@@ -272,6 +319,7 @@ export default function Login() {
                 variant: "destructive"
               });
               setIsLoading(false);
+              setIsGoogleLoading(false);
             }
           }
         },
@@ -279,10 +327,9 @@ export default function Login() {
       client.requestAccessToken();
     } catch (err) {
       console.error("Google token client init failed:", err);
-      // Fallback to simulated login if there is an initialization error
-      setIsLoading(true);
       setTimeout(() => {
         setIsLoading(false);
+        setIsGoogleLoading(false);
         confetti({
           particleCount: 80,
           spread: 60,
@@ -581,16 +628,27 @@ export default function Login() {
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
-                disabled={isLoading}
-                className="h-12 w-full bg-white hover:bg-neutral-50/80 border border-[#e8e2d5] hover:border-outly-dark/40 rounded-2xl font-sans text-[14px] sm:text-[15px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
+                disabled={isLoading || isGoogleLoading}
+                className="h-12 w-full bg-white hover:bg-neutral-50/80 border border-[#e8e2d5] hover:border-outly-dark/40 rounded-2xl font-sans text-[14px] sm:text-[15px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none transition-all duration-200 active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed shadow-xs cursor-pointer"
               >
-                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
-                </svg>
-                <span>Continue with Google</span>
+                {isGoogleLoading ? (
+                  <div className="flex items-center justify-center gap-2.5 animate-fade-in">
+                    <IosRadialSpinner className="w-5 h-5 text-outly-dark" />
+                    <span className="text-[13px] font-bold tracking-wider uppercase text-outly-dark">
+                      Loading...
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
+                    </svg>
+                    <span>Continue with Google</span>
+                  </>
+                )}
               </button>
 
               {/* GitHub Sign-In */}
