@@ -466,10 +466,13 @@ export default function AtsScorePage() {
     } catch (err: any) {
       const errStr = String(err?.message || err);
       const isLimit =
-        errStr.includes("LIMIT_ATS_EXCEEDED") ||
-        err?.status === 403 ||
         err?.data?.code === "LIMIT_ATS_EXCEEDED" ||
-        errStr.toLowerCase().includes("limit reached");
+        (err?.status === 403 &&
+          !errStr.includes("<html") &&
+          !errStr.includes("<!DOCTYPE") &&
+          (err?.data?.code?.startsWith("LIMIT_") ||
+            errStr.includes("LIMIT_ATS_EXCEEDED") ||
+            errStr.toLowerCase().includes("limit reached")));
 
       if (isLimit) {
         setIsLimitExceeded(true);
@@ -485,9 +488,11 @@ export default function AtsScorePage() {
             detail: {
               code: "LIMIT_ATS_EXCEEDED",
               message:
-                err?.data?.message ||
-                err?.message ||
-                "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+                (err?.data?.message && !String(err?.data?.message).includes("<html"))
+                  ? err.data.message
+                  : (!errStr.includes("<html") && !errStr.includes("<!DOCTYPE") && errStr.length < 200)
+                  ? errStr
+                  : "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
             },
           })
         );
@@ -497,10 +502,25 @@ export default function AtsScorePage() {
       }
 
       try {
-        const text = await file.text();
-        setResume(text);
-        setSelectedVaultId("custom");
-        triggerAtsScan(text);
+        const ext = (file.name.split(".").pop() || "").toLowerCase();
+        if (ext === "txt" || ext === "md") {
+          const text = await file.text();
+          if (text && text.trim().length > 20) {
+            setResume(text);
+            setSelectedVaultId("custom");
+            triggerAtsScan(text);
+            return;
+          }
+        }
+        toast({
+          variant: "destructive",
+          title: "File Parsing Failed",
+          description: "Unable to extract text from this document. Please upload a clear PDF, DOCX, or paste your resume text.",
+        });
+        setResumeFile(null);
+        setResumeFileName("");
+        setResume("");
+        setResult(null);
       } catch (innerErr) {
         toast({
           variant: "destructive",
@@ -654,10 +674,13 @@ export default function AtsScorePage() {
       
       const errStr = String(err?.message || err);
       const isLimitError =
-        errStr.includes("LIMIT_ATS_EXCEEDED") ||
-        errStr.toLowerCase().includes("limit reached") ||
-        err?.status === 403 ||
-        err?.data?.code === "LIMIT_ATS_EXCEEDED";
+        err?.data?.code === "LIMIT_ATS_EXCEEDED" ||
+        (err?.status === 403 &&
+          !errStr.includes("<html") &&
+          !errStr.includes("<!DOCTYPE") &&
+          (err?.data?.code?.startsWith("LIMIT_") ||
+            errStr.includes("LIMIT_ATS_EXCEEDED") ||
+            errStr.toLowerCase().includes("limit reached")));
       
       if (isLimitError) {
         setIsLimitExceeded(true);
@@ -673,29 +696,44 @@ export default function AtsScorePage() {
             detail: {
               code: "LIMIT_ATS_EXCEEDED",
               message:
-                err?.data?.message ||
-                err?.message ||
-                "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
+                (err?.data?.message && !String(err?.data?.message).includes("<html"))
+                  ? err.data.message
+                  : (!errStr.includes("<html") && !errStr.includes("<!DOCTYPE") && errStr.length < 200)
+                  ? errStr
+                  : "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
             },
           })
         );
       } else {
-        const isAiError =
-          err?.status === 429 ||
-          errStr.includes("Gemini") ||
-          errStr.includes("GoogleGenerativeAI") ||
-          errStr.includes("evaluations failed") ||
-          errStr.toLowerCase().includes("rate limit") ||
-          errStr.toLowerCase().includes("too many requests") ||
-          errStr.includes("404");
-        if (isAiError) {
-          setShowAiErrorModal(true);
-        } else {
+        const isCloudflareBlock =
+          errStr.includes("<html") ||
+          errStr.includes("<!DOCTYPE") ||
+          errStr.includes("challenges.cloudflare.com");
+        
+        if (isCloudflareBlock) {
           toast({
             variant: "destructive",
-            title: "Evaluation Failed",
-            description: errStr,
+            title: "Security Check Intercepted",
+            description: "Cloudflare firewall challenged the request. Please refresh the page or try again shortly.",
           });
+        } else {
+          const isAiError =
+            err?.status === 429 ||
+            errStr.includes("Gemini") ||
+            errStr.includes("GoogleGenerativeAI") ||
+            errStr.includes("evaluations failed") ||
+            errStr.toLowerCase().includes("rate limit") ||
+            errStr.toLowerCase().includes("too many requests") ||
+            errStr.includes("404");
+          if (isAiError) {
+            setShowAiErrorModal(true);
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Evaluation Failed",
+              description: errStr.length > 200 ? "Request failed. Please try again." : errStr,
+            });
+          }
         }
       }
       setResult(null);

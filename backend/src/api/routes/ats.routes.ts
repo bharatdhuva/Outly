@@ -127,12 +127,18 @@ async function parseResumeLocally(filePath: string, originalName: string): Promi
     const buffer = fs.readFileSync(filePath);
     if (typeof pdfModule === "function") {
       const data = await pdfModule(buffer);
-      return data.text || "";
+      if (typeof data === "string") return data;
+      if (data && typeof data.text === "string") return data.text;
+      if (data && Array.isArray(data.pages)) return data.pages.map((p: any) => p.text).join("\n");
+      return "";
     } else if (pdfModule?.PDFParse) {
       const parser = new pdfModule.PDFParse({ data: buffer });
       const data = await parser.getText();
       await parser.destroy().catch(() => {});
-      return data.text || "";
+      if (typeof data === "string") return data;
+      if (data && typeof data.text === "string") return data.text;
+      if (data && Array.isArray(data.pages)) return data.pages.map((p: any) => p.text).join("\n");
+      return "";
     }
     return "";
   }
@@ -166,7 +172,7 @@ router.post("/parse-file", checkAtsLimit, uploadResume.single("file"), async (re
       method: "POST",
       headers: pythonHeaders(),
       body: form,
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(12000),
     });
 
     if (response.ok) {

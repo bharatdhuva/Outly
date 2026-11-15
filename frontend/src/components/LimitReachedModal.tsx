@@ -39,7 +39,17 @@ export default function LimitReachedModal() {
   useEffect(() => {
     const handleLimitExceeded = (e: Event) => {
       const customEvent = e as CustomEvent;
-      const message = customEvent.detail?.message || "You have reached the free tier limit for this feature.";
+      let message = customEvent.detail?.message || "You have reached the free tier limit for this feature.";
+      if (
+        typeof message !== "string" ||
+        message.includes("<!DOCTYPE") ||
+        message.includes("<html") ||
+        message.includes("challenges.cloudflare.com") ||
+        message.includes("Cloudflare") ||
+        message.length > 280
+      ) {
+        message = "Free tier is limited to 3 ATS resume scans per 12 hours. Upgrade to Outly Pro for unlimited checks.";
+      }
       setLimitMessage(message);
       setShowSuccess(false);
       setOpen(true);

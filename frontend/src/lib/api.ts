@@ -23,16 +23,21 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
     let errorData: any = null;
     try {
       const text = await res.text();
-      try {
-        const json = JSON.parse(text);
-        errorData = json;
-        if (json && (json.error || json.message)) {
-          errorMsg = json.error || json.message;
-        } else if (text) {
-          errorMsg = text;
+      // Guard against Cloudflare challenge pages or raw HTML error responses
+      if (text.includes("<!DOCTYPE") || text.includes("<html") || text.includes("challenges.cloudflare.com")) {
+        errorMsg = "Network security check (Cloudflare) intercepted the request. Please refresh the page.";
+      } else {
+        try {
+          const json = JSON.parse(text);
+          errorData = json;
+          if (json && (json.error || json.message)) {
+            errorMsg = json.error || json.message;
+          } else if (text) {
+            errorMsg = text;
+          }
+        } catch {
+          if (text) errorMsg = text;
         }
-      } catch {
-        if (text) errorMsg = text;
       }
     } catch {
       // fallback to statusText
@@ -41,7 +46,7 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
     err.status = res.status;
     if (errorData) err.data = errorData;
     
-    // Trigger the limit modal if a 403 response with a LIMIT_ code is returned
+    // Trigger the limit modal ONLY if a legitimate JSON 403 response with a LIMIT_ code is returned
     if (res.status === 403 && errorData?.code?.startsWith("LIMIT_")) {
       const event = new CustomEvent("outly_limit_exceeded", {
         detail: {
@@ -228,20 +233,24 @@ export const api = {
         let errorData: any = null;
         try {
           const text = await r.text();
-          try {
-            const json = JSON.parse(text);
-            errorData = json;
-            if (json && (json.error || json.message)) {
-              errorMsg = json.error || json.message;
-            } else if (text) {
-              errorMsg = text;
+          if (text.includes("<!DOCTYPE") || text.includes("<html") || text.includes("challenges.cloudflare.com")) {
+            errorMsg = "File upload intercepted by network firewall (Cloudflare). Please retry or paste your text.";
+          } else {
+            try {
+              const json = JSON.parse(text);
+              errorData = json;
+              if (json && (json.error || json.message)) {
+                errorMsg = json.error || json.message;
+              } else if (text) {
+                errorMsg = text;
+              }
+            } catch {
+              if (text) errorMsg = text;
             }
-          } catch {
-            if (text) errorMsg = text;
           }
         } catch {}
 
-        if (r.status === 403 && (errorData?.code?.startsWith("LIMIT_") || String(errorMsg).includes("LIMIT_"))) {
+        if (r.status === 403 && errorData?.code?.startsWith("LIMIT_")) {
           window.dispatchEvent(
             new CustomEvent("outly_limit_exceeded", {
               detail: {
@@ -253,7 +262,8 @@ export const api = {
           );
         }
 
-        const err = new Error(errorMsg) as Error & { data?: any };
+        const err = new Error(errorMsg) as Error & { data?: any; status?: number };
+        err.status = r.status;
         if (errorData) err.data = errorData;
         throw err;
       }
