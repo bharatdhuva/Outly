@@ -91,31 +91,25 @@ function PlanStatusAvatar({
   innerBorderClass?: string;
   plainBorderClass?: string;
 }) {
-  if (isPremium) {
-    return (
-      <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-[#ff4e50] via-[#f9d423] to-[#2dc08d] shadow-sm flex items-center justify-center shrink-0 transition-transform duration-200">
-        <div className={`relative ${sizeClass} overflow-hidden rounded-full bg-primary font-bold text-primary-foreground shrink-0 shadow-inner ${innerBorderClass}`}>
-          {profilePic ? (
-            <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              {initials}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`relative ${sizeClass} overflow-hidden rounded-full bg-primary font-bold text-primary-foreground shrink-0 shadow-inner ${plainBorderClass}`}>
-      {profilePic ? (
-        <img src={profilePic} alt={fullName} className="h-full w-full object-cover" />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center">
-          {initials}
-        </div>
-      )}
+    <div className={isPremium ? "relative p-[2px] rounded-full bg-gradient-to-tr from-[#ff4e50] via-[#f9d423] to-[#2dc08d] shadow-sm flex items-center justify-center shrink-0 transition-transform duration-200" : `relative ${sizeClass} overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${plainBorderClass}`}>
+      <div className={`relative ${sizeClass} overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${isPremium ? innerBorderClass : ""}`}>
+        {profilePic ? (
+          <img
+            src={profilePic}
+            alt={fullName}
+            className="h-full w-full object-cover"
+            loading="eager"
+            decoding="sync"
+            // @ts-ignore
+            fetchPriority="high"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-[#1a1a1a] text-white">
+            {initials}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -158,13 +152,54 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     }
   }, [token, navigate]);
 
-  // 2. Fetch current user session
+  // Synchronous cache retrieval for 0ms instantaneous render
+  const cachedUser = useMemo(() => {
+    try {
+      const saved = localStorage.getItem("outly_user_session");
+      if (saved) return JSON.parse(saved);
+      const name = localStorage.getItem("outly_user_name");
+      const pic = localStorage.getItem("outly_user_avatar");
+      if (name || pic) {
+        return {
+          user: {
+            fullName: name || "Outly User",
+            profilePic: pic || undefined,
+            email: localStorage.getItem("outly_user_email") || "",
+            plan: localStorage.getItem("outly_premium_user") === "true" ? "pro" : "free",
+          }
+        };
+      }
+    } catch {}
+    return undefined;
+  }, []);
+
+  // 2. Fetch current user session with cached initialData
   const { data: userData, error, isLoading } = useQuery({
     queryKey: ["currentUser"],
     queryFn: api.auth.me,
     enabled: !!token,
     retry: false,
+    initialData: cachedUser,
+    staleTime: 1000 * 60 * 30,
   });
+
+  // Keep localStorage and browser image cache warmed
+  useEffect(() => {
+    if (userData?.user) {
+      if (userData.user.fullName) {
+        localStorage.setItem("outly_user_name", userData.user.fullName);
+      }
+      if (userData.user.profilePic) {
+        localStorage.setItem("outly_user_avatar", userData.user.profilePic);
+        const img = new Image();
+        img.src = userData.user.profilePic;
+      }
+      if (userData.user.email) {
+        localStorage.setItem("outly_user_email", userData.user.email);
+      }
+      localStorage.setItem("outly_user_session", JSON.stringify(userData));
+    }
+  }, [userData]);
 
   useEffect(() => {
     if (error) {
@@ -449,8 +484,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const fullName = userData?.user?.fullName || settings?.full_name || "Outly User";
-  const profilePic = userData?.user?.profilePic;
+  const cachedName = typeof window !== "undefined" ? localStorage.getItem("outly_user_name") : null;
+  const cachedAvatar = typeof window !== "undefined" ? localStorage.getItem("outly_user_avatar") : null;
+  const fullName = userData?.user?.fullName || cachedName || settings?.full_name || "Outly User";
+  const profilePic = userData?.user?.profilePic || cachedAvatar || undefined;
   const initials =
     fullName
       .split(" ")

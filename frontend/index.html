@@ -21,6 +21,21 @@
     <meta name="twitter:image" content="/logo-title.png" />
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.14/dist/dotlottie-wc.js" type="module"></script>
+    <script>
+      (function() {
+        try {
+          var avatar = localStorage.getItem("outly_user_avatar");
+          if (avatar) {
+            var link = document.createElement("link");
+            link.rel = "preload";
+            link.as = "image";
+            link.href = avatar;
+            link.fetchPriority = "high";
+            document.head.appendChild(link);
+          }
+        } catch(e) {}
+      })();
+    </script>
   </head>
 
   <body>

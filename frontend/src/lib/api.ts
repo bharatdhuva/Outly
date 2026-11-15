@@ -174,11 +174,35 @@ export const api = {
       fetchApi<LogEntry[]>(`/logs/recent?filter=${filter ?? "all"}&search=${search ?? ""}`),
   },
   ats: {
-    score: (resume: string, jd: string) =>
-      fetchApi<EvaluationResult>("/ats/score", {
-        method: "POST",
-        body: JSON.stringify({ resume, jd }),
-      }),
+    score: async (resume: string, jd: string) => {
+      try {
+        return await fetchApi<EvaluationResult>("/ats/score", {
+          method: "POST",
+          body: JSON.stringify({ resume, jd }),
+        });
+      } catch (err: any) {
+        // If /api/ats/score encountered a 403 or network firewall interception, retry directly via browser at /python-ats/api/ats/score
+        if (err?.status === 403 || err?.message?.includes("firewall") || err?.message?.includes("Cloudflare")) {
+          try {
+            const token = localStorage.getItem("outly_token");
+            const res = await fetch("/python-ats/api/ats/score", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              body: JSON.stringify({ resume, jd }),
+              credentials: "include",
+            });
+            if (res.ok) {
+              const data = await res.json();
+              return data as EvaluationResult;
+            }
+          } catch {}
+        }
+        throw err;
+      }
+    },
     tailor: (resume: string, jd: string) =>
       fetchApi<{
         tailoredResume: string;

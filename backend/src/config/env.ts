@@ -18,7 +18,17 @@ export const env = {
     if (raw && !raw.includes("onrender.com") && !raw.includes("outly-python-ats") && !raw.includes("localhost")) {
       return raw.replace(/\/$/, "");
     }
-    const targetHost = host || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || (process.env.VERCEL ? "www.outly.online" : "");
+    // On Vercel: Python ATS is co-deployed on the same deployment.
+    // ALWAYS prefer direct Vercel deployment URLs to bypass Cloudflare WAF on server-to-server calls!
+    if (process.env.VERCEL_URL) {
+      const clean = process.env.VERCEL_URL.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      return `https://${clean}/python-ats`;
+    }
+    if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+      const clean = process.env.VERCEL_PROJECT_PRODUCTION_URL.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      return `https://${clean}/python-ats`;
+    }
+    const targetHost = host || (process.env.VERCEL ? "www.outly.online" : "");
     if (targetHost) {
       const cleanHost = targetHost.replace(/^https?:\/\//, "").replace(/\/$/, "");
       return `https://${cleanHost}/python-ats`;

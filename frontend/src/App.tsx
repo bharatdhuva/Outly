@@ -23,7 +23,16 @@ import MobileHub from "./pages/MobileHub";
 import { PageTransition, GlobalPageTransitionInterceptor } from "./components/PageTransition";
 import LimitReachedModal from "@/components/LimitReachedModal";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 30, // 30 mins cache freshness
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours persistence
+      refetchOnWindowFocus: false, // Prevent jarring refetches when switching browser tabs
+      retry: 1,
+    },
+  },
+});
 
 interface MobileRedirectProps {
   to: string;

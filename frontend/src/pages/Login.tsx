@@ -80,6 +80,24 @@ function IosRadialSpinner({ className = "w-5 h-5 text-outly-dark" }: { className
   );
 }
 
+function saveUserSession(res: any) {
+  if (!res) return;
+  if (res.token) localStorage.setItem("outly_token", res.token);
+  if (res.user) {
+    localStorage.setItem("outly_premium_user", String(res.user.plan === "pro"));
+    if (res.user.fullName) localStorage.setItem("outly_user_name", res.user.fullName);
+    if (res.user.profilePic) {
+      localStorage.setItem("outly_user_avatar", res.user.profilePic);
+      try {
+        const img = new Image();
+        img.src = res.user.profilePic;
+      } catch {}
+    }
+    if (res.user.email) localStorage.setItem("outly_user_email", res.user.email);
+    localStorage.setItem("outly_user_session", JSON.stringify({ user: res.user }));
+  }
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const navigateTo = usePageTransition();
@@ -226,8 +244,7 @@ export default function Login() {
         res = await api.auth.signup(email, password, name);
       }
 
-      localStorage.setItem("outly_token", res.token);
-      localStorage.setItem("outly_premium_user", String(res.user.plan === "pro"));
+      saveUserSession(res);
 
       setIsLoading(false);
 
@@ -262,8 +279,7 @@ export default function Login() {
       // Bypassing Google OAuth block and doing immediate simulated Google login for demo stability
       try {
         const res = await api.auth.googleLogin("mock_bypass_token");
-        localStorage.setItem("outly_token", res.token);
-        localStorage.setItem("outly_premium_user", String(res.user.plan === "pro"));
+        saveUserSession(res);
         confetti({
           particleCount: 80,
           spread: 60,
@@ -302,8 +318,7 @@ export default function Login() {
           if (response.access_token) {
             try {
               const res = await api.auth.googleLogin(response.access_token);
-              localStorage.setItem("outly_token", res.token);
-              localStorage.setItem("outly_premium_user", String(res.user.plan === "pro"));
+              saveUserSession(res);
               confetti({
                 particleCount: 80,
                 spread: 60,
