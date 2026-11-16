@@ -7,6 +7,7 @@ import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import { api } from "../lib/api";
 import { useToast } from "../hooks/use-toast";
+import { LoginStageShow } from "../components/LoginStageShow";
 
 interface SlideText {
   titleStart: string;
@@ -18,22 +19,17 @@ const promoSlides: SlideText[] = [
   {
     titleStart: "Your resume, ",
     italicizedText: "perfectly matched.",
-    subtitle: "Instantly score and tailor your resume to hit 95%+ ATS compatibility for every job description."
+    subtitle: "Instantly score and tailor your resume to hit 95%+ ATS compatibility for every target job description."
   },
   {
     titleStart: "Your outreach, ",
     italicizedText: "on autopilot.",
-    subtitle: "Identify target recruiters and draft personalized cold emails that sound exactly like you."
+    subtitle: "Identify verified decision-makers and generate personalized cold emails that sound authentically like you."
   },
   {
     titleStart: "Your career, ",
     italicizedText: "already sorted.",
-    subtitle: "One calm morning brief to track your applications, outreach queue, and daily interview prep."
-  },
-  {
-    titleStart: "Your interviews, ",
-    italicizedText: "fully scheduled.",
-    subtitle: "Coordinate seamlessly with hiring managers and land your dream offer faster."
+    subtitle: "One calm unified workspace to track job applications, recruiter pipelines, and morning interview briefs."
   }
 ];
 
@@ -164,7 +160,7 @@ export default function Login() {
     const timer = setInterval(() => {
       const nextIndex = (activeSlide + 1) % promoSlides.length;
       triggerTextSlide(nextIndex);
-    }, 3000); // Changed to 3 seconds
+    }, 5000); // 5 seconds per slide for a comfortable reading pace
     return () => clearInterval(timer);
   }, [activeSlide]);
 
@@ -371,11 +367,11 @@ export default function Login() {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#F2EBDD] font-sans selection:bg-outly-accent/20">
 
-      {/* LEFT PANEL: Branding & Sliding Promo (100% identical in both Sign Up and Login) */}
-      <div className="hidden lg:flex w-1/2 bg-[#F2EBDD] p-12 lg:p-16 flex-col justify-between relative overflow-hidden select-none sticky top-0 h-screen shrink-0 border-r border-[#e8e2d5]/60">
+      {/* LEFT PANEL: Stageshow Live Product Stage & Branding */}
+      <div className="hidden lg:flex w-1/2 bg-[#F2EBDD] p-8 xl:p-12 flex-col justify-between relative overflow-hidden select-none sticky top-0 h-screen shrink-0 border-r border-[#e8e2d5]/60">
 
         {/* Concentric circles vector background lines */}
-        <div className="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/4 pointer-events-none opacity-40">
+        <div className="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/4 pointer-events-none opacity-30">
           <svg width="600" height="600" viewBox="0 0 600 600" fill="none">
             <circle cx="300" cy="300" r="280" stroke="#e8e2d5" strokeWidth="1" />
             <circle cx="300" cy="300" r="220" stroke="#e8e2d5" strokeWidth="1" />
@@ -384,61 +380,41 @@ export default function Login() {
           </svg>
         </div>
 
-        {/* Logo Header */}
-        <div className="flex items-center z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigateTo("/")}>
-          <img src={logoTransparent} alt="Outly Logo" className="h-8 w-auto object-contain" />
+        {/* Header: Logo & Interactive Demo Badge */}
+        <div className="flex items-center justify-between z-10 w-full">
+          <div className="flex items-center cursor-pointer hover:opacity-85 transition-opacity" onClick={() => navigateTo("/")}>
+            <img src={logoTransparent} alt="Outly Logo" className="h-8 w-auto object-contain" />
+          </div>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/75 text-outly-dark/75 border border-[#e8e2d5] shadow-2xs">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#2dc08d] animate-pulse" />
+            <span>Interactive Demo</span>
+          </span>
         </div>
 
-        {/* Sliding Text Container */}
-        <div className="my-auto max-w-[480px] z-10 flex flex-col justify-center py-8">
-
-          {/* Fixed-height wrapper to prevent layout shift */}
-          <div className="min-h-[200px] flex flex-col justify-start select-none">
+        {/* Headline + Stageshow Live Stage */}
+        <div className="my-auto w-full max-w-[540px] mx-auto z-10 flex flex-col justify-center py-2">
+          {/* Animated Headline */}
+          <div className="min-h-[110px] flex flex-col justify-start select-none mb-3">
             <div ref={textWrapperRef} className="will-change-transform">
-              <h2 className="text-[52px] font-normal tracking-tight leading-[1.15] text-outly-dark mb-4 font-serif">
+              <h2 className="text-[36px] xl:text-[42px] font-normal tracking-tight leading-[1.15] text-outly-dark mb-2 font-serif">
                 {currentSlide.titleStart}
                 <span className="italic text-outly-accent font-serif">{currentSlide.italicizedText}</span>
               </h2>
 
-              <p className="text-[16px] text-outly-dark/70 leading-relaxed font-normal mb-8">
+              <p className="text-[14px] xl:text-[15px] text-outly-dark/70 leading-relaxed font-normal">
                 {currentSlide.subtitle}
               </p>
             </div>
           </div>
 
-          {/* Slider Progress Indicator Pills */}
-          <div className="flex items-center gap-2 mb-10">
-            {promoSlides.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${activeSlide === idx ? "bg-outly-accent w-7" : "bg-[#e8e2d5] hover:bg-outly-accent/40 w-2"
-                  }`}
-                onClick={() => triggerTextSlide(idx)}
-              />
-            ))}
-          </div>
-
-          {/* Bullet Feature List */}
-          <ul className="space-y-3.5">
-            <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
-              <span className="text-outly-dark/50 shrink-0 select-none font-bold">✓</span>
-              <span>Instantly check ATS scores and tailor resumes in one click</span>
-            </li>
-            <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
-              <span className="text-outly-dark/50 shrink-0 select-none font-bold">✓</span>
-              <span>Automate personalized recruiter outreach and follow-ups</span>
-            </li>
-            <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
-              <span className="text-outly-dark/50 shrink-0 select-none font-bold">✓</span>
-              <span>Track application pipelines and get daily morning briefs</span>
-            </li>
-          </ul>
+          {/* Faux Product UI Stage */}
+          <LoginStageShow activeSlide={activeSlide} onSelectSlide={triggerTextSlide} />
         </div>
 
         {/* Footer */}
-        <div className="text-[12px] font-normal text-outly-dark/40 z-10">
-          © 2026 Outly. All rights reserved.
+        <div className="flex items-center justify-between text-[12px] font-normal text-outly-dark/45 z-10 pt-2">
+          <span>© 2026 Outly. All rights reserved.</span>
+          <span className="font-mono text-[11px] text-outly-dark/40">Powered by Stageshow</span>
         </div>
       </div>
 
