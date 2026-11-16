@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
               </div>
               <p className="text-[10px] text-muted-foreground/60">{stat.desc}</p>
             </div>
-          </div>
+          </m.div>
         ))}
       </m.div>
 

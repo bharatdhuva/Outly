@@ -783,8 +783,8 @@ export default function ColdMailPage() {
                         const stepIdx = getCurrentStepIndex(company.status);
                         const isSelected = selected === company.id;
                         return (
+                          <m.div key={company.id}>
                           <button
-                            key={company.id}
                             onClick={() => {
                               setSelected(company.id);
                               if (isMobile) {
@@ -846,6 +846,7 @@ export default function ColdMailPage() {
                               </span>
                             </div>
                           </button>
+                          </m.div>
                         );
                       })}
                     </AnimatePresence>
