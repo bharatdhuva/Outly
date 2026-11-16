@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
-import { Eye, EyeOff } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
@@ -85,6 +85,9 @@ function saveUserSession(res: any) {
   if (res.token) localStorage.setItem("outly_token", res.token);
   if (res.user) {
     localStorage.setItem("outly_premium_user", String(res.user.plan === "pro"));
+    localStorage.setItem("outly_is_demo", String(Boolean(res.user.isDemo)));
+    if (res.user.role) localStorage.setItem("outly_user_role", res.user.role);
+    if (res.user.demoExpiresAt) localStorage.setItem("outly_demo_expires_at", res.user.demoExpiresAt);
     if (res.user.fullName) localStorage.setItem("outly_user_name", res.user.fullName);
     if (res.user.profilePic) {
       localStorage.setItem("outly_user_avatar", res.user.profilePic);
@@ -105,20 +108,13 @@ export default function Login() {
   const formWrapperRef = useRef<HTMLDivElement>(null);
   const textWrapperRef = useRef<HTMLDivElement>(null);
 
-  // Auth Mode: 'signin' or 'signup'
-  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
-
   // Left slide states
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Form states
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // Action states
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+  const [demoError, setDemoError] = useState<string | null>(null);
   const [isWakingServer, setIsWakingServer] = useState(false);
 
   useEffect(() => {
@@ -164,7 +160,7 @@ export default function Login() {
     const timer = setInterval(() => {
       const nextIndex = (activeSlide + 1) % promoSlides.length;
       triggerTextSlide(nextIndex);
-    }, 3000); // Changed to 3 seconds
+    }, 3000);
     return () => clearInterval(timer);
   }, [activeSlide]);
 
@@ -175,108 +171,28 @@ export default function Login() {
       return;
     }
 
-    // GSAP text transition: slide up and fade out, then slide up from bottom and fade in
     gsap.to(textEl, {
       opacity: 0,
-      y: -20, // Slide up to exit
+      y: -20,
       duration: 0.25,
       ease: "power2.in",
       onComplete: () => {
         setActiveSlide(nextIndex);
-        // Reset element position to bottom before sliding up to center
         gsap.fromTo(textEl,
-          { opacity: 0, y: 20 }, // Start from below (bottom)
-          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" } // Slide up to center
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
         );
       }
     });
-  };
-
-  // ─── 2. Auth Mode Switch Transition (SignIn <-> SignUp) ───
-  const handleToggleAuthMode = (mode: "signin" | "signup") => {
-    if (isLoading || authMode === mode) return;
-
-    const wrapper = formWrapperRef.current;
-    if (!wrapper) {
-      setAuthMode(mode);
-      return;
-    }
-
-    // GSAP form transition: slide out sideways, switch mode, and slide in from opposite side
-    const slideOutX = mode === "signup" ? -30 : 30;
-    const slideInX = mode === "signup" ? 30 : -30;
-
-    gsap.to(wrapper, {
-      opacity: 0,
-      x: slideOutX,
-      duration: 0.2,
-      ease: "power2.in",
-      onComplete: () => {
-        setAuthMode(mode);
-        // Clear fields
-        setName("");
-        setEmail("");
-        setPassword("");
-        setAgreeToTerms(false);
-        setPasswordVisible(false);
-
-        gsap.fromTo(wrapper,
-          { opacity: 0, x: slideInX },
-          { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }
-        );
-      }
-    });
-  };
-
-  // ─── 3. Submit Handlers ───
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (authMode === "signup" && !agreeToTerms) return;
-    if (!email || !password) return;
-
-    setIsLoading(true);
-
-    try {
-      let res;
-      if (authMode === "signin") {
-        res = await api.auth.login(email, password);
-      } else {
-        res = await api.auth.signup(email, password, name);
-      }
-
-      saveUserSession(res);
-
-      setIsLoading(false);
-
-      // Fire celebratory confetti
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.6 },
-        colors: ["#f23c5d", "#1a1a1a"]
-      });
-
-      // Redirect to protected onboarding workspace
-      navigate("/onboarding");
-    } catch (error: any) {
-      setIsLoading(false);
-      toast({
-        title: authMode === "signin" ? "Login Failed" : "Signup Failed",
-        description: error.message || "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
-    }
   };
 
   const handleGoogleSignIn = async () => {
-    if (isLoading || isGoogleLoading) return;
+    if (isGoogleLoading || isDemoLoading) return;
 
     setIsGoogleLoading(true);
-    setIsLoading(true);
 
     const google = (window as any).google;
     if (typeof google === "undefined" || !google.accounts) {
-      // Bypassing Google OAuth block and doing immediate simulated Google login for demo stability
       try {
         const res = await api.auth.googleLogin("mock_bypass_token");
         saveUserSession(res);
@@ -284,7 +200,7 @@ export default function Login() {
           particleCount: 80,
           spread: 60,
           origin: { y: 0.6 },
-          colors: ["#f23c5d", "#1a1a1a"]
+          colors: ["#2dc08d", "#1a1a1a"]
         });
         navigate("/onboarding");
       } catch (err: any) {
@@ -293,7 +209,6 @@ export default function Login() {
           description: err.message || "Failed to log in via bypass.",
           variant: "destructive"
         });
-        setIsLoading(false);
         setIsGoogleLoading(false);
       }
       return;
@@ -311,7 +226,6 @@ export default function Login() {
               description: "Unable to authenticate with Google. Please try again.",
               variant: "destructive"
             });
-            setIsLoading(false);
             setIsGoogleLoading(false);
             return;
           }
@@ -323,7 +237,7 @@ export default function Login() {
                 particleCount: 80,
                 spread: 60,
                 origin: { y: 0.6 },
-                colors: ["#f23c5d", "#1a1a1a"]
+                colors: ["#2dc08d", "#1a1a1a"]
               });
               navigate("/onboarding");
             } catch (err: any) {
@@ -333,7 +247,6 @@ export default function Login() {
                 description: err.message || "Unable to sign in with Google.",
                 variant: "destructive"
               });
-              setIsLoading(false);
               setIsGoogleLoading(false);
             }
           }
@@ -343,16 +256,59 @@ export default function Login() {
     } catch (err) {
       console.error("Google token client init failed:", err);
       setTimeout(() => {
-        setIsLoading(false);
         setIsGoogleLoading(false);
         confetti({
           particleCount: 80,
           spread: 60,
           origin: { y: 0.6 },
-          colors: ["#f23c5d", "#1a1a1a"]
+          colors: ["#2dc08d", "#1a1a1a"]
         });
         navigate("/dashboard");
       }, 800);
+    }
+  };
+
+  const handleTryDemo = async () => {
+    if (isDemoLoading || isGoogleLoading) return;
+    setIsDemoLoading(true);
+    setDemoError(null);
+
+    try {
+      const res = await api.auth.demo();
+      saveUserSession(res);
+
+      confetti({
+        particleCount: 90,
+        spread: 65,
+        origin: { y: 0.6 },
+        colors: ["#2dc08d", "#1a1a1a"]
+      });
+
+      toast({
+        title: "Welcome to Outly Demo! ✨",
+        description: "You have 25 minutes of guest access to test ATS scoring, tailored resumes, and outreach.",
+      });
+
+      navigate("/onboarding");
+    } catch (err: any) {
+      setIsDemoLoading(false);
+      const isAlreadyUsed = err?.data?.code === "DEMO_ALREADY_USED" || err?.message?.includes("already used");
+      const msg = isAlreadyUsed
+        ? "You have already used your free demo session. Please continue with Google to unlock full access."
+        : (err?.message || "Failed to create demo session. Please try again.");
+
+      setDemoError(msg);
+      toast({
+        title: isAlreadyUsed ? "Demo session already used" : "Demo creation failed",
+        description: msg,
+        variant: "destructive"
+      });
+
+      if (isAlreadyUsed) {
+        window.dispatchEvent(new CustomEvent("outly_demo_modal", {
+          detail: { code: "DEMO_ALREADY_USED", message: msg, isExpired: false }
+        }));
+      }
     }
   };
 
@@ -361,7 +317,7 @@ export default function Login() {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#F2EBDD] font-sans selection:bg-outly-accent/20">
 
-      {/* LEFT PANEL: Branding & Sliding Promo (100% identical in both Sign Up and Login) */}
+      {/* LEFT PANEL: Branding & Sliding Promo */}
       <div className="hidden lg:flex w-1/2 bg-[#F2EBDD] p-12 lg:p-16 flex-col justify-between relative overflow-hidden select-none sticky top-0 h-screen shrink-0 border-r border-[#e8e2d5]/60">
 
         {/* Concentric circles vector background lines */}
@@ -432,212 +388,103 @@ export default function Login() {
         </div>
       </div>
 
-      {/* RIGHT PANEL: Auth Form (Original Clean ZenScail Outly Layout) */}
+      {/* RIGHT PANEL: Auth Actions (Google & Try Demo Only) */}
       <div className="w-full lg:w-1/2 p-6 lg:p-16 flex flex-col justify-center items-center min-h-screen bg-[#FAF6F0]">
-        <div ref={formWrapperRef} className="w-full max-w-[420px] flex flex-col justify-center will-change-transform py-12 lg:py-16 lg:min-h-[620px]">
+        <div ref={formWrapperRef} className="w-full max-w-[400px] flex flex-col justify-center will-change-transform py-12 lg:py-16">
 
           {/* Mobile Logo */}
           <div className="flex items-center lg:hidden mb-8 self-start cursor-pointer" onClick={() => navigate("/")}>
             <img src={logoTransparent} alt="Outly Logo" className="h-6 w-auto object-contain" />
           </div>
 
-          {/* Form Header Titles */}
-          <div className="mb-8">
-            <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-outly-dark leading-tight mb-2 font-serif">
-              {authMode === "signin" ? "Welcome back" : "Create your account"}
+          {/* Header Titles */}
+          <div className="mb-8 text-center sm:text-left">
+            <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-outly-dark leading-tight mb-2.5 font-serif">
+              Welcome to Outly
             </h1>
-            <p className="text-[14px] font-normal text-outly-dark/70">
-              {authMode === "signin"
-                ? "Sign in to your Outly workspace."
-                : "A calmer inbox is a minute away. Free to start."}
+            <p className="text-[14px] font-normal text-outly-dark/70 leading-relaxed">
+              Your calm, unified workspace for resume optimization and recruiter outreach.
             </p>
           </div>
 
-          {/* Google Sign-In */}
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={isLoading || isGoogleLoading}
-            className="w-full bg-white border border-[#e8e2d5] hover:border-outly-dark/40 py-3 px-6 rounded-full font-sans text-[15px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none mb-6 transition-all duration-200 shadow-2xs hover:shadow-xs active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed cursor-pointer"
-          >
-            {isGoogleLoading ? (
-              <div className="flex items-center justify-center gap-2.5 animate-fade-in">
-                <IosRadialSpinner className="w-5 h-5 text-outly-dark" />
-                <span className="text-[13px] font-bold tracking-wider uppercase text-outly-dark">
-                  Loading...
-                </span>
-              </div>
-            ) : (
-              <>
-                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
-                </svg>
-                <span>Continue with Google</span>
-              </>
-            )}
-          </button>
+          {/* Action Buttons Container (min width 358px verified, 48px touch targets) */}
+          <div className="space-y-3.5 w-full">
 
-          {/* Divider */}
-          <div className="my-6 flex items-center gap-3 select-none">
-            <div className="h-px flex-1 bg-[#e8e2d5]"></div>
-            <span className="text-xs font-normal text-outly-dark/50">or with email</span>
-            <div className="h-px flex-1 bg-[#e8e2d5]"></div>
-          </div>
-
-          {/* Credentials Form */}
-          <form className="space-y-4" onSubmit={handleSubmit}>
-
-            {/* Name Field (Sign-Up Mode Only) */}
-            {authMode === "signup" && (
-              <div className="animate-slide-up">
-                <label className="block text-xs font-normal uppercase tracking-wider text-outly-dark/70">
-                  Full name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Alex Morgan"
-                  className="mt-1.5 w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-dark focus:bg-white focus:outline-none focus:ring-1 focus:ring-outly-dark transition-all"
-                  disabled={isLoading}
-                />
-              </div>
-            )}
-
-            {/* Email Field */}
-            <div>
-              <label className="block text-xs font-normal uppercase tracking-wider text-outly-dark/70">
-                Email address
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@work-email.com"
-                className="mt-1.5 w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-dark focus:bg-white focus:outline-none focus:ring-1 focus:ring-outly-dark transition-all"
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <div className="flex items-center justify-between">
-                <label className="block text-xs font-normal uppercase tracking-wider text-outly-dark/70">
-                  Password
-                </label>
-                {authMode === "signin" && (
-                  <button
-                    type="button"
-                    onClick={() => toast({ title: "Password Reset", description: "Password reset link will be sent to your email." })}
-                    className="text-xs text-outly-accent hover:underline font-normal cursor-pointer"
-                  >
-                    Forgot password?
-                  </button>
-                )}
-              </div>
-              <div className="relative mt-1.5">
-                <input
-                  type={passwordVisible ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full rounded-full border border-[#e8e2d5] bg-[#fffdfb] px-4 py-2.5 pr-11 text-sm text-outly-dark placeholder:text-outly-dark/40 focus:border-outly-dark focus:bg-white focus:outline-none focus:ring-1 focus:ring-outly-dark transition-all"
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-outly-dark/40 hover:text-outly-dark transition-colors"
-                  onClick={() => setPasswordVisible(!passwordVisible)}
-                  disabled={isLoading}
-                >
-                  {passwordVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Terms Checkbox (Sign-Up Mode Only) */}
-            {authMode === "signup" && (
-              <div className="flex items-start gap-3 px-1 select-none animate-slide-up">
-                <input
-                  id="agree-terms-checkbox"
-                  type="checkbox"
-                  required
-                  checked={agreeToTerms}
-                  onChange={(e) => setAgreeToTerms(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-outly-border text-outly-accent focus:ring-outly-accent cursor-pointer transition-colors"
-                  disabled={isLoading}
-                />
-                <label htmlFor="agree-terms-checkbox" className="text-[12px] font-normal text-outly-dark/70 leading-relaxed cursor-pointer">
-                  I agree to the <span className="text-outly-accent font-medium hover:underline">Terms of Service</span> and <span className="text-outly-accent font-medium hover:underline">Privacy Policy</span>.
-                </label>
-              </div>
-            )}
-
-            {/* Submit Button */}
+            {/* 1. Primary: Continue with Google */}
             <button
-              type="submit"
-              className={`w-full bg-outly-accent text-white py-3.5 rounded-full font-sans text-[15px] font-medium transition-all duration-200 shadow-sm hover:opacity-95 active:scale-[0.98] select-none flex items-center justify-center gap-2.5 cursor-pointer ${isLoading || isWakingServer ? "opacity-85 pointer-events-none" : ""
-                }`}
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading || isDemoLoading || isWakingServer}
+              className="w-full min-h-[48px] bg-white border border-[#e8e2d5] hover:border-outly-dark/40 py-3.5 px-6 rounded-full font-sans text-[15px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none transition-all duration-200 shadow-2xs hover:shadow-xs active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
             >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>{authMode === "signin" ? "Signing in..." : "Creating account..."}</span>
-                </>
+              {isGoogleLoading ? (
+                <div className="flex items-center justify-center gap-2.5">
+                  <IosRadialSpinner className="w-5 h-5 text-outly-dark" />
+                  <span className="text-[13px] font-bold tracking-wider uppercase text-outly-dark">
+                    Signing in...
+                  </span>
+                </div>
               ) : isWakingServer ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Waking up cloud server...</span>
-                </>
+                <div className="flex items-center justify-center gap-2.5">
+                  <IosRadialSpinner className="w-5 h-5 text-outly-dark" />
+                  <span className="text-[13px] font-medium text-outly-dark">
+                    Connecting to server...
+                  </span>
+                </div>
               ) : (
-                authMode === "signin" ? "Sign in" : "Create account"
+                <>
+                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
+                  </svg>
+                  <span>Continue with Google</span>
+                </>
               )}
             </button>
-          </form>
 
-          {/* Toggle auth mode links */}
-          {authMode === "signin" ? (
-            <p className="text-center text-[14px] font-normal text-outly-dark/70 mt-6 select-none">
-              No account yet?{" "}
+            {/* 2. Secondary Outline: Try Demo */}
+            <div className="w-full">
               <button
                 type="button"
-                className="text-outly-accent hover:underline font-sans text-[14px] font-medium transition-colors cursor-pointer"
-                onClick={() => handleToggleAuthMode("signup")}
-                disabled={isLoading}
+                onClick={handleTryDemo}
+                disabled={isGoogleLoading || isDemoLoading || isWakingServer}
+                className="w-full min-h-[48px] bg-transparent border-2 border-outly-accent/80 hover:border-outly-accent hover:bg-outly-accent/5 text-outly-accent py-3 px-6 rounded-full font-sans text-[15px] font-medium flex items-center justify-center gap-2.5 select-none transition-all duration-200 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
               >
-                Sign up free
+                {isDemoLoading ? (
+                  <div className="flex items-center justify-center gap-2.5">
+                    <IosRadialSpinner className="w-5 h-5 text-outly-accent" />
+                    <span className="text-[13px] font-bold tracking-wider uppercase text-outly-accent">
+                      Creating Demo Account...
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 text-outly-accent" />
+                    <span>Try Demo</span>
+                  </>
+                )}
               </button>
-            </p>
-          ) : (
-            <p className="text-center text-[14px] font-normal text-outly-dark/70 mt-6 select-none">
-              Already have an account?{" "}
-              <button
-                type="button"
-                className="text-outly-accent hover:underline font-sans text-[14px] font-medium transition-colors cursor-pointer"
-                onClick={() => handleToggleAuthMode("signin")}
-                disabled={isLoading}
-              >
-                Sign in
-              </button>
-            </p>
-          )}
+
+              {/* Helper text */}
+              <p className="text-center text-[12px] font-normal text-outly-dark/60 mt-2 select-none">
+                No signup · 1 free session
+              </p>
+            </div>
+
+            {/* Error display if demo creation fails */}
+            {demoError && (
+              <div className="p-3.5 bg-red-50/90 border border-red-200/90 rounded-2xl text-xs text-red-800 leading-relaxed text-center animate-fade-in shadow-xs">
+                {demoError}
+              </div>
+            )}
+          </div>
 
           {/* Back to home */}
           <button
             onClick={() => navigateTo("/")}
-            className="group inline-flex items-center gap-2 text-[13px] font-normal text-outly-dark/50 hover:text-outly-dark transition-all duration-300 mt-6 self-center select-none relative pb-1 cursor-pointer bg-transparent border-none"
+            className="group inline-flex items-center gap-2 text-[13px] font-normal text-outly-dark/50 hover:text-outly-dark transition-all duration-300 mt-10 self-center select-none relative pb-1 cursor-pointer bg-transparent border-none min-h-[44px]"
           >
             <span className="transform transition-transform duration-300 ease-out group-hover:-translate-x-1">←</span>
             <span>Back to home</span>

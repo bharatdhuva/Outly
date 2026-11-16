@@ -29,6 +29,21 @@ function getRazorpayInstance() {
 // Endpoint: POST /api/create-order (and /create-order)
 router.post("/create-order", async (req: Request, res: Response) => {
   try {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      try {
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.verify(token, env.JWT_SECRET) as any;
+        if (decoded?.isDemo) {
+          return res.status(403).json({
+            error: "Billing is locked in demo mode.",
+            code: "DEMO_LIMIT_REACHED",
+            message: "Please sign in with Google to upgrade to Outly Pro."
+          });
+        }
+      } catch (_) {}
+    }
+
     const { amount, currency = "INR", receipt } = req.body;
 
     // Validate amount

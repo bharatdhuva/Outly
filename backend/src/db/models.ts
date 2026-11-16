@@ -6,10 +6,17 @@ const UserSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   fullName: String,
   profilePic: String,
+  role: { type: String, enum: ["user", "demo"], default: "user" },
+  isDemo: { type: Boolean, default: false },
+  demoExpiresAt: Date,
   plan: { type: String, enum: ["free", "pro"], default: "free" },
   planExpiresAt: Date,
   createdAt: { type: Date, default: Date.now }
 });
+
+// TTL index to auto-delete expired demo accounts in MongoDB
+UserSchema.index({ demoExpiresAt: 1 }, { expireAfterSeconds: 0 });
+
 export const User = mongoose.model("User", UserSchema);
 
 // 2. Company/Leads Model

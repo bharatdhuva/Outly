@@ -8,6 +8,8 @@ export interface AuthenticatedRequest extends Request {
     email: string;
     plan: "free" | "pro";
     fullName?: string;
+    isDemo?: boolean;
+    role?: "user" | "demo";
   };
 }
 
@@ -24,10 +26,15 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
       id: decoded.id,
       email: decoded.email,
       plan: decoded.plan || "free",
-      fullName: decoded.fullName
+      fullName: decoded.fullName,
+      isDemo: Boolean(decoded.isDemo),
+      role: decoded.role || (decoded.isDemo ? "demo" : "user")
     };
     next();
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.name === "TokenExpiredError") {
+      return res.status(401).json({ error: "Session expired.", code: "DEMO_EXPIRED" });
+    }
     return res.status(401).json({ error: "Invalid or expired token." });
   }
 }

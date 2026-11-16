@@ -3,7 +3,7 @@ import axios from "axios";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { User } from "../../db/models.js";
+import { User, Company, Application, ResumeVault, ActivityLog } from "../../db/models.js";
 import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { connectDB } from "../../db/connection.js";
@@ -13,6 +13,33 @@ import mongoose from "mongoose";
 
 const router = Router();
 
+// In-memory rate limiter & one-time visitor tracker for /auth/demo
+const demoIpLimiter = new Map<string, { count: number; resetAt: number }>();
+const usedDemoVisitors = new Set<string>();
+
+// Async helper to clean up expired demo accounts and cascade-delete their data
+async function cleanupExpiredDemoData() {
+  try {
+    const expiredUsers = await User.find({
+      isDemo: true,
+      demoExpiresAt: { $lt: new Date() }
+    }).select("_id").lean();
+
+    if (expiredUsers.length > 0) {
+      const ids = expiredUsers.map((u) => u._id);
+      await Promise.all([
+        Company.deleteMany({ userId: { $in: ids } }),
+        Application.deleteMany({ userId: { $in: ids } }),
+        ResumeVault.deleteMany({ userId: { $in: ids } }),
+        ActivityLog.deleteMany({ userId: { $in: ids } }),
+        User.deleteMany({ _id: { $in: ids } })
+      ]);
+    }
+  } catch (err) {
+    logger.warn("Demo data cleanup warning:", { error: String(err) });
+  }
+}
+
 // GET /ping (Health check to wake up the serverless function & database)
 router.get("/ping", async (req, res) => {
   try {
@@ -20,6 +47,219 @@ router.get("/ping", async (req, res) => {
     res.json({ status: "ok", database: dbStatus, timestamp: new Date() });
   } catch (err) {
     res.status(500).json({ status: "error", message: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+// 0. POST /demo (Ephemeral 1-time guest demo user with sample data)
+router.post("/demo", async (req, res) => {
+  try {
+    const ip = req.ip || req.socket.remoteAddress || "127.0.0.1";
+    const userAgent = req.headers["user-agent"] || "unknown";
+    const visitorKey = `${ip}_${crypto.createHash("md5").update(userAgent).digest("hex")}`;
+
+    // 1. Rate limiting: Max 5 attempts per hour per IP
+    const now = Date.now();
+    const ipRecord = demoIpLimiter.get(ip) || { count: 0, resetAt: now + 60 * 60 * 1000 };
+    if (now > ipRecord.resetAt) {
+      ipRecord.count = 0;
+      ipRecord.resetAt = now + 60 * 60 * 1000;
+    }
+    if (ipRecord.count >= 5) {
+      return res.status(429).json({
+        error: "Too many demo requests.",
+        code: "RATE_LIMITED",
+        message: "Too many demo sessions initiated from this IP. Please try again later or sign up directly."
+      });
+    }
+    ipRecord.count++;
+    demoIpLimiter.set(ip, ipRecord);
+
+    // 2. One-time check: Check cookie & visitor cache
+    const cookieHeader = req.headers.cookie || "";
+    const hasUsedDemoCookie = cookieHeader.includes("outly_demo_used=true");
+    const hasUsedDemoVisitor = usedDemoVisitors.has(visitorKey);
+
+    if (hasUsedDemoCookie || hasUsedDemoVisitor) {
+      return res.status(403).json({
+        error: "Demo session already used.",
+        code: "DEMO_ALREADY_USED",
+        message: "You have already experienced Outly Demo. Please sign in with Google to continue!"
+      });
+    }
+
+    // Trigger background cleanup of expired demo accounts
+    cleanupExpiredDemoData().catch(() => {});
+
+    // 3. Create ephemeral demo user
+    const randomHex = crypto.randomBytes(4).toString("hex");
+    const demoEmail = `demo-${randomHex}@outly.demo`;
+    const demoPasswordHash = await bcrypt.hash(crypto.randomBytes(16).toString("hex"), 8);
+    const demoLifespanMs = 25 * 60 * 1000; // 25 minutes
+    const expiresAt = new Date(now + demoLifespanMs);
+
+    const user = new User({
+      email: demoEmail,
+      passwordHash: demoPasswordHash,
+      fullName: "Alex (Demo)",
+      profilePic: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80",
+      role: "demo",
+      isDemo: true,
+      demoExpiresAt: expiresAt,
+      plan: "free"
+    });
+
+    await user.save();
+
+    // 4. Seed sample fake data
+    // Sample Resume in Vault
+    await ResumeVault.create({
+      userId: user._id,
+      filename: "Alex_Morgan_Senior_Software_Engineer.pdf",
+      label: "Target: Staff / Lead Engineer",
+      content: `Alex Morgan
+Staff Full-Stack Engineer
+San Francisco, CA | alex@example.com | github.com/alexmorgan
+
+SUMMARY
+Staff Full-Stack Engineer with 7+ years of experience architecting high-throughput distributed systems and responsive React web applications. Proven track record reducing p99 latency by 42% and scaling platforms to 50M+ daily events.
+
+TECHNICAL SKILLS
+Languages: TypeScript, JavaScript, Python, Go, SQL
+Frontend: React, Next.js, Redux, Tailwind CSS, Framer Motion
+Backend: Node.js, Express, PostgreSQL, MongoDB, Redis, REST, GraphQL
+DevOps & Cloud: AWS (ECS, S3, RDS), Docker, GitHub Actions, Microservices
+
+WORK EXPERIENCE
+Staff Software Engineer | Acme Cloud Systems (2022 - Present)
+- Architected event-driven microservices processing 50M+ requests/day with 99.99% uptime.
+- Led the redesign of core frontend dashboards in React/TypeScript, cutting load times by 55%.
+- Mentored 6 mid-level and senior engineers, improving team shipping velocity by 30%.
+
+Senior Full-Stack Engineer | HyperScale Tech (2019 - 2022)
+- Built automated cold outreach pipelines with Express and BullMQ, handling 100k+ emails monthly.
+- Optimized Elasticsearch search queries, reducing response times from 450ms to 75ms.
+
+EDUCATION
+B.S. in Computer Science | UC Berkeley (2015 - 2019)`,
+      is_default: 1
+    });
+
+    // Sample ATS Check in ActivityLog
+    await ActivityLog.create({
+      userId: user._id,
+      type: "ats_check",
+      message: "Scored resume for 'Staff Full-Stack Engineer' (ATS Score: 88%)",
+      meta: JSON.stringify({ score: 88, target: "Staff Full-Stack Engineer" })
+    });
+
+    // Sample Companies in Cold Outreach Pipeline
+    await Company.create([
+      {
+        userId: user._id,
+        company_name: "Stripe",
+        role: "Staff Infrastructure Engineer",
+        hr_email: "recruiting-team@stripe-demo.fake",
+        target_person_name: "Sarah Chen",
+        target_person_role: "Head of Infrastructure Recruiting",
+        status: "drafted",
+        generated_subject: "Quick note on Stripe's core payment reliability & high-throughput scaling",
+        generated_mail: "Hi Sarah,\n\nI've been following Stripe's latest architecture notes on global idempotency and was really impressed by how the core billing engines handle cross-region consistency.\n\nAt my current role, I led the pipeline redesign that cut p99 latency by 42% across 50M daily events. Would love to connect briefly if your infrastructure group is exploring staff talent.\n\nBest,\nAlex",
+        personalization_hook: "Spoke about global idempotency and low-latency distributed pipeline scale.",
+      },
+      {
+        userId: user._id,
+        company_name: "Linear",
+        role: "Product Engineer",
+        hr_email: "careers@linear-demo.fake",
+        target_person_name: "Karri Saarinen",
+        target_person_role: "Design & Product Lead",
+        status: "pending",
+        generated_subject: "Crafting fluid, keyboard-first web interfaces",
+        generated_mail: "Hi Karri,\n\nLinear's obsession with sub-50ms UI response times and tactile interaction details sets the industry standard. I've spent the past 4 years building high-frequency React/TypeScript apps with extreme focus on render performance.\n\nWould love 10 minutes to share how I can contribute to upcoming projects.\n\nCheers,\nAlex",
+        personalization_hook: "Focus on keyboard-first design and 60fps interaction polish.",
+      },
+      {
+        userId: user._id,
+        company_name: "OpenAI",
+        role: "Full-Stack AI Platform Engineer",
+        hr_email: "talent@openai-demo.fake",
+        target_person_name: "David Kim",
+        target_person_role: "Engineering Manager",
+        status: "replied",
+        sent_at: new Date(now - 24 * 60 * 60 * 1000),
+        reply_detected_at: new Date(now - 4 * 60 * 60 * 1000),
+        generated_subject: "Scaling real-time generative interfaces",
+        generated_mail: "Hi David, saw the Canvas launch — inspiring design. I would love to connect about low-latency streaming UX.",
+      }
+    ]);
+
+    // Sample Applications in Job Tracker
+    await Application.create([
+      {
+        userId: user._id,
+        company: "Google",
+        role: "Staff Software Engineer",
+        stage: "interview",
+        resume_version_used: "Alex_Morgan_Senior_Software_Engineer.pdf",
+        notes: "Round 2 technical architecture interview scheduled for tomorrow 10:00 AM PST.",
+      },
+      {
+        userId: user._id,
+        company: "Linear",
+        role: "Product Engineer",
+        stage: "applied",
+        resume_version_used: "Alex_Morgan_Senior_Software_Engineer.pdf",
+        notes: "Takehome submitted. Awaiting feedback from engineering team.",
+      },
+      {
+        userId: user._id,
+        company: "Stripe",
+        role: "Senior Fullstack Engineer",
+        stage: "offer",
+        resume_version_used: "Alex_Morgan_Senior_Software_Engineer.pdf",
+        notes: "Offer extended: $210k base + equity. Decision deadline next Friday.",
+      }
+    ]);
+
+    // 5. Mark visitor and set httpOnly cookie for 24h
+    usedDemoVisitors.add(visitorKey);
+    res.setHeader(
+      "Set-Cookie",
+      "outly_demo_used=true; Path=/; Max-Age=86400; HttpOnly; SameSite=Lax"
+    );
+
+    // 6. Issue short-lived JWT (25 minutes)
+    const token = jwt.sign(
+      {
+        id: user._id.toString(),
+        email: user.email,
+        plan: "free",
+        role: "demo",
+        isDemo: true,
+        fullName: user.fullName,
+        demoExpiresAt: expiresAt.toISOString()
+      },
+      env.JWT_SECRET,
+      { expiresIn: "25m" }
+    );
+
+    res.status(201).json({
+      token,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        fullName: user.fullName,
+        profilePic: user.profilePic,
+        plan: user.plan,
+        role: "demo",
+        isDemo: true,
+        demoExpiresAt: expiresAt.toISOString(),
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    logger.error("Demo creation error:", { error: error instanceof Error ? error.stack || error.message : error });
+    res.status(500).json({ error: "Failed to create demo session. Please try again." });
   }
 });
 
@@ -256,6 +496,9 @@ router.get("/me", requireAuth, async (req: AuthenticatedRequest, res: Response) 
         fullName: user.fullName,
         profilePic: user.profilePic || "",
         plan: user.plan,
+        role: (user as any).role || "user",
+        isDemo: Boolean((user as any).isDemo),
+        demoExpiresAt: (user as any).demoExpiresAt,
         createdAt: user.createdAt
       }
     });
@@ -265,7 +508,15 @@ router.get("/me", requireAuth, async (req: AuthenticatedRequest, res: Response) 
   }
 });
 
-router.get("/gmail/url", async (req, res) => {
+router.get("/gmail/url", requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  if (req.user?.isDemo) {
+    return res.status(403).json({
+      error: "Connecting Gmail is not permitted in demo mode.",
+      code: "DEMO_LIMIT_REACHED",
+      message: "Gmail connection is locked for guest demo accounts. Sign up with Google to connect your real Gmail account."
+    });
+  }
+
   const { google } = await import("googleapis");
   const oauth2Client = new google.auth.OAuth2(
     env.GMAIL_CLIENT_ID,
@@ -311,6 +562,14 @@ router.post("/upgrade", requireAuth, async (req: AuthenticatedRequest, res: Resp
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (req.user.isDemo) {
+      return res.status(403).json({
+        error: "Cannot upgrade demo user directly.",
+        code: "DEMO_LIMIT_REACHED",
+        message: "Please sign in with your real Google account to subscribe to Outly Pro."
+      });
     }
 
     const { plan } = req.body;

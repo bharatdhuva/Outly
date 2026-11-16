@@ -57,6 +57,25 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
       });
       window.dispatchEvent(event);
     }
+
+    // Trigger Demo Conversion / Expiry Modal on demo errors
+    if (
+      (res.status === 403 && (errorData?.code === "DEMO_LIMIT_REACHED" || errorData?.code === "DEMO_ALREADY_USED")) ||
+      (res.status === 401 && errorData?.code === "DEMO_EXPIRED")
+    ) {
+      if (errorData?.code === "DEMO_EXPIRED") {
+        localStorage.removeItem("outly_token");
+        localStorage.removeItem("outly_is_demo");
+      }
+      const event = new CustomEvent("outly_demo_modal", {
+        detail: {
+          code: errorData.code,
+          message: errorData.message || errorMsg,
+          isExpired: errorData.code === "DEMO_EXPIRED",
+        }
+      });
+      window.dispatchEvent(event);
+    }
     
     throw err;
   }
@@ -67,6 +86,10 @@ export const api = {
   auth: {
     ping: () =>
       fetchApi<{ status: string }>("/auth/ping").catch(() => ({ status: "error" })),
+    demo: () =>
+      fetchApi<{ token: string; user: UserProfile }>("/auth/demo", {
+        method: "POST",
+      }),
     signup: (email: string, password: string, fullName?: string) =>
       fetchApi<{ token: string; user: UserProfile }>("/auth/signup", {
         method: "POST",
@@ -412,6 +435,9 @@ export interface UserProfile {
   fullName?: string;
   profilePic?: string;
   plan: "free" | "pro";
+  role?: "user" | "demo";
+  isDemo?: boolean;
+  demoExpiresAt?: string;
   createdAt: string;
 }
 

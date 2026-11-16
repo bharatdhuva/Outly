@@ -13,7 +13,8 @@ import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkColdMailLimit } from "../../middleware/limits.js";
-import { User } from "../../db/models.js";
+import { verifyDemoSession, blockDemo, checkDemoQuota } from "../../middleware/demoGuard.js";
+import { User, ActivityLog as ActivityLogModel } from "../../db/models.js";
 import { getEditableSettings } from "../../config/appSettings.js";
 import fs from "fs";
 
@@ -21,6 +22,7 @@ const router = Router();
 
 // Protect all routes
 router.use(requireAuth);
+router.use(verifyDemoSession);
 
 // TEMP: List duplicate companies by name and email
 router.get("/duplicates", async (req: AuthenticatedRequest, res: Response) => {
@@ -120,7 +122,7 @@ router.post("/companies", checkColdMailLimit, async (req: AuthenticatedRequest, 
   }
 });
 
-router.post("/upload-csv", uploadCSV.single("file"), async (req: AuthenticatedRequest, res: Response) => {
+router.post("/upload-csv", blockDemo("Uploading custom CSV leads is disabled in demo mode."), uploadCSV.single("file"), async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
   if (!req.user) {
     if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
@@ -168,7 +170,7 @@ router.post("/scrape-all", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.post("/generate/:id", checkColdMailLimit, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/generate/:id", checkDemoQuota("coldmail_generate"), checkColdMailLimit, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const id = req.params.id as string;
@@ -184,13 +186,22 @@ router.post("/generate/:id", checkColdMailLimit, async (req: AuthenticatedReques
         error: updated?.error_message || "Generation failed",
       });
     }
+
+    if (req.user) {
+      await ActivityLogModel.create({
+        userId: req.user.id,
+        type: "coldmail_generate",
+        message: `Drafted cold outreach email for ${company.company_name}`
+      }).catch(() => {});
+    }
+
     res.json(result);
   } catch (e) {
     res.status(500).json({ error: String(e) });
   }
 });
 
-router.post("/generate-all", checkColdMailLimit, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/generate-all", checkDemoQuota("coldmail_generate"), checkColdMailLimit, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const provider = (req.body.provider as "gemini" | "grok" | "openrouter") || "gemini";
@@ -233,7 +244,7 @@ router.patch("/companies/:id", async (req: AuthenticatedRequest, res: Response) 
   }
 });
 
-router.delete("/companies/:id", async (req: AuthenticatedRequest, res: Response) => {
+router.delete("/companies/:id", blockDemo("Deleting sample companies is disabled in demo mode."), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const id = req.params.id as string;
@@ -247,7 +258,7 @@ router.delete("/companies/:id", async (req: AuthenticatedRequest, res: Response)
   }
 });
 
-router.post("/approve/:id", async (req: AuthenticatedRequest, res: Response) => {
+router.post("/approve/:id", blockDemo("Approving emails for queue sending is disabled in demo mode."), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const id = req.params.id as string;
@@ -261,7 +272,7 @@ router.post("/approve/:id", async (req: AuthenticatedRequest, res: Response) => 
   }
 });
 
-router.post("/approve-all", async (req: AuthenticatedRequest, res: Response) => {
+router.post("/approve-all", blockDemo("Approving emails for queue sending is disabled in demo mode."), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const approved = await companyQueries.getByStatus("mail_generated", req.user.id);
@@ -274,7 +285,7 @@ router.post("/approve-all", async (req: AuthenticatedRequest, res: Response) => 
   }
 });
 
-router.post("/send-approved", checkColdMailLimit, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/send-approved", blockDemo("Sending real outreach emails is disabled in demo mode."), checkColdMailLimit, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const approved = await companyQueries.getByStatus("approved", req.user.id);
@@ -301,7 +312,7 @@ router.post("/skip/:id", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.post("/create-gmail-draft/:id", async (req: AuthenticatedRequest, res: Response) => {
+router.post("/create-gmail-draft/:id", blockDemo("Creating Gmail drafts is disabled in demo mode."), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const id = req.params.id as string;

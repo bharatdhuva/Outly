@@ -4,6 +4,7 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import logoTransparent from "@/assets/brand/outly_your_career_at_peak.png";
+import { DemoBanner } from "./DemoBanner";
 import {
   ScrollText,
   Settings as SettingsIcon,
@@ -19,7 +20,8 @@ import {
   Wrench,
   User,
   Search,
-  Bell
+  Bell,
+  Lock
 } from "lucide-react";
 import {
   Dialog,
@@ -533,13 +535,29 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const isPricingActive = location.pathname === "/pricing";
   const isSupportActive = location.pathname === "/support";
 
+  const isDemo = Boolean(userData?.user?.isDemo) || localStorage.getItem("outly_is_demo") === "true";
+
+  const handleLockedDemoFeature = (featureName: string) => {
+    window.dispatchEvent(
+      new CustomEvent("outly_demo_modal", {
+        detail: {
+          code: "DEMO_LOCKED_FEATURE",
+          message: `${featureName} is locked in demo mode. Sign in with Google to customize settings and upgrade.`,
+          isExpired: false,
+        },
+      })
+    );
+  };
+
   return (
     <div className="min-h-screen bg-transparent text-outly-dark flex flex-col font-sans overflow-x-clip">
 
       {/* Header Spacer Wrapper to prevent layout shift */}
-      <div className="h-16 w-full shrink-0 relative bg-[#FAF8F5] md:bg-[#EDE9E2]">
+      <div className={`w-full shrink-0 relative bg-[#FAF8F5] md:bg-[#EDE9E2] ${isDemo ? "h-[102px] sm:h-[98px]" : "h-16"}`}>
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E2DDD3]/60 bg-[#FAF8F5]/95 md:bg-[#EDE9E2]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E2DDD3]/60 bg-[#FAF8F5]/95 md:bg-[#EDE9E2]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none mobile-scroll-header">
+          {/* Demo Mode banner if guest demo session */}
+          <DemoBanner />
           <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
 
             {/* Left: Brand Logo */}
@@ -850,15 +868,26 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </div>
 
                 {/* Standalone Link: PRICING */}
-                <Link
-                  to="/pricing"
-                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${isPricingActive
-                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
-                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                    }`}
-                >
-                  <span>Pricing</span>
-                </Link>
+                {isDemo ? (
+                  <button
+                    type="button"
+                    onClick={() => handleLockedDemoFeature("Pricing & Billing")}
+                    className="flex h-full items-center gap-1.5 border-b-[2.5px] border-transparent text-[15px] leading-none tracking-normal text-[#403E3B] font-medium hover:text-[#2DC08D] transition-colors duration-200 cursor-pointer"
+                  >
+                    <span>Pricing</span>
+                    <Lock className="w-3 h-3 text-amber-600/70" />
+                  </button>
+                ) : (
+                  <Link
+                    to="/pricing"
+                    className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${isPricingActive
+                        ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
+                        : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
+                      }`}
+                  >
+                    <span>Pricing</span>
+                  </Link>
+                )}
 
                 {/* Standalone Link: SUPPORT */}
                 <Link
@@ -965,7 +994,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
                     </div>
-                    {isPremium ? (
+                    {isDemo ? (
+                      <button
+                        onClick={() => {
+                          setProfileMenuOpen(false);
+                          handleLockedDemoFeature("Upgrading to Pro");
+                        }}
+                        className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
+                          <span>Upgrade to Pro</span>
+                        </div>
+                        <Lock className="h-3 w-3 text-amber-600/70" />
+                      </button>
+                    ) : isPremium ? (
                       <div className="px-3 py-2.5 border-b border-[#e8e2d5] bg-primary/5 flex items-center gap-2 select-none">
                         <Sparkles className="h-3.5 w-3.5 fill-primary/10 text-primary animate-pulse" />
                         <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
@@ -987,12 +1030,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <button
                       onClick={() => {
                         setProfileMenuOpen(false);
-                        navigate("/settings");
+                        if (isDemo) {
+                          handleLockedDemoFeature("Settings");
+                        } else {
+                          navigate("/settings");
+                        }
                       }}
-                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
+                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors"
                     >
-                      <SettingsIcon className="h-3.5 w-3.5" />
-                      Settings
+                      <div className="flex items-center gap-2">
+                        <SettingsIcon className="h-3.5 w-3.5" />
+                        <span>Settings</span>
+                      </div>
+                      {isDemo && <Lock className="h-3 w-3 text-amber-600/70" />}
                     </button>
                     <button
                       onClick={() => {
@@ -1115,7 +1165,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       {fullName}
                     </div>
 
-                    {isPremium ? (
+                    {isDemo ? (
+                      <button
+                        onClick={() => {
+                          setProfileMenuOpen(false);
+                          handleLockedDemoFeature("Upgrading to Pro");
+                        }}
+                        className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
+                          <span>Upgrade to Pro</span>
+                        </div>
+                        <Lock className="h-3 w-3 text-amber-600/70" />
+                      </button>
+                    ) : isPremium ? (
                       <div className="px-3 py-2.5 border-b border-[#f0ece4] bg-primary/5 flex items-center gap-2 select-none">
                         <Sparkles className="h-3.5 w-3.5 fill-primary/10 text-primary animate-pulse" />
                         <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
@@ -1138,12 +1202,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <button
                       onClick={() => {
                         setProfileMenuOpen(false);
-                        navigate("/settings");
+                        if (isDemo) {
+                          handleLockedDemoFeature("Settings");
+                        } else {
+                          navigate("/settings");
+                        }
                       }}
-                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
+                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors"
                     >
-                      <SettingsIcon className="h-3.5 w-3.5" />
-                      Settings
+                      <div className="flex items-center gap-2">
+                        <SettingsIcon className="h-3.5 w-3.5" />
+                        <span>Settings</span>
+                      </div>
+                      {isDemo && <Lock className="h-3 w-3 text-amber-600/70" />}
                     </button>
                     <button
                       onClick={() => {
@@ -1286,37 +1357,53 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </Link>
 
         {/* Tab 4: Profile */}
-        <Link
-          to="/settings"
-          className="relative flex-1 h-full flex flex-col items-center justify-center focus:outline-none active:scale-90 transition-transform duration-150"
-        >
-          {(() => {
-            const isActive = location.pathname === "/settings" ||
-              location.pathname === "/pricing" ||
-              location.pathname === "/support";
-            return (
-              <>
-                {isActive && (
+        {isDemo ? (
+          <button
+            type="button"
+            onClick={() => handleLockedDemoFeature("Profile Settings")}
+            className="relative flex-1 h-full flex flex-col items-center justify-center focus:outline-none active:scale-90 transition-transform duration-150 cursor-pointer"
+          >
+            <div className="relative text-zinc-500/70">
+              <User className="h-5 w-5" />
+              <Lock className="h-2.5 w-2.5 text-amber-600 absolute -top-1 -right-1" />
+            </div>
+            <span className="mt-1 text-[10px] font-medium text-zinc-500/80">
+              Profile
+            </span>
+          </button>
+        ) : (
+          <Link
+            to="/settings"
+            className="relative flex-1 h-full flex flex-col items-center justify-center focus:outline-none active:scale-90 transition-transform duration-150"
+          >
+            {(() => {
+              const isActive = location.pathname === "/settings" ||
+                location.pathname === "/pricing" ||
+                location.pathname === "/support";
+              return (
+                <>
+                  {isActive && (
+                    <motion.div
+                      layoutId="mobile-bottom-indicator"
+                      className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
+                      transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                    />
+                  )}
                   <motion.div
-                    layoutId="mobile-bottom-indicator"
-                    className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
-                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                  />
-                )}
-                <motion.div
-                  animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
-                  transition={{ type: "spring", stiffness: 450, damping: 28 }}
-                  className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
-                >
-                  <User className="h-5 w-5" />
-                </motion.div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
-                  Profile
-                </span>
-              </>
-            );
-          })()}
-        </Link>
+                    animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
+                    transition={{ type: "spring", stiffness: 450, damping: 28 }}
+                    className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
+                  >
+                    <User className="h-5 w-5" />
+                  </motion.div>
+                  <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
+                    Profile
+                  </span>
+                </>
+              );
+            })()}
+          </Link>
+        )}
 
       </div>
 

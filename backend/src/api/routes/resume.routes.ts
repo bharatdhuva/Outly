@@ -4,6 +4,8 @@ import { logger } from "../../lib/logger.js";
 import { env } from "../../config/env.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkResumeLimit } from "../../middleware/limits.js";
+import { verifyDemoSession, blockDemo, checkDemoQuota } from "../../middleware/demoGuard.js";
+import { ActivityLog as ActivityLogModel } from "../../db/models.js";
 import { uploadToCloudinary } from "../../lib/cloudinary.js";
 import { uploadResume } from "../../middleware/upload.js";
 import path from "path";
@@ -32,6 +34,7 @@ const router = Router();
 
 // Protect all routes with authentication
 router.use(requireAuth);
+router.use(verifyDemoSession);
 
 // GET all resumes for the authenticated user
 router.get("/", async (req: AuthenticatedRequest, res: Response) => {
@@ -127,7 +130,7 @@ router.get("/:id/file", async (req: AuthenticatedRequest, res: Response) => {
 });
 
 // POST upload and parse new resume
-router.post("/upload", uploadResume.single("file"), checkResumeLimit, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/upload", checkDemoQuota("resume_upload"), uploadResume.single("file"), checkResumeLimit, async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded." });
   }
@@ -231,6 +234,14 @@ router.post("/upload", uploadResume.single("file"), checkResumeLimit, async (req
       fs.unlinkSync(tempFilePath);
     }
 
+    if (req.user) {
+      await ActivityLogModel.create({
+        userId: req.user.id,
+        type: "resume_upload",
+        message: `Uploaded resume version "${dbResult.filename}"`
+      }).catch(() => {});
+    }
+
     res.json({
       success: true,
       id: dbResult.id,
@@ -265,7 +276,7 @@ router.post("/:id/default", async (req: AuthenticatedRequest, res: Response) => 
 });
 
 // DELETE resume
-router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
+router.delete("/:id", blockDemo("Deleting sample resumes is disabled in demo mode."), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const item = await resumeVaultQueries.getById(req.params.id as string, req.user.id);

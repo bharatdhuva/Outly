@@ -5,11 +5,13 @@ import { downloadResumeToTemp } from "../../drive/googleDrive.js";
 import { env } from "../../config/env.js";
 import { getEditableSettings } from "../../config/appSettings.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
+import { verifyDemoSession, blockDemo } from "../../middleware/demoGuard.js";
 
 const router = Router();
 
 // Protect all routes
 router.use(requireAuth);
+router.use(verifyDemoSession);
 
 router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -31,6 +33,14 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
 const handleSettingsUpdate = async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user || !req.user.id) return res.status(401).json({ error: "Unauthorized" });
+
+    if (req.user.isDemo) {
+      return res.status(403).json({
+        error: "Modifying settings is disabled in demo mode.",
+        code: "DEMO_LIMIT_REACHED",
+        message: "Settings modifications are locked in demo mode. Sign up with Google to customize your workspace."
+      });
+    }
     
     // Support both { settings: { ... } } and direct key/value or key-value pair objects
     let targetSettings: Record<string, any> = {};

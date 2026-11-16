@@ -2,11 +2,13 @@ import { Router, Response } from "express";
 import { applicationQueries } from "../../db/queries.js";
 import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
+import { verifyDemoSession, blockDemo } from "../../middleware/demoGuard.js";
 
 const router = Router();
 
 // Protect all routes
 router.use(requireAuth);
+router.use(verifyDemoSession);
 
 // GET all applications for the authenticated user
 router.get("/", async (req: AuthenticatedRequest, res: Response) => {
@@ -81,7 +83,7 @@ router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
 });
 
 // DELETE application
-router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
+router.delete("/:id", blockDemo("Deleting applications is disabled in demo mode."), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const id = req.params.id as string;

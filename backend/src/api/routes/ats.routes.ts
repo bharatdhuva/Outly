@@ -3,6 +3,7 @@ import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
 import { requireAuth, AuthenticatedRequest } from "../../middleware/auth.js";
 import { checkAtsLimit, checkTailorLimit } from "../../middleware/limits.js";
+import { verifyDemoSession, checkDemoQuota } from "../../middleware/demoGuard.js";
 import { ActivityLog as ActivityLogModel } from "../../db/models.js";
 import { activityQueries } from "../../db/queries.js";
 import { uploadResume } from "../../middleware/upload.js";
@@ -14,6 +15,7 @@ const requireLocal = createRequire(import.meta.url);
 
 const router = Router();
 router.use(requireAuth);
+router.use(verifyDemoSession);
 
 router.get("/limit-status", async (req: AuthenticatedRequest, res: Response) => {
   if (!req.user) {
@@ -436,7 +438,7 @@ async function parseResumeLocally(filePath: string, originalName: string): Promi
   return fs.readFileSync(filePath, "utf-8");
 }
 
-router.post("/parse-file", checkAtsLimit, uploadResume.single("file"), async (req: AuthenticatedRequest, res: Response) => {
+router.post("/parse-file", checkDemoQuota("resume_upload"), checkAtsLimit, uploadResume.single("file"), async (req: AuthenticatedRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded." });
   }
@@ -501,7 +503,7 @@ router.post("/parse-file", checkAtsLimit, uploadResume.single("file"), async (re
   return res.status(500).json({ error: "Failed to extract text from file. Please upload a valid PDF, DOCX, or TXT." });
 });
 
-router.post("/score", checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/score", checkDemoQuota("ats_check"), checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
   const { resume, jd } = req.body ?? {};
   if (!resume || typeof resume !== "string" || !resume.trim()) {
     return res.status(400).json({ error: "Resume is required." });
@@ -550,7 +552,7 @@ router.post("/score", checkAtsLimit, async (req: AuthenticatedRequest, res: Resp
   }
 });
 
-router.post("/tailor", checkTailorLimit, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/tailor", checkDemoQuota("ats_tailor"), checkTailorLimit, async (req: AuthenticatedRequest, res: Response) => {
   const { resume, jd } = req.body ?? {};
   if (!resume) {
     return res.status(400).json({ error: "Resume content is required." });
@@ -568,7 +570,7 @@ router.post("/tailor", checkTailorLimit, async (req: AuthenticatedRequest, res: 
   await proxyJson(req, res, "/api/ats/tailor");
 });
 
-router.post("/match", checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/match", checkDemoQuota("ats_check"), checkAtsLimit, async (req: AuthenticatedRequest, res: Response) => {
   const { resume, jd } = req.body ?? {};
   if (!resume || !jd) {
     return res.status(400).json({ error: "Both resume and jd are required." });

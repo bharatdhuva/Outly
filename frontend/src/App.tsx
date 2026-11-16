@@ -22,6 +22,7 @@ import Support from "./pages/Support";
 import MobileHub from "./pages/MobileHub";
 import { PageTransition, GlobalPageTransitionInterceptor } from "./components/PageTransition";
 import LimitReachedModal from "@/components/LimitReachedModal";
+import { DemoSignupModal } from "@/components/DemoSignupModal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,6 +58,7 @@ const App = () => {
         <BrowserRouter>
           <GlobalPageTransitionInterceptor />
           <LimitReachedModal />
+          <DemoSignupModal />
           <Routes>
             {/* Public Landing Page */}
             <Route path="/" element={<PageTransition><Landing /></PageTransition>} />
