@@ -1,4 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
+import { m } from "motion/react";
+import { dur, ease, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { api } from "@/lib/api";
 import DotLottieLoader from "@/components/DotLottieLoader";
 import {
@@ -6,7 +9,7 @@ import {
   Mail,
   MessageSquare,
   Clock,
-  Sparkles,
+  Percent,
   BarChart2,
   Calendar,
   CheckSquare,
@@ -53,7 +56,12 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Core Stats Grid */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <m.div
+        variants={staggerContainer(0, 0.05)}
+        initial="hidden"
+        animate="visible"
+        className="grid gap-4 grid-cols-2 lg:grid-cols-4"
+      >
         {[
           {
             label: "Total Sent",
@@ -70,7 +78,7 @@ export default function AnalyticsPage() {
           {
             label: "Response Rate",
             value: `${metrics.replyRate}%`,
-            icon: <Sparkles className="h-4 w-4 text-warning" />,
+            icon: <Percent className="h-4 w-4 text-warning" />,
             desc: "Replies relative to sent",
           },
           {
@@ -80,18 +88,24 @@ export default function AnalyticsPage() {
             desc: "Average time to response",
           },
         ].map((stat, i) => (
-          <div key={i} className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)] space-y-2">
+          <m.div key={i} variants={staggerItem} className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-muted-foreground uppercase">{stat.label}</span>
               {stat.icon}
             </div>
             <div className="space-y-0.5">
-              <p className="text-2xl font-bold tracking-tight text-foreground">{stat.value}</p>
+              <div className="text-2xl font-semibold tracking-tight text-foreground font-mono">
+                {typeof stat.value === "number" ? (
+                  <AnimatedNumber value={stat.value} />
+                ) : (
+                  stat.value
+                )}
+              </div>
               <p className="text-[10px] text-muted-foreground/60">{stat.desc}</p>
             </div>
           </div>
         ))}
-      </div>
+      </m.div>
 
       {/* Main Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2">

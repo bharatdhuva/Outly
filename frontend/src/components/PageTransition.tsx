@@ -1,8 +1,14 @@
+/**
+ * PageTransition.tsx — uses motion/react
+ * Wraps page content with fade+slide on route change.
+ * Progress bar uses scaleX on transform, never width.
+ */
+import { m, AnimatePresence } from "motion/react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { pageVariants, dur, ease } from "@/lib/motion-tokens";
 
-// Global loading state and listeners
+// ─── Global loading state ────────────────────────────────────────────────────
 const listeners = new Set<(loading: boolean) => void>();
 let globalLoading = false;
 
@@ -11,26 +17,17 @@ export const setGlobalLoading = (loading: boolean) => {
   listeners.forEach((l) => l(loading));
 };
 
-const pageVariants = {
-  initial: { opacity: 0, y: 10 },
-  enter:   { opacity: 1, y: 0,  transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
-  exit:    { opacity: 0, y: -6, transition: { duration: 0.2,  ease: [0.4, 0, 1, 1] } },
-};
-
-/**
- * PageTransition — wraps page content with a smooth fade + slide entrance on every route change.
- */
+// ─── Page wrapper ────────────────────────────────────────────────────────────
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   useEffect(() => {
-    // Snap scroll to top immediately to prevent stuttery page shifts
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      <motion.div
+      <m.div
         key={location.pathname}
         className="w-full flex-1 flex flex-col"
         variants={pageVariants}
@@ -40,74 +37,64 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         style={{ willChange: "opacity, transform" }}
       >
         {children}
-      </motion.div>
+      </m.div>
     </AnimatePresence>
   );
 }
 
-/**
- * usePageTransition — Hook to navigate with a smooth loading bar transition.
- */
+// ─── Navigation hook ─────────────────────────────────────────────────────────
 export function usePageTransition() {
   const navigate = useNavigate();
   return (to: string) => {
     setGlobalLoading(true);
-    // Small delay to allow the loading bar to start animating
-    setTimeout(() => navigate(to), 120);
+    setTimeout(() => navigate(to), 100);
   };
 }
 
-/**
- * GlobalPageTransitionInterceptor — Renders the top progress bar.
- */
+// ─── Top progress bar ────────────────────────────────────────────────────────
+// Uses scaleX (transform) rather than width to avoid layout shift.
 export function GlobalPageTransitionInterceptor() {
   const [loading, setLoading] = useState(globalLoading);
+  const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
     const handler = (l: boolean) => {
       setLoading(l);
-      if (l) setProgress(15);
-      else setProgress(100);
+      if (l) { setVisible(true); setProgress(0.15); }
     };
     listeners.add(handler);
     return () => { listeners.delete(handler); };
   }, []);
 
-  // Complete the progress bar and trigger a quick flash on any route change
   useEffect(() => {
     setGlobalLoading(false);
-    setProgress(35);
-    const timer = setTimeout(() => setProgress(100), 100);
-    return () => clearTimeout(timer);
+    setProgress(0.35);
+    const t1 = setTimeout(() => setProgress(1), 100);
+    const t2 = setTimeout(() => setVisible(false), 500);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [location]);
 
-  // Simulate progress bar movement while loading
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (loading) {
-      interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 90) { clearInterval(interval); return 90; }
-          return prev + Math.floor(Math.random() * 10) + 5;
-        });
-      }, 80);
-    }
-    return () => clearInterval(interval);
+    if (!loading) return;
+    const id = setInterval(() => {
+      setProgress((p) => {
+        if (p >= 0.9) { clearInterval(id); return 0.9; }
+        return p + (Math.random() * 0.08 + 0.04);
+      });
+    }, 80);
+    return () => clearInterval(id);
   }, [loading]);
 
-  if (progress === 0) return null;
+  if (!visible) return null;
 
   return (
-    <motion.div
-      className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-500 z-[9999] pointer-events-none origin-left"
-      style={{ width: `${progress}%` }}
-      animate={{ opacity: progress === 100 ? 0 : 1 }}
-      transition={{ duration: 0.3 }}
-      onAnimationComplete={() => {
-        if (progress === 100) setTimeout(() => setProgress(0), 300);
-      }}
+    <m.div
+      className="fixed top-0 left-0 right-0 h-[2px] bg-primary z-[9999] pointer-events-none"
+      style={{ scaleX: progress, transformOrigin: "left center" }}
+      animate={{ opacity: progress >= 1 ? 0 : 1 }}
+      transition={{ duration: dur.exit, ease: ease.in }}
     />
   );
 }

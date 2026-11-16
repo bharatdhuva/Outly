@@ -10,27 +10,29 @@ import {
   BarChart,
   TrendingUp,
   FolderOpen,
-  Clock,
 } from "lucide-react";
 import { api, type Company } from "@/lib/api";
 import { BrandLogo } from "@/components/BrandLogo";
+import { m, AnimatePresence } from "motion/react";
+import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
+import { dur, ease } from "@/lib/motion-tokens";
 
 const navSections = [
   {
     label: "Workspace",
     items: [
-      { title: "Overview", url: "/onboarding", icon: LayoutDashboard, hoverClass: "group-hover:scale-110 group-hover:rotate-3" },
-      { title: "Applications", url: "/applications", icon: LayoutGrid, hoverClass: "group-hover:scale-110 group-hover:rotate-6" },
-      { title: "Resume Vault", url: "/resume-vault", icon: FolderOpen, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
-      { title: "ATS Score", url: "/ats-score", icon: BarChart, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
-      { title: "Resume Tailor", url: "/resume-tailor", icon: FileText, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5" },
-      { title: "Cold Mail", url: "/cold-mail", icon: Mail, hoverClass: "group-hover:scale-110 group-hover:-translate-y-0.5" },
+      { title: "Overview", url: "/onboarding", icon: LayoutDashboard },
+      { title: "Applications", url: "/applications", icon: LayoutGrid },
+      { title: "Resume Vault", url: "/resume-vault", icon: FolderOpen },
+      { title: "ATS Score", url: "/ats-score", icon: BarChart },
+      { title: "Resume Tailor", url: "/resume-tailor", icon: FileText },
+      { title: "Cold Mail", url: "/cold-mail", icon: Mail },
     ],
   },
   {
     label: "Admin",
     items: [
-      { title: "Analytics", url: "/analytics", icon: TrendingUp, hoverClass: "group-hover:scale-110 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" },
+      { title: "Analytics", url: "/analytics", icon: TrendingUp },
     ],
   },
 ];
@@ -69,33 +71,41 @@ export function AppSidebar({
 
   return (
     <>
-      <div
-        className={`fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-sm transition-opacity md:hidden ${
-          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        onClick={onClose}
-      />
+      <AnimatePresence>
+        {mobileOpen && (
+          <m.div
+            key="sidebar-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: dur.fast }}
+            className="fixed inset-0 z-40 bg-black/25 backdrop-blur-xs md:hidden"
+            onClick={onClose}
+          />
+        )}
+      </AnimatePresence>
+
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-sidebar-border bg-sidebar transition-transform duration-300 md:z-40 ${
+        className={`fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-outly-border bg-outly-cream transition-transform duration-200 md:z-40 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
-        <div className="flex min-h-[72px] items-center gap-3 border-b border-sidebar-border px-5">
+        <div className="flex min-h-[64px] items-center gap-3 border-b border-outly-border px-5">
           <BrandLogo className="min-w-0" to="/onboarding" />
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto rounded-md border border-border p-1.5 text-muted-foreground transition-colors hover:text-foreground md:hidden"
+            className="ml-auto rounded-md border border-outly-border p-1.5 text-[#6B6760] transition-colors hover:text-[#1A1A1A] md:hidden cursor-pointer"
             aria-label="Close navigation"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-5">
+        <nav className="flex-1 overflow-y-auto px-3 py-5 font-rubik">
           {navSections.map((section) => (
             <div key={section.label} className="mb-6">
-              <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="mb-2 px-3 text-[11px] font-medium uppercase tracking-wider text-[#B0ADA9]">
                 {section.label}
               </p>
               <div className="space-y-1">
@@ -107,18 +117,18 @@ export function AppSidebar({
                       to={item.url}
                       end={item.url === "/onboarding"}
                       onClick={onClose}
-                      className={`group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium transition-all duration-200 ease-in-out transform hover:translate-x-1 active:scale-[0.97] ${
+                      className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-150 ${
                         isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
-                          : "text-sidebar-foreground hover:bg-secondary hover:text-foreground"
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "text-[#6B6760] hover:bg-outly-border/40 hover:text-[#1A1A1A]"
                       }`}
                       activeClassName=""
                     >
-                      <item.icon className={`h-4 w-4 shrink-0 transition-transform duration-300 ease-out ${item.hoverClass} ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
+                      <item.icon className={`h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-105 ${isActive ? "text-primary" : "text-[#6B6760] group-hover:text-[#1A1A1A]"}`} />
                       <span className="flex-1">{item.title}</span>
                       {item.url === "/cold-mail" && pendingColdMail > 0 && (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
-                          {pendingColdMail}
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-white">
+                          <AnimatedNumber value={pendingColdMail} />
                         </span>
                       )}
                     </NavLink>
@@ -129,24 +139,28 @@ export function AppSidebar({
           ))}
         </nav>
 
-        <div className="border-t border-sidebar-border p-4">
+        <div className="border-t border-outly-border p-4 font-rubik">
           <div className="mb-3 grid grid-cols-2 gap-2">
-            <div className="rounded-md border border-border bg-secondary p-3">
-              <span className="block text-[11px] font-medium text-muted-foreground">Today</span>
-              <span className="mt-1 block text-lg font-semibold text-foreground">{stats?.mailsToday ?? 0}</span>
+            <div className="rounded-lg border border-outly-border bg-outly-border/30 p-3">
+              <span className="block text-[11px] font-medium text-[#6B6760]">Today</span>
+              <span className="mt-1 block text-lg font-semibold text-[#1A1A1A]">
+                <AnimatedNumber value={stats?.mailsToday ?? 0} />
+              </span>
             </div>
-            <div className="rounded-md border border-border bg-secondary p-3">
-              <span className="block text-[11px] font-medium text-muted-foreground">Pending</span>
-              <span className="mt-1 block text-lg font-semibold text-foreground">{pendingColdMail}</span>
+            <div className="rounded-lg border border-outly-border bg-outly-border/30 p-3">
+              <span className="block text-[11px] font-medium text-[#6B6760]">Pending</span>
+              <span className="mt-1 block text-lg font-semibold text-[#1A1A1A]">
+                <AnimatedNumber value={pendingColdMail} />
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1A1A1A] text-[12px] font-semibold text-white">
               {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-semibold text-foreground">{fullName}</p>
-              <p className="truncate text-[12px] text-muted-foreground">{headline}</p>
+              <p className="truncate text-[13px] font-semibold text-[#1A1A1A]">{fullName}</p>
+              <p className="truncate text-[12px] text-[#6B6760]">{headline}</p>
             </div>
           </div>
         </div>

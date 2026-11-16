@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "motion/react";
+import { dur, ease } from "@/lib/motion-tokens";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -12,7 +13,8 @@ import {
   X,
   LogOut,
   KeyRound,
-  Sparkles,
+  Zap,
+  CheckCircle2,
   Calendar,
   HelpCircle,
   Briefcase,
@@ -93,7 +95,7 @@ function PlanStatusAvatar({
   plainBorderClass?: string;
 }) {
   return (
-    <div className={isPremium ? "relative p-[2px] rounded-full bg-gradient-to-tr from-[#ff4e50] via-[#f9d423] to-[#2dc08d] shadow-sm flex items-center justify-center shrink-0 transition-transform duration-200" : `relative ${sizeClass} overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${plainBorderClass}`}>
+    <div className={isPremium ? `relative ${sizeClass} rounded-full ring-2 ring-primary ring-offset-2 ring-offset-white shadow-sm flex items-center justify-center shrink-0` : `relative ${sizeClass} overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${plainBorderClass}`}>
       <div className={`relative ${sizeClass} overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${isPremium ? innerBorderClass : ""}`}>
         {profilePic ? (
           <img
@@ -233,10 +235,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       if (saved && saved !== "undefined") {
         let parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // Deduplicate "Upgraded to Pro! 🚀" notifications
+          // Deduplicate "Upgraded to Pro" notifications
           const seenProUpgrade = { value: false };
           const cleaned = parsed.filter((n: NotificationItem) => {
-            if (n && n.title === "Upgraded to Pro! 🚀") {
+            if (n && n.title === "Upgraded to Pro") {
               if (seenProUpgrade.value) {
                 return false;
               }
@@ -256,7 +258,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       } else {
         const welcome: NotificationItem = {
           id: "welcome",
-          title: "Welcome to Outly! 🎉",
+          title: "Welcome to Outly",
           description: "Upgrade to Pro to unlock unlimited resume tailoring, Job tracking & ATS checker.",
           time: "Just now",
           read: false
@@ -268,7 +270,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       console.error("Failed to parse notifications:", err);
       const welcome: NotificationItem = {
         id: "welcome",
-        title: "Welcome to Outly! 🎉",
+        title: "Welcome to Outly",
         description: "Upgrade to Pro to unlock unlimited resume tailoring, Job tracking & ATS checker.",
         time: "Just now",
         read: false
@@ -292,8 +294,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           read: false
         };
         setNotifications(prev => {
-          // Prevent duplicate "Upgraded to Pro! 🚀" notifications in state
-          if (customEvent.detail.title === "Upgraded to Pro! 🚀" && prev.some(n => n.title === "Upgraded to Pro! 🚀")) {
+          // Prevent duplicate "Upgraded to Pro" notifications in state
+          if (customEvent.detail.title === "Upgraded to Pro" && prev.some(n => n.title === "Upgraded to Pro")) {
             return prev;
           }
           const updated = [newItem, ...prev];
@@ -361,14 +363,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       // Dispatch notification on upgrade success
       if (isNowPremium) {
-        // Read current notifications to see if they already contain "Upgraded to Pro! 🚀"
+        // Read current notifications to see if they already contain "Upgraded to Pro"
         const saved = localStorage.getItem(`outly_notifications_${userEmail}`);
         let alreadyNotified = false;
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed)) {
-              alreadyNotified = parsed.some((n: any) => n.title === "Upgraded to Pro! 🚀");
+              alreadyNotified = parsed.some((n: any) => n.title === "Upgraded to Pro");
             }
           } catch (err) {
             console.error(err);
@@ -378,7 +380,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         if (!alreadyNotified) {
           window.dispatchEvent(new CustomEvent("outly-notification", {
             detail: {
-              title: "Upgraded to Pro! 🚀",
+              title: "Upgraded to Pro",
               description: "Congratulations! You have successfully upgraded to Outly Pro. Unlimited resume tailoring, Job tracking & ATS scans are now active."
             }
           }));
@@ -603,12 +605,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-outly-dark flex flex-col font-sans overflow-x-clip">
+    <div className="min-h-screen bg-outly-cream text-outly-dark flex flex-col font-sans overflow-x-clip">
 
       {/* Header Spacer Wrapper to prevent layout shift */}
-      <div className="h-16 w-full shrink-0 relative bg-[#FAF8F5] md:bg-[#EDE9E2]">
+      <div className="h-16 w-full shrink-0 relative bg-outly-cream">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E2DDD3]/60 bg-[#FAF8F5]/95 md:bg-[#EDE9E2]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-outly-border/60 bg-outly-cream/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
           <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
 
             {/* Left: Brand Logo */}
@@ -645,12 +647,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                   <AnimatePresence>
                   {activeDropdown === "resumes" && (
-                    <motion.div
+                    <m.div
                       variants={dropdownVariants}
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl select-none -mt-px"
+                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-outly-border bg-outly-cream p-5 shadow-2xl select-none -mt-px"
                       onMouseEnter={() => openDropdown("resumes")}
                       onMouseLeave={scheduleDropdownClose}
                       style={{ transformOrigin: "top center" }}
@@ -663,7 +665,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             to="/ats-score"
                             className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                           >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                               {/* Circle Check (ATS Resume Checker) */}
                               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" />
@@ -680,7 +682,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             to="/resume-tailor"
                             className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                           >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                               {/* 3D Cube (AI Resume Builder) */}
                               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
@@ -698,7 +700,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             to="/resume-vault"
                             className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                           >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                               {/* Document List (Resume Examples) */}
                               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
@@ -716,7 +718,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       </div>
 
                       {/* Right: Learning */}
-                      <div className="col-span-5 border-l border-[#E2DDD3] pl-4 space-y-2.5">
+                      <div className="col-span-5 border-l border-outly-border pl-4 space-y-2.5">
                         <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
                         <div className="space-y-3.5 pt-1">
                           <button
@@ -745,7 +747,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           </button>
                         </div>
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                   </AnimatePresence>
                 </div>
@@ -771,12 +773,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                   <AnimatePresence>
                   {activeDropdown === "jobs" && (
-                    <motion.div
+                    <m.div
                       variants={dropdownVariants}
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl select-none -mt-px"
+                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-outly-border bg-outly-cream p-5 shadow-2xl select-none -mt-px"
                       onMouseEnter={() => openDropdown("jobs")}
                       onMouseLeave={scheduleDropdownClose}
                       style={{ transformOrigin: "top center" }}
@@ -789,7 +791,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             to="/job-search"
                             className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                           >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                               {/* Office Building (Job Board) — Enhancv style */}
                               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                                 <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
@@ -812,7 +814,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             to="/applications"
                             className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                           >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                               {/* Target/Bullseye (Job Tracker) */}
                               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" />
@@ -829,7 +831,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       </div>
 
                       {/* Right: Resources */}
-                      <div className="col-span-5 border-l border-[#E2DDD3] pl-4 space-y-2.5">
+                      <div className="col-span-5 border-l border-outly-border pl-4 space-y-2.5">
                         <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
                         <div className="space-y-3.5 pt-1">
                           <button
@@ -858,7 +860,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           </button>
                         </div>
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                   </AnimatePresence>
                 </div>
@@ -884,12 +886,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                   <AnimatePresence>
                   {activeDropdown === "tools" && (
-                    <motion.div
+                    <m.div
                       variants={dropdownVariants}
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-b-2xl rounded-t-none border-x border-b border-[#E2DDD3]/80 bg-[#EDE9E2] p-5 shadow-2xl select-none -mt-px"
+                      className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-b-2xl rounded-t-none border-x border-b border-outly-border bg-outly-cream p-5 shadow-2xl select-none -mt-px"
                       onMouseEnter={() => openDropdown("tools")}
                       onMouseLeave={scheduleDropdownClose}
                       style={{ transformOrigin: "top center" }}
@@ -900,7 +902,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           to="/cold-mail"
                           className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2DDD3] text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
                             {/* Envelope (Cold Mail) */}
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -913,7 +915,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           </div>
                         </Link>
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                   </AnimatePresence>
                 </div>
@@ -975,7 +977,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-[#2DC08D]/10 hover:bg-[#2DC08D]/20 text-[#2DC08D] border border-[#2DC08D]/30 text-xs font-semibold transition-all duration-200 active:scale-95 cursor-pointer shadow-2xs"
                   title="Guest Demo Mode - Click to upgrade"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
+                  <Clock className="w-3.5 h-3.5 text-primary" />
                   <span>Demo · {demoCountdown}</span>
                   <span className="hidden sm:inline-block text-[9.5px] font-bold tracking-wider uppercase bg-[#2DC08D] text-white px-1.5 py-0.5 rounded-full ml-0.5">
                     Sign Up
@@ -993,7 +995,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 >
                   <Bell className="h-[19px] w-[19px]" />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#EDE9E2]">
+                    <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-outly-cream">
                       {unreadCount}
                     </span>
                   )}
@@ -1001,7 +1003,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 <AnimatePresence>
                 {notificationsOpen && (
-                  <motion.div
+                  <m.div
                     variants={popoverVariants}
                     initial="hidden"
                     animate="visible"
@@ -1042,7 +1044,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         ))
                       )}
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
                 </AnimatePresence>
               </div>
@@ -1060,13 +1062,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 <AnimatePresence>
                 {profileMenuOpen && (
-                  <motion.div
+                  <m.div
                     variants={popoverVariants}
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                     style={{ transformOrigin: "top right" }}
-                    className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#EDE9E2] border border-[#E2DDD3] font-sans shadow-xl z-[120] py-1.5 overflow-hidden"
+                    className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-outly-cream border border-outly-border font-sans shadow-xl z-[120] py-1.5 overflow-hidden"
                   >
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
@@ -1080,14 +1082,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
                       >
                         <div className="flex items-center gap-2">
-                          <Sparkles className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
+                          <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
                           <span>Upgrade to Pro</span>
                         </div>
                         <Lock className="h-3 w-3 text-amber-600/70" />
                       </button>
                     ) : isPremium ? (
                       <div className="px-3 py-2.5 border-b border-[#e8e2d5] bg-primary/5 flex items-center gap-2 select-none">
-                        <Sparkles className="h-3.5 w-3.5 fill-primary/10 text-primary animate-pulse" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
                         <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
                           Cloud Pro Active
                         </span>
@@ -1100,7 +1102,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         }}
                         className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
                       >
-                        <Sparkles className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
+                        <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
                         Upgrade to Pro
                       </button>
                     )}
@@ -1142,7 +1144,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <LogOut className="h-3.5 w-3.5" />
                       Sign Out
                     </button>
-                  </motion.div>
+                  </m.div>
                 )}
                 </AnimatePresence>
               </div>
@@ -1157,7 +1159,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 >
                   <Bell className="h-[21px] w-[21px]" />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-[#FAF8F5] md:ring-[#EDE9E2]">
+                    <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white leading-none shadow-xs ring-2 ring-outly-cream">
                       {unreadCount}
                     </span>
                   )}
@@ -1165,7 +1167,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 <AnimatePresence>
                 {notificationsOpen && (
-                  <motion.div
+                  <m.div
                     variants={popoverVariants}
                     initial="hidden"
                     animate="visible"
@@ -1206,7 +1208,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         ))
                       )}
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
                 </AnimatePresence>
               </div>
@@ -1230,13 +1232,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 <AnimatePresence>
                 {profileMenuOpen && (
-                  <motion.div
+                  <m.div
                     variants={popoverVariants}
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                     style={{ transformOrigin: "top right" }}
-                    className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] font-sans shadow-xl z-[120] py-1.5 overflow-hidden"
+                    className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-outly-cream border border-outly-border font-sans shadow-xl z-[120] py-1.5 overflow-hidden"
                   >
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#f0ece4]">
                       {fullName}
@@ -1251,14 +1253,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
                       >
                         <div className="flex items-center gap-2">
-                          <Sparkles className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
+                          <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
                           <span>Upgrade to Pro</span>
                         </div>
                         <Lock className="h-3 w-3 text-amber-600/70" />
                       </button>
                     ) : isPremium ? (
                       <div className="px-3 py-2.5 border-b border-[#f0ece4] bg-primary/5 flex items-center gap-2 select-none">
-                        <Sparkles className="h-3.5 w-3.5 fill-primary/10 text-primary animate-pulse" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
                         <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
                           Cloud Pro Active
                         </span>
@@ -1271,7 +1273,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         }}
                         className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
                       >
-                        <Sparkles className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
+                        <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
                         Upgrade to Pro
                       </button>
                     )}
@@ -1314,7 +1316,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <LogOut className="h-3.5 w-3.5" />
                       Sign Out
                     </button>
-                  </motion.div>
+                  </m.div>
                 )}
                 </AnimatePresence>
               </div>
@@ -1329,7 +1331,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* ─── MOBILE BOTTOM TAB BAR (iOS-STYLE SPRING INDICATOR) ─── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] bg-[#FAF8F5]/95 backdrop-blur-md border-t border-[#E8E4DC]/80 flex items-center justify-around shadow-[0_-2px_12px_rgba(0,0,0,0.03)] select-none">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] bg-outly-cream/95 backdrop-blur-md border-t border-outly-border flex items-center justify-around shadow-[0_-2px_12px_rgba(0,0,0,0.03)] select-none">
 
         {/* Tab 1: Resumes */}
         <Link
@@ -1345,19 +1347,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             return (
               <>
                 {isActive && (
-                  <motion.div
+                  <m.div
                     layoutId="mobile-bottom-indicator"
                     className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
                     transition={{ type: "spring", stiffness: 500, damping: 35 }}
                   />
                 )}
-                <motion.div
+                <m.div
                   animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
                   transition={{ type: "spring", stiffness: 450, damping: 28 }}
                   className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
                 >
                   <ScrollText className="h-5 w-5" />
-                </motion.div>
+                </m.div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
                   Resumes
                 </span>
@@ -1379,19 +1381,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             return (
               <>
                 {isActive && (
-                  <motion.div
+                  <m.div
                     layoutId="mobile-bottom-indicator"
                     className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
                     transition={{ type: "spring", stiffness: 500, damping: 35 }}
                   />
                 )}
-                <motion.div
+                <m.div
                   animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
                   transition={{ type: "spring", stiffness: 450, damping: 28 }}
                   className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
                 >
                   <Briefcase className="h-5 w-5" />
-                </motion.div>
+                </m.div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
                   Jobs
                 </span>
@@ -1412,19 +1414,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             return (
               <>
                 {isActive && (
-                  <motion.div
+                  <m.div
                     layoutId="mobile-bottom-indicator"
                     className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
                     transition={{ type: "spring", stiffness: 500, damping: 35 }}
                   />
                 )}
-                <motion.div
+                <m.div
                   animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
                   transition={{ type: "spring", stiffness: 450, damping: 28 }}
                   className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
                 >
                   <Wrench className="h-5 w-5" />
-                </motion.div>
+                </m.div>
                 <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
                   Tools
                 </span>
@@ -1460,19 +1462,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               return (
                 <>
                   {isActive && (
-                    <motion.div
+                    <m.div
                       layoutId="mobile-bottom-indicator"
                       className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
                       transition={{ type: "spring", stiffness: 500, damping: 35 }}
                     />
                   )}
-                  <motion.div
+                  <m.div
                     animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
                     transition={{ type: "spring", stiffness: 450, damping: 28 }}
                     className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
                   >
                     <User className="h-5 w-5" />
-                  </motion.div>
+                  </m.div>
                   <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
                     Profile
                   </span>

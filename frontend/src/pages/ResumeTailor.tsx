@@ -5,6 +5,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import AiErrorModal from "@/components/AiErrorModal";
+import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
+import { Spinner } from "@/components/Spinner";
+import { m, AnimatePresence } from "motion/react";
+import { dur, ease, spring } from "@/lib/motion-tokens";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PdfViewer from "@/components/PdfViewer";
 import {
@@ -624,7 +628,7 @@ export default function ResumeTailorPage() {
       });
       window.dispatchEvent(new CustomEvent("outly-notification", {
         detail: {
-          title: "Resume Tailored ✨",
+          title: "Resume Tailored",
           description: "Your resume has been successfully tailored for the target job description."
         }
       }));
@@ -748,7 +752,7 @@ export default function ResumeTailorPage() {
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
           <div>
             <div className="hidden sm:inline-flex items-center gap-2 mb-1">
-              <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
+              <Target className="w-3.5 h-3.5 text-primary" />
               <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
                 Resume / Tailor
               </span>
@@ -797,7 +801,7 @@ export default function ResumeTailorPage() {
                   disabled={savingToVault}
                   className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 font-medium"
                 >
-                  {savingToVault ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                  {savingToVault ? <Spinner size={14} className="text-current" /> : <Save className="w-3.5 h-3.5" />}
                   <span>{savingToVault ? "Saving..." : "Save"}</span>
                 </button>
               </div>
@@ -891,7 +895,7 @@ export default function ResumeTailorPage() {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div>
           <div className="hidden sm:inline-flex items-center gap-2 mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
+            <Target className="w-3.5 h-3.5 text-primary" />
             <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
               Resume / Tailor
             </span>

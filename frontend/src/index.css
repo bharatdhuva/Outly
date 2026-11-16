@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500;600&family=Rubik:ital,wght@0,300..900;1,300..900&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -80,7 +80,8 @@
       radial-gradient(circle at 90% 10%, rgba(25, 204, 149, 0.04), transparent 40%),
       radial-gradient(circle at 10% 90%, rgba(89, 37, 220, 0.03), transparent 45%),
       #F8F7F4;
-    @apply text-foreground font-sans antialiased;
+    @apply text-foreground antialiased;
+    font-family: 'Rubik', system-ui, sans-serif;
     overflow-x: clip;
     width: 100%;
   }
@@ -105,7 +106,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Rubik', system-ui, sans-serif;
   }
 
   ::-webkit-scrollbar {

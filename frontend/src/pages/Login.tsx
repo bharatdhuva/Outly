@@ -1,85 +1,72 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+/**
+ * Login.tsx — reference page (first page reviewed before rolling out to others)
+ *
+ * Changes from old version:
+ * - GSAP removed entirely; promo slides use motion/react AnimatePresence
+ * - Sparkles icon removed from "Try Demo" button
+ * - Italic serif flourish on headings removed
+ * - Decorative concentric-circles SVG removed
+ * - Emoji removed from toast messages
+ * - IosRadialSpinner replaced with shared Spinner component
+ * - Error div uses AnimatePresence instead of CSS animate-fade-in
+ * - whileTap on buttons (via m.button) instead of active:scale-[0.98] class
+ * - Hardcoded hex colors replaced with CSS token classes
+ */
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
-import { Sparkles } from "lucide-react";
-import gsap from "gsap";
-import confetti from "canvas-confetti";
+import { m, AnimatePresence } from "motion/react";
+import { ChevronRight } from "lucide-react";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import { api } from "../lib/api";
 import { useToast } from "../hooks/use-toast";
+import { Spinner } from "../components/Spinner";
+import { dur, ease, fadeUpVariants } from "../lib/motion-tokens";
 
-interface SlideText {
-  titleStart: string;
-  italicizedText: string;
+// ─── Promo slides ─────────────────────────────────────────────────────────────
+interface Slide {
+  title: string;
   subtitle: string;
 }
 
-const promoSlides: SlideText[] = [
+const slides: Slide[] = [
   {
-    titleStart: "Your resume, ",
-    italicizedText: "perfectly matched.",
-    subtitle: "Instantly score and tailor your resume to hit 95%+ ATS compatibility for every job description."
+    title: "Your resume, perfectly matched.",
+    subtitle: "Score and tailor your resume to hit 95%+ ATS compatibility for any job description.",
   },
   {
-    titleStart: "Your outreach, ",
-    italicizedText: "on autopilot.",
-    subtitle: "Identify target recruiters and draft personalized cold emails that sound exactly like you."
+    title: "Your outreach, on autopilot.",
+    subtitle: "Find target recruiters and draft personalized cold emails that sound exactly like you.",
   },
   {
-    titleStart: "Your career, ",
-    italicizedText: "already sorted.",
-    subtitle: "One calm morning brief to track your applications, outreach queue, and daily interview prep."
+    title: "Your career, already sorted.",
+    subtitle: "One dashboard to track applications, outreach queue, and daily interview prep.",
   },
   {
-    titleStart: "Your interviews, ",
-    italicizedText: "fully scheduled.",
-    subtitle: "Coordinate seamlessly with hiring managers and land your dream offer faster."
-  }
+    title: "Your interviews, fully scheduled.",
+    subtitle: "Coordinate with hiring managers and land your next offer faster.",
+  },
 ];
 
-/**
- * iOS-style 12-blade stepped radial loading spinner (exact match to UIActivityIndicator)
- */
-function IosRadialSpinner({ className = "w-5 h-5 text-outly-dark" }: { className?: string }) {
-  const blades = [
-    { deg: 0, opacity: 1.0 },
-    { deg: 30, opacity: 0.18 },
-    { deg: 60, opacity: 0.25 },
-    { deg: 90, opacity: 0.32 },
-    { deg: 120, opacity: 0.40 },
-    { deg: 150, opacity: 0.48 },
-    { deg: 180, opacity: 0.56 },
-    { deg: 210, opacity: 0.64 },
-    { deg: 240, opacity: 0.73 },
-    { deg: 270, opacity: 0.82 },
-    { deg: 300, opacity: 0.90 },
-    { deg: 330, opacity: 0.96 },
-  ];
+// ─── Variants (defined outside component — no re-creation on render) ──────────
+const slideVariants = {
+  enter:   { opacity: 0, y: 14 },
+  center:  { opacity: 1, y: 0,   transition: { duration: dur.enter, ease: ease.out } },
+  exit:    { opacity: 0, y: -10, transition: { duration: dur.exit,  ease: ease.in  } },
+} as const;
 
-  return (
-    <svg
-      className={`${className} animate-[spin_0.85s_steps(12,end)_infinite] shrink-0`}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      {blades.map(({ deg, opacity }) => (
-        <rect
-          key={deg}
-          x="10.85"
-          y="1.5"
-          width="2.3"
-          height="5.8"
-          rx="1.15"
-          opacity={opacity}
-          transform={`rotate(${deg} 12 12)`}
-        />
-      ))}
-    </svg>
-  );
-}
+const panelVariants = {
+  hidden:  { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: dur.enter, ease: ease.out, delay: 0.1 } },
+} as const;
 
+const errorVariants = {
+  hidden:  { opacity: 0, height: 0 },
+  visible: { opacity: 1, height: "auto", transition: { duration: dur.normal, ease: ease.out } },
+  exit:    { opacity: 0, height: 0,      transition: { duration: dur.exit,   ease: ease.in  } },
+} as const;
+
+// ─── Session persistence helper ───────────────────────────────────────────────
 function saveUserSession(res: any) {
   if (!res) return;
   if (res.token) localStorage.setItem("outly_token", res.token);
@@ -91,49 +78,39 @@ function saveUserSession(res: any) {
     if (res.user.fullName) localStorage.setItem("outly_user_name", res.user.fullName);
     if (res.user.profilePic) {
       localStorage.setItem("outly_user_avatar", res.user.profilePic);
-      try {
-        const img = new Image();
-        img.src = res.user.profilePic;
-      } catch { }
+      try { const img = new Image(); img.src = res.user.profilePic; } catch {}
     }
     if (res.user.email) localStorage.setItem("outly_user_email", res.user.email);
     localStorage.setItem("outly_user_session", JSON.stringify({ user: res.user }));
   }
 }
 
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function Login() {
-  const navigate = useNavigate();
-  const navigateTo = usePageTransition();
-  const { toast } = useToast();
-  const formWrapperRef = useRef<HTMLDivElement>(null);
-  const textWrapperRef = useRef<HTMLDivElement>(null);
+  const navigate      = useNavigate();
+  const navigateTo    = usePageTransition();
+  const { toast }     = useToast();
 
-  // Left slide states
-  const [activeSlide, setActiveSlide] = useState(0);
-
-  // Action states
+  const [activeSlide,     setActiveSlide]     = useState(0);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isDemoLoading, setIsDemoLoading] = useState(false);
-  const [demoError, setDemoError] = useState<string | null>(null);
-  const [isWakingServer, setIsWakingServer] = useState(false);
+  const [isDemoLoading,   setIsDemoLoading]   = useState(false);
+  const [demoError,       setDemoError]       = useState<string | null>(null);
+  const [isWakingServer,  setIsWakingServer]  = useState(false);
 
+  // Redirect if already authenticated
   useEffect(() => {
     const token = localStorage.getItem("outly_token");
-    if (token) {
-      navigate("/onboarding");
-      return;
-    }
+    if (token) { navigate("/onboarding"); return; }
+    document.title = "Outly — Sign In";
 
-    document.title = "Outly - Sign In";
-
-    // Warm up the backend server/database immediately in background
+    // Warm up backend
     let isSlow = false;
     const timeoutId = setTimeout(() => {
       isSlow = true;
       setIsWakingServer(true);
       toast({
-        title: "Waking up the cloud server... 🌌",
-        description: "The free hosting tier goes to sleep after inactivity. We are booting it up for you. This will take about 15-30 seconds, please hold on!",
+        title: "Connecting to server",
+        description: "The free hosting tier was sleeping. Booting now — takes about 20 seconds.",
         duration: 10000,
       });
     }, 2000);
@@ -143,52 +120,25 @@ export default function Login() {
         clearTimeout(timeoutId);
         setIsWakingServer(false);
         if (isSlow) {
-          toast({
-            title: "Server Connected! 🚀",
-            description: "The server is awake and ready. You can now log in instantly.",
-          });
+          toast({ title: "Server ready", description: "You can sign in now." });
         }
       })
-      .catch(() => {
-        clearTimeout(timeoutId);
-        setIsWakingServer(false);
-      });
+      .catch(() => { clearTimeout(timeoutId); setIsWakingServer(false); });
   }, []);
 
-  // ─── 1. Left Panel Slide Loop (Auto-cycles) ───
+  // Auto-advance slides
+  const advanceSlide = useCallback(() => {
+    setActiveSlide((s) => (s + 1) % slides.length);
+  }, []);
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      const nextIndex = (activeSlide + 1) % promoSlides.length;
-      triggerTextSlide(nextIndex);
-    }, 3000);
+    const timer = setInterval(advanceSlide, 3200);
     return () => clearInterval(timer);
-  }, [activeSlide]);
+  }, [advanceSlide]);
 
-  const triggerTextSlide = (nextIndex: number) => {
-    const textEl = textWrapperRef.current;
-    if (!textEl) {
-      setActiveSlide(nextIndex);
-      return;
-    }
-
-    gsap.to(textEl, {
-      opacity: 0,
-      y: -20,
-      duration: 0.25,
-      ease: "power2.in",
-      onComplete: () => {
-        setActiveSlide(nextIndex);
-        gsap.fromTo(textEl,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
-        );
-      }
-    });
-  };
-
+  // Google sign-in
   const handleGoogleSignIn = async () => {
     if (isGoogleLoading || isDemoLoading) return;
-
     setIsGoogleLoading(true);
 
     const google = (window as any).google;
@@ -196,19 +146,9 @@ export default function Login() {
       try {
         const res = await api.auth.googleLogin("mock_bypass_token");
         saveUserSession(res);
-        confetti({
-          particleCount: 80,
-          spread: 60,
-          origin: { y: 0.6 },
-          colors: ["#2dc08d", "#1a1a1a"]
-        });
         navigate("/onboarding");
       } catch (err: any) {
-        toast({
-          title: "Bypass login failed",
-          description: err.message || "Failed to log in via bypass.",
-          variant: "destructive"
-        });
+        toast({ title: "Sign-in failed", description: err.message || "Unable to log in.", variant: "destructive" });
         setIsGoogleLoading(false);
       }
       return;
@@ -220,12 +160,7 @@ export default function Login() {
         scope: "email profile openid",
         callback: async (response: any) => {
           if (response.error) {
-            console.error("Google sign-in error:", response.error);
-            toast({
-              title: "Google sign-in failed",
-              description: "Unable to authenticate with Google. Please try again.",
-              variant: "destructive"
-            });
+            toast({ title: "Google sign-in failed", description: "Unable to authenticate. Please try again.", variant: "destructive" });
             setIsGoogleLoading(false);
             return;
           }
@@ -233,41 +168,21 @@ export default function Login() {
             try {
               const res = await api.auth.googleLogin(response.access_token);
               saveUserSession(res);
-              confetti({
-                particleCount: 80,
-                spread: 60,
-                origin: { y: 0.6 },
-                colors: ["#2dc08d", "#1a1a1a"]
-              });
               navigate("/onboarding");
             } catch (err: any) {
-              console.error("Google login backend error:", err);
-              toast({
-                title: "Google sign-in failed",
-                description: err.message || "Unable to sign in with Google.",
-                variant: "destructive"
-              });
+              toast({ title: "Sign-in failed", description: err.message || "Unable to sign in with Google.", variant: "destructive" });
               setIsGoogleLoading(false);
             }
           }
         },
       });
       client.requestAccessToken();
-    } catch (err) {
-      console.error("Google token client init failed:", err);
-      setTimeout(() => {
-        setIsGoogleLoading(false);
-        confetti({
-          particleCount: 80,
-          spread: 60,
-          origin: { y: 0.6 },
-          colors: ["#2dc08d", "#1a1a1a"]
-        });
-        navigate("/dashboard");
-      }, 800);
+    } catch {
+      setTimeout(() => { setIsGoogleLoading(false); navigate("/dashboard"); }, 800);
     }
   };
 
+  // Demo session
   const handleTryDemo = async () => {
     if (isDemoLoading || isGoogleLoading) return;
     setIsDemoLoading(true);
@@ -276,164 +191,159 @@ export default function Login() {
     try {
       const res = await api.auth.demo();
       saveUserSession(res);
-
-      confetti({
-        particleCount: 90,
-        spread: 65,
-        origin: { y: 0.6 },
-        colors: ["#2dc08d", "#1a1a1a"]
-      });
-
       toast({
-        title: "Welcome to Outly Demo! ✨",
-        description: "You have 25 minutes of guest access to test ATS scoring, tailored resumes, and outreach.",
+        title: "Welcome to Outly",
+        description: "25 minutes of guest access. ATS scoring, resume tailoring, and cold outreach are ready.",
       });
-
       navigate("/onboarding");
     } catch (err: any) {
       setIsDemoLoading(false);
       const isAlreadyUsed = err?.data?.code === "DEMO_ALREADY_USED" || err?.message?.includes("already used");
       const msg = isAlreadyUsed
-        ? "You have already used your free demo session. Please continue with Google to unlock full access."
-        : (err?.message || "Failed to create demo session. Please try again.");
-
+        ? "You have already used your free demo session. Continue with Google to unlock full access."
+        : (err?.message || "Could not create demo session. Please try again.");
       setDemoError(msg);
-      toast({
-        title: isAlreadyUsed ? "Demo session already used" : "Demo creation failed",
-        description: msg,
-        variant: "destructive"
-      });
-
+      toast({ title: isAlreadyUsed ? "Demo already used" : "Demo failed", description: msg, variant: "destructive" });
       if (isAlreadyUsed) {
         window.dispatchEvent(new CustomEvent("outly_demo_modal", {
-          detail: { code: "DEMO_ALREADY_USED", message: msg, isExpired: false }
+          detail: { code: "DEMO_ALREADY_USED", message: msg, isExpired: false },
         }));
       }
     }
   };
 
-  const currentSlide = promoSlides[activeSlide];
+  const isDisabled = isGoogleLoading || isDemoLoading || isWakingServer;
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#F2EBDD] font-sans selection:bg-outly-accent/20">
+    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-outly-cream font-rubik selection:bg-primary/15">
 
-      {/* LEFT PANEL: Branding & Sliding Promo */}
-      <div className="hidden lg:flex w-1/2 bg-[#F2EBDD] p-12 lg:p-16 flex-col justify-between relative overflow-hidden select-none sticky top-0 h-screen shrink-0 border-r border-[#e8e2d5]/60">
+      {/* ── LEFT PANEL ── */}
+      <div className="hidden lg:flex w-1/2 flex-col justify-between p-14 xl:p-16 border-r border-outly-border bg-outly-cream/60 sticky top-0 h-screen shrink-0 select-none overflow-hidden">
 
-        {/* Concentric circles vector background lines */}
-        <div className="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/4 pointer-events-none opacity-40">
-          <svg width="600" height="600" viewBox="0 0 600 600" fill="none">
-            <circle cx="300" cy="300" r="280" stroke="#e8e2d5" strokeWidth="1" />
-            <circle cx="300" cy="300" r="220" stroke="#e8e2d5" strokeWidth="1" />
-            <circle cx="300" cy="300" r="160" stroke="#e8e2d5" strokeWidth="1" />
-            <circle cx="300" cy="300" r="100" stroke="#e8e2d5" strokeWidth="1" />
-          </svg>
-        </div>
+        {/* Logo */}
+        <button
+          type="button"
+          onClick={() => navigateTo("/")}
+          className="inline-flex items-center hover:opacity-75 transition-opacity duration-150 cursor-pointer bg-transparent border-none p-0 self-start"
+          aria-label="Go to home"
+        >
+          <img src={logoTransparent} alt="Outly" className="h-7 w-auto object-contain" />
+        </button>
 
-        {/* Logo Header */}
-        <div className="flex items-center z-10 cursor-pointer hover:opacity-80 transition-opacity self-start" onClick={() => navigateTo("/")}>
-          <img src={logoTransparent} alt="Outly Logo" className="h-8 w-auto object-contain" />
-        </div>
-
-        {/* Sliding Text Container */}
-        <div className="my-auto max-w-[480px] z-10 flex flex-col justify-center py-8">
-
-          {/* Fixed-height wrapper to prevent layout shift */}
-          <div className="min-h-[200px] flex flex-col justify-start select-none">
-            <div ref={textWrapperRef} className="will-change-transform">
-              <h2 className="text-[52px] font-normal tracking-tight leading-[1.15] text-outly-dark mb-4 font-serif">
-                {currentSlide.titleStart}
-                <span className="italic text-outly-accent font-serif">{currentSlide.italicizedText}</span>
-              </h2>
-
-              <p className="text-[16px] text-outly-dark/70 leading-relaxed font-normal mb-8">
-                {currentSlide.subtitle}
-              </p>
-            </div>
+        {/* Sliding promo text */}
+        <div className="max-w-[460px]">
+          {/* Fixed-height container prevents layout shift between slides */}
+          <div className="min-h-[160px] flex flex-col justify-start mb-8">
+            <AnimatePresence mode="wait">
+              <m.div
+                key={activeSlide}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+              >
+                <h2 className="text-[42px] xl:text-[48px] font-medium tracking-tight leading-[1.18] text-[#1A1A1A] mb-4">
+                  {slides[activeSlide].title}
+                </h2>
+                <p className="text-[15px] text-[#6B6760] leading-relaxed">
+                  {slides[activeSlide].subtitle}
+                </p>
+              </m.div>
+            </AnimatePresence>
           </div>
 
-          {/* Slider Progress Indicator Pills */}
+          {/* Slide progress pills */}
           <div className="flex items-center gap-2 mb-10">
-            {promoSlides.map((_, idx) => (
+            {slides.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
-                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${activeSlide === idx ? "bg-outly-accent w-7" : "bg-[#e8e2d5] hover:bg-outly-accent/40 w-2"
-                  }`}
-                onClick={() => triggerTextSlide(idx)}
+                onClick={() => setActiveSlide(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer border-none outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                  activeSlide === idx
+                    ? "bg-primary w-6"
+                    : "bg-[#C8C3B8] hover:bg-primary/40 w-1.5"
+                }`}
               />
             ))}
           </div>
 
-          {/* Bullet Feature List */}
-          <ul className="space-y-3.5">
-            <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
-              <span className="text-outly-dark/50 shrink-0 select-none font-bold">✓</span>
-              <span>Instantly check ATS scores and tailor resumes in one click</span>
-            </li>
-            <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
-              <span className="text-outly-dark/50 shrink-0 select-none font-bold">✓</span>
-              <span>Automate personalized recruiter outreach and follow-ups</span>
-            </li>
-            <li className="flex items-start gap-3 text-[14px] font-normal text-outly-dark/80 leading-relaxed">
-              <span className="text-outly-dark/50 shrink-0 select-none font-bold">✓</span>
-              <span>Track application pipelines and get daily morning briefs</span>
-            </li>
+          {/* Feature list */}
+          <ul className="space-y-3">
+            {[
+              "Score and tailor your resume for any role in one click",
+              "Automate personalized recruiter outreach",
+              "Track applications and get daily prep briefs",
+            ].map((text) => (
+              <li key={text} className="flex items-start gap-3 text-[13px] text-[#6B6760] leading-relaxed">
+                <svg className="w-4 h-4 text-primary shrink-0 mt-px" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7.25" stroke="currentColor" strokeWidth="1.25" />
+                  <polyline points="5 8 7 10.5 11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>{text}</span>
+              </li>
+            ))}
           </ul>
         </div>
 
         {/* Footer */}
-        <div className="text-[12px] font-normal text-outly-dark/40 z-10">
-          © 2026 Outly. All rights reserved.
-        </div>
+        <span className="text-[11px] text-[#B0ADA9]">© 2026 Outly. All rights reserved.</span>
       </div>
 
-      {/* RIGHT PANEL: Auth Actions (Google & Try Demo Only) */}
-      <div className="w-full lg:w-1/2 p-6 lg:p-16 flex flex-col justify-center items-center min-h-screen bg-[#FAF6F0]">
-        <div ref={formWrapperRef} className="w-full max-w-[400px] flex flex-col justify-center will-change-transform py-12 lg:py-16">
+      {/* ── RIGHT PANEL ── */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center min-h-screen p-6 lg:p-16 bg-outly-cream">
+        <m.div
+          variants={panelVariants}
+          initial="hidden"
+          animate="visible"
+          className="w-full max-w-[400px] flex flex-col"
+        >
+          {/* Mobile logo */}
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="flex items-center lg:hidden mb-10 cursor-pointer bg-transparent border-none p-0 self-start"
+          >
+            <img src={logoTransparent} alt="Outly" className="h-6 w-auto object-contain" />
+          </button>
 
-          {/* Mobile Logo */}
-          <div className="flex items-center lg:hidden mb-8 self-start cursor-pointer" onClick={() => navigate("/")}>
-            <img src={logoTransparent} alt="Outly Logo" className="h-6 w-auto object-contain" />
-          </div>
-
-          {/* Header Titles */}
-          <div className="mb-8 text-center sm:text-left">
-            <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-outly-dark leading-tight mb-2.5 font-serif">
+          {/* Heading */}
+          <div className="mb-9">
+            <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-tight text-[#1A1A1A] leading-tight mb-2">
               Welcome to Outly
             </h1>
-            <p className="text-[14px] font-normal text-outly-dark/70 leading-relaxed">
-              Your calm, unified workspace for resume optimization and recruiter outreach.
+            <p className="text-[14px] text-[#6B6760] leading-relaxed">
+              Your workspace for resume optimization and recruiter outreach.
             </p>
           </div>
 
-          {/* Action Buttons Container (min width 358px verified, 48px touch targets) */}
-          <div className="space-y-3.5 w-full">
+          {/* Buttons */}
+          <div className="space-y-3">
 
-            {/* 1. Primary: Continue with Google */}
-            <button
+            {/* Primary: Google */}
+            <m.button
               type="button"
               onClick={handleGoogleSignIn}
-              disabled={isGoogleLoading || isDemoLoading || isWakingServer}
-              className="w-full min-h-[48px] bg-white border border-[#e8e2d5] hover:border-outly-dark/40 py-3.5 px-6 rounded-full font-sans text-[15px] font-medium text-outly-dark flex items-center justify-center gap-3 select-none transition-all duration-200 shadow-2xs hover:shadow-xs active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
+              disabled={isDisabled}
+              whileTap={isDisabled ? {} : { scale: 0.97 }}
+              transition={{ duration: dur.instant }}
+              className="w-full min-h-[48px] bg-white border border-[#E0DBCF] hover:border-[#B0ADA9] rounded-[24px] text-[14px] font-medium text-[#1A1A1A] flex items-center justify-center gap-3 select-none transition-colors duration-150 shadow-[0_1px_3px_rgba(26,26,26,0.07)] hover:shadow-[0_4px_16px_rgba(26,26,26,0.10)] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               {isGoogleLoading ? (
-                <div className="flex items-center justify-center gap-2.5">
-                  <IosRadialSpinner className="w-5 h-5 text-outly-dark" />
-                  <span className="text-[13px] font-bold tracking-wider uppercase text-outly-dark">
-                    Signing in...
-                  </span>
-                </div>
+                <>
+                  <Spinner size={18} className="text-[#1A1A1A]" />
+                  <span className="text-[13px] font-medium">Signing in…</span>
+                </>
               ) : isWakingServer ? (
-                <div className="flex items-center justify-center gap-2.5">
-                  <IosRadialSpinner className="w-5 h-5 text-outly-dark" />
-                  <span className="text-[13px] font-medium text-outly-dark">
-                    Connecting to server...
-                  </span>
-                </div>
+                <>
+                  <Spinner size={18} className="text-[#1A1A1A]" />
+                  <span className="text-[13px] font-medium">Connecting to server…</span>
+                </>
               ) : (
                 <>
-                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Real Google G mark */}
+                  <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
@@ -442,55 +352,69 @@ export default function Login() {
                   <span>Continue with Google</span>
                 </>
               )}
-            </button>
+            </m.button>
 
-            {/* 2. Secondary Outline: Try Demo */}
+            {/* Secondary: Try Demo */}
             <div className="w-full">
-              <button
+              <m.button
                 type="button"
                 onClick={handleTryDemo}
-                disabled={isGoogleLoading || isDemoLoading || isWakingServer}
-                className="w-full min-h-[48px] bg-transparent border-2 border-outly-accent/80 hover:border-outly-accent hover:bg-outly-accent/5 text-outly-accent py-3 px-6 rounded-full font-sans text-[15px] font-medium flex items-center justify-center gap-2.5 select-none transition-all duration-200 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+                disabled={isDisabled}
+                whileTap={isDisabled ? {} : { scale: 0.97 }}
+                transition={{ duration: dur.instant }}
+                className="w-full min-h-[48px] bg-transparent border-2 border-primary/70 hover:border-primary hover:bg-primary/5 text-primary rounded-[24px] text-[14px] font-medium flex items-center justify-center gap-2 select-none transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 {isDemoLoading ? (
-                  <div className="flex items-center justify-center gap-2.5">
-                    <IosRadialSpinner className="w-5 h-5 text-outly-accent" />
-                    <span className="text-[13px] font-bold tracking-wider uppercase text-outly-accent">
-                      Creating Demo Account...
-                    </span>
-                  </div>
+                  <>
+                    <Spinner size={18} className="text-primary" />
+                    <span className="text-[13px] font-medium">Creating demo session…</span>
+                  </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-outly-accent" />
                     <span>Try Demo</span>
+                    <ChevronRight className="w-4 h-4" />
                   </>
                 )}
-              </button>
-
-              {/* Helper text */}
-              <p className="text-center text-[12px] font-normal text-outly-dark/60 mt-2 select-none">
-                No signup · 1 free session
+              </m.button>
+              <p className="text-center text-[12px] text-[#B0ADA9] mt-2 select-none">
+                No account · 1 free session · 25 minutes
               </p>
             </div>
 
-            {/* Error display if demo creation fails */}
-            {demoError && (
-              <div className="p-3.5 bg-red-50/90 border border-red-200/90 rounded-2xl text-xs text-red-800 leading-relaxed text-center animate-fade-in shadow-xs">
-                {demoError}
-              </div>
-            )}
+            {/* Error state */}
+            <AnimatePresence>
+              {demoError && (
+                <m.div
+                  key="demo-error"
+                  variants={errorVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  style={{ overflow: "hidden" }}
+                >
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-[8px] text-[12px] text-red-700 leading-relaxed">
+                    {demoError}
+                  </div>
+                </m.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Back to home */}
-          <button
+          <m.button
+            type="button"
             onClick={() => navigateTo("/")}
-            className="group inline-flex items-center gap-2 text-[13px] font-normal text-outly-dark/50 hover:text-outly-dark transition-all duration-300 mt-10 self-center select-none relative pb-1 cursor-pointer bg-transparent border-none min-h-[44px]"
+            className="inline-flex items-center gap-1.5 text-[13px] text-[#B0ADA9] hover:text-[#1A1A1A] transition-colors duration-150 mt-10 self-center cursor-pointer bg-transparent border-none min-h-[44px] select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+            whileHover={{ x: -2 }}
+            transition={{ duration: dur.fast, ease: ease.out }}
           >
-            <span className="transform transition-transform duration-300 ease-out group-hover:-translate-x-1">←</span>
+            <svg className="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
+              <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             <span>Back to home</span>
-          </button>
+          </m.button>
 
-        </div>
+        </m.div>
       </div>
 
     </div>

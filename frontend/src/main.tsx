@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -37,5 +38,13 @@ if (typeof window !== "undefined") {
   );
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
-
+createRoot(document.getElementById("root")!).render(
+  // LazyMotion loads only the animation features we use, cutting bundle size.
+  // MotionConfig reducedMotion="user" reads the OS preference — no animation
+  // plays when the user has "Reduce motion" enabled in system settings.
+  <LazyMotion features={domAnimation} strict>
+    <MotionConfig reducedMotion="user">
+      <App />
+    </MotionConfig>
+  </LazyMotion>
+);

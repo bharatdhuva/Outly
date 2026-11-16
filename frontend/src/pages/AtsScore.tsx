@@ -7,6 +7,10 @@ import { api, EvaluationResult } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import PdfViewer from "@/components/PdfViewer";
 import AiErrorModal from "@/components/AiErrorModal";
+import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
+import { Spinner } from "@/components/Spinner";
+import { m } from "motion/react";
+import { dur, ease } from "@/lib/motion-tokens";
 import {
   Dialog,
   DialogContent,
@@ -839,7 +843,7 @@ export default function AtsScorePage() {
           {/* Upload card matching Vidyst design */}
           <div className="space-y-3">
             {isLimitExceeded || scanCount >= 3 ? (
-              <div className="rounded-[28px] border border-black/[0.06] bg-white p-8 sm:p-10 text-center select-none shadow-[0_4px_24px_rgba(0,0,0,0.025)] space-y-3">
+              <div className="rounded-2xl border border-black/[0.06] bg-white p-8 sm:p-10 text-center select-none shadow-sm space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
                   <Lock className="w-5 h-5 shrink-0" />
                 </div>
@@ -868,7 +872,7 @@ export default function AtsScorePage() {
                 </Button>
               </div>
             ) : parsingFile || showScanLoader ? (
-              <div className="rounded-[28px] border border-black/[0.06] bg-white p-8 sm:p-12 text-center shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col items-center justify-center min-h-[260px] space-y-3">
+              <div className="rounded-2xl border border-black/[0.06] bg-white p-8 sm:p-12 text-center shadow-sm flex flex-col items-center justify-center min-h-[260px] space-y-3">
                 <Loader2 className="w-6 h-6 animate-spin text-zinc-900" />
                 <div className="space-y-1">
                   <p className="text-xs font-semibold text-zinc-900">
@@ -886,7 +890,7 @@ export default function AtsScorePage() {
                 </div>
               </div>
             ) : result ? (
-              <div className="rounded-[28px] border border-black/[0.06] bg-white p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.025)] space-y-3.5">
+              <div className="rounded-2xl border border-black/[0.06] bg-white p-6 sm:p-7 shadow-sm space-y-3.5">
                 <div className="flex items-center justify-between pb-3 border-b border-black/[0.04] gap-2">
                   <div className="flex items-center gap-2 truncate pr-2 min-w-0">
                     <FileText className="w-4 h-4 text-zinc-500 shrink-0" />
@@ -971,7 +975,7 @@ export default function AtsScorePage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-[28px] border border-black/[0.06] bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.025)]">
+              <div className="rounded-2xl border border-black/[0.06] bg-white p-6 sm:p-8 shadow-sm">
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   onDragOver={handleDragOver}
@@ -983,7 +987,7 @@ export default function AtsScorePage() {
                       : "border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50/50"
                   }`}
                 >
-                  <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight font-sans">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight font-rubik">
                     Drop your resume here
                   </h2>
                   <p className="text-xs sm:text-sm text-zinc-500 mt-2.5">
@@ -1022,12 +1026,12 @@ export default function AtsScorePage() {
         </div>
 
         {/* ─── RIGHT COLUMN: ATS REPORT CARD ─── */}
-        <div className="lg:col-span-6 rounded-[28px] border border-black/[0.06] bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col justify-between text-left">
+        <div className="lg:col-span-6 rounded-2xl border border-black/[0.06] bg-white p-6 sm:p-8 shadow-sm flex flex-col justify-between text-left">
           
           <div>
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
-              <h3 className="text-sm font-semibold text-neutral-900 font-sans">ATS report</h3>
+              <h3 className="text-sm font-semibold text-neutral-900 font-rubik">ATS report</h3>
               <span className="font-mono text-xs text-neutral-400">27 factors</span>
             </div>
 
@@ -1041,7 +1045,7 @@ export default function AtsScorePage() {
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-extrabold text-neutral-900 tracking-tight">{result.score}</span>
+                    <AnimatedNumber value={result.score} className="text-4xl font-semibold text-[#1A1A1A] font-mono tracking-tight" />
                     <span className="font-mono text-base font-medium text-neutral-400">/ 100</span>
                     <span className={`ml-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
                       result.score >= 80 
@@ -1124,7 +1128,7 @@ export default function AtsScorePage() {
                   disabled={parsingFile}
                   className="bg-neutral-950 hover:bg-neutral-800 disabled:bg-neutral-300 text-white text-xs font-semibold px-5 py-2.5 rounded-lg shadow-sm cursor-pointer transition-colors flex items-center gap-2"
                 >
-                  {parsingFile ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                  {parsingFile ? <Spinner size={14} className="text-white" /> : null}
                   <span>{parsingFile ? "Uploading..." : "Upload resume"}</span>
                 </button>
               </>
