@@ -159,7 +159,7 @@ router.post("/upload", checkDemoQuota("resume_upload"), uploadResume.single("fil
     } else if (ext === ".pdf") {
       try {
         if (!(globalThis as any).DOMMatrix) {
-          try { (globalThis as any).DOMMatrix = require("dommatrix"); } catch (_) {}
+          try { (globalThis as any).DOMMatrix = require("dommatrix"); } catch (_) { }
         }
         const pdfModule = require("pdf-parse");
         const buffer = fs.readFileSync(tempFilePath);
@@ -170,7 +170,7 @@ router.post("/upload", checkDemoQuota("resume_upload"), uploadResume.single("fil
           const parser = new pdfModule.PDFParse({ data: buffer });
           const data = await parser.getText();
           text = data.text;
-          await parser.destroy().catch(() => {});
+          await parser.destroy().catch(() => { });
         } else if (pdfModule.default && typeof pdfModule.default === "function") {
           const data = await pdfModule.default(buffer);
           text = data.text;
@@ -239,7 +239,7 @@ router.post("/upload", checkDemoQuota("resume_upload"), uploadResume.single("fil
         userId: req.user.id,
         type: "resume_upload",
         message: `Uploaded resume version "${dbResult.filename}"`
-      }).catch(() => {});
+      }).catch(() => { });
     }
 
     res.json({

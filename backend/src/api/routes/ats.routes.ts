@@ -535,7 +535,7 @@ router.post("/score", checkDemoQuota("ats_check"), checkAtsLimit, async (req: Au
         if (payload && (typeof payload.score === "number" || typeof payload.overall_score === "number")) {
           return res.json(payload);
         }
-      } catch {}
+      } catch { }
     }
     logger.warn("Python ATS returned non-OK or non-JSON", { status: response.status, primaryUrl });
   } catch (err) {

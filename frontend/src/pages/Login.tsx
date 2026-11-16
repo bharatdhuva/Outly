@@ -94,7 +94,7 @@ function saveUserSession(res: any) {
       try {
         const img = new Image();
         img.src = res.user.profilePic;
-      } catch {}
+      } catch { }
     }
     if (res.user.email) localStorage.setItem("outly_user_email", res.user.email);
     localStorage.setItem("outly_user_session", JSON.stringify({ user: res.user }));
