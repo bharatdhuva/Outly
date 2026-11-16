@@ -4,7 +4,6 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import logoTransparent from "@/assets/brand/outly_your_career_at_peak.png";
-import { DemoBanner } from "./DemoBanner";
 import {
   ScrollText,
   Settings as SettingsIcon,
@@ -537,6 +536,60 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   const isDemo = Boolean(userData?.user?.isDemo) || localStorage.getItem("outly_is_demo") === "true";
 
+  // Demo session countdown timer
+  const [demoTimeLeft, setDemoTimeLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isDemo) return;
+
+    const checkTime = () => {
+      let expTime: number | null = null;
+      const savedExp = localStorage.getItem("outly_demo_expires_at");
+      if (savedExp) {
+        expTime = new Date(savedExp).getTime();
+      } else {
+        const token = localStorage.getItem("outly_token");
+        if (token) {
+          try {
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            const payload = JSON.parse(window.atob(base64));
+            if (payload.exp) expTime = payload.exp * 1000;
+          } catch (_) {}
+        }
+      }
+
+      if (expTime) {
+        const diff = Math.max(0, Math.floor((expTime - Date.now()) / 1000));
+        setDemoTimeLeft(diff);
+        if (diff <= 0) {
+          window.dispatchEvent(
+            new CustomEvent("outly_demo_modal", {
+              detail: {
+                code: "DEMO_EXPIRED",
+                message: "Your 25-minute demo session has ended. Sign up with Google to continue!",
+                isExpired: true,
+              },
+            })
+          );
+        }
+      } else {
+        setDemoTimeLeft(25 * 60);
+      }
+    };
+
+    checkTime();
+    const timer = setInterval(checkTime, 1000);
+    return () => clearInterval(timer);
+  }, [isDemo]);
+
+  const demoCountdown = useMemo(() => {
+    if (demoTimeLeft === null) return "25:00";
+    const mins = Math.floor(demoTimeLeft / 60);
+    const secs = demoTimeLeft % 60;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  }, [demoTimeLeft]);
+
   const handleLockedDemoFeature = (featureName: string) => {
     window.dispatchEvent(
       new CustomEvent("outly_demo_modal", {
@@ -553,11 +606,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-transparent text-outly-dark flex flex-col font-sans overflow-x-clip">
 
       {/* Header Spacer Wrapper to prevent layout shift */}
-      <div className={`w-full shrink-0 relative bg-[#FAF8F5] md:bg-[#EDE9E2] ${isDemo ? "h-[102px] sm:h-[98px]" : "h-16"}`}>
+      <div className="h-16 w-full shrink-0 relative bg-[#FAF8F5] md:bg-[#EDE9E2]">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E2DDD3]/60 bg-[#FAF8F5]/95 md:bg-[#EDE9E2]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none mobile-scroll-header">
-          {/* Demo Mode banner if guest demo session */}
-          <DemoBanner />
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E2DDD3]/60 bg-[#FAF8F5]/95 md:bg-[#EDE9E2]/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
           <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
 
             {/* Left: Brand Logo */}
@@ -904,7 +955,33 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Right Side: Profile initials & Logout CTA */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2.5 sm:gap-3.5">
+
+              {/* Demo Mode Pill (Integrated cleanly into navbar) */}
+              {isDemo && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    window.dispatchEvent(
+                      new CustomEvent("outly_demo_modal", {
+                        detail: {
+                          code: "DEMO_NAV_CLICK",
+                          message: "Sign up with Google to keep your work and unlock unlimited scans and outreach.",
+                          isExpired: false,
+                        },
+                      })
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-[#2DC08D]/10 hover:bg-[#2DC08D]/20 text-[#2DC08D] border border-[#2DC08D]/30 text-xs font-semibold transition-all duration-200 active:scale-95 cursor-pointer shadow-2xs"
+                  title="Guest Demo Mode - Click to upgrade"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#2DC08D]" />
+                  <span>Demo · {demoCountdown}</span>
+                  <span className="hidden sm:inline-block text-[9.5px] font-bold tracking-wider uppercase bg-[#2DC08D] text-white px-1.5 py-0.5 rounded-full ml-0.5">
+                    Sign Up
+                  </span>
+                </button>
+              )}
 
               {/* Desktop Notification Bell */}
               <div className="relative hidden md:block" ref={desktopNotificationMenuRef}>
