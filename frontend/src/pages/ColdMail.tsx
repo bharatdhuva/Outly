@@ -846,7 +846,6 @@ export default function ColdMailPage() {
                               </span>
                             </div>
                           </button>
-                          </m.div>
                         );
                       })}
                     </AnimatePresence>
