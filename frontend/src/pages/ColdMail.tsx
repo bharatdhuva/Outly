@@ -1220,7 +1220,7 @@ export default function ColdMailPage() {
                                   <Edit className="h-4 w-4" />
                                 </button>
                               </DialogTrigger>
-                              <DialogContent className="max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-4 sm:p-6 shadow-xl">
+                              <DialogContent className="max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-[#E8E8E6] p-4 sm:p-6">
                                 <DialogHeader>
                                   <DialogTitle className="text-base font-bold text-neutral-900">Edit Mail & Details</DialogTitle>
                                 </DialogHeader>
@@ -1332,7 +1332,7 @@ export default function ColdMailPage() {
                                   <Edit className="h-4 w-4" />
                                 </button>
                               </DialogTrigger>
-                              <DialogContent className="max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-neutral-200 p-4 sm:p-6 shadow-xl">
+                              <DialogContent className="max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll w-[95%] sm:max-w-[650px] rounded-2xl bg-white border-[#E8E8E6] p-4 sm:p-6">
                                 <DialogHeader>
                                   <DialogTitle className="text-base font-bold text-neutral-900">Edit Mail & Details</DialogTitle>
                                 </DialogHeader>
