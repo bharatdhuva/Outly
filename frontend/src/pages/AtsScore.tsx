@@ -987,7 +987,7 @@ export default function AtsScorePage() {
                       : "border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50/50"
                   }`}
                 >
-                  <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight font-rubik">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight font-sans">
                     Drop your resume here
                   </h2>
                   <p className="text-xs sm:text-sm text-zinc-500 mt-2.5">
@@ -1031,7 +1031,7 @@ export default function AtsScorePage() {
           <div>
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
-              <h3 className="text-sm font-semibold text-neutral-900 font-rubik">ATS report</h3>
+              <h3 className="text-sm font-semibold text-neutral-900 font-sans">ATS report</h3>
               <span className="font-mono text-xs text-neutral-400">27 factors</span>
             </div>
 

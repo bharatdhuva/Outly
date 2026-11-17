@@ -27,7 +27,7 @@ export default function OnboardingPage() {
   }, []);
 
   return (
-    <div className="relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none overflow-x-clip pb-16 font-rubik text-[#1A1A1A]">
+    <div className="relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none overflow-x-clip pb-16 font-sans text-[#1A1A1A]">
       <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-4 sm:px-8 py-6 lg:grid-cols-12 lg:gap-16 lg:pt-12 lg:pb-12">
         <m.div
           variants={heroContentVariants}
@@ -57,7 +57,7 @@ export default function OnboardingPage() {
                   navigate("/ats-score");
                 }
               }}
-              className="min-h-[48px] rounded-full bg-primary px-7 py-3 font-rubik text-[15px] font-medium text-white shadow-sm hover:bg-[#25A87A] transition-colors cursor-pointer select-none text-center"
+              className="min-h-[48px] rounded-full bg-primary px-7 py-3 font-sans text-[15px] font-medium text-white shadow-sm hover:bg-[#25A87A] transition-colors cursor-pointer select-none text-center"
             >
               Check ATS Score
             </m.button>
@@ -74,7 +74,7 @@ export default function OnboardingPage() {
                   navigate("/resume-tailor");
                 }
               }}
-              className="min-h-[48px] rounded-full border border-[#E0DBCF] bg-white px-7 py-3 font-rubik text-[15px] font-medium text-[#1A1A1A] hover:bg-[#F0EDE7]/50 hover:border-[#1A1A1A]/30 transition-colors cursor-pointer select-none text-center"
+              className="min-h-[48px] rounded-full border border-[#E0DBCF] bg-white px-7 py-3 font-sans text-[15px] font-medium text-[#1A1A1A] hover:bg-[#F0EDE7]/50 hover:border-[#1A1A1A]/30 transition-colors cursor-pointer select-none text-center"
             >
               Tailor for a Job
             </m.button>

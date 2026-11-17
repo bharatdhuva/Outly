@@ -605,12 +605,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-outly-cream text-outly-dark flex flex-col font-sans overflow-x-clip">
+    <div className="min-h-screen bg-[#FAF9F5] text-[#171717] flex flex-col font-sans overflow-x-clip">
 
       {/* Header Spacer Wrapper to prevent layout shift */}
-      <div className="h-16 w-full shrink-0 relative bg-outly-cream">
+      <div className="h-16 w-full shrink-0 relative bg-[#FAF9F5]">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-outly-border/60 bg-outly-cream/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E8E8E6] bg-[#FAF9F5]/90 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
           <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
 
             {/* Left: Brand Logo */}
@@ -652,7 +652,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-outly-border bg-outly-cream p-5 shadow-2xl select-none -mt-px"
+                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-[#E8E8E6] bg-white/98 backdrop-blur-xl p-5 shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] select-none mt-2"
                       onMouseEnter={() => openDropdown("resumes")}
                       onMouseLeave={scheduleDropdownClose}
                       style={{ transformOrigin: "top center" }}
@@ -778,7 +778,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-b-2xl rounded-t-none border-x border-b border-outly-border bg-outly-cream p-5 shadow-2xl select-none -mt-px"
+                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-[#E8E8E6] bg-white/98 backdrop-blur-xl p-5 shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] select-none mt-2"
                       onMouseEnter={() => openDropdown("jobs")}
                       onMouseLeave={scheduleDropdownClose}
                       style={{ transformOrigin: "top center" }}
@@ -891,7 +891,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-b-2xl rounded-t-none border-x border-b border-outly-border bg-outly-cream p-5 shadow-2xl select-none -mt-px"
+                      className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-2xl border border-[#E8E8E6] bg-white/98 backdrop-blur-xl p-5 shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] select-none mt-2"
                       onMouseEnter={() => openDropdown("tools")}
                       onMouseLeave={scheduleDropdownClose}
                       style={{ transformOrigin: "top center" }}
@@ -1068,7 +1068,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     animate="visible"
                     exit="exit"
                     style={{ transformOrigin: "top right" }}
-                    className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-outly-cream border border-outly-border font-sans shadow-xl z-[120] py-1.5 overflow-hidden"
+                    className="absolute right-0 top-full mt-2 w-48 rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[120] py-1.5 overflow-hidden"
                   >
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
                       {fullName}
@@ -1173,7 +1173,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     animate="visible"
                     exit="exit"
                     style={{ transformOrigin: "top right" }}
-                    className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2.5"
+                    className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[125] py-2.5"
                   >
                     <div className="px-4 pb-2 border-b border-zinc-50 flex items-center justify-between">
                       <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
@@ -1238,7 +1238,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     animate="visible"
                     exit="exit"
                     style={{ transformOrigin: "top right" }}
-                    className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-outly-cream border border-outly-border font-sans shadow-xl z-[120] py-1.5 overflow-hidden"
+                    className="absolute right-0 top-full mt-2 w-48 rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[120] py-1.5 overflow-hidden"
                   >
                     <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#f0ece4]">
                       {fullName}

@@ -19,10 +19,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Poppins", "Inter", "system-ui", "sans-serif"],
-        geist: ["Geist", "Inter", "system-ui", "sans-serif"],
-        rubik: ["Rubik", "sans-serif"],
-        serif: ["Playfair Display", "serif"],
+        sans: ["-apple-system", "BlinkMacSystemFont", "SF Pro Display", "Segoe UI", "Inter", "system-ui", "sans-serif"],
+        geist: ["-apple-system", "BlinkMacSystemFont", "SF Pro Display", "Segoe UI", "Inter", "system-ui", "sans-serif"],
+        rubik: ["-apple-system", "BlinkMacSystemFont", "SF Pro Display", "Segoe UI", "Inter", "system-ui", "sans-serif"],
+        serif: ["Instrument Serif", "Playfair Display", "serif"],
         mono: ["IBM Plex Mono", "JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {

@@ -75,19 +75,18 @@
 
   html,
   body {
-    background-color: #F8F7F4;
-    background:
-      radial-gradient(circle at 90% 10%, rgba(25, 204, 149, 0.04), transparent 40%),
-      radial-gradient(circle at 10% 90%, rgba(89, 37, 220, 0.03), transparent 45%),
-      #F8F7F4;
+    background-color: #FAF9F5;
+    background: #FAF9F5;
     @apply text-foreground antialiased;
-    font-family: 'Rubik', system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Inter, system-ui, sans-serif;
     overflow-x: clip;
     width: 100%;
+    color: #171717;
   }
 
   .bg-card {
-    box-shadow: 0 4px 20px -2px rgba(78, 56, 24, 0.08), 0 2px 8px -1px rgba(78, 56, 24, 0.04) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 6px 18px -4px rgba(0, 0, 0, 0.04) !important;
+    border-color: #E8E8E6 !important;
   }
 
   @media (max-width: 767px) {
@@ -96,7 +95,7 @@
     .bg-card,
     .bg-card\/50 {
       background-color: #FFFFFF !important;
-      border-color: #EAE6DF !important;
+      border-color: #E8E8E6 !important;
     }
   }
 
@@ -106,7 +105,8 @@
   h4,
   h5,
   h6 {
-    font-family: 'Rubik', system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Inter, system-ui, sans-serif;
+    letter-spacing: -0.025em;
   }
 
   ::-webkit-scrollbar {

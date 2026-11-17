@@ -505,7 +505,7 @@ export default function Applications() {
   // ─── Mobile View ──────────────────────────────────────────────────────────
   if (isMobile) {
     return (
-      <div className="w-full pb-20 font-rubik text-left">
+      <div className="w-full pb-20 font-sans text-left">
         <div className="p-4 flex items-center justify-between border-b border-[#E0DBCF]">
           <div>
             <h1 className="text-xl font-semibold text-[#1A1A1A]">Job Tracker</h1>
@@ -615,7 +615,7 @@ export default function Applications() {
 
   // ─── Desktop 5-Stage Kanban Board ──────────────────────────────────────────
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-24 text-left font-rubik">
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-24 text-left font-sans">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-[#E0DBCF]">
         <div>

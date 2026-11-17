@@ -526,7 +526,7 @@ export default function ColdMailPage() {
       </AlertDialog>
 
       {/* ─── MAIN CONTENT CONTAINER (MATCHING RESUME VAULT & JOB SEARCH) ─── */}
-      <div className="mx-auto w-full max-w-6xl px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-20 text-left font-rubik min-w-0 max-w-full">
+      <div className="mx-auto w-full max-w-6xl px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-20 text-left font-sans min-w-0 max-w-full">
 
         {/* Top Header matching ResumeVault, JobSearch, AtsScore & ResumeTailor */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
@@ -564,7 +564,7 @@ export default function ColdMailPage() {
                   <span>Add Company Data</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="w-[94%] max-w-[460px] border-neutral-200 bg-white p-4 sm:p-6 font-rubik rounded-2xl shadow-xl max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll">
+              <DialogContent className="w-[94%] max-w-[460px] border-neutral-200 bg-white p-4 sm:p-6 font-sans rounded-2xl shadow-xl max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll">
                 <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-neutral-100 pb-3">
                   <DialogTitle className="text-base font-bold text-neutral-900">Add Company Data</DialogTitle>
                   <DialogDescription className="text-xs text-neutral-500">
@@ -1123,7 +1123,7 @@ export default function ColdMailPage() {
                                   </div>
                                 </div>
                                 <div className="p-3 sm:p-4 w-full min-w-0">
-                                  <div className="font-rubik text-xs sm:text-[13px] leading-relaxed text-neutral-800 whitespace-pre-wrap break-words [overflow-wrap:anywhere] select-text">
+                                  <div className="font-sans text-xs sm:text-[13px] leading-relaxed text-neutral-800 whitespace-pre-wrap break-words [overflow-wrap:anywhere] select-text">
                                     {displayedBody
                                       ? cleanDraft(displayedBody, selectedCompany)
                                       : "Click Auto-Generate Mail below to conduct AI research and generate tailored outreach."}
@@ -1155,7 +1155,7 @@ export default function ColdMailPage() {
                                     <p className="text-[11px] font-semibold text-neutral-500 truncate">
                                       Re: {variantsData.followups.day4.subject_options?.[0]}
                                     </p>
-                                    <p className="text-xs text-neutral-700 font-rubik whitespace-pre-wrap leading-relaxed break-words [overflow-wrap:anywhere]">
+                                    <p className="text-xs text-neutral-700 font-sans whitespace-pre-wrap leading-relaxed break-words [overflow-wrap:anywhere]">
                                       {cleanDraft(variantsData.followups.day4.body, selectedCompany)}
                                     </p>
                                   </div>
@@ -1177,7 +1177,7 @@ export default function ColdMailPage() {
                                     <p className="text-[11px] font-semibold text-neutral-500 truncate">
                                       Re: {variantsData.followups.day7.subject_options?.[0]}
                                     </p>
-                                    <p className="text-xs text-neutral-700 font-rubik whitespace-pre-wrap leading-relaxed break-words [overflow-wrap:anywhere]">
+                                    <p className="text-xs text-neutral-700 font-sans whitespace-pre-wrap leading-relaxed break-words [overflow-wrap:anywhere]">
                                       {cleanDraft(variantsData.followups.day7.body, selectedCompany)}
                                     </p>
                                   </div>
@@ -1244,7 +1244,7 @@ export default function ColdMailPage() {
                                   <div className="space-y-1">
                                     <Label className="text-xs font-semibold">Generated Email Body</Label>
                                     <Textarea
-                                      className="min-h-[260px] font-rubik text-xs sm:text-sm leading-relaxed rounded-xl border-neutral-200"
+                                      className="min-h-[260px] font-sans text-xs sm:text-sm leading-relaxed rounded-xl border-neutral-200"
                                       value={editData.generated_mail || ""}
                                       onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
                                     />
@@ -1356,7 +1356,7 @@ export default function ColdMailPage() {
                                   <div className="space-y-1">
                                     <Label className="text-xs font-semibold">Generated Email Body</Label>
                                     <Textarea
-                                      className="min-h-[260px] font-rubik text-xs sm:text-sm leading-relaxed rounded-xl border-neutral-200"
+                                      className="min-h-[260px] font-sans text-xs sm:text-sm leading-relaxed rounded-xl border-neutral-200"
                                       value={editData.generated_mail || ""}
                                       onChange={(e) => setEditData({ ...editData, generated_mail: e.target.value })}
                                     />

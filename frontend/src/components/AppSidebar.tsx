@@ -102,7 +102,7 @@ export function AppSidebar({
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-5 font-rubik">
+        <nav className="flex-1 overflow-y-auto px-3 py-5 font-sans">
           {navSections.map((section) => (
             <div key={section.label} className="mb-6">
               <p className="mb-2 px-3 text-[11px] font-medium uppercase tracking-wider text-[#B0ADA9]">
@@ -139,7 +139,7 @@ export function AppSidebar({
           ))}
         </nav>
 
-        <div className="border-t border-outly-border p-4 font-rubik">
+        <div className="border-t border-outly-border p-4 font-sans">
           <div className="mb-3 grid grid-cols-2 gap-2">
             <div className="rounded-lg border border-outly-border bg-outly-border/30 p-3">
               <span className="block text-[11px] font-medium text-[#6B6760]">Today</span>
