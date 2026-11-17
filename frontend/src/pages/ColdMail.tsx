@@ -564,7 +564,7 @@ export default function ColdMailPage() {
                   <span>Add Company Data</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="w-[94%] max-w-[460px] border-neutral-200 bg-white p-4 sm:p-6 font-sans rounded-2xl shadow-xl max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll">
+              <DialogContent className="w-[94%] max-w-[460px] border-[#E8E8E6] bg-white p-4 sm:p-6 rounded-2xl max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll">
                 <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-neutral-100 pb-3">
                   <DialogTitle className="text-base font-bold text-neutral-900">Add Company Data</DialogTitle>
                   <DialogDescription className="text-xs text-neutral-500">

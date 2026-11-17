@@ -527,7 +527,7 @@ export default function ResumeVaultPage() {
                         side="top"
                         sideOffset={6}
                         onClick={(e) => e.stopPropagation()}
-                        className="w-56 p-3 bg-white border border-neutral-200 shadow-xl rounded-xl z-50 text-left font-sans"
+                        className="w-56 p-3.5 bg-white border border-[#E8E8E6] rounded-2xl z-50 text-left"
                       >
                         <p className="text-xs font-bold text-neutral-900">Delete version?</p>
                         <p className="text-[11px] text-neutral-500 mt-1 leading-snug">

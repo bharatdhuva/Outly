@@ -279,7 +279,7 @@ export default function Applications() {
       <>
         {/* Add Dialog */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogContent className="w-[94%] max-w-[440px] border-[#E0DBCF] bg-white p-5 sm:p-6 rounded-2xl text-left shadow-xl">
+          <DialogContent className="w-[94%] max-w-[440px] border-[#E8E8E6] bg-white p-5 sm:p-6 rounded-2xl text-left">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-base font-semibold text-[#1A1A1A]">Add Application</DialogTitle>
               <DialogDescription className="text-xs text-[#6B6760]">
@@ -387,7 +387,7 @@ export default function Applications() {
 
         {/* Detail Modal */}
         <Dialog open={!!selectedApp} onOpenChange={(open) => { if (!open) handleCloseDetails(); }}>
-          <DialogContent className="w-[94%] max-w-[480px] border-[#E0DBCF] bg-white p-5 sm:p-6 rounded-2xl text-left shadow-xl">
+          <DialogContent className="w-[94%] max-w-[480px] border-[#E8E8E6] bg-white p-5 sm:p-6 rounded-2xl text-left">
             {selectedApp && (
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
