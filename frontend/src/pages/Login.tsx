@@ -12,16 +12,25 @@
  * - whileTap on buttons (via m.button) instead of active:scale-[0.98] class
  * - Hardcoded hex colors replaced with CSS token classes
  */
-import { useState, useEffect, useCallback } from "react";
+import { type MouseEvent, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
 import { m, AnimatePresence } from "motion/react";
-import { ChevronRight } from "lucide-react";
-import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
+import { ChevronRight, Send } from "lucide-react";
 import { api } from "../lib/api";
 import { useToast } from "../hooks/use-toast";
 import { Spinner } from "../components/Spinner";
 import { dur, ease, fadeUpVariants } from "../lib/motion-tokens";
+import "./Login.css";
+
+function LoginBrand() {
+  return (
+    <span className="login-brand">
+      <span className="login-brand-mark"><Send size={23} strokeWidth={1.7} /></span>
+      <span>Outly</span>
+    </span>
+  );
+}
 
 // ─── Promo slides ─────────────────────────────────────────────────────────────
 interface Slide {
@@ -213,12 +222,23 @@ export default function Login() {
   };
 
   const isDisabled = isGoogleLoading || isDemoLoading || isWakingServer;
+  const handleBotPointerMove = (event: MouseEvent<HTMLDivElement>) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = Math.max(-2, Math.min(2, ((event.clientX - bounds.left) / bounds.width - 0.5) * 4));
+    const y = Math.max(-2, Math.min(2, ((event.clientY - bounds.top) / bounds.height - 0.5) * 4));
+    event.currentTarget.style.setProperty("--bot-eye-x", `${x}px`);
+    event.currentTarget.style.setProperty("--bot-eye-y", `${y}px`);
+  };
+  const resetBotEyes = (event: MouseEvent<HTMLDivElement>) => {
+    event.currentTarget.style.setProperty("--bot-eye-x", "0px");
+    event.currentTarget.style.setProperty("--bot-eye-y", "0px");
+  };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-outly-cream font-rubik selection:bg-primary/15">
+    <div className="login-page flex flex-col lg:flex-row min-h-screen w-full selection:bg-primary/15">
 
       {/* ── LEFT PANEL ── */}
-      <div className="hidden lg:flex w-1/2 flex-col justify-between p-14 xl:p-16 border-r border-outly-border bg-outly-cream/60 sticky top-0 h-screen shrink-0 select-none overflow-hidden">
+      <div className="login-left hidden lg:flex w-1/2 flex-col justify-between p-14 xl:p-16 sticky top-0 h-screen shrink-0 select-none overflow-hidden" onMouseMove={handleBotPointerMove} onMouseLeave={resetBotEyes}>
 
         {/* Logo */}
         <button
@@ -227,11 +247,11 @@ export default function Login() {
           className="inline-flex items-center hover:opacity-75 transition-opacity duration-150 cursor-pointer bg-transparent border-none p-0 self-start"
           aria-label="Go to home"
         >
-          <img src={logoTransparent} alt="Outly" className="h-7 w-auto object-contain" />
+          <LoginBrand />
         </button>
 
         {/* Sliding promo text */}
-        <div className="max-w-[460px]">
+        <div className="login-promo max-w-[460px]">
           {/* Fixed-height container prevents layout shift between slides */}
           <div className="min-h-[160px] flex flex-col justify-start mb-8">
             <AnimatePresence mode="wait">
@@ -269,22 +289,11 @@ export default function Login() {
             ))}
           </div>
 
-          {/* Feature list */}
-          <ul className="space-y-3">
-            {[
-              "Score and tailor your resume for any role in one click",
-              "Automate personalized recruiter outreach",
-              "Track applications and get daily prep briefs",
-            ].map((text) => (
-              <li key={text} className="flex items-start gap-3 text-[13px] text-[#6B6760] leading-relaxed">
-                <svg className="w-4 h-4 text-primary shrink-0 mt-px" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="7.25" stroke="currentColor" strokeWidth="1.25" />
-                  <polyline points="5 8 7 10.5 11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>{text}</span>
-              </li>
-            ))}
-          </ul>
+        </div>
+        <div className="login-bots" aria-hidden="true">
+          <span className="login-bot login-bot-blue" />
+          <span className="login-bot login-bot-pink" />
+          <span className="login-bot login-bot-orange" />
         </div>
 
         {/* Footer */}
@@ -292,7 +301,7 @@ export default function Login() {
       </div>
 
       {/* ── RIGHT PANEL ── */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center min-h-screen p-6 lg:p-16 bg-outly-cream">
+      <div className="login-right w-full lg:w-1/2 flex flex-col justify-center items-center min-h-screen p-6 lg:p-16">
         <m.div
           variants={panelVariants}
           initial="hidden"
@@ -303,9 +312,9 @@ export default function Login() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="flex items-center lg:hidden mb-10 cursor-pointer bg-transparent border-none p-0 self-start"
+            className="login-right-brand flex items-center mb-10 cursor-pointer bg-transparent border-none p-0 self-start"
           >
-            <img src={logoTransparent} alt="Outly" className="h-6 w-auto object-contain" />
+            <LoginBrand />
           </button>
 
           {/* Heading */}
@@ -362,7 +371,7 @@ export default function Login() {
                 disabled={isDisabled}
                 whileTap={isDisabled ? {} : { scale: 0.97 }}
                 transition={{ duration: dur.instant }}
-                className="w-full min-h-[48px] bg-transparent border-2 border-primary/70 hover:border-primary hover:bg-primary/5 text-primary rounded-[24px] text-[14px] font-medium flex items-center justify-center gap-2 select-none transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="login-demo-button w-full min-h-[48px] bg-transparent border-2 border-primary/70 hover:border-primary hover:bg-primary/5 text-primary rounded-[24px] text-[14px] font-medium flex items-center justify-center gap-2 select-none transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 {isDemoLoading ? (
                   <>

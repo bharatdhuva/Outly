@@ -53,10 +53,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import gmailLogo from "@/assets/logos/google-gmail.svg";
 
 const GmailIcon = () => (
   <img
-    src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
+    src={gmailLogo}
     alt="Gmail"
     className="h-5 w-5 shrink-0 object-contain"
   />
