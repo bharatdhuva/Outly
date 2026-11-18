@@ -281,8 +281,8 @@ export default function Login() {
                 onClick={() => setActiveSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
                 className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer border-none outline-none focus-visible:ring-2 focus-visible:ring-primary ${activeSlide === idx
-                    ? "bg-primary w-6"
-                    : "bg-[#C8C3B8] hover:bg-primary/40 w-1.5"
+                  ? "bg-primary w-6"
+                  : "bg-[#C8C3B8] hover:bg-primary/40 w-1.5"
                   }`}
               />
             ))}
