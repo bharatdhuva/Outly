@@ -43,6 +43,87 @@ function MiniWindow({ type }: { type: string }) {
   return <div className="mini-window calendar-ui"><div className="calendar-head"><b>April 2026</b><span>‹ &nbsp; ›</span></div><div className="calendar-grid">{'MTWTFSS'.split('').map((d, i) => <small key={i}>{d}</small>)}{Array.from({ length: 14 }, (_, i) => <span key={i} className={i === 9 ? 'calendar-selected' : ''}>{i + 1}</span>)}</div><div className="calendar-event"><span /> Stripe Interview <b>2:30 PM</b><small>calendar synced</small></div></div>
 }
 
+function PlanList() {
+  const ref = useRef<HTMLDivElement>(null)
+  // 0 = idle, 1 = running, 2 = done
+  const [states, setStates] = useState<number[]>(Array(6).fill(0))
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Stagger: each step starts running 480ms after previous one starts
+          Array(6).fill(null).forEach((_, i) => {
+            setTimeout(() => {
+              setStates(prev => { const n = [...prev]; n[i] = 1; return n })
+              setTimeout(() => {
+                setStates(prev => { const n = [...prev]; n[i] = 2; return n })
+              }, 820)
+            }, i * 480)
+          })
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.25 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const steps: [string, string, string][] = [
+    ['research the role', 'Know what the team needs.', 'analysing JD'],
+    ['tailor the resume', 'Show the experience that fits.', 'rewriting bullets'],
+    ['score the match', 'See the gaps, not guess.', '27 factors'],
+    ['draft the outreach', 'Reach out like yourself.', 'your voice'],
+    ['track the reply', 'Keep the next step in view.', 'reply detected'],
+    ['prep the interview', 'Walk in with a plan.', 'brief ready'],
+  ]
+
+  const doneCount = states.filter(s => s === 2).length
+  const fillPct = (doneCount / 6) * 100
+
+  return (
+    <div className="pl-wrap" ref={ref}>
+      {/* left rail */}
+      <div className="pl-rail">
+        <div className="pl-rail-fill" style={{ height: `${fillPct}%` }} />
+        {states.map((s, i) => (
+          <span
+            key={i}
+            className={`pl-node${s === 1 ? ' pl-node-running' : s === 2 ? ' pl-node-done' : ''}`}
+            style={{ top: `${(i / 5) * 100}%` }}
+          >
+            {s === 2 && (
+              <svg viewBox="0 0 8 8" fill="none">
+                <path className="pl-check" d="M1.5 4l1.8 1.8L6.5 2.5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </span>
+        ))}
+      </div>
+
+      {/* step rows */}
+      <div className="pl-rows">
+        {steps.map(([title, desc, tag], i) => (
+          <div
+            key={title}
+            className={`pl-row${states[i] === 1 ? ' pl-row-running' : states[i] === 2 ? ' pl-row-done' : ''}`}
+          >
+            <div className="pl-row-main">
+              <span className="pl-title">{title}</span>
+              {states[i] === 1 && <span className="pl-tag pl-tag-run">{tag} <span className="pl-dots"><i /><i /><i /></span></span>}
+              {states[i] === 2 && <span className="pl-tag pl-tag-done">done</span>}
+            </div>
+            <span className="pl-desc">{desc}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function PixelLandscape({ kind = 'sea' }: { kind?: string }) {
   const [sunBlink, setSunBlink] = useState(false)
   const blinkSun = () => {
@@ -173,7 +254,7 @@ export default function OutlyLanding() {
       ].map((card, i) => <article className={`feature-card feature-${card.type}`} key={card.title}><div className="feature-visual">{card.type === 'search' ? <div className="search-visual"><Search /><span>Product designer · remote</span><b>match 94%</b><div className="search-result"><span>Stripe</span><strong>Senior Product Designer</strong><small>Remote · posted 2 days ago</small></div></div> : card.type === 'keywords' ? <div className="keyword-ui"><div className="mini-top">keyword gap <b>3 to add</b></div>{[['product strategy', true], ['design systems', true], ['experimentation', false], ['stakeholder work', true]].map(([w, ok]) => <div className="keyword-row" key={String(w)}><span className={ok ? 'keyword-ok' : ''}>{ok ? '✓' : '+'}</span>{w}</div>)}</div> : card.type === 'privacy' ? <div className="privacy-visual"><ShieldCheck size={28} /><b>your resume, your rules.</b><span>stored privately · never sold</span><div className="privacy-line"><i /> training use <b>off</b></div></div> : <MiniWindow type={card.type} />}</div><div className="feature-copy"><h3>{card.title}</h3><p>{card.desc}</p></div></article>)}</div></section>
       <section className="steps-section" id="how-it-works"><div className="section-heading"><div><h2>From upload to a<br /><i>better next step.</i></h2></div><p>A clear start, then one good move at a time. Most people are ready in about two minutes.</p></div><div className="steps-grid">{[['01', 'Upload your master resume', 'Outly takes it from there. Keep your original close.', 'resume'], ['02', 'Find a role worth your time', 'Paste a description or discover a match.', 'search'], ['03', 'Make your application fit', 'Get a tailored resume and the ATS score to improve it.', 'tailor'], ['04', 'Reach out and track it', 'Review the note, send when ready, and track the reply.', 'send']].map(([num, title, desc, icon], i) => <article className={`step-card step-${i + 1}`} key={num}><div className="step-illustration">{icon === 'resume' ? <FileText /> : icon === 'search' ? <Search /> : icon === 'tailor' ? <Target /> : <Send />}</div><h3>{title}</h3><p>{desc}</p><div className="pixel-stair" /></article>)}</div></section>
       <section className="ats-marquee" aria-label="Supported applicant tracking systems"><div className="marquee-band"><div className={`marquee-track ${tapePaused ? 'marquee-paused' : ''}`}>{[0, 1].map(n => <span className="marquee-set" key={n}>{['Workday', 'Greenhouse', 'Lever', 'Taleo', 'iCIMS', 'SmartRecruiters'].map(x => <b key={x}><i /> {x}</b>)}</span>)}</div><button onClick={() => setTapePaused(!tapePaused)} className="tape-pause">{tapePaused ? 'play' : 'pause'} the tape</button></div></section>
-      <section className="plan-section"><div className="plan-scene"><PixelLandscape /><div className="plan-float"><h2>Give every<br />application <i>its own plan.</i></h2><div className="plan-list">{[['research the role', 'Know what the team needs.'], ['tailor the resume', 'Show the experience that fits.'], ['score the match', 'See the gaps, not guess.'], ['draft the outreach', 'Reach out like yourself.'], ['track the reply', 'Keep the next step in view.'], ['prep the interview', 'Walk in with a plan.']].map(([a, b], i) => <div key={a}><b>{a}<small>{b}</small></b></div>)}</div><a className="button button-dark" href="/login">Get started, it&apos;s free <ArrowUpRight size={16} /></a></div><div className="scene-note">a little structure goes a long way <ArrowDownRight size={15} /></div></div></section>
+      <section className="plan-section"><div className="plan-scene"><PixelLandscape /><div className="plan-float"><h2>Give every<br />application <i>its own plan.</i></h2><PlanList /><a className="button button-dark" href="/login">Get started, it&apos;s free <ArrowUpRight size={16} /></a></div><div className="scene-note">a little structure goes a long way <ArrowDownRight size={15} /></div></div></section>
       <section className="trust-section"><div className="section-heading"><div><h2>Where your data<br /><i>lives with you.</i></h2></div><p>A job search is personal. Outly is built to treat it that way, from the first upload to the last follow-up.</p></div><div className="trust-grid"><article><PixelLandscape kind="local-scene" /><h3>Stored for your search</h3><p>Your master resume and tailored versions stay in your private Outly account, ready when you need them.</p></article><article><PixelLandscape kind="cloud-scene" /><h3>Private cloud</h3><p>Your search stays accessible without turning your personal documents into public information.</p></article><article><PixelLandscape kind="quiet-scene" /><h3>Never used for training</h3><p>We do not sell your information or use your resume to train external models. Your next move is yours.</p></article></div></section>
       <section className="pricing-section" id="pricing"><div className="pricing-glow" /><div className="pricing-header"><div><h2>Start free.<br /><i>Upgrade when you need more room.</i></h2></div><div className="billing-toggle"><span className={`billing-slider ${yearly ? 'billing-slider-yearly' : ''}`} aria-hidden="true" /><button className={`billing-monthly ${!yearly ? 'billing-active' : ''}`} onClick={() => setYearly(false)}>Monthly</button><button className={`billing-yearly ${yearly ? 'billing-active' : ''}`} onClick={() => setYearly(true)}>Yearly <span>save 20%</span></button></div></div><div className="pricing-grid"><article className="price-card free-card"><div className="pricing-cat"><img src={pricingCatImage} alt="" /><span>z</span><span>z</span></div><img className="pricing-art" src={pricingSeaImage} alt="" /><div className="price-content"><h3>Free</h3><p>Everything you need to get moving.</p><div className="price"><b>₹0</b><span>forever</span></div><ul>{['3 ATS checks every 12 hours', 'Resume Vault', 'AI job search', 'Application tracker board', 'Cold-mail generator'].map(x => <li key={x}><Check size={15} />{x}</li>)}<li className="unavailable"><X size={15} />Unlimited tailoring</li></ul><a className="button button-white" href="/login">Get started <ArrowUpRight size={16} /></a></div></article><article className="price-card pro-card"><img className="pricing-art" src={pricingFieldImage} alt="" /><div className="price-content"><div className="pro-label">best for active job seekers</div><h3>Pro</h3><p>More room for every application.</p><div className="price"><b>₹{displayPrice}</b><span>{yearly ? '/ year' : '/ month'}</span></div><ul>{['Unlimited ATS checks · 27-factor score', 'Unlimited resume tailoring', 'Deep keyword-gap insights', 'Unlimited Resume Vault & tracking', 'Full cold-mail automation'].map(x => <li key={x}><Check size={15} />{x}</li>)}</ul><a className="button button-teal" href="/login">Try now <ArrowUpRight size={16} /></a><a className="buy-link" href="/pricing">or buy now</a></div></article></div><p className="pricing-note"><ShieldCheck size={14} /> your data stays yours on every plan. no pressure, cancel anytime.</p></section>
       <section className="faq-section" id="faq"><h2 className="faq-title">FAQ</h2><div className="faq-list">{faq.map(([q, a], i) => <article className={`faq-item ${openFaq === i ? 'faq-open' : ''}`} key={q}><button aria-expanded={openFaq === i} onClick={() => setOpenFaq(openFaq === i ? null : i)}><span>{q}</span><span className="faq-plus"><ChevronRight size={15} /></span></button><div className="faq-answer"><p>{a}</p></div></article>)}</div></section>
