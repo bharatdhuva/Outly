@@ -73,6 +73,7 @@ const App = () => {
                 <DashboardLayout>
                   <Routes>
                     <Route path="/onboarding" element={<PageTransition><Onboarding /></PageTransition>} />
+                    <Route path="/dashboard" element={<Navigate to="/onboarding" replace />} />
                     <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
                     <Route path="/logs" element={<PageTransition><Logs /></PageTransition>} />
                     <Route path="/analytics" element={<PageTransition><Analytics /></PageTransition>} />
