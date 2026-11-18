@@ -32,6 +32,48 @@ const faq = [
   ['how do i get started?', 'Upload a master resume. That is the setup. Find a role you like and Outly will help with the next step.'],
 ]
 
+const heroWords = [
+  { text: 'job search', icon: Search, bg: '#12A394', glow: 'rgba(18,163,148,0.28)' },
+  { text: 'career', icon: Target, bg: '#111111', glow: 'rgba(0,0,0,0.22)' },
+  { text: 'outreach', icon: Send, bg: '#7C3AED', glow: 'rgba(124,58,237,0.28)' },
+  { text: 'resume', icon: FileText, bg: '#EA580C', glow: 'rgba(234,88,12,0.28)' },
+  { text: 'interviews', icon: CalendarDays, bg: '#059669', glow: 'rgba(5,150,105,0.28)' },
+]
+
+function HeroRotator() {
+  const [index, setIndex] = useState(0)
+  const [animating, setAnimating] = useState(false)
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const timer = setInterval(() => {
+      setAnimating(true)
+      setTimeout(() => {
+        setIndex(prev => (prev + 1) % heroWords.length)
+        setAnimating(false)
+      }, 280)
+    }, 2800)
+    return () => clearInterval(timer)
+  }, [])
+
+  const current = heroWords[index]
+  const Icon = current.icon
+
+  return (
+    <span className="hero-rotator">
+      <span className={`hero-rotator-item ${animating ? 'is-exiting' : 'is-entering'}`}>
+        <span
+          className="hero-rotator-icon-box"
+          style={{ background: current.bg, boxShadow: `0 6px 20px ${current.glow}` }}
+        >
+          <Icon strokeWidth={2.4} />
+        </span>
+        <span className="hero-rotator-text">{current.text}</span>
+      </span>
+    </span>
+  )
+}
+
 function Brand() { return <a className="brand" href="#top" aria-label="Outly home" onClick={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}><span className="brand-mark"><Send size={25} strokeWidth={1.7} /></span><span>Outly</span></a> }
 
 function MiniWindow({ type }: { type: string }) {
@@ -243,7 +285,7 @@ export default function OutlyLanding() {
       </div>
     </div>, document.body)}
     <main id="top" onMouseEnter={() => { }}>
-      <section className="hero" aria-labelledby="hero-title"><h1 id="hero-title">Your job search,<br /><i>one calm place.</i></h1><p className="hero-copy">Find the right roles, tailor your resume, and keep every application moving.<br />Your whole search, in one calm place.</p><div className="hero-actions"><a className="button button-teal" href="/login">Start your search <ArrowUpRight size={17} /></a><a className="button button-outline" href="#pricing">View pricing</a></div><div className="tool-chips" aria-label="Outly integrations"><div className="tool-chips-track"><div className="tool-chips-set"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div><div className="tool-chips-set" aria-hidden="true"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div></div></div></section>
+      <section className="hero" aria-labelledby="hero-title"><h1 id="hero-title">Your <HeroRotator />,<br /><i>one calm place.</i></h1><p className="hero-copy">Find the right roles, tailor your resume, and keep every application moving.<br />Your whole search, in one calm place.</p><div className="hero-actions"><a className="button button-teal" href="/login">Start your search <ArrowUpRight size={17} /></a><a className="button button-outline" href="#pricing">View pricing</a></div><div className="tool-chips" aria-label="Outly integrations"><div className="tool-chips-track"><div className="tool-chips-set"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div><div className="tool-chips-set" aria-hidden="true"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div></div></div></section>
       <section className="features-section" id="features"><div className="section-heading"><div><h2>Less searching.<br /><i>More actual work.</i></h2></div><p>From the first job description to the interview invite, Outly helps with the parts that take your time.</p></div><div className="bento-grid">{[
         { title: 'Resume ATS score', desc: 'A 27-factor score, clear fixes, and a target worth working toward.', type: 'score', tag: 'know where you stand' },
         { title: 'Resume Tailor', desc: 'Shape your resume around the role without losing your own voice.', type: 'keywords', tag: 'make the match clear' },
