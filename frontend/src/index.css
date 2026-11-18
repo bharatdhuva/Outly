@@ -78,7 +78,7 @@
     background-color: #FAF9F5;
     background: #FAF9F5;
     @apply text-foreground antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Inter, system-ui, sans-serif;
+    font-family: 'Geist', 'Geist Fallback', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Inter, system-ui, sans-serif;
     overflow-x: clip;
     width: 100%;
     color: #171717;
@@ -105,8 +105,8 @@
   h4,
   h5,
   h6 {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Inter, system-ui, sans-serif;
-    letter-spacing: -0.025em;
+    font-family: 'Geist', 'Geist Fallback', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Inter, system-ui, sans-serif;
+    letter-spacing: -0.03em;
   }
 
   ::-webkit-scrollbar {

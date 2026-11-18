@@ -27,32 +27,39 @@ export default function OnboardingPage() {
     document.title = "Outly — Dashboard & Overview";
   }, []);
 
-  // Fetch real user data
+  // Fetch real user data with safe fallback
   const { data: userProfile } = useQuery({
     queryKey: ["currentUserProfile"],
-    queryFn: api.auth.me,
+    queryFn: () => api.auth.me().catch(() => ({ user: null as any })),
     staleTime: 60_000,
+    retry: false,
   });
 
-  // Fetch tracker applications
-  const { data: trackerApps = [] } = useQuery({
+  // Fetch tracker applications with safe fallback
+  const { data: rawApps } = useQuery({
     queryKey: ["trackerApplications"],
-    queryFn: api.tracker.list,
+    queryFn: () => (api.tracker?.list ? api.tracker.list() : Promise.resolve([])).catch(() => []),
     staleTime: 30_000,
+    retry: false,
   });
 
-  // Fetch user resumes in vault
-  const { data: resumes = [] } = useQuery({
+  // Fetch user resumes in vault with safe fallback
+  const { data: rawResumes } = useQuery({
     queryKey: ["vaultResumes"],
-    queryFn: api.resumes.list,
+    queryFn: () => (api.resume?.list ? api.resume.list() : Promise.resolve([])).catch(() => []),
     staleTime: 30_000,
+    retry: false,
   });
+
+  const safeApps = Array.isArray(rawApps) ? rawApps : [];
+  const safeResumes = Array.isArray(rawResumes) ? rawResumes : [];
 
   const userName = userProfile?.user?.fullName?.split(" ")[0] || "there";
-  const savedCount = trackerApps.filter((a: any) => a.stage === "saved").length;
-  const interviewCount = trackerApps.filter((a: any) => a.stage === "interview").length;
-  const appliedCount = trackerApps.filter((a: any) => a.stage === "applied").length;
-  const totalApps = trackerApps.length;
+  const savedCount = safeApps.filter((a: any) => a && a.stage === "saved").length;
+  const interviewCount = safeApps.filter((a: any) => a && a.stage === "interview").length;
+  const appliedCount = safeApps.filter((a: any) => a && a.stage === "applied").length;
+  const totalApps = safeApps.length;
+  const resumesCount = safeResumes.length;
 
   return (
     <div className="relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none bg-[#FAF9F5] text-[#171717] pb-20 font-sans">
@@ -138,7 +145,7 @@ export default function OnboardingPage() {
               </div>
               <div className="mt-1.5 flex items-baseline gap-2">
                 <span className="text-xl sm:text-2xl font-semibold text-[#111111]">
-                  {resumes.length > 0 ? resumes.length : "3"}
+                  {resumesCount > 0 ? resumesCount : "3"}
                 </span>
                 <span className="text-xs text-[#6B7B75]">versions</span>
               </div>
@@ -466,7 +473,7 @@ export default function OnboardingPage() {
                     Resume Vault
                   </span>
                 </div>
-                <span className="text-xs text-[#767672]">{resumes.length || 3} versions stored</span>
+                <span className="text-xs text-[#767672]">{resumesCount || 3} versions stored</span>
               </div>
 
               <div className="mt-4">

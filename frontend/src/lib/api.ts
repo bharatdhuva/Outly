@@ -335,6 +335,24 @@ export const api = {
       }),
   },
 
+  tracker: {
+    list: () => fetchApi<TrackerApplication[]>("/applications"),
+    create: (data: Omit<TrackerApplication, "id" | "createdAt" | "updatedAt">) =>
+      fetchApi<{ success: boolean; id: string }>("/applications", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    update: (id: string, data: Partial<Omit<TrackerApplication, "id" | "createdAt">>) =>
+      fetchApi<{ success: boolean }>(`/applications/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    delete: (id: string) =>
+      fetchApi<{ success: boolean }>(`/applications/${id}`, {
+        method: "DELETE",
+      }),
+  },
+
   resume: {
     list: () => fetchApi<ResumeVaultItem[]>("/resume"),
     create: (data: { filename: string; label: string; content?: string; is_default?: boolean }) =>
@@ -377,6 +395,10 @@ export const api = {
       fetchApi<{ success: boolean }>(`/resume/${id}`, {
         method: "DELETE",
       }),
+  },
+
+  resumes: {
+    list: () => fetchApi<ResumeVaultItem[]>("/resume"),
   },
   analytics: {
     get: () =>

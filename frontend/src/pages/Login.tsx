@@ -59,20 +59,20 @@ const slides: Slide[] = [
 
 // ─── Variants (defined outside component — no re-creation on render) ──────────
 const slideVariants = {
-  enter:   { opacity: 0, y: 14 },
-  center:  { opacity: 1, y: 0,   transition: { duration: dur.enter, ease: ease.out } },
-  exit:    { opacity: 0, y: -10, transition: { duration: dur.exit,  ease: ease.in  } },
+  enter: { opacity: 0, y: 14 },
+  center: { opacity: 1, y: 0, transition: { duration: dur.enter, ease: ease.out } },
+  exit: { opacity: 0, y: -10, transition: { duration: dur.exit, ease: ease.in } },
 } as const;
 
 const panelVariants = {
-  hidden:  { opacity: 0, y: 10 },
+  hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { duration: dur.enter, ease: ease.out, delay: 0.1 } },
 } as const;
 
 const errorVariants = {
-  hidden:  { opacity: 0, height: 0 },
+  hidden: { opacity: 0, height: 0 },
   visible: { opacity: 1, height: "auto", transition: { duration: dur.normal, ease: ease.out } },
-  exit:    { opacity: 0, height: 0,      transition: { duration: dur.exit,   ease: ease.in  } },
+  exit: { opacity: 0, height: 0, transition: { duration: dur.exit, ease: ease.in } },
 } as const;
 
 // ─── Session persistence helper ───────────────────────────────────────────────
@@ -87,7 +87,7 @@ function saveUserSession(res: any) {
     if (res.user.fullName) localStorage.setItem("outly_user_name", res.user.fullName);
     if (res.user.profilePic) {
       localStorage.setItem("outly_user_avatar", res.user.profilePic);
-      try { const img = new Image(); img.src = res.user.profilePic; } catch {}
+      try { const img = new Image(); img.src = res.user.profilePic; } catch { }
     }
     if (res.user.email) localStorage.setItem("outly_user_email", res.user.email);
     localStorage.setItem("outly_user_session", JSON.stringify({ user: res.user }));
@@ -96,15 +96,15 @@ function saveUserSession(res: any) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function Login() {
-  const navigate      = useNavigate();
-  const navigateTo    = usePageTransition();
-  const { toast }     = useToast();
+  const navigate = useNavigate();
+  const navigateTo = usePageTransition();
+  const { toast } = useToast();
 
-  const [activeSlide,     setActiveSlide]     = useState(0);
+  const [activeSlide, setActiveSlide] = useState(0);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isDemoLoading,   setIsDemoLoading]   = useState(false);
-  const [demoError,       setDemoError]       = useState<string | null>(null);
-  const [isWakingServer,  setIsWakingServer]  = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+  const [demoError, setDemoError] = useState<string | null>(null);
+  const [isWakingServer, setIsWakingServer] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -280,11 +280,10 @@ export default function Login() {
                 type="button"
                 onClick={() => setActiveSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
-                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer border-none outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                  activeSlide === idx
+                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer border-none outline-none focus-visible:ring-2 focus-visible:ring-primary ${activeSlide === idx
                     ? "bg-primary w-6"
                     : "bg-[#C8C3B8] hover:bg-primary/40 w-1.5"
-                }`}
+                  }`}
               />
             ))}
           </div>
