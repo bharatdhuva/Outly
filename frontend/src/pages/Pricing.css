@@ -495,3 +495,155 @@
   font-size: 11px;
   color: #8C8C85;
 }
+
+/* ═══════════════ MOBILE RESPONSIVE (<= 768px) ═══════════════ */
+@media (max-width: 768px) {
+  .pricing-page {
+    padding: 32px 14px 60px;
+  }
+  .pricing-page-header h2 {
+    font-size: clamp(24px, 7vw, 32px);
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -0.05em;
+  }
+  .pricing-page .billing-toggle {
+    margin: 0 auto 48px !important;
+    width: 216px;
+    padding: 3px;
+  }
+  .pricing-page .billing-toggle button {
+    font-size: 10px;
+    width: 80px;
+    padding: 6px 0;
+  }
+  .pricing-page .billing-toggle button.billing-yearly {
+    width: 124px;
+  }
+  .pricing-page .billing-slider {
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: 80px;
+  }
+  .pricing-page .billing-slider-yearly {
+    transform: translateX(80px) !important;
+    width: 124px !important;
+  }
+  .pricing-page-grid {
+    gap: 22px;
+    max-width: 100%;
+  }
+  .pricing-page .price-card {
+    border-radius: 20px;
+    overflow: visible !important;
+  }
+  .pricing-page .pricing-art {
+    height: 80px !important;
+    margin: 6px 6px 0 !important;
+    width: calc(100% - 12px) !important;
+    border-radius: 14px;
+  }
+  .pricing-page .pricing-cat {
+    top: -40px !important;
+    left: 18px !important;
+    width: 64px !important;
+    height: 44px !important;
+  }
+  .pricing-page .pricing-cat span {
+    top: -2px !important;
+    right: 15px !important;
+    font-size: 8px !important;
+  }
+  .pricing-page .pricing-cat span:nth-of-type(2) {
+    top: -10px !important;
+    right: 7px !important;
+    font-size: 10px !important;
+  }
+  .pricing-page .pro-label {
+    top: 90px !important;
+    right: 12px !important;
+    padding: 2.5px 7px !important;
+    font-size: 7.5px !important;
+  }
+  .pricing-page .price-content {
+    padding: 12px 14px 16px !important;
+    min-height: 0 !important;
+  }
+  .pricing-page .price-content h3 {
+    font-size: 17px !important;
+    letter-spacing: -0.04em;
+  }
+  .pricing-page .price-content > p {
+    font-size: 10px !important;
+    margin: 2px 0 0 !important;
+  }
+  .pricing-page .price {
+    margin: 7px 0 9px !important;
+    gap: 5px !important;
+  }
+  .pricing-page .price b {
+    font-size: 26px !important;
+    letter-spacing: -0.06em;
+  }
+  .pricing-page .price span {
+    font-size: 9px !important;
+  }
+  .pricing-page .price-content ul {
+    gap: 5px !important;
+    margin: 0 0 12px !important;
+  }
+  .pricing-page .price-content li {
+    font-size: 9.5px !important;
+    gap: 6px !important;
+  }
+  .pricing-page .price-card .button {
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 11.5px !important;
+    padding: 0 16px !important;
+    margin-bottom: 10px !important;
+  }
+  .pricing-page .buy-link {
+    bottom: 5px !important;
+    font-size: 8.5px !important;
+  }
+  .pricing-page .pricing-note {
+    font-size: 8px;
+    margin-top: 14px;
+    gap: 5px;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .pricing-page-header h2 {
+    font-size: clamp(21px, 6.5vw, 26px);
+  }
+  .pricing-page .billing-toggle {
+    width: 196px;
+  }
+  .pricing-page .billing-toggle button {
+    width: 72px;
+    font-size: 9.5px;
+  }
+  .pricing-page .billing-toggle button.billing-yearly {
+    width: 112px;
+  }
+  .pricing-page .billing-slider {
+    width: 72px;
+  }
+  .pricing-page .billing-slider-yearly {
+    transform: translateX(72px) !important;
+    width: 112px !important;
+  }
+  .pricing-page .pricing-cat {
+    top: -36px !important;
+    left: 14px !important;
+    width: 56px !important;
+    height: 38px !important;
+  }
+  .pricing-page .pricing-art {
+    height: 74px !important;
+  }
+}
