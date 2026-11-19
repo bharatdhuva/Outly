@@ -129,16 +129,16 @@ main{overflow:hidden}.mobile-menu,.mobile-sheet{display:none}
   align-items:center;
   justify-content:space-between;
   gap:4px;
-  background:rgba(255,255,255,.92);
-  border:1px solid rgba(0,0,0,.07);
+  background:rgba(255,255,255,.50);
+  border:1px solid rgba(0,0,0,.08);
   border-radius:9999px;
-  -webkit-backdrop-filter:blur(28px) saturate(1.8);
-  backdrop-filter:blur(28px) saturate(1.8);
+  -webkit-backdrop-filter:blur(12px) saturate(1.6);
+  backdrop-filter:blur(12px) saturate(1.6);
   box-shadow:
-    0 1px 0 0 rgba(255,255,255,.9) inset,
-    0 20px 48px -8px rgba(0,0,0,.10),
-    0 4px 12px -2px rgba(0,0,0,.06),
-    0 1px 3px rgba(0,0,0,.04);
+    0 1px 0 0 rgba(255,255,255,.85) inset,
+    0 16px 40px -8px rgba(0,0,0,.08),
+    0 4px 12px -2px rgba(0,0,0,.04),
+    0 1px 3px rgba(0,0,0,.03);
 }
 .nav-pill .brand{
   flex:none;
@@ -349,7 +349,7 @@ main{overflow:hidden}.mobile-menu,.mobile-sheet{display:none}
 .tool-chips-track,.tool-chips-set{display:flex;align-items:center;gap:26px}
 .tool-chips-track{width:max-content;margin:0 auto}
 .tool-chips-set[aria-hidden="true"]{display:none}
-.nav-mobile-links{display:none}
+.nav-mobile-links, .nav-mobile-divider{display:none}
 
 .faq-section{
   display:block;
@@ -517,67 +517,109 @@ main{overflow:hidden}.mobile-menu,.mobile-sheet{display:none}
     scroll-margin-top:76px;
   }
 
-  /* ─── 1. NAVBAR PILL ─── */
+  /* ─── 1. NAVBAR PILL (Cool SaaS Central Floating Pill) ─── */
   .nav-pill{
-    top:10px;
-    width:calc(100% - 16px);
-    height:44px;
-    padding:0 8px 0 12px;
-    gap:0;
+    top:12px;
+    left:50%;
+    transform:translate3d(-50%,0,0);
+    width:-moz-max-content;
+    width:max-content;
+    max-width:calc(100% - 24px);
+    height:42px;
+    padding:0 4px 0 12px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    background:rgba(255,255,255,.50);
+    border:1px solid rgba(0,0,0,.08);
+    border-radius:9999px;
+    -webkit-backdrop-filter:blur(12px) saturate(1.6);
+    backdrop-filter:blur(12px) saturate(1.6);
+    box-shadow:
+      0 1px 0 0 rgba(255,255,255,.85) inset,
+      0 10px 28px -4px rgba(0,0,0,.08),
+      0 2px 6px rgba(0,0,0,.04);
   }
   .nav-pill .brand{
-    font-size:14px;
+    font-size:14.5px;
     gap:6px;
-    margin-right:0;
+    margin-right:2px;
     flex:none;
+    color:var(--teal);
+    font-weight:700;
   }
   .nav-pill .brand-mark{
-    width:18px;
-    height:18px;
+    width:17px;
+    height:17px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .nav-mobile-divider{
+    display:block;
+    width:1px;
+    height:14px;
+    background:rgba(0,0,0,.10);
+    margin:0 2px;
+    flex-shrink:0;
   }
   .nav-pill .nav-links{
     display:none;
   }
   .nav-mobile-links{
-    display:flex;
+    display:inline-flex;
     align-items:center;
-    gap:2px;
-    flex:1 1 auto;
-    justify-content:center;
+    gap:1px;
+    flex:none;
   }
   .nav-mobile-links a{
     font-family:var(--font-sans);
-    font-size:11.5px;
-    font-weight:450;
-    color:#4a4a46;
+    font-size:12px;
+    font-weight:500;
+    color:#4a4844;
     height:28px;
     padding:0 8px;
     border-radius:9999px;
     display:inline-flex;
     align-items:center;
+    justify-content:center;
     white-space:nowrap;
     text-decoration:none;
-    letter-spacing:-.01em;
+    letter-spacing:-.015em;
     background:transparent;
     transition:background .14s ease, color .14s ease;
   }
-  .nav-mobile-links a:hover{
-    background:rgba(0,0,0,.055);
-    color:#111;
+  .nav-mobile-links a:hover,
+  .nav-mobile-links a:active{
+    background:rgba(0,0,0,.06);
+    color:#111111;
   }
   .nav-pill .nav-actions{
     flex:none;
-    justify-content:flex-end;
-    gap:4px;
+    display:inline-flex;
+    align-items:center;
+    margin-left:2px;
   }
   .nav-pill .nav-signin-link{
-    height:30px!important;
-    padding:0 12px!important;
-    font-size:11.5px!important;
+    height:32px!important;
+    padding:0 14px!important;
+    font-size:12px!important;
+    font-weight:600!important;
+    border-radius:9999px!important;
+    background:#111111!important;
+    color:#ffffff!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    letter-spacing:-.015em!important;
+    box-shadow:0 1px 3px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.1)!important;
     transform:none!important;
-    box-shadow:0 1px 3px rgba(0,0,0,.18)!important;
   }
-  .nav-pill .nav-signin-link:hover{
+  .nav-pill .nav-signin-link:hover,
+  .nav-pill .nav-signin-link:active{
+    background:#222222!important;
+    color:#ffffff!important;
     transform:none!important;
   }
   .mobile-menu,
@@ -1201,27 +1243,39 @@ main{overflow:hidden}.mobile-menu,.mobile-sheet{display:none}
 /* ═══════════════ ULTRA-COMPACT (<= 360px & 320px) ═══════════════ */
 @media(max-width:360px){
   .nav-pill{
-    width:calc(100% - 12px);
-    height:42px;
-    padding:0 6px 0 10px;
+    top:10px;
+    width:-moz-max-content;
+    width:max-content;
+    max-width:calc(100% - 14px);
+    height:38px;
+    padding:0 3px 0 9px;
+    gap:4px;
   }
   .nav-pill .brand{
     font-size:13px;
-    gap:5px;
+    gap:4px;
+    margin-right:1px;
   }
   .nav-pill .brand-mark{
-    width:16px;
-    height:16px;
+    width:15px;
+    height:15px;
+  }
+  .nav-mobile-divider{
+    height:12px;
+    margin:0 1px;
   }
   .nav-mobile-links a{
-    font-size:10.5px;
+    font-size:11px;
     padding:0 5px;
-    height:26px;
+    height:25px;
+  }
+  .nav-pill .nav-actions{
+    margin-left:1px;
   }
   .nav-pill .nav-signin-link{
-    height:26px!important;
+    height:28px!important;
     padding:0 10px!important;
-    font-size:10.5px!important;
+    font-size:11px!important;
   }
   .hero h1{
     font-size:clamp(25px,8.5vw,30px);

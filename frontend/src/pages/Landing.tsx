@@ -292,6 +292,7 @@ export default function OutlyLanding() {
   return <>
     {createPortal(<nav className="nav-pill" aria-label="Main navigation">
       <Brand />
+      <span className="nav-mobile-divider" aria-hidden="true" />
       <div className="nav-links">{[['features', 'Overview'], ['how-it-works', 'How it works'], ['pricing', 'Pricing'], ['faq', 'FAQ']].map(([id, label]) => <a href={`#${id}`} key={id}>{label}</a>)}</div>
       <div className="nav-mobile-links">
         <a href="#features">Overview</a>

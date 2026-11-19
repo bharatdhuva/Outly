@@ -10,11 +10,20 @@ import { dur } from "@/lib/motion-tokens";
 
 function saveUserSession(res: any) {
   if (!res) return;
+  localStorage.removeItem("outly_token");
+  localStorage.removeItem("outly_premium_user");
+  localStorage.removeItem("outly_is_demo");
+  localStorage.removeItem("outly_demo_expires_at");
+  localStorage.removeItem("outly_user_role");
+  localStorage.removeItem("outly_user_name");
+  localStorage.removeItem("outly_user_avatar");
+  localStorage.removeItem("outly_user_email");
+  localStorage.removeItem("outly_user_session");
+
   if (res.token) localStorage.setItem("outly_token", res.token);
   if (res.user) {
     localStorage.setItem("outly_premium_user", String(res.user.plan === "pro"));
     localStorage.setItem("outly_is_demo", "false");
-    localStorage.removeItem("outly_demo_expires_at");
     if (res.user.role) localStorage.setItem("outly_user_role", res.user.role);
     if (res.user.fullName) localStorage.setItem("outly_user_name", res.user.fullName);
     if (res.user.profilePic) localStorage.setItem("outly_user_avatar", res.user.profilePic);
@@ -58,24 +67,12 @@ export function DemoSignupModal() {
 
     const google = (window as any).google;
     if (typeof google === "undefined" || !google.accounts) {
-      try {
-        const res = await api.auth.googleLogin("mock_bypass_token");
-        saveUserSession(res);
-        setOpen(false);
-        setIsGoogleLoading(false);
-        toast({
-          title: "Account Created",
-          description: "Welcome to Outly. Your workspace is now active.",
-        });
-        window.location.reload();
-      } catch (err: any) {
-        toast({
-          title: "Google sign-in failed",
-          description: err.message || "Failed to authenticate.",
-          variant: "destructive",
-        });
-        setIsGoogleLoading(false);
-      }
+      setIsGoogleLoading(false);
+      toast({
+        title: "Google Sign-In Unavailable",
+        description: "Google Sign-In is unavailable. Please check your internet connection and try again.",
+        variant: "destructive",
+      });
       return;
     }
 

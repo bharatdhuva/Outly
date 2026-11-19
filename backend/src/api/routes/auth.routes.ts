@@ -313,13 +313,7 @@ router.post("/google", async (req, res) => {
 
     let payload: { email?: string; email_verified?: string; aud?: string; name?: string; picture?: string } | null = null;
 
-    if (accessToken === "mock_bypass_token") {
-      payload = {
-        email: "bharatdhuva27@gmail.com",
-        name: "Bharat Dhuva",
-        picture: ""
-      };
-    } else if (typeof googleToken === "string" && googleToken.split(".").length === 3) {
+    if (typeof googleToken === "string" && googleToken.split(".").length === 3) {
       const verificationUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(googleToken)}`;
       const tokenInfoResponse = await axios.get(verificationUrl);
       payload = tokenInfoResponse.data;
@@ -372,7 +366,7 @@ router.post("/google", async (req, res) => {
         user.profilePic = googlePhoto;
         needsSave = true;
       }
-      if (payload.name && !user.fullName) {
+      if (payload.name && user.fullName !== payload.name) {
         user.fullName = payload.name;
         needsSave = true;
       }

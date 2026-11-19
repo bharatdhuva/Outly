@@ -16,11 +16,19 @@ import { type MouseEvent, useState, useEffect, useCallback, useRef } from "react
 import { useNavigate } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
 import { m, AnimatePresence } from "motion/react";
-import { ChevronRight, Send } from "lucide-react";
+import { ChevronRight, Send, AlertCircle } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import { useToast } from "../hooks/use-toast";
 import { Spinner } from "../components/Spinner";
 import { dur, ease, fadeUpVariants } from "../lib/motion-tokens";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from "@/components/ui/dialog";
 import "./Login.css";
 
 function LoginBrand() {
@@ -78,6 +86,17 @@ const errorVariants = {
 // ─── Session persistence helper ───────────────────────────────────────────────
 function saveUserSession(res: any) {
   if (!res) return;
+  // Always clear previous session keys first so no data from a prior user leaks over
+  localStorage.removeItem("outly_token");
+  localStorage.removeItem("outly_premium_user");
+  localStorage.removeItem("outly_is_demo");
+  localStorage.removeItem("outly_demo_expires_at");
+  localStorage.removeItem("outly_user_role");
+  localStorage.removeItem("outly_user_name");
+  localStorage.removeItem("outly_user_avatar");
+  localStorage.removeItem("outly_user_email");
+  localStorage.removeItem("outly_user_session");
+
   if (res.token) localStorage.setItem("outly_token", res.token);
   if (res.user) {
     localStorage.setItem("outly_premium_user", String(res.user.plan === "pro"));
@@ -130,15 +149,33 @@ export default function Login() {
   const navigate = useNavigate();
   const navigateTo = usePageTransition();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [activeSlide, setActiveSlide] = useState(0);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState<string | null>(null);
 
+  // Failure modal state
+  const [failModalOpen, setFailModalOpen] = useState(false);
+  const [failModalTitle, setFailModalTitle] = useState("Google Sign-In Failed");
+  const [failModalMessage, setFailModalMessage] = useState("");
+
   // Lazy load Google GSI script only when login screen is viewed
   useEffect(() => {
     loadGoogleGsi();
+  }, []);
+
+  // Check URL query parameters for external error redirects
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errorParam = params.get("error") || params.get("message");
+    if (errorParam) {
+      setFailModalTitle("Sign-In Failed");
+      setFailModalMessage(decodeURIComponent(errorParam));
+      setFailModalOpen(true);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, []);
 
   // Redirect if already authenticated
@@ -158,38 +195,36 @@ export default function Login() {
     return () => clearInterval(timer);
   }, [advanceSlide]);
 
-  // Direct 1-click login helper
-  const handleDirectBypassLogin = async () => {
-    try {
-      setIsGoogleLoading(true);
-      const res = await api.auth.googleLogin("mock_bypass_token");
-      saveUserSession(res);
-      toast({
-        title: "Signed in as Bharat Dhuva",
-        description: "Welcome back! Successfully authenticated.",
-      });
-      navigate("/onboarding");
-    } catch (err: any) {
-      toast({ title: "Sign-in failed", description: err.message || "Unable to log in.", variant: "destructive" });
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  };
-
   // Google sign-in
   const handleGoogleSignIn = async () => {
     if (isGoogleLoading || isDemoLoading) return;
     setIsGoogleLoading(true);
 
-    // Auto-release loading state after 8 seconds if Google popup hangs
+    // Auto-release loading state after 12 seconds if Google popup hangs
     const safetyTimer = setTimeout(() => {
-      setIsGoogleLoading(false);
-    }, 8000);
+      setIsGoogleLoading((loading) => {
+        if (loading) {
+          setFailModalTitle("Sign-In Timed Out");
+          setFailModalMessage("Google sign-in timed out. Please try again.");
+          setFailModalOpen(true);
+        }
+        return false;
+      });
+    }, 12000);
 
     const onWindowFocus = () => {
       setTimeout(() => {
-        setIsGoogleLoading(false);
-      }, 500);
+        setIsGoogleLoading((loading) => {
+          if (loading) {
+            setFailModalTitle("Sign-In Window Closed");
+            setFailModalMessage(
+              "Google sign-in was not completed. If Google showed 'Access blocked: Authorization Error (Error 400: origin_mismatch)', ensure https://www.outly.online is registered under Authorized JavaScript Origins in Google Cloud Console."
+            );
+            setFailModalOpen(true);
+          }
+          return false;
+        });
+      }, 700);
       window.removeEventListener("focus", onWindowFocus);
     };
     window.addEventListener("focus", onWindowFocus);
@@ -199,12 +234,17 @@ export default function Login() {
     const google = (window as any).google;
     const clientId =
       import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-      "137235712014-et2q796j1m13efh3qacdlkdbom3o11b4.apps.googleusercontent.com";
+      "1093257173105-1go6agnd7q3bm7akap29l9kom9lkarpo.apps.googleusercontent.com";
 
     if (typeof google === "undefined" || !google.accounts) {
       clearTimeout(safetyTimer);
       window.removeEventListener("focus", onWindowFocus);
-      await handleDirectBypassLogin();
+      setIsGoogleLoading(false);
+      const msg = "Google Sign-In is unavailable. Please check your internet connection or ad blocker and try again.";
+      setFailModalTitle("Google Sign-In Unavailable");
+      setFailModalMessage(msg);
+      setFailModalOpen(true);
+      toast({ title: "Google Sign-In Unavailable", description: msg, variant: "destructive" });
       return;
     }
 
@@ -216,26 +256,50 @@ export default function Login() {
           clearTimeout(safetyTimer);
           window.removeEventListener("focus", onWindowFocus);
           setIsGoogleLoading(false);
-          console.warn("Google OAuth error, using direct access:", err);
-          handleDirectBypassLogin();
+          const msg =
+            err?.message ||
+            (err?.type === "popup_closed"
+              ? "Sign-in was cancelled. Please try again."
+              : "Google OAuth authorization failed. If you see 'Error 400: origin_mismatch', please ensure https://www.outly.online is added in Google Cloud Console.");
+          setFailModalTitle("Google Sign-In Failed");
+          setFailModalMessage(msg);
+          setFailModalOpen(true);
+          toast({ title: "Google Sign-In Failed", description: msg, variant: "destructive" });
         },
         callback: async (response: any) => {
           clearTimeout(safetyTimer);
           window.removeEventListener("focus", onWindowFocus);
           if (response.error) {
             setIsGoogleLoading(false);
-            console.warn("Google OAuth response error:", response);
-            handleDirectBypassLogin();
+            const msg =
+              response.error === "popup_closed_by_user"
+                ? "Sign-in window was closed without completing authentication."
+                : (response.error_description || response.error || "Unable to complete Google sign-in.");
+            setFailModalTitle("Google Sign-In Failed");
+            setFailModalMessage(msg);
+            setFailModalOpen(true);
+            toast({ title: "Google Sign-In Failed", description: msg, variant: "destructive" });
             return;
           }
           if (response.access_token) {
             try {
               const res = await api.auth.googleLogin(response.access_token);
+              queryClient.clear();
               saveUserSession(res);
+              queryClient.setQueryData(["currentUser"], { user: res.user });
+              setIsGoogleLoading(false);
+              toast({
+                title: "Signed In",
+                description: `Welcome, ${res.user.fullName || res.user.email}!`,
+              });
               navigate("/onboarding");
             } catch (err: any) {
-              toast({ title: "Sign-in failed", description: err.message || "Unable to sign in with Google.", variant: "destructive" });
               setIsGoogleLoading(false);
+              const msg = err.message || "Failed to log in with Google credentials.";
+              setFailModalTitle("Authentication Failed");
+              setFailModalMessage(msg);
+              setFailModalOpen(true);
+              toast({ title: "Sign-in failed", description: msg, variant: "destructive" });
             }
           }
         },
@@ -244,7 +308,12 @@ export default function Login() {
     } catch {
       clearTimeout(safetyTimer);
       window.removeEventListener("focus", onWindowFocus);
-      await handleDirectBypassLogin();
+      setIsGoogleLoading(false);
+      const msg = "Google authentication could not be completed. Please try again.";
+      setFailModalTitle("Google Sign-In Failed");
+      setFailModalMessage(msg);
+      setFailModalOpen(true);
+      toast({ title: "Google Sign-In Failed", description: msg, variant: "destructive" });
     }
   };
 
@@ -474,16 +543,6 @@ export default function Login() {
               <p className="text-center text-[12px] text-[#B0ADA9] mt-2 select-none">
                 No account · 1 free session · 25 minutes
               </p>
-              <div className="pt-2 text-center">
-                <button
-                  type="button"
-                  onClick={handleDirectBypassLogin}
-                  disabled={isDisabled}
-                  className="text-[12px] font-medium text-neutral-400 hover:text-neutral-700 underline underline-offset-4 cursor-pointer transition-colors select-none"
-                >
-                  Direct Sign In (Bharat Dhuva)
-                </button>
-              </div>
             </div>
 
             {/* Error state */}
@@ -522,6 +581,42 @@ export default function Login() {
         </m.div>
       </div>
 
+      {/* ─── GOOGLE SIGN-IN FAIL POPUP MODAL ─── */}
+      <Dialog open={failModalOpen} onOpenChange={setFailModalOpen}>
+        <DialogContent className="max-w-[420px] p-6 rounded-2xl bg-white border border-neutral-200 shadow-2xl font-sans">
+          <DialogHeader className="flex flex-col items-center text-center">
+            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center mb-3 text-rose-600">
+              <AlertCircle className="h-6 w-6" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-neutral-900">
+              {failModalTitle}
+            </DialogTitle>
+            <DialogDescription className="text-[13px] text-neutral-600 leading-relaxed mt-2 text-center">
+              {failModalMessage}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-5 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setFailModalOpen(false);
+                handleGoogleSignIn();
+              }}
+              className="w-full min-h-[44px] bg-[#12A394] hover:bg-[#0E8A7D] text-white rounded-xl text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
+            >
+              Try Again with Google
+            </button>
+            <button
+              type="button"
+              onClick={() => setFailModalOpen(false)}
+              className="w-full min-h-[40px] bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

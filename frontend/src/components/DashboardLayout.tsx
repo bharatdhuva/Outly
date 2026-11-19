@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { m, AnimatePresence } from "motion/react";
 import { dur, ease } from "@/lib/motion-tokens";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import {
   ScrollText,
@@ -524,30 +524,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("outly_token");
   useEffect(() => {
     if (!token) {
-      // If visiting /onboarding, auto-provision guest demo session so the onboarding page is ALWAYS visible
-      if (location.pathname === "/onboarding") {
-        const expiresAt = new Date(Date.now() + 25 * 60 * 1000).toISOString();
-        const demoUser = {
-          id: "demo_guest_user",
-          email: "demo-guest@outly.demo",
-          fullName: "Alex (Demo)",
-          profilePic: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80",
-          plan: "free" as const,
-          role: "demo" as const,
-          isDemo: true,
-          demoExpiresAt: expiresAt,
-          createdAt: new Date().toISOString(),
-        };
-        localStorage.setItem("outly_token", "demo_guest_jwt_token_" + Math.random().toString(36).substring(2));
-        localStorage.setItem("outly_is_demo", "true");
-        localStorage.setItem("outly_user_name", demoUser.fullName);
-        localStorage.setItem("outly_user_avatar", demoUser.profilePic);
-        localStorage.setItem("outly_user_session", JSON.stringify({ user: demoUser }));
-        return;
-      }
       navigate("/login");
     }
-  }, [token, navigate, location.pathname]);
+  }, [token, navigate]);
 
   // Synchronous cache retrieval for 0ms instantaneous render
   const cachedUser = useMemo(() => {
@@ -899,9 +878,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       .map((part) => part[0]?.toUpperCase())
       .join("") || "OU";
 
+  const queryClient = useQueryClient();
   const handleLogout = () => {
     api.auth.logout();
-    navigate("/");
+    queryClient.clear();
+    navigate("/login");
   };
 
   const openDropdown = (dropdown: "resumes" | "jobs" | "tools") => {
