@@ -11,7 +11,6 @@ export function prefetchRoute(route: string) {
 
   switch (route) {
     case "/login":
-      import("../pages/Login");
       break;
     case "/onboarding":
     case "/dashboard":

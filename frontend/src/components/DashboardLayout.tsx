@@ -497,6 +497,7 @@ interface NotificationItem {
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const hasMobileHubTabs = ["/resumes", "/jobs", "/tools"].includes(location.pathname);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -1019,7 +1020,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[#FAF9F5] text-[#171717] flex flex-col font-sans overflow-x-clip">
 
       {/* Header Spacer Wrapper to prevent layout shift */}
-      <div className="h-16 w-full shrink-0 relative bg-white">
+      <div className={`${hasMobileHubTabs ? "h-0 md:h-16" : "h-16"} w-full shrink-0 relative bg-white`}>
         {/* ─── TOP NAVIGATION HEADER (FULL WIDTH) ─── */}
         <header
           ref={headerNavRef}

@@ -6,13 +6,13 @@ import { useEffect, lazy, Suspense } from "react";
 import { LazyMotion, domAnimation } from "motion/react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import Landing from "./pages/Landing";
+import Login from "./pages/Login";
 import { PageTransition, GlobalPageTransitionInterceptor } from "./components/PageTransition";
 import PageSkeleton from "./components/PageSkeleton";
 import LimitReachedModal from "@/components/LimitReachedModal";
 import { DemoSignupModal } from "@/components/DemoSignupModal";
 
 // ─── Route-level code splitting with React.lazy ──────────────────────────────
-const Login = lazy(() => import("./pages/Login"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const ColdMail = lazy(() => import("./pages/ColdMail"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -75,14 +75,12 @@ const App = () => {
                 }
               />
 
-              {/* Public Login Page — lazy loaded with skeleton fallback */}
+              {/* Public Login Page */}
               <Route
                 path="/login"
                 element={
                   <PageTransition>
-                    <Suspense fallback={<PageSkeleton />}>
-                      <Login />
-                    </Suspense>
+                    <Login />
                   </PageTransition>
                 }
               />

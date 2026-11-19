@@ -67,14 +67,14 @@ const slides: Slide[] = [
 
 // ─── Variants (defined outside component — no re-creation on render) ──────────
 const slideVariants = {
-  enter: { opacity: 0, y: 14 },
-  center: { opacity: 1, y: 0, transition: { duration: dur.enter, ease: ease.out } },
-  exit: { opacity: 0, y: -10, transition: { duration: dur.exit, ease: ease.in } },
+  enter: { opacity: 0, y: 10 },
+  center: { opacity: 1, y: 0, transition: { duration: 0.2, ease: ease.out } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: ease.in } },
 } as const;
 
 const panelVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: dur.enter, ease: ease.out, delay: 0.1 } },
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: ease.out } },
 } as const;
 
 const errorVariants = {

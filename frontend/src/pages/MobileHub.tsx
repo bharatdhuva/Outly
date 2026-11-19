@@ -1,7 +1,7 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { m } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 import { api } from "@/lib/api";
 import PageSkeleton from "@/components/PageSkeleton";
 import { 
@@ -25,9 +25,23 @@ interface MobileHubProps {
   category: "resumes" | "jobs" | "tools";
 }
 
+const preloadHubTab = (category: MobileHubProps["category"], tabId: string) => {
+  const preloaders: Record<string, () => Promise<unknown>> = {
+    "resumes:ats": () => import("./AtsScore"),
+    "resumes:tailor": () => import("./ResumeTailor"),
+    "resumes:vault": () => import("./ResumeVault"),
+    "jobs:search": () => import("./JobSearch"),
+    "jobs:tracker": () => import("./Applications"),
+    "tools:mail": () => import("./ColdMail"),
+  };
+
+  void preloaders[`${category}:${tabId}`]?.().catch(() => undefined);
+};
+
 export default function MobileHub({ category }: MobileHubProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const shouldReduceMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   const { data: apps = [] } = useQuery({
@@ -111,18 +125,29 @@ export default function MobileHub({ category }: MobileHubProps) {
                   key={tab.id}
                   type="button"
                   onClick={() => handleTabChange(tab.id)}
-                  className={`relative py-1.5 sm:py-2 px-1.5 rounded-lg text-[11.5px] sm:text-[12px] font-medium flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer outline-none select-none active:scale-[0.98] ${
+                  onPointerEnter={() => preloadHubTab(category, tab.id)}
+                  onPointerDown={() => preloadHubTab(category, tab.id)}
+                  aria-pressed={isActive}
+                  className={`relative py-1.5 sm:py-2 px-1.5 rounded-lg text-[11.5px] sm:text-[12px] font-medium flex items-center justify-center gap-1.5 transition-[color,transform] duration-200 cursor-pointer outline-none select-none active:scale-[0.98] ${
                     isActive
-                      ? "bg-white text-[#111111] font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                      ? "text-[#111111] font-semibold"
                       : "text-[#666666] hover:text-[#111111]"
                   }`}
                 >
+                  {isActive && (
+                    <m.span
+                      layoutId="mobile-hub-active-tab"
+                      className="absolute inset-0 rounded-lg bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                      transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 500, damping: 38, mass: 0.55 }}
+                      aria-hidden="true"
+                    />
+                  )}
                   {Icon && (
-                    <Icon className={`h-3.5 w-3.5 shrink-0 transition-colors ${
+                    <Icon className={`relative z-10 h-3.5 w-3.5 shrink-0 transition-colors duration-200 ${
                       isActive ? "text-[#12A394]" : "text-[#777777]"
                     }`} />
                   )}
-                  <span className="truncate">
+                  <span className="relative z-10 truncate">
                     <span className="hidden sm:inline">{tab.label}</span>
                     <span className="sm:hidden">{tab.shortLabel || tab.label}</span>
                   </span>
@@ -139,14 +164,14 @@ export default function MobileHub({ category }: MobileHubProps) {
       </div>
 
       {/* Content area */}
-      <div className="flex-1 w-full min-h-0 max-w-full overflow-x-hidden">
+      <div className="flex-1 w-full min-h-0 max-w-full overflow-x-hidden pt-16 md:pt-0">
         <Suspense fallback={<PageSkeleton />}>
           <m.div
             key={`${category}-${activeTab}`}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full h-full"
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.16, ease: "easeOut" }}
+            className="mobile-hub-content w-full h-full"
           >
             {category === "resumes" && activeTab === "ats" && <AtsScore />}
             {category === "resumes" && activeTab === "tailor" && <ResumeTailor />}
