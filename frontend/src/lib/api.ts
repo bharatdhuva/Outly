@@ -115,6 +115,13 @@ export const api = {
     logout: () => {
       localStorage.removeItem("outly_token");
       localStorage.removeItem("outly_premium_user");
+      localStorage.removeItem("outly_is_demo");
+      localStorage.removeItem("outly_demo_expires_at");
+      localStorage.removeItem("outly_user_role");
+      localStorage.removeItem("outly_user_name");
+      localStorage.removeItem("outly_user_avatar");
+      localStorage.removeItem("outly_user_email");
+      localStorage.removeItem("outly_user_session");
     }
   },
 

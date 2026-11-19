@@ -216,10 +216,14 @@ export default function Login() {
     setDemoError(null);
 
     try {
+      // Clear any prior stale tokens/sessions
+      localStorage.removeItem("outly_token");
+      localStorage.removeItem("outly_user_session");
+
       const res = await api.auth.demo();
       saveUserSession(res);
       toast({
-        title: "Welcome to Outly",
+        title: "Welcome to Outly Demo",
         description: "25 minutes of guest access. ATS scoring, resume tailoring, and cold outreach are ready.",
       });
       navigate("/onboarding");

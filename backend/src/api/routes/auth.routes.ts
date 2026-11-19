@@ -50,47 +50,16 @@ router.get("/ping", async (req, res) => {
   }
 });
 
-// 0. POST /demo (Ephemeral 1-time guest demo user with sample data)
+// 0. POST /demo (Ephemeral guest demo user with sample data)
 router.post("/demo", async (req, res) => {
   try {
-    const ip = req.ip || req.socket.remoteAddress || "127.0.0.1";
-    const userAgent = req.headers["user-agent"] || "unknown";
-    const visitorKey = `${ip}_${crypto.createHash("md5").update(userAgent).digest("hex")}`;
-
-    // 1. Rate limiting: Max 5 attempts per hour per IP
-    const now = Date.now();
-    const ipRecord = demoIpLimiter.get(ip) || { count: 0, resetAt: now + 60 * 60 * 1000 };
-    if (now > ipRecord.resetAt) {
-      ipRecord.count = 0;
-      ipRecord.resetAt = now + 60 * 60 * 1000;
-    }
-    if (ipRecord.count >= 5) {
-      return res.status(429).json({
-        error: "Too many demo requests.",
-        code: "RATE_LIMITED",
-        message: "Too many demo sessions initiated from this IP. Please try again later or sign up directly."
-      });
-    }
-    ipRecord.count++;
-    demoIpLimiter.set(ip, ipRecord);
-
-    // 2. One-time check: Check cookie & visitor cache
-    const cookieHeader = req.headers.cookie || "";
-    const hasUsedDemoCookie = cookieHeader.includes("outly_demo_used=true");
-    const hasUsedDemoVisitor = usedDemoVisitors.has(visitorKey);
-
-    if (hasUsedDemoCookie || hasUsedDemoVisitor) {
-      return res.status(403).json({
-        error: "Demo session already used.",
-        code: "DEMO_ALREADY_USED",
-        message: "You have already experienced Outly Demo. Please sign in with Google to continue!"
-      });
-    }
+    await connectDB();
 
     // Trigger background cleanup of expired demo accounts
     cleanupExpiredDemoData().catch(() => {});
 
-    // 3. Create ephemeral demo user
+    // Create ephemeral demo user
+    const now = Date.now();
     const randomHex = crypto.randomBytes(4).toString("hex");
     const demoEmail = `demo-${randomHex}@outly.demo`;
     const demoPasswordHash = await bcrypt.hash(crypto.randomBytes(16).toString("hex"), 8);
@@ -221,14 +190,7 @@ B.S. in Computer Science | UC Berkeley (2015 - 2019)`,
       }
     ]);
 
-    // 5. Mark visitor and set httpOnly cookie for 24h
-    usedDemoVisitors.add(visitorKey);
-    res.setHeader(
-      "Set-Cookie",
-      "outly_demo_used=true; Path=/; Max-Age=86400; HttpOnly; SameSite=Lax"
-    );
-
-    // 6. Issue short-lived JWT (25 minutes)
+    // Issue short-lived JWT (25 minutes)
     const token = jwt.sign(
       {
         id: user._id.toString(),
