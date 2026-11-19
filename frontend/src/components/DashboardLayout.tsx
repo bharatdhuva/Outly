@@ -1433,7 +1433,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
-      <main className="flex-1 w-full flex flex-col min-h-0 pb-24 md:pb-0 overflow-x-clip">
+      <main className="flex-1 w-full flex flex-col min-h-0 pb-16 md:pb-0 overflow-x-clip">
         {children}
       </main>
 

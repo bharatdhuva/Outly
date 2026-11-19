@@ -87,13 +87,13 @@ export function PageTransition({ children }: { children: ReactNode }) {
     return <div className="w-full flex-1 flex flex-col">{children}</div>;
   }
 
-  // Fallback for browsers without View Transitions: fast 200ms incoming drift
+  // Fallback for browsers without View Transitions: clean opacity fade (NO translateY/transform to preserve sticky positioning)
   return (
     <m.div
       key={location.pathname}
       className="w-full flex-1 flex flex-col"
-      initial={isFirstMount.current ? false : { opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={isFirstMount.current ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: dur.route, ease: ease.out }}
     >
       {children}

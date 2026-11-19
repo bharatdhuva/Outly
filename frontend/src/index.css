@@ -1962,12 +1962,6 @@ body {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
   }
 
-  /* Sticky tabs always sit at top-16 (h-16 header), never jump */
-  .sticky-tabs-container {
-    top: 4rem !important;
-    /* always 64px below the fixed header */
-  }
-
   /* Smooth touch scrolling for all scrollable containers */
   * {
     -webkit-overflow-scrolling: touch;

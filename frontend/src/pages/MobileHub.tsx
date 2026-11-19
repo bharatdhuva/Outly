@@ -95,9 +95,9 @@ export default function MobileHub({ category }: MobileHubProps) {
   }
 
   return (
-    <div className="relative flex-1 min-h-0 w-full flex flex-col font-sans text-outly-dark animate-fade-in text-left bg-transparent">
+    <div className="flex-1 min-h-0 w-full flex flex-col font-sans text-outly-dark text-left bg-transparent">
       {/* Modern Segmented Sub Selector */}
-      <div className="sticky z-30 bg-white/95 backdrop-blur-md border-b border-black/[0.06] px-3 sm:px-6 py-2 sm:py-2.5 select-none shadow-xs transition-[top] duration-150 ease-out top-16 sticky-tabs-container">
+      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-black/[0.06] px-3 sm:px-6 py-2 select-none shadow-xs">
         <div className="w-full max-w-lg mx-auto">
           <div className={`grid gap-1 bg-[#F1F1EF] p-1 rounded-xl ${
             tabs.length === 3 ? "grid-cols-3" : tabs.length === 2 ? "grid-cols-2" : "grid-cols-1"
