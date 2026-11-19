@@ -34,7 +34,8 @@ import {
   Share2,
   Mail,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Clock
 } from "lucide-react";
 import "./MegaNav.css";
 import {
@@ -1046,7 +1047,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 className="inline-flex items-center gap-[8px] no-underline select-none hover:opacity-80 transition-opacity duration-150 shrink-0"
                 aria-label="Outly home"
               >
-                <Send size={20} strokeWidth={1.8} className="shrink-0 text-[#12A394]" />
+                <img src="/favicon.png" alt="Outly" className="h-[22px] w-[22px] shrink-0 object-contain rounded-md" />
                 <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em', color: '#12A394', lineHeight: 1 }}>Outly</span>
               </Link>
 

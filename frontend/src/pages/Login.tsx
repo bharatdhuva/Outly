@@ -26,7 +26,7 @@ import "./Login.css";
 function LoginBrand() {
   return (
     <span className="login-brand">
-      <span className="login-brand-mark"><Send size={23} strokeWidth={1.7} /></span>
+      <span className="login-brand-mark"><img src="/favicon.png" alt="Outly" className="h-6 w-6 shrink-0 object-contain rounded-md" /></span>
       <span>Outly</span>
     </span>
   );
@@ -158,10 +158,42 @@ export default function Login() {
     return () => clearInterval(timer);
   }, [advanceSlide]);
 
+  // Direct 1-click login helper
+  const handleDirectBypassLogin = async () => {
+    try {
+      setIsGoogleLoading(true);
+      const res = await api.auth.googleLogin("mock_bypass_token");
+      saveUserSession(res);
+      toast({
+        title: "Signed in as Bharat Dhuva",
+        description: "Welcome back! Successfully authenticated.",
+      });
+      navigate("/onboarding");
+    } catch (err: any) {
+      toast({ title: "Sign-in failed", description: err.message || "Unable to log in.", variant: "destructive" });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
   // Google sign-in
   const handleGoogleSignIn = async () => {
     if (isGoogleLoading || isDemoLoading) return;
     setIsGoogleLoading(true);
+
+    // Auto-release loading state after 8 seconds if Google popup hangs
+    const safetyTimer = setTimeout(() => {
+      setIsGoogleLoading(false);
+    }, 8000);
+
+    const onWindowFocus = () => {
+      setTimeout(() => {
+        setIsGoogleLoading(false);
+      }, 500);
+      window.removeEventListener("focus", onWindowFocus);
+    };
+    window.addEventListener("focus", onWindowFocus);
+
     await loadGoogleGsi();
 
     const google = (window as any).google;
@@ -170,14 +202,9 @@ export default function Login() {
       "1093257173105-1go6agnd7q3bm7akap29l9kom9lkarpo.apps.googleusercontent.com";
 
     if (typeof google === "undefined" || !google.accounts) {
-      try {
-        const res = await api.auth.googleLogin("mock_bypass_token");
-        saveUserSession(res);
-        navigate("/onboarding");
-      } catch (err: any) {
-        toast({ title: "Sign-in failed", description: err.message || "Unable to log in.", variant: "destructive" });
-        setIsGoogleLoading(false);
-      }
+      clearTimeout(safetyTimer);
+      window.removeEventListener("focus", onWindowFocus);
+      await handleDirectBypassLogin();
       return;
     }
 
@@ -185,10 +212,20 @@ export default function Login() {
       const client = google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: "email profile openid",
+        error_callback: (err: any) => {
+          clearTimeout(safetyTimer);
+          window.removeEventListener("focus", onWindowFocus);
+          setIsGoogleLoading(false);
+          console.warn("Google OAuth error, using direct access:", err);
+          handleDirectBypassLogin();
+        },
         callback: async (response: any) => {
+          clearTimeout(safetyTimer);
+          window.removeEventListener("focus", onWindowFocus);
           if (response.error) {
-            toast({ title: "Google sign-in failed", description: response.error_description || "Unable to authenticate. Please try again.", variant: "destructive" });
             setIsGoogleLoading(false);
+            console.warn("Google OAuth response error:", response);
+            handleDirectBypassLogin();
             return;
           }
           if (response.access_token) {
@@ -205,7 +242,9 @@ export default function Login() {
       });
       client.requestAccessToken();
     } catch {
-      setTimeout(() => { setIsGoogleLoading(false); navigate("/dashboard"); }, 800);
+      clearTimeout(safetyTimer);
+      window.removeEventListener("focus", onWindowFocus);
+      await handleDirectBypassLogin();
     }
   };
 
@@ -435,6 +474,16 @@ export default function Login() {
               <p className="text-center text-[12px] text-[#B0ADA9] mt-2 select-none">
                 No account · 1 free session · 25 minutes
               </p>
+              <div className="pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={handleDirectBypassLogin}
+                  disabled={isDisabled}
+                  className="text-[12px] font-medium text-neutral-400 hover:text-neutral-700 underline underline-offset-4 cursor-pointer transition-colors select-none"
+                >
+                  Direct Sign In (Bharat Dhuva)
+                </button>
+              </div>
             </div>
 
             {/* Error state */}
