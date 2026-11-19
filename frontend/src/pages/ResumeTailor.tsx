@@ -45,6 +45,7 @@ import {
   Trash2
 } from "lucide-react";
 import { FileUploadCard, UploadedFile } from "@/components/ui/file-upload-card";
+import "./ResumeTailor.css";
 
 const parseJobInfo = (text: string) => {
   if (!text || text.trim().length === 0) {
@@ -747,11 +748,11 @@ export default function ResumeTailorPage() {
 
   if (tailoredResult && !isEditing) {
     return (
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20">
+      <div className="tailor-page tailor-result-page landing-style-page resume-workspace-page mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 font-sans">
         {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
-          <div>
-            <div className="hidden sm:inline-flex items-center gap-2 mb-1">
+        <div className="tailor-page-header flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+          <div className="tailor-job-context">
+            <div className="inline-flex items-center gap-2 mb-2">
               <Target className="w-3.5 h-3.5 text-primary" />
               <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
                 Resume / Tailor
@@ -767,31 +768,31 @@ export default function ResumeTailorPage() {
 
           <button
             onClick={() => setIsEditing(true)}
-            className="self-start bg-foreground hover:bg-foreground/90 text-background text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
+            className="tailor-retailor self-start bg-foreground hover:bg-foreground/90 text-background text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
           >
             Re-tailor <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        <div className="border-b border-border/60 my-5" />
+        <div className="tailor-separator" />
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="tailor-result-grid grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Tailored resume */}
-          <div className="lg:col-span-8 space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="tailor-resume-result lg:col-span-8 space-y-3">
+            <div className="tailor-result-section-header flex items-center justify-between">
               <h2 className="text-[13px] font-bold text-foreground">Tailored resume</h2>
               <div className="flex items-center gap-4">
                 <button
                   onClick={handleCopy}
-                  className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer font-medium"
+                  className="tailor-tool-button text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer font-medium"
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copied ? "Copied" : "Copy"}</span>
                 </button>
                 <button
                   onClick={handleDownload}
-                  className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer font-medium"
+                  className="tailor-tool-button text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer font-medium"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download</span>
@@ -799,7 +800,7 @@ export default function ResumeTailorPage() {
                 <button
                   onClick={handleSaveToVault}
                   disabled={savingToVault}
-                  className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 font-medium"
+                  className="tailor-tool-button text-muted-foreground hover:text-foreground text-xs flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 font-medium"
                 >
                   {savingToVault ? <Spinner size={14} className="text-current" /> : <Save className="w-3.5 h-3.5" />}
                   <span>{savingToVault ? "Saving..." : "Save"}</span>
@@ -807,7 +808,7 @@ export default function ResumeTailorPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-card p-6 sm:p-8 min-h-[550px] shadow-sm overflow-x-auto text-left">
+            <div className="tailor-resume-output rounded-xl border border-border bg-card p-6 sm:p-8 min-h-[550px] shadow-sm overflow-x-auto text-left">
               <pre className="whitespace-pre-wrap font-mono text-[12px] sm:text-[13px] leading-relaxed text-foreground/90 select-text font-normal">
                 {tailoredResult}
               </pre>
@@ -815,12 +816,12 @@ export default function ResumeTailorPage() {
           </div>
 
           {/* Right Column: Keyword Match */}
-          <div className="lg:col-span-4 space-y-6 pt-2 text-left">
-            <div>
+          <div className="tailor-keyword-panel lg:col-span-4 text-left">
+            <div className="tailor-match-summary">
               <span className="text-[11px] font-bold tracking-[0.2em] text-muted-foreground uppercase block">
                 KEYWORD MATCH
               </span>
-              <div className="mt-2 flex items-baseline gap-1">
+              <div className="tailor-match-number mt-2 flex items-baseline gap-1">
                 <span className="text-5xl sm:text-6xl font-bold tracking-tight text-foreground leading-none">
                   {matchPercentage}
                 </span>
@@ -829,7 +830,7 @@ export default function ResumeTailorPage() {
               <p className="text-[12px] text-muted-foreground font-medium mt-2">
                 {matchedKeywords.length} of {Math.max(matchedKeywords.length, totalKeywords)} keywords from the job description
               </p>
-              <div className="w-full h-1 bg-secondary rounded-full overflow-hidden mt-3">
+              <div className="tailor-match-track w-full h-1 bg-secondary rounded-full overflow-hidden mt-3">
                 <div
                   className="h-full bg-foreground rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(100, Math.max(5, matchPercentage))}%` }}
@@ -837,20 +838,19 @@ export default function ResumeTailorPage() {
               </div>
             </div>
 
-            <div className="border-b border-border/60 my-5" />
+            <div className="tailor-keyword-divider" />
 
             {/* Missing Section */}
-            <div>
+            <div className="tailor-keyword-group tailor-keyword-missing">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground">Missing</span>
                 <span className="text-xs text-muted-foreground font-mono">{flatMissingKeywords.length}</span>
               </div>
-              <div className="flex flex-wrap gap-x-3.5 gap-y-2 mt-3 text-xs text-foreground/85 leading-relaxed">
+              <div className="tailor-keyword-list flex flex-wrap gap-x-3.5 gap-y-2 mt-3 text-xs text-foreground/85 leading-relaxed">
                 {flatMissingKeywords.length > 0 ? (
                   flatMissingKeywords.map((kw, i) => (
-                    <span key={i} className="inline-flex items-center gap-1.5">
-                      <span className="text-amber-500 font-bold leading-none text-sm">•</span>
-                      <span>{kw}</span>
+                    <span key={i} className="tailor-keyword inline-flex items-center gap-1.5">
+                      {kw}
                     </span>
                   ))
                 ) : (
@@ -859,20 +859,19 @@ export default function ResumeTailorPage() {
               </div>
             </div>
 
-            <div className="border-b border-border/60 my-5" />
+            <div className="tailor-keyword-divider" />
 
             {/* Matched Section */}
-            <div>
+            <div className="tailor-keyword-group tailor-keyword-matched">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground">Matched</span>
                 <span className="text-xs text-muted-foreground font-mono">{matchedKeywords.length}</span>
               </div>
-              <div className="flex flex-wrap gap-x-3.5 gap-y-2 mt-3 text-xs text-foreground/85 leading-relaxed">
+              <div className="tailor-keyword-list flex flex-wrap gap-x-3.5 gap-y-2 mt-3 text-xs text-foreground/85 leading-relaxed">
                 {matchedKeywords.length > 0 ? (
                   matchedKeywords.map((kw, i) => (
-                    <span key={i} className="inline-flex items-center gap-1.5">
-                      <span className="text-emerald-500 font-bold leading-none text-sm">•</span>
-                      <span>{kw}</span>
+                    <span key={i} className="tailor-keyword inline-flex items-center gap-1.5">
+                      {kw}
                     </span>
                   ))
                 ) : (
@@ -889,18 +888,18 @@ export default function ResumeTailorPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-3.5 sm:px-6 py-2.5 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-6 sm:pb-20 text-left">
+    <div className="tailor-page tailor-editor-page landing-style-page resume-workspace-page mx-auto w-full max-w-6xl px-3.5 sm:px-6 py-2.5 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-6 sm:pb-20 text-left font-sans">
       
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+      <div className="tailor-page-header flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div>
-          <div className="hidden sm:inline-flex items-center gap-2 mb-1">
+          <div className="inline-flex items-center gap-2 mb-2">
             <Target className="w-3.5 h-3.5 text-primary" />
             <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
               Resume / Tailor
             </span>
           </div>
-          <h1 className="hidden sm:block text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
             Tailor your resume for a role
           </h1>
           <p className="text-xs sm:text-[13px] text-neutral-500 font-normal mt-0.5 sm:mt-1">
@@ -919,10 +918,10 @@ export default function ResumeTailorPage() {
       </div>
 
       {/* INPUT WORKSPACE (Side by Side columns) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+      <div className="tailor-input-grid grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         
         {/* Left Column: 01 Job description */}
-        <div className="space-y-2 flex flex-col">
+        <div className="tailor-input-column space-y-2 flex flex-col">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-semibold text-neutral-900 flex items-center gap-1.5">
               <span className="font-mono text-neutral-400 font-normal">01</span>
@@ -967,7 +966,7 @@ export default function ResumeTailorPage() {
             </div>
           </div>
 
-          <div className="rounded-[24px] sm:rounded-[28px] border border-black/[0.06] bg-white p-4 sm:p-6 h-[170px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col focus-within:border-black/20 transition-all">
+          <div className="tailor-field-card rounded-[24px] sm:rounded-[28px] border border-black/[0.06] bg-white p-4 sm:p-6 h-[170px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col focus-within:border-black/20 transition-all">
             <textarea
               ref={jdTextareaRef}
               className="flex-1 w-full resize-none border-0 bg-transparent text-[13px] leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:outline-none font-mono"
@@ -984,7 +983,7 @@ export default function ResumeTailorPage() {
         </div>
 
         {/* Right Column: 02 Your resume */}
-        <div className="space-y-2 flex flex-col">
+        <div className="tailor-input-column space-y-2 flex flex-col">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-semibold text-zinc-900 flex items-center gap-1.5">
               <span className="font-mono text-zinc-400 font-normal">02</span>
@@ -995,7 +994,7 @@ export default function ResumeTailorPage() {
             </span>
           </div>
 
-          <div className="rounded-[24px] sm:rounded-[28px] border border-black/[0.06] bg-white p-4 sm:p-6 min-h-[170px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col">
+          <div className="tailor-field-card rounded-[24px] sm:rounded-[28px] border border-black/[0.06] bg-white p-4 sm:p-6 min-h-[170px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col">
             <input
               type="file"
               ref={fileInputRef}
@@ -1161,7 +1160,7 @@ export default function ResumeTailorPage() {
       </div>
 
       {/* Bottom Action Area */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+      <div className="tailor-action-row flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
         <p className="text-xs text-neutral-500">
           {!jobDesc.trim() && !resumeText
             ? "Paste the job description and add your resume to continue."
@@ -1177,7 +1176,7 @@ export default function ResumeTailorPage() {
         <button
           onClick={handleTailor}
           disabled={tailoring || !resumeText || !jobDesc.trim() || isValidResume === false}
-          className="self-end sm:self-auto bg-[#111111] hover:bg-black disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-white text-xs font-semibold px-6 py-3 rounded-full flex items-center gap-2 transition-all cursor-pointer shrink-0 shadow-sm active:scale-95"
+          className="resume-primary-action self-end sm:self-auto bg-[#111111] hover:bg-black disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-white text-xs font-semibold px-6 py-3 rounded-full flex items-center gap-2 transition-all cursor-pointer shrink-0 shadow-sm active:scale-95"
         >
           {tailoring ? (
             <>

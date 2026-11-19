@@ -2041,6 +2041,106 @@ body {
   animation: none !important;
 }
 
+/* Resume tools share the flat, warm-white surfaces and quiet borders of the landing page. */
+.landing-style-page {
+  color: #171717;
+  font-family: 'Geist', 'Geist Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+}
+
+.landing-style-page h1,
+.landing-style-page h2,
+.landing-style-page h3,
+.landing-style-page button,
+.landing-style-page input,
+.landing-style-page textarea,
+.landing-style-page select {
+  font-family: inherit;
+}
+
+.landing-style-page [class*="rounded-2xl"][class*="border"],
+.landing-style-page [class*="rounded-xl"][class*="bg-white"],
+.landing-style-page [class*="rounded-xl"][class*="bg-card"],
+.landing-style-page [class*="rounded-[24px]"][class*="bg-white"],
+.landing-style-page [class*="rounded-[28px]"][class*="bg-white"] {
+  border-color: #e8e8e6 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.025) !important;
+}
+
+.landing-style-page [class*="bg-[#f4f4f3]"],
+.landing-style-page input:not([type="file"]):not([type="checkbox"]):not([type="radio"]),
+.landing-style-page textarea,
+.landing-style-page select {
+  background-color: #f7f7f5;
+}
+
+.landing-style-page input:not([type="file"]):not([type="checkbox"]):not([type="radio"]),
+.landing-style-page textarea,
+.landing-style-page select {
+  border-color: #e8e8e6;
+}
+
+.landing-style-page .resume-primary-action,
+.landing-style-page .workspace-primary-action {
+  background-color: #12a394 !important;
+  border-color: #12a394 !important;
+  border-radius: 9999px;
+  box-shadow: none !important;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.landing-style-page .resume-primary-action:not(:disabled):hover,
+.landing-style-page .workspace-primary-action:not(:disabled):hover {
+  background-color: #0b8a7d !important;
+  border-color: #0b8a7d !important;
+}
+
+.landing-style-page .resume-primary-action:disabled,
+.landing-style-page .workspace-primary-action:disabled {
+  background-color: #e5e7eb !important;
+  border-color: #e5e7eb !important;
+  color: #9ca3af !important;
+}
+
+.landing-style-page button {
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+/* Dialogs render in a portal outside the page styling scope. */
+.cold-mail-company-dialog {
+  border-color: #e8e8e6 !important;
+  border-radius: 24px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  font-family: 'Geist', 'Geist Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+}
+
+.cold-mail-company-dialog input,
+.cold-mail-company-dialog textarea {
+  border-color: #e8e8e6 !important;
+  border-radius: 12px !important;
+  background-color: #f7f7f5 !important;
+  font-family: inherit;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.cold-mail-company-dialog input:focus,
+.cold-mail-company-dialog textarea:focus {
+  border-color: #12a394 !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(18, 163, 148, 0.12) !important;
+  outline: none;
+}
+
+.cold-mail-company-dialog .workspace-primary-action {
+  background-color: #12a394 !important;
+  border-color: #12a394 !important;
+  box-shadow: none !important;
+}
+
+.cold-mail-company-dialog .workspace-primary-action:not(:disabled):hover {
+  background-color: #0b8a7d !important;
+  border-color: #0b8a7d !important;
+}
+
 .mobile-scroll-header {
   height: 4rem;
   /* h-16 — never changes, no reflow */

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
-import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Plane, Plus, Search, Send, ShieldCheck, Target, X } from 'lucide-react'
+import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Pause, Plane, Play, Plus, Search, Send, ShieldCheck, Target, X } from 'lucide-react'
 import { prefetchRoute, prefetchOnIdle } from '@/lib/prefetch'
 import gmailLogo from '@/assets/logos/google-gmail.svg'
 import calendarLogo from '@/assets/logos/google-calendar.svg'
@@ -10,6 +10,19 @@ import naukriLogo from '@/assets/logos/naukri-seeklogo.svg'
 import wellfoundLogo from '@/assets/logos/wellfound.svg'
 import workdayLogo from '@/assets/logos/workday-icon.svg'
 import geminiLogo from '@/assets/logos/gemini-icon-seeklogo.svg'
+import indeedLogo from '@/assets/logos/jobboards/indeed.svg'
+import glassdoorLogo from '@/assets/logos/jobboards/glassdoor.svg'
+import monsterLogo from '@/assets/logos/jobboards/monster.svg'
+import founditLogo from '@/assets/logos/jobboards/foundit.ico'
+import naukriBoardLogo from '@/assets/logos/jobboards/naukri.ico'
+import instahyreLogo from '@/assets/logos/jobboards/instahyre.ico'
+import shineLogo from '@/assets/logos/jobboards/shine.ico'
+import timesJobsLogo from '@/assets/logos/jobboards/timesjobs.ico'
+import remotiveLogo from '@/assets/logos/jobboards/remotive.ico'
+import remoteOkLogo from '@/assets/logos/jobboards/remoteok.ico'
+import flexJobsLogo from '@/assets/logos/jobboards/flexjobs.ico'
+import handshakeLogo from '@/assets/logos/jobboards/handshake.ico'
+import diceLogo from '@/assets/logos/jobboards/dice.ico'
 import pricingSeaImage from '@/assets/pricing-sea.webp'
 import pricingFieldImage from '@/assets/pricing-field.webp'
 import pricingCatImage from '@/assets/pricing-cat.webp'
@@ -35,11 +48,29 @@ const faq = [
 ]
 
 const heroWords = [
-  { text: 'job search,', icon: Search, bg: '#12A394', glow: 'rgba(18,163,148,0.28)' },
-  { text: 'career,', icon: Target, bg: '#111111', glow: 'rgba(0,0,0,0.22)' },
-  { text: 'outreach,', icon: Send, bg: '#7C3AED', glow: 'rgba(124,58,237,0.28)' },
-  { text: 'resume,', icon: FileText, bg: '#EA580C', glow: 'rgba(234,88,12,0.28)' },
-  { text: 'interviews,', icon: CalendarDays, bg: '#059669', glow: 'rgba(5,150,105,0.28)' },
+  { text: 'job search,', icon: Search, bg: '#12A394' },
+  { text: 'career,', icon: Target, bg: '#111111' },
+  { text: 'outreach,', icon: Send, bg: '#7C3AED' },
+  { text: 'resume,', icon: FileText, bg: '#EA580C' },
+  { text: 'interviews,', icon: CalendarDays, bg: '#059669' },
+]
+
+const jobPlatformBrands = [
+  { name: 'LinkedIn Jobs', logo: linkedinLogo },
+  { name: 'Naukri', logo: naukriBoardLogo },
+  { name: 'Wellfound', logo: wellfoundLogo },
+  { name: 'Indeed', logo: indeedLogo },
+  { name: 'Glassdoor', logo: glassdoorLogo },
+  { name: 'Monster', logo: monsterLogo },
+  { name: 'Foundit', logo: founditLogo },
+  { name: 'Instahyre', logo: instahyreLogo },
+  { name: 'Shine', logo: shineLogo },
+  { name: 'TimesJobs', logo: timesJobsLogo },
+  { name: 'Remotive', logo: remotiveLogo },
+  { name: 'Remote OK', logo: remoteOkLogo },
+  { name: 'FlexJobs', logo: flexJobsLogo },
+  { name: 'Handshake', logo: handshakeLogo },
+  { name: 'Dice', logo: diceLogo },
 ]
 
 function HeroRotator() {
@@ -66,7 +97,7 @@ function HeroRotator() {
       <span className={`hero-rotator-item ${animating ? 'is-exiting' : 'is-entering'}`}>
         <span
           className="hero-rotator-icon-box"
-          style={{ background: current.bg, boxShadow: `0 6px 20px ${current.glow}` }}
+          style={{ background: current.bg }}
         >
           <Icon strokeWidth={2.4} />
         </span>
@@ -314,7 +345,7 @@ export default function OutlyLanding() {
         { title: 'Cold Mail Engine', desc: 'Find the right recruiter and draft a personal note in your own voice.', type: 'mail', tag: 'reach out with care' },
       ].map((card, i) => <article className={`feature-card feature-${card.type}`} key={card.title}><div className="feature-visual">{card.type === 'search' ? <div className="search-visual"><Search /><span>Product designer · remote</span><b>match 94%</b><div className="search-result"><span>Stripe</span><strong>Senior Product Designer</strong><small>Remote · posted 2 days ago</small></div></div> : card.type === 'keywords' ? <div className="keyword-ui"><div className="mini-top">keyword gap <b>3 to add</b></div>{[['product strategy', true], ['design systems', true], ['experimentation', false], ['stakeholder work', true]].map(([w, ok]) => <div className="keyword-row" key={String(w)}><span className={ok ? 'keyword-ok' : ''}>{ok ? '✓' : '+'}</span>{w}</div>)}</div> : card.type === 'privacy' ? <div className="privacy-visual"><ShieldCheck size={28} /><b>your resume, your rules.</b><span>stored privately · never sold</span><div className="privacy-line"><i /> training use <b>off</b></div></div> : <MiniWindow type={card.type} />}</div><div className="feature-copy"><h3>{card.title}</h3><p>{card.desc}</p></div></article>)}</div></section>
       <section className="steps-section" id="how-it-works"><div className="section-heading"><div><h2>From upload to a<br /><i>better next step.</i></h2></div><p>A clear start, then one good move at a time. Most people are ready in about two minutes.</p></div><div className="steps-grid">{[['01', 'Upload your master resume', 'Outly takes it from there. Keep your original close.', 'resume'], ['02', 'Find a role worth your time', 'Paste a description or discover a match.', 'search'], ['03', 'Make your application fit', 'Get a tailored resume and the ATS score to improve it.', 'tailor'], ['04', 'Reach out and track it', 'Review the note, send when ready, and track the reply.', 'send']].map(([num, title, desc, icon], i) => <article className={`step-card step-${i + 1}`} key={num}><div className="step-illustration">{icon === 'resume' ? <FileText /> : icon === 'search' ? <Search /> : icon === 'tailor' ? <Target /> : <Send />}</div><h3>{title}</h3><p>{desc}</p><div className="pixel-stair" /></article>)}</div></section>
-      <section className="ats-marquee" aria-label="Supported applicant tracking systems"><div className="marquee-band"><div className={`marquee-track ${tapePaused ? 'marquee-paused' : ''}`}>{[0, 1].map(n => <span className="marquee-set" key={n}>{['Workday', 'Greenhouse', 'Lever', 'Taleo', 'iCIMS', 'SmartRecruiters'].map(x => <b key={x}><i /> {x}</b>)}</span>)}</div><button onClick={() => setTapePaused(!tapePaused)} className="tape-pause">{tapePaused ? 'play' : 'pause'} the tape</button></div></section>
+      <section className="ats-marquee" aria-label="Job search platforms"><div className="marquee-band"><div className={`marquee-track ${tapePaused ? 'marquee-paused' : ''}`}>{[0, 1].map(copy => <span className="marquee-set" key={copy} aria-hidden={copy === 1}>{jobPlatformBrands.map((brand, index) => <span className="marquee-brand" key={`${copy}-${brand.name}-${index}`} role={copy === 0 ? 'img' : undefined} aria-label={copy === 0 ? brand.name : undefined}><img src={brand.logo} alt="" aria-hidden="true" loading="eager" /><span>{brand.name}</span></span>)}</span>)}</div><button onClick={() => setTapePaused(!tapePaused)} className="tape-pause" aria-label={tapePaused ? 'Play job board logos' : 'Pause job board logos'} aria-pressed={tapePaused} title={tapePaused ? 'Play logos' : 'Pause logos'}>{tapePaused ? <Play size={14} fill="currentColor" /> : <Pause size={14} fill="currentColor" />}</button></div></section>
       <section className="plan-section"><div className="plan-scene"><PixelLandscape /><div className="plan-float"><h2>Give every<br />application <i>its own plan.</i></h2><PlanList /><Link className="button button-dark" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Get started, it&apos;s free <ArrowUpRight size={16} /></Link></div></div></section>
       <section className="trust-section"><div className="section-heading"><div><h2>Where your data<br /><i>lives with you.</i></h2></div><p>A job search is personal. Outly is built to treat it that way, from the first upload to the last follow-up.</p></div><div className="trust-grid"><article><PixelLandscape kind="local-scene" /><h3>Stored for your search</h3><p>Your master resume and tailored versions stay in your private Outly account, ready when you need them.</p></article><article><PixelLandscape kind="cloud-scene" /><h3>Private cloud</h3><p>Your search stays accessible without turning your personal documents into public information.</p></article><article><PixelLandscape kind="quiet-scene" /><h3>Never used for training</h3><p>We do not sell your information or use your resume to train external models. Your next move is yours.</p></article></div></section>
       <section className="pricing-section" id="pricing"><div className="pricing-glow" /><div className="pricing-header"><div><h2>Start free.<br /><i>Upgrade when you need more room.</i></h2></div><div className="billing-toggle"><span className={`billing-slider ${yearly ? 'billing-slider-yearly' : ''}`} aria-hidden="true" /><button className={`billing-monthly ${!yearly ? 'billing-active' : ''}`} onClick={() => setYearly(false)}>Monthly</button><button className={`billing-yearly ${yearly ? 'billing-active' : ''}`} onClick={() => setYearly(true)}>Yearly <span>save 20%</span></button></div></div><div className="pricing-grid"><article className="price-card free-card"><div className="pricing-cat"><img src={pricingCatImage} alt="" /><span>z</span><span>z</span></div><img className="pricing-art" src={pricingSeaImage} alt="" /><div className="price-content"><h3>Free</h3><p>Everything you need to get moving.</p><div className="price"><b>₹0</b><span>forever</span></div><ul>{['3 ATS checks every 12 hours', 'Resume Vault', 'AI job search', 'Application tracker board', 'Cold-mail generator'].map(x => <li key={x}><Check size={15} />{x}</li>)}<li className="unavailable"><X size={15} />Unlimited tailoring</li></ul><Link className="button button-white" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Get started <ArrowUpRight size={16} /></Link></div></article><article className="price-card pro-card"><img className="pricing-art" src={pricingFieldImage} alt="" /><div className="price-content"><div className="pro-label">best for active job seekers</div><h3>Pro</h3><p>More room for every application.</p><div className="price"><b>₹{displayPrice}</b><span>{yearly ? '/ year' : '/ month'}</span></div><ul>{['Unlimited ATS checks · 27-factor score', 'Unlimited resume tailoring', 'Deep keyword-gap insights', 'Unlimited Resume Vault & tracking', 'Full cold-mail automation'].map(x => <li key={x}><Check size={15} />{x}</li>)}</ul><Link className="button button-teal" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Try now <ArrowUpRight size={16} /></Link><Link className="buy-link" to="/pricing" onMouseEnter={() => prefetchRoute('/pricing')} onFocus={() => prefetchRoute('/pricing')}>or buy now</Link></div></article></div><p className="pricing-note"><ShieldCheck size={14} /> your data stays yours on every plan. no pressure, cancel anytime.</p></section>

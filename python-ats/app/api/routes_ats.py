@@ -16,6 +16,7 @@ from app.models.schemas import (
 from app.services.ats import score_resume
 from app.services.llm import get_llm_client
 from app.services.parser import ParseError, parse_bytes, sanitise_text
+from app.services.resume_retriever import retrieve_resume_evidence
 from app.services.skills import classify_skill, extract_jd_requirements, extract_skills, is_skill_in_text
 from app.services.validator import validate_job_description_text, validate_resume_text
 
@@ -78,7 +79,8 @@ async def tailor(payload: TailorTextRequest, request: Request) -> TailorResponse
         raise HTTPException(status_code=400, detail=jd_error)
 
     client = get_llm_client()
-    llm = await client.tailor_resume(resume, jd) if client.available else None
+    evidence, retrieval_method = await retrieve_resume_evidence(resume, jd, settings)
+    llm = await client.tailor_resume(resume, jd, evidence) if client.available else None
     if llm is None:
         req = extract_jd_requirements(jd)
         matched = [s for s in req.all_skills if is_skill_in_text(s, resume)]
@@ -112,6 +114,7 @@ async def tailor(payload: TailorTextRequest, request: Request) -> TailorResponse
             modificationsSummary=[
                 "LLM unavailable; returned the original resume without fabricated edits.",
                 "Add GEMINI_API_KEY to enable Gemini tailoring.",
+                f"Resume evidence retrieval used {retrieval_method.replace('_', ' ')}.",
             ],
         )
 
@@ -123,5 +126,8 @@ async def tailor(payload: TailorTextRequest, request: Request) -> TailorResponse
         missingKeywords=llm.missingKeywords,
         sources=[],
         sections=llm.sections,
-        modificationsSummary=llm.modificationsSummary,
+        modificationsSummary=[
+            *llm.modificationsSummary,
+            f"Resume evidence retrieved with {retrieval_method.replace('_', ' ')} before generation.",
+        ],
     )

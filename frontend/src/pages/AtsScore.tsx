@@ -11,6 +11,7 @@ import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { Spinner } from "@/components/Spinner";
 import { m } from "motion/react";
 import { dur, ease } from "@/lib/motion-tokens";
+import "./AtsScore.css";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +23,6 @@ import {
 import {
   Loader2,
   UploadCloud,
-  CheckCircle,
   AlertTriangle,
   RefreshCw,
   Check,
@@ -75,6 +75,15 @@ function getKeyRecommendations(res: EvaluationResult): string[] {
   if (res.experience_analysis && res.experience_analysis.seniority_match !== "Good" && res.experience_analysis.comments) {
     const seniorityNote = `Experience Alignment: ${res.experience_analysis.comments}`;
     if (!list.includes(seniorityNote)) list.push(seniorityNote);
+  }
+
+  // Show model findings separately from deterministic rules so users can tell
+  // whether the AI analysis actually ran and see its resume-grounded feedback.
+  if (res.llm_analysis) {
+    for (const item of [...(res.llm_analysis.weaknesses || []), ...(res.llm_analysis.rewrite_suggestions || []).map((entry) => `${entry.section}: ${entry.suggested}`)]) {
+      const trimmed = item.trim();
+      if (trimmed && !list.includes(trimmed)) list.push(trimmed);
+    }
   }
 
   // 4. Missing keywords (grouped as ONE concrete recommendation listing top skills)
@@ -256,32 +265,6 @@ export default function AtsScorePage() {
     queryKey: ["resume", "list"],
     queryFn: api.resume.list,
   });
-
-  // Mock Result to show in Demo state before upload
-  const mockResult: EvaluationResult = {
-    score: 72,
-    breakdown: {
-      skills_match: 65,
-      experience_match: 60,
-      formatting_readability: 45,
-      impact_metrics: 55
-    },
-    experience_analysis: {
-      seniority_match: "Fair",
-      comments: "Your work progression matches a Mid-Senior level engineering profile, but lacks explicit project scale metrics."
-    },
-    missing_keywords: ["Redis", "Docker", "System Design"],
-    matched_keywords: ["TypeScript", "Node.js", "React"],
-    formatting_issues: [
-      "Inconsistent section spacing above 'Projects' header",
-      "Avoid margins smaller than 0.5 inches"
-    ],
-    suggestions: [
-      "Add a 2-line professional profile summary at the top.",
-      "Quantify achievement bullets in your latest role.",
-      "Incorporate target technologies like Docker and Redis."
-    ]
-  };
 
   // Switch vault resume
   const handleVaultSelect = (idStr: string) => {
@@ -753,105 +736,60 @@ export default function AtsScorePage() {
     triggerAtsScan(resume);
   };
 
-  // Get active evaluation dataset
-  const activeResult = result || mockResult;
-
-  // Calculate score category grades
-  const contentScore = activeResult.breakdown 
-    ? Math.round((activeResult.breakdown.skills_match + activeResult.breakdown.experience_match) / 2) 
-    : 65;
-  
-  const formatScore = activeResult.breakdown 
-    ? activeResult.breakdown.formatting_readability 
-    : 45;
-
-  const styleScore = activeResult.breakdown 
-    ? activeResult.breakdown.impact_metrics 
-    : 55;
-
-  // Helper to detect sections in plain text
-  const getSectionsScore = (text: string) => {
-    if (!text) return 0;
-    const lower = text.toLowerCase();
-    let score = 0;
-    if (lower.includes("experience") || lower.includes("work")) score += 20;
-    if (lower.includes("education")) score += 20;
-    if (lower.includes("skills")) score += 20;
-    if (lower.includes("project")) score += 20;
-    if (lower.includes("summary") || lower.includes("profile")) score += 20;
-    return score || 40; // baseline fallback
-  };
-
-  const sectionsScore = result ? getSectionsScore(resume) : 60;
-  
-  const rolesScore = activeResult.experience_analysis?.seniority_match === "Good" 
-    ? 90 
-    : activeResult.experience_analysis?.seniority_match === "Fair" 
-      ? 65 
-      : 40;
-
+  const contentScore = result?.breakdown?.skills_match ?? 0;
+  const formatScore = result?.breakdown?.formatting_readability ?? 0;
+  const styleScore = result?.breakdown?.impact_metrics ?? 0;
   const keyRecommendations = result ? getKeyRecommendations(result) : [];
-  const issuesCount = keyRecommendations.length;
-
-  // Helpers for category grades coloring
-  const getBadgeColorClass = (scoreNum: number) => {
-    if (scoreNum >= 75) return "bg-success/10 text-success border-success/15";
-    if (scoreNum >= 50) return "bg-warning/10 text-warning border-warning/15";
-    return "bg-amber-500/10 text-amber-700 border-amber-550/15";
-  };
-
-  const getScoreDialColorClass = (scoreNum: number) => {
-    if (scoreNum >= 75) return "stroke-success text-success";
-    if (scoreNum >= 50) return "stroke-warning text-warning";
-    return "stroke-amber-500 text-amber-500";
-  };
+  const matchedKeywords = result?.matched_keywords ?? [];
+  const missingKeywords = getMissingKeywordsArray(result?.missing_keywords);
 
   const FACTORS = [
-    { id: "contact", label: "Contact details", category: "Content", passed: resume ? (resume.includes("@") || /\d{10}/.test(resume)) : null },
-    { id: "headings", label: "Section headings", category: "Structure", passed: sectionsScore >= 60 },
-    { id: "density", label: "Keyword density", category: "Content", passed: contentScore >= 60 },
-    { id: "verbs", label: "Action verbs", category: "Language", passed: styleScore >= 50 },
-    { id: "impact", label: "Quantified impact", category: "Content", passed: (activeResult.breakdown?.impact_metrics ?? 0) >= 50 },
+    { id: "contact", label: "Contact details", category: "Content", passed: result ? (resume.includes("@") || /\d{10}/.test(resume)) : null },
+    { id: "headings", label: "Section headings", category: "Structure", passed: result ? (result.breakdown?.experience_match ?? 0) >= 50 : null },
+    { id: "density", label: "Keyword coverage", category: "Content", passed: result ? contentScore >= 50 : null },
+    { id: "verbs", label: "Action & impact", category: "Language", passed: result ? styleScore >= 50 : null },
+    { id: "impact", label: "Quantified impact", category: "Content", passed: result ? styleScore >= 50 : null },
     { id: "parsability", label: "File parsability", category: "Format", passed: result ? result.isValidResume !== false : null },
-    { id: "spacing", label: "Length & spacing", category: "Format", passed: formatScore >= 50 },
+    { id: "spacing", label: "Length & readability", category: "Format", passed: result ? formatScore >= 50 : null },
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-3.5 sm:px-6 py-2.5 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-6 sm:pb-20 text-left">
-      {/* Top Header matching ResumeTailor & ResumeVault */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 text-left">
-        <div>
-          <div className="hidden sm:inline-flex items-center gap-2 mb-1">
-            <CheckCircle className="w-3.5 h-3.5 text-[#12A394]" />
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
-              Resume / Checker
-            </span>
-          </div>
-          <h1 className="hidden sm:block text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
-            ATS Resume Checker
-          </h1>
-          <p className="text-xs sm:text-[13px] text-neutral-500 font-normal mt-0.5 sm:mt-1">
-            We check your resume against 27 factors that applicant tracking systems look at, and tell you exactly what to fix.
-          </p>
+    <div className="ats-page landing-style-page resume-workspace-page mx-auto w-full max-w-7xl px-4 sm:px-6 py-5 sm:py-9 space-y-5 sm:space-y-7 animate-fade-in pb-8 sm:pb-20 text-left font-sans">
+      <header className="ats-page-header">
+        <div className="ats-page-heading">
+          <div className="ats-eyebrow"><span className="ats-eyebrow-dot" /> RESUME INTELLIGENCE <span className="ats-eyebrow-divider">/</span> 01</div>
+          <h1>Know what an ATS can read.</h1>
+          <p>Get a clear resume score, see what is working, and focus on the fixes that matter.</p>
         </div>
+      </header>
+
+      <div className="ats-page-meta" aria-label="Supported resume formats">
+        <span><FileText size={14} /> PDF, DOCX, or TXT</span>
+        <i />
+        <span>Up to 5 MB</span>
+        <i />
+        <span>Private to your account</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start">
+      <div className="ats-workspace">
         
         {/* ─── LEFT COLUMN: UPLOAD / PREVIEW ─── */}
-        <div className="lg:col-span-6 space-y-4 sm:space-y-6 text-left">
-          {/* Upload card matching Vidyst design */}
-          <div className="space-y-3">
+        <div className="ats-input-column">
+          <section className="ats-panel ats-input-panel">
+            <div className="ats-panel-heading">
+              <div><span className="ats-step-label">01 / YOUR RESUME</span><h2>Start with your latest copy</h2></div>
+              <span className="ats-panel-index">INPUT</span>
+            </div>
             {isLimitExceeded || scanCount >= 3 ? (
-              <div className="rounded-2xl border border-black/[0.06] bg-white p-8 sm:p-10 text-center select-none shadow-sm space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto text-amber-600">
+              <div className="ats-limit-state select-none">
+                <div className="ats-state-icon ats-state-icon-warm">
                   <Lock className="w-5 h-5 shrink-0" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-zinc-900">
+                <div>
+                  <h3>
                     Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : ""}
                   </h3>
-                  <p className="text-xs text-zinc-500 max-w-xs mx-auto leading-relaxed">
+                  <p>
                     You've reached your free check limit. Upgrade to Outly Pro for unlimited scans.
                   </p>
                 </div>
@@ -866,39 +804,40 @@ export default function AtsScorePage() {
                       })
                     );
                   }}
-                  className="bg-[#111111] hover:bg-black text-white text-xs font-semibold px-6 h-10 rounded-full cursor-pointer shadow-sm active:scale-95"
+                  className="resume-primary-action ats-primary-button"
                 >
                   Upgrade to Pro
                 </Button>
               </div>
             ) : parsingFile || showScanLoader ? (
-              <div className="rounded-2xl border border-black/[0.06] bg-white p-8 sm:p-12 text-center shadow-sm flex flex-col items-center justify-center min-h-[260px] space-y-3">
-                <Loader2 className="w-6 h-6 animate-spin text-zinc-900" />
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-zinc-900">
+              <div className="ats-loading-state">
+                <span className="ats-loading-orbit"><Loader2 className="animate-spin" /></span>
+                <div>
+                  <p className="ats-loading-title">
                     {parsingFile ? "Uploading resume..." : scanStatus || "Checking 27 factors..."}
                   </p>
-                  <p className="font-mono text-[11px] text-zinc-400">
+                  <p className="ats-loading-copy">
                     {parsingFile ? `${uploadProgress}% processed` : `${scanProgress}% analyzed`}
                   </p>
                 </div>
-                <div className="w-48 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="ats-progress-track">
                   <div
-                    className="h-full w-full bg-zinc-900 rounded-full transition-transform duration-300 ease-out origin-left"
+                    className="ats-progress-fill"
                     style={{ transform: `scaleX(${Math.max(0, Math.min(1, (parsingFile ? uploadProgress : scanProgress) / 100))})` }}
                   />
                 </div>
               </div>
             ) : result ? (
-              <div className="rounded-2xl border border-black/[0.06] bg-white p-6 sm:p-7 shadow-sm space-y-3.5">
-                <div className="flex items-center justify-between pb-3 border-b border-black/[0.04] gap-2">
-                  <div className="flex items-center gap-2 truncate pr-2 min-w-0">
-                    <FileText className="w-4 h-4 text-zinc-500 shrink-0" />
-                    <span className="text-xs font-semibold text-zinc-900 truncate">
+              <div className="ats-resume-loaded">
+                <div className="ats-file-toolbar">
+                  <div className="ats-file-name">
+                    <span className="ats-file-icon"><FileText size={17} /></span>
+                    <span>
+                      <small>SELECTED FILE</small>
                       {resumeFile ? resumeFile.name : resumeFileName || "Uploaded Resume"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="ats-file-actions">
                     <button
                       type="button"
                       onClick={() => {
@@ -916,10 +855,10 @@ export default function AtsScorePage() {
                         if (fileInputRef.current) fileInputRef.current.value = "";
                         fileInputRef.current?.click();
                       }}
-                      className={`text-[11px] font-medium px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer ${
+                      className={`ats-change-file transition-colors cursor-pointer ${
                         isLimitExceeded || scanCount >= 3
-                          ? "bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
-                          : "text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200"
+                          ? "is-limit"
+                          : ""
                       }`}
                       title={isLimitExceeded || scanCount >= 3 ? "Free limit reached" : "Select another resume file"}
                     >
@@ -946,7 +885,7 @@ export default function AtsScorePage() {
                         setSelectedVaultId("custom");
                         if (fileInputRef.current) fileInputRef.current.value = "";
                       }}
-                      className="text-[11px] font-medium text-zinc-400 hover:text-red-600 cursor-pointer transition-colors p-1 rounded hover:bg-red-50"
+                      className="ats-clear-file cursor-pointer transition-colors"
                       title="Remove resume"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -954,12 +893,12 @@ export default function AtsScorePage() {
                   </div>
                 </div>
 
-                <div className="max-h-[360px] overflow-y-auto rounded-2xl border border-black/[0.04] bg-[#F5F5F7]/50 p-3">
+                <div className="ats-resume-preview">
                   {result.isValidResume === false ? (
-                    <div className="text-center py-6 px-4 space-y-2">
+                    <div className="ats-invalid-resume">
                       <AlertCircle className="w-6 h-6 text-amber-500 mx-auto" />
-                      <p className="text-xs font-semibold text-zinc-900">Invalid Resume Document</p>
-                      <p className="text-[11px] text-zinc-500 leading-relaxed max-w-xs mx-auto">
+                      <p className="ats-invalid-title">This file doesn’t look like a resume</p>
+                      <p className="ats-invalid-copy">
                         {result.error || "The uploaded document lacks standard resume sections (Experience, Education, Skills)."}
                       </p>
                     </div>
@@ -968,41 +907,32 @@ export default function AtsScorePage() {
                   ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
                     <PdfViewer url={api.resume.getFileUrl(selectedVaultId)} />
                   ) : (
-                    <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-zinc-700">
+                    <pre className="ats-resume-text">
                       {resume}
                     </pre>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-black/[0.06] bg-white p-4 sm:p-8 shadow-sm">
+              <div className="ats-upload-state">
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-xl sm:rounded-2xl p-6 sm:p-14 text-center flex flex-col items-center justify-center transition-all cursor-pointer ${
-                    isDragging
-                      ? "border-zinc-900 bg-zinc-50"
-                      : "border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50/50"
-                  }`}
+                  className={`ats-dropzone transition-all cursor-pointer ${isDragging ? "is-dragging" : ""}`}
                 >
-                  <h2 className="text-xl sm:text-3xl font-bold text-zinc-900 tracking-tight font-sans">
-                    Drop your resume here
-                  </h2>
-                  <p className="text-xs sm:text-sm text-zinc-500 mt-2">
-                    or <span className="underline underline-offset-4 text-zinc-900 font-semibold">browse files</span>
-                  </p>
-                  <p className="font-mono text-[10.5px] sm:text-[11px] text-zinc-400 mt-4 sm:mt-6 tracking-wide">
-                    PDF, DOCX, TXT · up to 5 MB
-                  </p>
+                  <span className="ats-upload-icon"><UploadCloud size={24} /></span>
+                  <h3>Drop your resume here</h3>
+                  <p>or <span>browse files</span></p>
+                  <small>PDF, DOCX, or TXT · up to 5 MB</small>
                 </div>
 
                 {resumes.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-black/[0.04] flex items-center justify-between text-xs" onClick={(e) => e.stopPropagation()}>
-                    <span className="text-[11px] text-zinc-400 font-medium">Or select from Vault:</span>
+                  <div className="ats-vault-select" onClick={(e) => e.stopPropagation()}>
+                    <span>Already saved a resume?</span>
                     <select
-                      className="text-[11px] bg-zinc-50 border border-zinc-200 rounded-lg px-2.5 py-1 text-zinc-700 focus:outline-none focus:border-zinc-400 cursor-pointer max-w-[200px] truncate"
+                      className="ats-vault-select-control"
                       value={selectedVaultId}
                       onChange={(e) => handleVaultSelect(e.target.value)}
                     >
@@ -1018,100 +948,85 @@ export default function AtsScorePage() {
               </div>
             )}
 
-            <div className="flex items-center gap-2 text-xs text-zinc-400 font-normal pl-1">
-              <Lock className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
-              <span>Your resume stays private and is never shared.</span>
-            </div>
-          </div>
+          </section>
+          <div className="ats-privacy-note"><Lock size={14} /><span>Your resume stays private and is never shared.</span></div>
         </div>
 
         {/* ─── RIGHT COLUMN: ATS REPORT CARD ─── */}
-        <div className="lg:col-span-6 rounded-2xl border border-black/[0.06] bg-white p-4 sm:p-8 shadow-sm flex flex-col justify-between text-left">
-          
-          <div>
-            {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
-              <h3 className="text-sm font-semibold text-neutral-900 font-sans">ATS report</h3>
-              <span className="font-mono text-xs text-neutral-400">27 factors</span>
+        <section className="ats-panel ats-report-panel">
+          <div className="ats-panel-heading ats-report-heading">
+            <div><span className="ats-step-label">02 / YOUR RESULTS</span><h2>ATS compatibility</h2></div>
+            <span className="ats-panel-index">REPORT</span>
+          </div>
+
+          <div className="ats-report-body">
+            <div className="ats-report-topline">
+              <span className="ats-report-caption">OVERALL SCORE</span>
             </div>
 
             {/* Score placeholder or Live score */}
-            <div className="py-5 border-b border-neutral-100">
+            <div className="ats-score-summary">
               {!result ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-12 h-2.5 bg-neutral-300 rounded-full" />
-                  <span className="font-mono text-sm font-medium text-neutral-400">/ 100</span>
-                </div>
+                <div className="ats-empty-score"><strong>—</strong><span>/ 100</span><p>Your score and checks will appear here.</p></div>
               ) : (
-                <div className="space-y-2">
-                  <div className="flex items-baseline gap-2">
-                    <AnimatedNumber value={result.score} className="text-4xl font-semibold text-[#1A1A1A] font-mono tracking-tight" />
-                    <span className="font-mono text-base font-medium text-neutral-400">/ 100</span>
-                    <span className={`ml-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
-                      result.score >= 80 
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
-                        : result.score >= 50 
-                          ? "bg-amber-50 text-amber-700 border border-amber-200" 
-                          : "bg-red-50 text-red-700 border border-red-200"
-                    }`}>
-                      {result.score >= 80 ? "Strong Match" : result.score >= 50 ? "Needs Review" : "Low Score"}
-                    </span>
-                  </div>
-                  <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full w-full rounded-full transition-transform duration-700 ease-out origin-left ${
-                        result.score >= 80 ? "bg-emerald-600" : result.score >= 50 ? "bg-amber-500" : "bg-red-500"
-                      }`}
-                      style={{ transform: `scaleX(${Math.max(0, Math.min(1, result.score / 100))})` }}
-                    />
-                  </div>
+                <div className="ats-score-result">
+                  <div className="ats-score-number"><AnimatedNumber className="ats-score-value" value={result.score} /><span className="ats-score-unit">/ 100</span></div>
+                  <span className={`ats-score-label ${result.score >= 80 ? "is-strong" : result.score >= 50 ? "is-review" : "is-low"}`}>
+                    {result.isValidResume === false ? "Resume not recognized" : result.score >= 80 ? "Strong foundation" : result.score >= 50 ? "Room to improve" : "Needs attention"}
+                  </span>
+                  <div className="ats-score-track"><span style={{ width: `${Math.max(0, Math.min(100, result.score))}%` }} /></div>
+                  {result.analysis_source && result.isValidResume !== false && <span className={`ats-analysis-source ${result.analysis_source === "heuristic_ai" ? "is-ai" : ""}`}>{result.analysis_source === "heuristic_ai" ? "Rules + Gemini analysis" : "Deterministic rules"}</span>}
                 </div>
               )}
             </div>
 
-            {/* 7 Factor Rows */}
-            <div className="divide-y divide-neutral-100">
+            {result?.breakdown && (
+              <div className="ats-breakdown-grid">
+                {[["Skills", result.breakdown.skills_match], ["Experience", result.breakdown.experience_match], ["Readability", result.breakdown.formatting_readability], ["Impact", result.breakdown.impact_metrics]].map(([label, score]) => (
+                  <div className="ats-breakdown-item" key={String(label)}><span>{label}</span><strong>{score}<small>/100</small></strong></div>
+                ))}
+              </div>
+            )}
+
+            <div className="ats-factor-section">
+              <div className="ats-section-heading"><h3>Compatibility checks</h3><span>{result ? `${FACTORS.filter((factor) => factor.passed).length} / ${FACTORS.length} clear` : "Ready when you are"}</span></div>
+              <div className="ats-factors-grid">
               {FACTORS.map((factor) => {
                 const status = result ? factor.passed : null;
                 return (
-                  <div key={factor.id} className="flex items-center justify-between py-3 text-xs">
-                    <div className="flex items-center gap-2.5">
+                  <div key={factor.id} className={`ats-factor ${status === true ? "is-pass" : status === false ? "is-flagged" : "is-pending"}`}>
+                    <div className="ats-factor-status">
                       {status === true ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <Check className="w-3.5 h-3.5" />
                       ) : status === false ? (
-                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                        <span className="ats-factor-dot" />
                       ) : (
-                        <span className="text-neutral-300 text-sm leading-none shrink-0">•</span>
+                        <span className="ats-factor-dot" />
                       )}
-                      <span className={`font-medium ${status !== null ? "text-neutral-900" : "text-neutral-700"}`}>
-                        {factor.label}
-                      </span>
                     </div>
-                    <span className="font-mono text-[11px] text-neutral-400">{factor.category}</span>
+                    <span className="ats-factor-label">{factor.label}</span>
+                    <small>{factor.category}</small>
                   </div>
                 );
               })}
+              </div>
             </div>
 
             {/* Detailed recommendations if result is present */}
             {result && (
-              <div className="mt-4 pt-4 border-t border-neutral-100 space-y-3">
+              <div className="ats-recommendations">
                 {keyRecommendations.length > 0 ? (
-                  <div className="bg-neutral-50 rounded-xl p-3.5 space-y-2.5 border border-neutral-200/60">
-                    <span className="text-[11px] font-bold text-neutral-800 uppercase tracking-wider block">
-                      Key Recommendations ({keyRecommendations.length})
-                    </span>
-                    <ul className="text-xs text-neutral-700 space-y-2 list-disc list-inside">
+                  <div className="ats-recommendation-card">
+                    <div className="ats-section-heading"><h3>Next best fixes</h3><span>{keyRecommendations.length} suggestions</span></div>
+                    <ul>
                       {keyRecommendations.map((rec, i) => (
-                        <li key={i} className="leading-relaxed">
-                          {rec}
-                        </li>
+                        <li key={i}><span className="ats-recommendation-number">{String(i + 1).padStart(2, "0")}</span><span>{rec}</span></li>
                       ))}
                     </ul>
                   </div>
                 ) : (
-                  <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-xl border border-emerald-200 font-medium">
-                    ✓ Excellent ATS compatibility. No critical formatting or content issues found.
+                  <div className="ats-empty-recommendations">
+                    {result ? "A clean result. Keep your strongest, most relevant experience easy to scan." : "Your highest-impact recommendations will appear after the scan."}
                   </div>
                 )}
               </div>
@@ -1119,21 +1034,21 @@ export default function AtsScorePage() {
           </div>
 
           {/* Card Footer */}
-          <div className="pt-6 border-t border-neutral-100 mt-5 space-y-3">
+          <div className="ats-report-actions">
             {!result ? (
               <>
-                <p className="text-xs text-neutral-600 font-medium">Add your resume to see your score.</p>
+                <p>Add your resume to see your score.</p>
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={parsingFile}
-                  className="bg-neutral-950 hover:bg-neutral-800 disabled:bg-neutral-300 text-white text-xs font-semibold px-5 py-2.5 rounded-lg shadow-sm cursor-pointer transition-colors flex items-center gap-2"
+                  className="resume-primary-action ats-primary-button"
                 >
                   {parsingFile ? <Spinner size={14} className="text-white" /> : null}
                   <span>{parsingFile ? "Uploading..." : "Upload resume"}</span>
                 </button>
               </>
             ) : (
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="ats-action-row">
                 <button
                   onClick={() => {
                     if (isLimitExceeded || scanCount >= 3) {
@@ -1149,7 +1064,7 @@ export default function AtsScorePage() {
                     }
                     fileInputRef.current?.click();
                   }}
-                  className={`text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-sm cursor-pointer transition-colors flex items-center gap-1.5 ${
+                  className={`resume-primary-action ats-primary-button cursor-pointer ${
                     isLimitExceeded || scanCount >= 3 ? "bg-neutral-900 hover:bg-black" : "bg-neutral-950 hover:bg-neutral-800"
                   }`}
                 >
@@ -1164,7 +1079,7 @@ export default function AtsScorePage() {
                 </button>
                 <button
                   onClick={() => navigate("/resume-tailor")}
-                  className="bg-white hover:bg-neutral-50 text-neutral-800 border border-neutral-200 text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer transition-colors"
+                  className="ats-secondary-button cursor-pointer"
                 >
                   Tailor for a role →
                 </button>
@@ -1172,9 +1087,19 @@ export default function AtsScorePage() {
             )}
           </div>
 
-        </div>
+        </section>
 
       </div>
+
+      {result && result.isValidResume !== false && (matchedKeywords.length > 0 || missingKeywords.length > 0) && (
+        <section className="ats-keyword-section">
+          <div className="ats-keyword-heading"><div><span className="ats-step-label">03 / ROLE SIGNALS</span><h2>What your resume communicates</h2></div><p>Keywords are matched against the content we could read.</p></div>
+          <div className="ats-keyword-grid">
+            <article className="ats-keyword-card ats-keyword-card-match"><span className="ats-keyword-label">FOUND IN YOUR RESUME <b>{matchedKeywords.length}</b></span><div>{matchedKeywords.length ? matchedKeywords.map((keyword) => <span key={keyword}>{keyword}</span>) : <p>No matched keywords were detected in this scan.</p>}</div></article>
+            <article className="ats-keyword-card ats-keyword-card-missing"><span className="ats-keyword-label">POTENTIAL GAPS <b>{missingKeywords.length}</b></span><div>{missingKeywords.length ? missingKeywords.map((keyword) => <span key={keyword}>{keyword}</span>) : <p>No additional keyword gaps were reported.</p>}</div></article>
+          </div>
+        </section>
+      )}
 
       <AiErrorModal open={showAiErrorModal} onClose={() => setShowAiErrorModal(false)} />
 

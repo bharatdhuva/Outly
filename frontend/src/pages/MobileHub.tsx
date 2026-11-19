@@ -72,6 +72,7 @@ export default function MobileHub({ category }: MobileHubProps) {
     const matched = tabs.find((t) => t.id === tabParam);
     return matched ? matched.id : tabs[0].id;
   });
+  const activeTabIndex = Math.max(0, tabs.findIndex((tab) => tab.id === activeTab));
 
   // Sync active tab on URL search param or category changes
   useEffect(() => {
@@ -109,13 +110,23 @@ export default function MobileHub({ category }: MobileHubProps) {
   }
 
   return (
-    <div className="flex-1 min-h-0 w-full flex flex-col font-sans text-outly-dark text-left bg-transparent">
+    <div className="flex-1 min-h-0 w-full flex flex-col font-sans text-outly-dark text-left bg-white">
       {/* Modern Segmented Sub Selector */}
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-black/[0.06] px-3 sm:px-6 py-2 select-none shadow-xs">
         <div className="w-full max-w-lg mx-auto">
-          <div className={`grid gap-1 bg-[#F1F1EF] p-1 rounded-xl ${
+          <div className={`relative grid bg-[#F1F1EF] p-1 rounded-xl ${
             tabs.length === 3 ? "grid-cols-3" : tabs.length === 2 ? "grid-cols-2" : "grid-cols-1"
           }`}>
+            <m.span
+              className="absolute left-1 top-1 bottom-1 rounded-lg bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] pointer-events-none"
+              style={{ width: `calc((100% - 8px) / ${tabs.length})` }}
+              initial={false}
+              animate={{ x: `${activeTabIndex * 100}%` }}
+              transition={shouldReduceMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 360, damping: 32, mass: 0.8 }}
+              aria-hidden="true"
+            />
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               const showBadge = category === "jobs" && tab.id === "tracker" && jobsCount > 0;
@@ -128,20 +139,12 @@ export default function MobileHub({ category }: MobileHubProps) {
                   onPointerEnter={() => preloadHubTab(category, tab.id)}
                   onPointerDown={() => preloadHubTab(category, tab.id)}
                   aria-pressed={isActive}
-                  className={`relative py-1.5 sm:py-2 px-1.5 rounded-lg text-[11.5px] sm:text-[12px] font-medium flex items-center justify-center gap-1.5 transition-[color,transform] duration-200 cursor-pointer outline-none select-none active:scale-[0.98] ${
+                  className={`relative z-10 py-1.5 sm:py-2 px-1.5 rounded-lg text-[11.5px] sm:text-[12px] font-medium flex items-center justify-center gap-1.5 transition-[color,transform] duration-200 cursor-pointer outline-none select-none active:scale-[0.98] ${
                     isActive
                       ? "text-[#111111] font-semibold"
                       : "text-[#666666] hover:text-[#111111]"
                   }`}
                 >
-                  {isActive && (
-                    <m.span
-                      layoutId="mobile-hub-active-tab"
-                      className="absolute inset-0 rounded-lg bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
-                      transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 500, damping: 38, mass: 0.55 }}
-                      aria-hidden="true"
-                    />
-                  )}
                   {Icon && (
                     <Icon className={`relative z-10 h-3.5 w-3.5 shrink-0 transition-colors duration-200 ${
                       isActive ? "text-[#12A394]" : "text-[#777777]"

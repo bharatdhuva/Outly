@@ -264,6 +264,9 @@ const pageTitles: Record<string, string> = {
   "/applications": "Job Tracker",
   "/job-search": "Job Search",
   "/resume-vault": "Resume Vault",
+  "/resumes": "Resume Workspace",
+  "/jobs": "Job Workspace",
+  "/tools": "Tools Workspace",
   "/analytics": "Analytics",
   "/pricing": "Pricing",
   "/support": "Support & Help"
@@ -347,25 +350,25 @@ function ProfileDropdownMenu({
       initial="hidden"
       animate="visible"
       exit="exit"
-      style={{ transformOrigin: "top right" }}
-      className="absolute right-0 top-full mt-2 w-64 sm:w-72 rounded-2xl bg-white/98 backdrop-blur-2xl border border-black/[0.08] font-sans shadow-[0_20px_50px_-10px_rgba(20,25,30,0.18),0_1px_3px_rgba(0,0,0,0.06)] z-[130] p-2.5 overflow-hidden select-none"
+      style={{ transformOrigin: "top right", backgroundColor: "#ffffff" }}
+      className="absolute right-0 top-full mt-2 w-[240px] sm:w-[264px] rounded-2xl bg-white border border-neutral-200/90 font-sans shadow-[0_16px_36px_-6px_rgba(20,25,30,0.18),0_2px_6px_rgba(0,0,0,0.06)] z-[150] p-1.5 sm:p-2 overflow-hidden select-none"
     >
       {/* ─── USER PROFILE CARD HEADER ─── */}
-      <div className="p-3 rounded-xl bg-[#FAF9F5] border border-black/[0.04]">
-        <div className="flex items-center gap-3">
+      <div className="p-2 sm:p-2.5 rounded-xl bg-[#FAF9F5] border border-black/[0.04]">
+        <div className="flex items-center gap-2.5">
           <PlanStatusAvatar
             isPremium={isPremium}
             profilePic={profilePic}
             fullName={fullName}
             initials={initials}
-            sizeClass="h-10 w-10 text-xs"
+            sizeClass="h-8 w-8 sm:h-9 sm:w-9 text-[11px]"
           />
           <div className="flex-1 min-w-0">
-            <div className="text-[13px] font-bold text-neutral-900 truncate tracking-tight">
+            <div className="text-[12px] sm:text-[13px] font-bold text-neutral-900 truncate tracking-tight">
               {fullName}
             </div>
             {userEmail && userEmail !== "anonymous" && (
-              <div className="text-[11px] text-neutral-500 font-normal truncate mt-0.5">
+              <div className="text-[10px] sm:text-[11px] text-neutral-500 font-normal truncate mt-0.5">
                 {userEmail}
               </div>
             )}
@@ -374,10 +377,10 @@ function ProfileDropdownMenu({
 
         {/* PRO STATUS / UPGRADE PILL */}
         {isDemo ? (
-          <div className="mt-2.5 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-800">
+          <div className="mt-2 flex items-center justify-between px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-800">
             <div className="flex items-center gap-1.5">
-              <Zap className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-              <span className="text-[10px] font-bold uppercase tracking-wider">Demo Account</span>
+              <Zap className="h-3 w-3 fill-amber-500 text-amber-500" />
+              <span className="text-[9.5px] font-bold uppercase tracking-wider">Demo Account</span>
             </div>
             <button
               type="button"
@@ -385,18 +388,18 @@ function ProfileDropdownMenu({
                 onClose();
                 onLockedFeature("Upgrading to Pro");
               }}
-              className="text-[10.5px] font-bold text-amber-700 hover:text-amber-900 underline underline-offset-2 cursor-pointer"
+              className="text-[10px] font-bold text-amber-700 hover:text-amber-900 underline underline-offset-2 cursor-pointer"
             >
               Upgrade
             </button>
           </div>
         ) : isPremium ? (
-          <div className="mt-2.5 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#12A394]/10 border border-[#12A394]/20 text-[#12A394] select-none">
+          <div className="mt-2 flex items-center justify-between px-2 py-1 rounded-lg bg-[#12A394]/10 border border-[#12A394]/20 text-[#12A394] select-none">
             <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-[#12A394]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wider">Cloud Pro Active</span>
+              <CheckCircle2 className="h-3 w-3 text-[#12A394]" />
+              <span className="text-[9.5px] font-bold uppercase tracking-wider">Cloud Pro Active</span>
             </div>
-            <span className="text-[10px] font-semibold text-[#12A394]/80">Unlimited</span>
+            <span className="text-[9px] font-semibold text-[#12A394]/80">Unlimited</span>
           </div>
         ) : (
           <button
@@ -405,11 +408,11 @@ function ProfileDropdownMenu({
               onClose();
               onNavigate("/pricing");
             }}
-            className="mt-2.5 w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#12A394] hover:bg-[#0E8A7D] text-white transition-colors shadow-xs cursor-pointer group"
+            className="mt-2 w-full flex items-center justify-between px-2 py-1.5 rounded-lg bg-[#12A394] hover:bg-[#0E8A7D] text-white transition-colors shadow-xs cursor-pointer group"
           >
             <div className="flex items-center gap-1.5">
               <Zap className="h-3 w-3 fill-white text-white" />
-              <span className="text-[11px] font-bold">Upgrade to Pro</span>
+              <span className="text-[10.5px] font-bold">Upgrade to Pro</span>
             </div>
             <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
           </button>
@@ -417,20 +420,20 @@ function ProfileDropdownMenu({
       </div>
 
       {/* ─── ACTION MENU ITEMS ─── */}
-      <div className="mt-2 space-y-0.5">
+      <div className="mt-1 space-y-0.5">
         <button
           type="button"
           onClick={() => {
             onClose();
             onNavigate("/pricing");
           }}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer group"
+          className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer group"
         >
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <Sparkles className="h-3.5 w-3.5 text-[#12A394]" />
             <span>Pricing &amp; Plans</span>
           </div>
-          <span className="text-[10.5px] text-neutral-400 font-mono group-hover:text-neutral-600">₹9/mo</span>
+          <span className="text-[10px] text-neutral-400 font-mono group-hover:text-neutral-600">₹9/mo</span>
         </button>
 
         <button
@@ -443,9 +446,9 @@ function ProfileDropdownMenu({
               onNavigate("/settings");
             }
           }}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer"
+          className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer"
         >
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <SettingsIcon className="h-3.5 w-3.5 text-neutral-500" />
             <span>Settings</span>
           </div>
@@ -458,9 +461,9 @@ function ProfileDropdownMenu({
             onClose();
             onNavigate("/support");
           }}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer"
+          className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer"
         >
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <HelpCircle className="h-3.5 w-3.5 text-neutral-500" />
             <span>Support &amp; Help</span>
           </div>
@@ -468,7 +471,7 @@ function ProfileDropdownMenu({
       </div>
 
       {/* ─── DIVIDER ─── */}
-      <div className="h-px bg-neutral-200/60 my-1.5 mx-1" />
+      <div className="h-px bg-neutral-200/80 my-1 mx-1" />
 
       {/* ─── LOGOUT ─── */}
       <button
@@ -477,7 +480,7 @@ function ProfileDropdownMenu({
           onClose();
           onLogout();
         }}
-        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50/80 hover:text-rose-700 transition-colors cursor-pointer"
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold text-rose-600 hover:bg-rose-50/80 hover:text-rose-700 transition-colors cursor-pointer"
       >
         <LogOut className="h-3.5 w-3.5 text-rose-500" />
         <span>Sign Out</span>
@@ -604,6 +607,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const desktopNotificationMenuRef = useRef<HTMLDivElement>(null);
   const mobileNotificationMenuRef = useRef<HTMLDivElement>(null);
+  const [demoTimerOpen, setDemoTimerOpen] = useState(false);
+  const demoTimerRef = useRef<HTMLDivElement>(null);
 
   // Sync state FROM localStorage once userEmail is loaded
   useEffect(() => {
@@ -705,6 +710,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [notificationsOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (demoTimerRef.current && !demoTimerRef.current.contains(target)) {
+        setDemoTimerOpen(false);
+      }
+    };
+    if (demoTimerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [demoTimerOpen]);
 
   const markAllNotificationsAsRead = () => {
     setNotifications(prev => {
@@ -1225,30 +1245,94 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             {/* Right Side: Profile initials & Logout CTA */}
             <div className="flex items-center gap-2.5 sm:gap-3.5">
 
-              {/* Demo Mode Pill (Integrated cleanly into navbar) */}
+              {/* Demo Mode Compact Clock SVG Icon with Popover */}
               {isDemo && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    window.dispatchEvent(
-                      new CustomEvent("outly_demo_modal", {
-                        detail: {
-                          code: "DEMO_NAV_CLICK",
-                          message: "Sign up with Google to keep your work and unlock unlimited scans and outreach.",
-                          isExpired: false,
-                        },
-                      })
-                    )
-                  }
-                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-[#2DC08D]/10 hover:bg-[#2DC08D]/20 text-[#2DC08D] border border-[#2DC08D]/30 text-xs font-semibold transition-all duration-200 active:scale-95 cursor-pointer shadow-2xs"
-                  title="Guest Demo Mode - Click to upgrade"
-                >
-                  <Clock className="w-3.5 h-3.5 text-primary" />
-                  <span>Demo · {demoCountdown}</span>
-                  <span className="hidden sm:inline-block text-[9.5px] font-bold tracking-wider uppercase bg-[#2DC08D] text-white px-1.5 py-0.5 rounded-full ml-0.5">
-                    Sign Up
-                  </span>
-                </button>
+                <div className="relative shrink-0" ref={demoTimerRef}>
+                  <button
+                    type="button"
+                    onClick={() => setDemoTimerOpen(prev => !prev)}
+                    className="relative p-2 text-[#12A394] hover:text-[#0E8A7D] active:scale-90 transition-all outline-none rounded-full bg-[#12A394]/10 hover:bg-[#12A394]/15 border border-[#12A394]/20 cursor-pointer flex items-center justify-center shrink-0"
+                    aria-label="Demo Session Timer"
+                    title={`Guest Demo Mode: ${demoCountdown} remaining. Click for details.`}
+                  >
+                    <Clock className="w-[18px] h-[18px]" strokeWidth={2.2} />
+                    <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#12A394] opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#12A394]" />
+                    </span>
+                  </button>
+
+                  <AnimatePresence>
+                    {demoTimerOpen && (
+                      <m.div
+                        variants={popoverVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        style={{ transformOrigin: "top right" }}
+                        className="absolute right-[-48px] sm:right-0 top-full mt-2.5 w-[285px] sm:w-[310px] rounded-2xl bg-white border border-[#E8E2D5] font-sans shadow-xl z-[130] p-4 text-left select-none"
+                      >
+                        {/* Header */}
+                        <div className="flex items-center justify-between pb-3 border-b border-black/[0.05]">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-[#12A394]/10 text-[#12A394] flex items-center justify-center">
+                              <Clock className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <span className="text-[12.5px] font-bold text-[#171717] block leading-none">Guest Demo</span>
+                              <span className="text-[10px] text-[#888] font-medium leading-tight">25-min session</span>
+                            </div>
+                          </div>
+                          <span className="font-mono text-[11px] font-bold text-[#12A394] bg-[#12A394]/10 border border-[#12A394]/20 px-2.5 py-0.5 rounded-full">
+                            {demoCountdown} left
+                          </span>
+                        </div>
+
+                        {/* Progress Bar & Details */}
+                        <div className="py-3">
+                          <div className="flex items-center justify-between text-[11px] text-[#6B6B66] mb-1.5 font-medium">
+                            <span>Time remaining</span>
+                            <span className="font-mono text-[#171717] font-semibold">{demoCountdown}</span>
+                          </div>
+                          <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[#12A394] rounded-full transition-all duration-1000"
+                              style={{
+                                width: `${demoTimeLeft !== null ? Math.max(0, Math.min(100, Math.round((demoTimeLeft / (25 * 60)) * 100))) : 100}%`
+                              }}
+                            />
+                          </div>
+                          <p className="text-[11.5px] text-[#6B6B66] leading-relaxed mt-2.5 mb-0">
+                            You are exploring Outly in a guest demo session. Sign up to save your resume, tailored versions, and outreach queue.
+                          </p>
+                        </div>
+
+                        {/* Upgrade / Sign Up CTA */}
+                        <div className="pt-2 border-t border-black/[0.05]">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDemoTimerOpen(false);
+                              window.dispatchEvent(
+                                new CustomEvent("outly_demo_modal", {
+                                  detail: {
+                                    code: "DEMO_NAV_CLICK",
+                                    message: "Sign up with Google to keep your work and unlock unlimited scans and outreach.",
+                                    isExpired: false,
+                                  },
+                                })
+                              );
+                            }}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#111111] hover:bg-black text-white text-[12px] font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-[#12A394]" />
+                            <span>Sign Up to Keep Progress</span>
+                          </button>
+                        </div>
+                      </m.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               )}
 
               {/* Desktop Notification Bell */}
@@ -1367,8 +1451,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      style={{ transformOrigin: "top right" }}
-                      className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[125] py-2.5"
+                      style={{ transformOrigin: "top right", backgroundColor: "#ffffff" }}
+                      className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-white border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.18),0_2px_6px_rgba(0,0,0,0.06)] z-[145] py-2.5"
                     >
                       <div className="px-4 pb-2 border-b border-zinc-50 flex items-center justify-between">
                         <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>

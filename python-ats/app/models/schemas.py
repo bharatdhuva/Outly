@@ -93,6 +93,8 @@ class AtsScoreResponse(BaseModel):
     suggestions: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     llm_analysis: LlmAtsAnalysis | None = None
+    analysis_source: Literal["heuristic_ai", "heuristic_only", "validation"] = "heuristic_only"
+    analysis_notice: str | None = None
     error: str | None = None
 
 

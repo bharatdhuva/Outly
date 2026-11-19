@@ -571,6 +571,13 @@ export interface AppSettings {
 
 export interface EvaluationResult {
   score: number;
+  analysis_source?: "heuristic_ai" | "heuristic_only" | "validation" | "heuristic";
+  analysis_notice?: string | null;
+  llm_analysis?: {
+    strengths?: string[];
+    weaknesses?: string[];
+    rewrite_suggestions?: Array<{ section: string; current?: string; suggested: string; rationale: string }>;
+  } | null;
   breakdown?: {
     skills_match: number;
     experience_match: number;

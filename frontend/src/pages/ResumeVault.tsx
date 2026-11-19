@@ -31,6 +31,7 @@ import {
   X,
   FolderArchive,
 } from "lucide-react";
+import "./ResumeVault.css";
 
 interface ResumeDocSection {
   title: string;
@@ -395,18 +396,18 @@ export default function ResumeVaultPage() {
   const pdfUrl = selectedResume ? api.resume.getFileUrl(String(selectedResume.id)) : null;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-3.5 sm:px-6 py-2.5 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-6 sm:pb-20 text-left font-sans">
+    <div className="vault-page landing-style-page resume-workspace-page mx-auto w-full max-w-6xl px-3.5 sm:px-6 py-2.5 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-6 sm:pb-20 text-left font-sans">
       
       {/* Top Header matching ResumeTailor & AtsScore */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
-        <div>
-          <div className="hidden sm:inline-flex items-center gap-2 mb-1">
+      <div className="vault-page-header flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+        <div className="vault-page-heading">
+          <div className="inline-flex items-center gap-2 mb-2">
             <FolderArchive className="w-3.5 h-3.5 text-[#2DC08D]" />
             <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
               Resume / Vault
             </span>
           </div>
-          <h1 className="hidden sm:block text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
             Resume Vault
           </h1>
           <p className="text-xs sm:text-[13px] text-neutral-500 font-normal mt-0.5 sm:mt-1">
@@ -416,7 +417,7 @@ export default function ResumeVaultPage() {
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="self-start inline-flex items-center justify-center gap-1.5 bg-[#111111] hover:bg-black text-white px-4 py-2.5 rounded-lg text-xs sm:text-[13px] font-medium transition-all shadow-sm shrink-0 cursor-pointer"
+          className="resume-primary-action self-start inline-flex items-center justify-center gap-1.5 bg-[#111111] hover:bg-black text-white px-4 py-2.5 rounded-full text-xs sm:text-[13px] font-medium transition-all shadow-sm shrink-0 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Upload resume</span>
@@ -424,11 +425,11 @@ export default function ResumeVaultPage() {
       </div>
 
       {/* TWO COLUMN WORKSPACE GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start pt-1">
+      <div className="vault-workspace grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start pt-1">
         
         {/* ─── LEFT COLUMN: RESUME VERSIONS LIST ─── */}
-        <div className="lg:col-span-4 xl:col-span-3 space-y-3">
-          <span className="text-[11px] font-semibold tracking-[0.16em] text-neutral-400 uppercase block">
+        <div className="vault-version-column lg:col-span-4 xl:col-span-3 space-y-3">
+          <span className="vault-version-count text-[11px] font-semibold tracking-[0.16em] text-neutral-400 uppercase block">
             {resumes.length} {resumes.length === 1 ? "VERSION" : "VERSIONS"}
           </span>
 
@@ -440,14 +441,14 @@ export default function ResumeVaultPage() {
               </p>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-neutral-900 text-white rounded-lg hover:bg-black transition-colors cursor-pointer"
+                className="resume-primary-action mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-neutral-900 text-white rounded-full hover:bg-black transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Upload resume
               </button>
             </div>
           ) : (
-            <div className="space-y-1">
+            <div className="vault-version-list space-y-1">
               {resumes.map((resumeItem) => {
                 const isSelected = String(selectedResumeId) === String(resumeItem.id);
                 const isDefault = resumeItem.is_default === 1;
@@ -459,7 +460,8 @@ export default function ResumeVaultPage() {
                 <div
                   key={resumeItem.id}
                   onClick={() => setSelectedResumeId(resumeItem.id)}
-                  className={`group relative text-left p-3.5 transition-all cursor-pointer ${
+                  data-selected={isSelected}
+                  className={`vault-version-card group relative text-left p-3.5 transition-all cursor-pointer ${
                     isSelected
                       ? "bg-white border border-neutral-200/80 border-l-[3.5px] border-l-black rounded-r-md shadow-sm"
                       : "border border-transparent hover:bg-neutral-200/35 rounded-md"
@@ -485,7 +487,7 @@ export default function ResumeVaultPage() {
                   </p>
 
                   {/* Subtle actions on hover: Set default & Delete */}
-                  <div className={`absolute right-2.5 bottom-2.5 flex items-center gap-1 transition-opacity ${deleteTargetId === resumeItem.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                  <div className={`vault-version-actions absolute right-2.5 bottom-2.5 flex items-center gap-1 transition-opacity ${deleteTargetId === resumeItem.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
                     {!isDefault && (
                       <button
                         onClick={(e) => {
@@ -572,11 +574,11 @@ export default function ResumeVaultPage() {
         </div>
 
         {/* ─── RIGHT COLUMN: PREVIEW CANVAS & ACTIONS ─── */}
-        <div className={`lg:col-span-8 xl:col-span-9 space-y-4 ${!selectedResume ? "hidden lg:block" : ""}`}>
+        <div className={`vault-detail-column lg:col-span-8 xl:col-span-9 space-y-4 ${!selectedResume ? "hidden lg:block" : ""}`}>
           {selectedResume ? (
             <>
               {/* Header: Title + Actions */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-1">
+              <div className="vault-detail-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-1">
                 <div>
                   {isEditingInline ? (
                     <div className="flex items-center gap-1.5 py-0.5">
@@ -624,7 +626,7 @@ export default function ResumeVaultPage() {
                         setInlineLabel(selectedResume.label);
                         setIsEditingInline(true);
                       }}
-                      className="group/title flex items-center gap-1.5 cursor-pointer -ml-1 pl-1 pr-2 py-0.5 rounded-lg hover:bg-neutral-100/70 transition-colors inline-flex"
+                      className="vault-selected-title group/title flex items-center gap-1.5 cursor-pointer -ml-1 pl-1 pr-2 py-0.5 rounded-lg hover:bg-neutral-100/70 transition-colors inline-flex"
                       title="Click text to rename"
                     >
                       <h2 className="text-lg sm:text-[22px] font-bold text-neutral-900 tracking-tight group-hover/title:text-black">
@@ -643,7 +645,7 @@ export default function ResumeVaultPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="vault-detail-actions flex items-center gap-2">
                   <button
                     onClick={() => navigate("/ats-score")}
                     className="bg-white hover:bg-zinc-50 text-zinc-900 border border-black/[0.08] rounded-full text-xs font-semibold px-4 py-2 shadow-2xs transition-all cursor-pointer active:scale-95"
@@ -661,7 +663,7 @@ export default function ResumeVaultPage() {
               </div>
 
               {/* Tabs: Preview / Used in applications */}
-              <div className="border-b border-black/[0.06] flex items-center gap-6 mb-6">
+              <div className="vault-tabs border-b border-black/[0.06] flex items-center gap-6 mb-6">
                 <button
                   onClick={() => setActivePreviewTab("preview")}
                   className={`pb-2.5 text-xs sm:text-[13px] transition-colors cursor-pointer ${
@@ -687,9 +689,9 @@ export default function ResumeVaultPage() {
               {/* Sub-tab Content Panel */}
               {activePreviewTab === "preview" ? (
                 /* Light gray container with PDF viewer or parsed document */
-                <div className="bg-[#F5F5F7] rounded-[28px] border border-black/[0.06] p-4 sm:p-8 flex justify-center items-start min-h-[560px]">
+                <div className="vault-preview-canvas bg-[#F5F5F7] rounded-[28px] border border-black/[0.06] p-4 sm:p-8 flex justify-center items-start min-h-[560px]">
                   {isPdf && pdfUrl ? (
-                    <div className="w-full max-w-2xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-black/[0.06] rounded-[24px] overflow-hidden p-3 sm:p-6">
+                    <div className="vault-resume-paper w-full max-w-2xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-black/[0.06] rounded-[24px] overflow-hidden p-3 sm:p-6">
                       <PdfViewer
                         url={pdfUrl}
                         filename={selectedResume.filename}
@@ -698,7 +700,7 @@ export default function ResumeVaultPage() {
                       />
                     </div>
                   ) : (
-                    <div className="bg-white shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-black/[0.06] rounded-[24px] w-full max-w-xl p-8 sm:p-12 font-sans text-left">
+                    <div className="vault-resume-paper bg-white shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-black/[0.06] rounded-[24px] w-full max-w-xl p-8 sm:p-12 font-sans text-left">
                       {/* Centered Document Header */}
                       <div className="text-center mb-6">
                         <h3 className="text-xl sm:text-[22px] font-bold text-neutral-900 tracking-tight">
@@ -727,7 +729,7 @@ export default function ResumeVaultPage() {
                 </div>
               ) : (
                 /* Applications Tab Content */
-                <div className="bg-[#f4f4f3] rounded-xl border border-neutral-200/70 p-6 sm:p-10 min-h-[360px] flex flex-col justify-center">
+                <div className="vault-applications-panel bg-[#f4f4f3] rounded-xl border border-neutral-200/70 p-6 sm:p-10 min-h-[360px] flex flex-col justify-center">
                   {linkedApps.length === 0 ? (
                     <div className="text-center max-w-sm mx-auto space-y-2">
                       <Building className="h-8 w-8 text-neutral-400 mx-auto mb-2" />
@@ -781,7 +783,7 @@ export default function ResumeVaultPage() {
               )}
             </>
           ) : (
-            <div className="bg-[#f4f4f3] rounded-xl border border-neutral-200/70 p-12 sm:p-20 text-center flex flex-col items-center justify-center min-h-[480px]">
+            <div className="vault-empty-state bg-[#f4f4f3] rounded-xl border border-neutral-200/70 p-12 sm:p-20 text-center flex flex-col items-center justify-center min-h-[480px]">
               <div className="w-12 h-12 rounded-full bg-neutral-200/80 flex items-center justify-center mb-3 text-neutral-400">
                 <Plus className="w-5 h-5" />
               </div>

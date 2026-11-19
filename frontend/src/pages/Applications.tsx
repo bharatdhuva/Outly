@@ -34,6 +34,7 @@ import {
 import { m, AnimatePresence } from "motion/react";
 import { dur, ease, spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { Spinner } from "@/components/Spinner";
+import "./WorkspacePages.css";
 
 const STAGES = [
   { id: "saved",     label: "Saved",     color: "#6B6760", bg: "#F0EDE7" },
@@ -521,8 +522,8 @@ export default function Applications() {
   // ─── Mobile View ──────────────────────────────────────────────────────────
   if (isMobile) {
     return (
-      <div className="w-full pb-20 font-sans text-left">
-        <div className="p-4 flex items-center justify-between border-b border-[#E0DBCF]">
+      <div className="tracker-page tracker-mobile-page landing-style-page w-full min-h-full pb-20 font-sans text-left">
+        <div className="tracker-mobile-header p-4 flex items-center justify-between border-b border-[#E0DBCF]">
           <div>
             <h1 className="text-xl font-semibold text-[#1A1A1A]">Job Tracker</h1>
             <p className="text-xs text-[#6B6760] mt-0.5">{apps.length} applications in progress</p>
@@ -530,7 +531,7 @@ export default function Applications() {
           <button
             type="button"
             onClick={() => setIsAddOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary text-white text-xs font-medium cursor-pointer shadow-sm"
+            className="workspace-primary-action flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary text-white text-xs font-medium cursor-pointer shadow-sm"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add</span>
@@ -538,7 +539,7 @@ export default function Applications() {
         </div>
 
         {/* Mobile Stage Selector Tabs */}
-        <div className="px-4 py-2.5 overflow-x-auto scrollbar-none border-b border-[#E0DBCF]/60">
+        <div className="tracker-stage-tabs px-4 py-2.5 overflow-x-auto scrollbar-none border-b border-[#E0DBCF]/60">
           <div className="flex gap-2">
             {STAGES.map((stage, idx) => {
               const count = filteredApps.filter((a) => a.stage === stage.id).length;
@@ -568,7 +569,7 @@ export default function Applications() {
         </div>
 
         {/* Cards */}
-        <div className="p-4 space-y-3">
+        <div className="tracker-mobile-cards p-4 space-y-3">
           {isLoading ? (
             <div className="flex justify-center py-16">
               <Spinner size={24} className="text-[#6B6760]" />
@@ -586,7 +587,7 @@ export default function Applications() {
                   layout
                   layoutId={`app-card-${app.id}`}
                   transition={spring.snappy}
-                  className="bg-white rounded-xl border border-[#E0DBCF] shadow-sm overflow-hidden"
+                  className="tracker-mobile-card bg-white rounded-xl border border-[#E0DBCF] shadow-sm overflow-hidden"
                 >
                   <div className="p-4 cursor-pointer" onClick={() => setSelectedApp(app)}>
                     <div className="flex items-start gap-3">
@@ -631,9 +632,9 @@ export default function Applications() {
 
   // ─── Desktop 5-Stage Kanban Board ──────────────────────────────────────────
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-24 text-left font-sans">
+    <div className="tracker-page tracker-desktop-page landing-style-page mx-auto w-full max-w-7xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-24 text-left font-sans">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-[#E0DBCF]">
+      <div className="tracker-desktop-header flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-[#E0DBCF]">
         <div>
           <div className="hidden sm:inline-flex items-center gap-1.5 mb-1 text-primary">
             <Briefcase className="w-3.5 h-3.5" />
@@ -696,7 +697,7 @@ export default function Applications() {
           </m.button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-start">
+        <div className="tracker-kanban-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-start">
           {STAGES.map((stage) => {
             const columnApps = filteredApps.filter((a) => a.stage === stage.id);
             return (

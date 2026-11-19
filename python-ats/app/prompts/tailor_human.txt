@@ -1,5 +1,9 @@
 Tailor this resume for the job description. Do not fabricate experience.
 
+Retrieved resume evidence selected with LangChain for this job description:
+{relevant_context}
+The complete resume below is the source of truth. Use retrieved evidence to focus edits, not to add facts.
+
 <job_description>
 {jd}
 </job_description>

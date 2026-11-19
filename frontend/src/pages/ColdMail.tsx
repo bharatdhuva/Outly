@@ -24,13 +24,14 @@ import {
   Edit,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { m, AnimatePresence } from "motion/react";
+import { m, AnimatePresence, useReducedMotion } from "motion/react";
 import { dur, ease, spring } from "@/lib/motion-tokens";
 import { Spinner } from "@/components/Spinner";
 
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { api, type Company } from "@/lib/api";
+import "./WorkspacePages.css";
 import {
   Dialog,
   DialogContent,
@@ -80,6 +81,7 @@ const pipelineOrder = [
 ];
 
 export default function ColdMailPage() {
+  const shouldReduceMotion = useReducedMotion();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -195,7 +197,7 @@ export default function ColdMailPage() {
     refetchInterval: 5000,
   });
 
-  const selectedCompany = companies.find((c: Company) => c.id === selected);
+  const selectedCompany = companies.find((c: Company) => String(c.id) === selected);
 
   useEffect(() => {
     if (selected === null && companies.length > 0) {
@@ -340,14 +342,42 @@ export default function ColdMailPage() {
 
   const createMutation = useMutation({
     mutationFn: api.coldmail.create,
-    onSuccess: (data: any) => {
+    onSuccess: (data: any, variables) => {
+      const companyId = String(data?.id ?? "");
+      if (companyId) {
+        const createdCompany: Company = {
+          id: companyId,
+          company_name: variables.company_name,
+          role: variables.role || "Software Development Engineer",
+          hr_email: variables.hr_email,
+          linkedin_url: variables.linkedin_url ?? null,
+          website_url: variables.website_url ?? null,
+          target_person_name: variables.target_person_name ?? null,
+          target_person_role: variables.target_person_role ?? null,
+          key_skills: variables.key_skills ?? null,
+          experience_level: variables.experience_level ?? null,
+          sender_name: variables.sender_name ?? null,
+          sender_location: variables.sender_location ?? null,
+          status: "pending",
+          scraped_context: null,
+          generated_subject: null,
+          generated_mail: null,
+          personalization_hook: variables.personalization_hook ?? null,
+          sent_at: null,
+          reply_detected_at: null,
+          followup_status: null,
+          followup_sent_at: null,
+          created_at: new Date().toISOString(),
+        };
+        queryClient.setQueryData<Company[]>(["coldmail", "companies"], (current = []) => [
+          createdCompany,
+          ...current.filter((company) => String(company.id) !== companyId),
+        ]);
+        setSelected(companyId);
+      }
       queryClient.invalidateQueries({ queryKey: ["coldmail"] });
       setIsAdding(false);
-      // Auto-select the newly created company
-      if (data?.id) {
-        setSelected(String(data.id));
-        if (isMobile) setMobileDetailsOpen(true);
-      }
+      if (companyId && isMobile) setMobileDetailsOpen(true);
       setNewCompany({
         company_name: "",
         website_url: "",
@@ -538,12 +568,12 @@ export default function ColdMailPage() {
       </AlertDialog>
 
       {/* ─── MAIN CONTENT CONTAINER (MATCHING RESUME VAULT & JOB SEARCH) ─── */}
-      <div className="mx-auto w-full max-w-6xl px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-20 text-left font-sans min-w-0 max-w-full">
+      <div className="cold-mail-page workspace-refresh-page landing-style-page mx-auto w-full max-w-6xl px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-20 text-left font-sans min-w-0 max-w-full">
 
         {/* Top Header matching ResumeVault, JobSearch, AtsScore & ResumeTailor */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+        <div className="workspace-page-header cold-mail-header flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
           <div>
-            <div className="hidden sm:inline-flex items-center gap-2 mb-1">
+            <div className="inline-flex items-center gap-2 mb-2">
               <Mail className="w-3.5 h-3.5 text-[#2DC08D]" />
               <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
                 Tools / Cold Mail
@@ -570,13 +600,13 @@ export default function ColdMailPage() {
               <DialogTrigger asChild>
                 <button
                   type="button"
-                  className="self-start inline-flex items-center justify-center gap-1.5 bg-[#111111] hover:bg-black text-white px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-[13px] font-medium transition-all shadow-sm shrink-0 cursor-pointer"
+                  className="workspace-primary-action self-start inline-flex items-center justify-center gap-1.5 bg-[#111111] hover:bg-black text-white px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-medium transition-all shadow-sm shrink-0 cursor-pointer"
                 >
                   <Plus className="w-4 h-4 text-white" />
                   <span>Add Company Data</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="w-[94%] max-w-[460px] border-[#E8E8E6] bg-white p-4 sm:p-6 rounded-2xl max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll">
+              <DialogContent className="cold-mail-company-dialog w-[94%] max-w-[460px] border-[#E8E8E6] bg-white p-4 sm:p-6 rounded-2xl max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] sm:max-h-[88vh] overflow-y-auto modal-scroll">
                 <DialogHeader className="flex flex-col items-start text-left space-y-1.5 border-b border-neutral-100 pb-3">
                   <DialogTitle className="text-base font-bold text-neutral-900">Add Company Data</DialogTitle>
                   <DialogDescription className="text-xs text-neutral-500">
@@ -678,7 +708,7 @@ export default function ColdMailPage() {
                     <button
                       type="submit"
                       disabled={createMutation.isPending}
-                      className="px-4 py-2 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                      className="workspace-primary-action px-4 py-2 rounded-full bg-black hover:bg-neutral-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50"
                     >
                       {createMutation.isPending ? "Adding..." : "Add Company"}
                     </button>
@@ -690,11 +720,21 @@ export default function ColdMailPage() {
         </div>
 
         {/* ─── MODE SWITCHER (PILL CAPSULE) ─── */}
-        <div className="inline-flex max-w-full overflow-x-auto items-center p-1 bg-white border border-neutral-200/90 rounded-xl shadow-3xs select-none scrollbar-none">
+        <div className="cold-mail-mode-switch relative inline-grid grid-cols-2 max-w-full overflow-x-auto items-center p-1 bg-[#F1F1EF] border border-transparent rounded-xl select-none scrollbar-none">
+          <m.span
+            className="absolute left-1 top-1 bottom-1 rounded-lg bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] pointer-events-none"
+            style={{ width: "calc((100% - 8px) / 2)" }}
+            initial={false}
+            animate={{ x: mainMode === "csv" ? "100%" : "0%" }}
+            transition={shouldReduceMotion
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 360, damping: 32, mass: 0.8 }}
+            aria-hidden="true"
+          />
           <button
             onClick={() => setMainMode("manual")}
-            className={`text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${mainMode === "manual"
-                ? "bg-[#141414] text-white shadow-xs"
+            className={`relative z-10 text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-1.5 rounded-lg transition-colors duration-200 cursor-pointer shrink-0 ${mainMode === "manual"
+                ? "text-[#111111]"
                 : "text-neutral-500 hover:text-neutral-900"
               }`}
           >
@@ -702,8 +742,8 @@ export default function ColdMailPage() {
           </button>
           <button
             onClick={() => setMainMode("csv")}
-            className={`text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${mainMode === "csv"
-                ? "bg-[#141414] text-white shadow-xs"
+            className={`relative z-10 text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-1.5 rounded-lg transition-colors duration-200 cursor-pointer shrink-0 ${mainMode === "csv"
+                ? "text-[#111111]"
                 : "text-neutral-500 hover:text-neutral-900"
               }`}
           >
@@ -727,7 +767,7 @@ export default function ColdMailPage() {
         ) : (
           <>
             {/* ─── STATS ROW (ELEVATED SUMMARY CARDS) ─── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 select-none w-full min-w-0">
+            <div className="cold-mail-stats grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 select-none w-full min-w-0">
               {[
                 { label: "Pending", count: counts.pending, badge: "bg-amber-50 text-amber-700 border-amber-200/70" },
                 { label: "Approved", count: counts.approved, badge: "bg-emerald-50 text-emerald-700 border-emerald-200/70" },
@@ -750,10 +790,10 @@ export default function ColdMailPage() {
             </div>
 
             {/* ─── TWO COLUMN PIPELINE & DETAIL WORKSPACE ─── */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start pt-1 w-full min-w-0 max-w-full">
+            <div className="cold-mail-workspace grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start pt-1 w-full min-w-0 max-w-full">
               {/* Left Column: Company Pipeline List */}
               {(!isMobile || !mobileDetailsOpen) && (
-                <div className="w-full min-w-0 max-w-full lg:col-span-5 rounded-2xl border border-neutral-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col">
+                <div className="cold-mail-pipeline w-full min-w-0 max-w-full lg:col-span-5 rounded-2xl border border-neutral-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col">
                   {/* Pipeline Header */}
                   <div className="border-b border-neutral-100 px-3.5 sm:px-5 py-3 sm:py-3.5 bg-neutral-50/50 flex flex-wrap gap-2 items-center justify-between">
                     <div>
@@ -866,7 +906,7 @@ export default function ColdMailPage() {
 
               {/* Right Column: Selected Company Detail & AI Outreach Preview */}
               {(!isMobile || mobileDetailsOpen) && (
-                <div className="w-full min-w-0 max-w-full lg:col-span-7 space-y-4">
+                <div className="cold-mail-detail w-full min-w-0 max-w-full lg:col-span-7 space-y-4">
                   {selectedCompany ? (
                     <div className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4 sm:space-y-5 w-full min-w-0 max-w-full overflow-hidden">
                       {isMobile && (
@@ -1420,7 +1460,7 @@ export default function ColdMailPage() {
                           <div className="flex w-full items-center gap-2 min-w-0">
                             <button
                               type="button"
-                              className="flex-1 min-w-0 h-10 px-3 gap-1.5 sm:gap-2 bg-[#111111] hover:bg-black text-white rounded-xl font-medium text-xs cursor-pointer transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
+                              className="workspace-primary-action flex-1 min-w-0 h-10 px-3 gap-1.5 sm:gap-2 bg-[#111111] hover:bg-black text-white rounded-full font-medium text-xs cursor-pointer transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
                               disabled={loadingId === selectedCompany.id}
                               onClick={() => {
                                 handleGenerateCheck(() => {

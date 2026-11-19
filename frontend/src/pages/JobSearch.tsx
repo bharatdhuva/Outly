@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import "./WorkspacePages.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -349,10 +350,10 @@ export default function JobSearchPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left font-sans">
+    <div className="job-finder-page workspace-refresh-page landing-style-page mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left font-sans">
       
       {/* Top Header matching ResumeVault, Applications, AtsScore & ResumeTailor */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+      <div className="workspace-page-header job-finder-header flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div>
           <div className="hidden sm:inline-flex items-center gap-2 mb-1">
             <Search className="w-3.5 h-3.5 text-[#2DC08D]" />
@@ -370,7 +371,7 @@ export default function JobSearchPage() {
       </div>
 
       {/* Job Portals Horizontal Marquee */}
-      <div className="slider-mask relative w-full py-2 overflow-hidden group">
+      <div className="job-board-strip slider-mask relative w-full py-2 overflow-hidden group">
         <div className="animate-marquee flex items-center gap-8">
           {[...jobBoards, ...jobBoards, ...jobBoards].map((board, idx) => (
             <div
@@ -388,7 +389,7 @@ export default function JobSearchPage() {
       </div>
 
       {/* Filter Parameters Form */}
-      <section className="rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] text-left">
+      <section className="job-filter-panel rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] text-left">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xs font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-2">
             <Search className="h-3.5 w-3.5 text-neutral-500" />
@@ -402,7 +403,7 @@ export default function JobSearchPage() {
           )}
         </div>
         
-        <form onSubmit={handleScrapeJobs} className="grid gap-4 md:grid-cols-3 items-end text-xs font-medium">
+        <form onSubmit={handleScrapeJobs} className="job-filter-form grid gap-4 md:grid-cols-3 items-end text-xs font-medium">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1">
               <Briefcase className="h-3.5 w-3.5 text-neutral-400" /> Target Role
@@ -431,7 +432,7 @@ export default function JobSearchPage() {
           <Button 
             type="submit" 
             disabled={isScraping} 
-            className={`h-10 w-full font-medium tracking-normal rounded-xl text-xs shadow-sm active:scale-[0.98] transition-all gap-1.5 cursor-pointer ${
+            className={`workspace-primary-action h-10 w-full font-medium tracking-normal rounded-full text-xs shadow-sm active:scale-[0.98] transition-all gap-1.5 cursor-pointer ${
               isLimitExceeded 
                 ? "bg-amber-600 hover:bg-amber-700 text-white" 
                 : "bg-black hover:bg-neutral-800 text-white"
@@ -458,7 +459,7 @@ export default function JobSearchPage() {
       </section>
 
       {/* Scraped Jobs listings list */}
-      <div className="space-y-4 text-left">
+      <div className="job-results-section space-y-4 text-left">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <h3 className="text-sm font-bold text-neutral-900 flex items-center gap-2">

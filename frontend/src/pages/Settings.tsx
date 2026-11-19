@@ -107,7 +107,7 @@ function StatusIndicator({
 
 function SettingsSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-8 space-y-8 animate-pulse pb-16">
+    <div className="landing-style-page mx-auto w-full max-w-7xl px-4 py-6 sm:px-8 space-y-8 animate-pulse pb-16">
       {/* Header Skeleton */}
       <div className="space-y-3 text-left">
         <div className="h-5 w-20 bg-slate-200 rounded-full" />
@@ -306,7 +306,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
+    <div className="landing-style-page mx-auto w-full max-w-7xl px-4 py-6 sm:px-8 space-y-8 animate-fade-in pb-16">
       
       {/* Hero text header */}
       <div className="space-y-3 text-left">
@@ -429,7 +429,7 @@ export default function SettingsPage() {
               <Button 
                 type="submit" 
                 disabled={saveMutation.isPending} 
-                className="gap-2 bg-[#121212] hover:bg-black text-white shadow-sm rounded-xl px-7 py-2.5 font-semibold h-10 text-xs cursor-pointer w-full sm:w-auto transition-all active:scale-[0.99] disabled:opacity-85"
+                className="workspace-primary-action gap-2 bg-[#121212] hover:bg-black text-white shadow-sm rounded-full px-7 py-2.5 font-semibold h-10 text-xs cursor-pointer w-full sm:w-auto transition-all active:scale-[0.99] disabled:opacity-85"
               >
                 {saveMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                 <span>{saveMutation.isPending ? "Saving..." : "Save Settings"}</span>

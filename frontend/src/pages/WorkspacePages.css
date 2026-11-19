@@ -1,0 +1,285 @@
+/* Shared spacing and type hierarchy for job workspace pages. */
+.workspace-refresh-page {
+  padding-top: 20px;
+}
+
+.workspace-page-header {
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.workspace-page-header h1,
+.tracker-desktop-header h1,
+.tracker-mobile-header h1 {
+  margin: 0;
+  color: #191a18;
+  font-size: clamp(27px, 3.5vw, 38px);
+  font-weight: 600;
+  letter-spacing: -.055em;
+  line-height: 1.12;
+}
+
+.workspace-page-header p {
+  max-width: 680px;
+  margin-top: 8px;
+  color: #777a73;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.job-finder-page,
+.cold-mail-page,
+.tracker-page {
+  min-width: 0;
+}
+
+.job-board-strip {
+  min-height: 68px;
+  padding-block: 12px;
+  border-block: 1px solid rgba(25, 26, 24, .07);
+}
+
+.job-filter-panel {
+  padding: 22px;
+  border-radius: 18px;
+  border-color: rgba(25, 26, 24, .09);
+  box-shadow: 0 2px 5px rgba(25, 26, 24, .025), 0 12px 30px rgba(25, 26, 24, .03);
+}
+
+.job-filter-panel > div:first-child {
+  margin-bottom: 17px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(25, 26, 24, .07);
+}
+
+.job-filter-form {
+  gap: 14px;
+}
+
+.job-filter-form label {
+  font-size: 10px;
+  letter-spacing: .04em;
+}
+
+.job-filter-form input {
+  min-height: 42px;
+  padding-inline: 13px;
+  border-radius: 11px;
+  font-size: 13px;
+}
+
+.job-filter-form button {
+  min-height: 42px;
+}
+
+.job-results-section > div:first-child {
+  min-height: 34px;
+  gap: 10px;
+}
+
+.tracker-page-header,
+.tracker-desktop-header {
+  gap: 16px;
+}
+
+.tracker-mobile-header {
+  min-height: 78px;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border-color: rgba(25, 26, 24, .08);
+}
+
+.tracker-mobile-header h1 {
+  font-size: 25px;
+}
+
+.tracker-stage-tabs {
+  padding-block: 12px;
+  background: #fafaf8;
+}
+
+.tracker-stage-tabs > div {
+  width: max-content;
+  min-width: 100%;
+}
+
+.tracker-mobile-cards {
+  padding: 16px;
+}
+
+.tracker-mobile-card {
+  border-color: rgba(25, 26, 24, .09);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(25, 26, 24, .035);
+}
+
+.tracker-kanban-grid {
+  gap: 14px;
+}
+
+.tracker-kanban-grid > div {
+  min-width: 0;
+}
+
+.cold-mail-header {
+  align-items: flex-start;
+}
+
+.cold-mail-header h1 {
+  margin: 0;
+  color: #191a18;
+  font-size: clamp(27px, 3.5vw, 38px);
+  font-weight: 600;
+  letter-spacing: -.055em;
+  line-height: 1.12;
+}
+
+.cold-mail-header p {
+  max-width: 620px;
+  margin-top: 8px;
+  color: #777a73;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.cold-mail-mode-switch {
+  min-height: 40px;
+}
+
+.cold-mail-stats {
+  gap: 10px;
+}
+
+.cold-mail-stats > div {
+  min-height: 78px;
+  padding: 14px 16px;
+  border-radius: 14px;
+}
+
+.cold-mail-workspace {
+  gap: 18px;
+}
+
+.cold-mail-pipeline,
+.cold-mail-detail {
+  min-width: 0;
+  border-color: rgba(25, 26, 24, .09);
+  border-radius: 17px;
+  box-shadow: 0 2px 8px rgba(25, 26, 24, .035);
+}
+
+@media (max-width: 1023px) {
+  .tracker-kanban-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cold-mail-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cold-mail-pipeline,
+  .cold-mail-detail {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 900px) {
+  .job-filter-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .job-filter-form > button {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .workspace-refresh-page {
+    padding-top: 14px;
+  }
+
+  .workspace-page-header {
+    gap: 12px;
+  }
+
+  .workspace-page-header h1,
+  .cold-mail-header h1 {
+    font-size: 27px;
+  }
+
+  .workspace-page-header p,
+  .cold-mail-header p {
+    margin-top: 6px;
+    font-size: 12px;
+  }
+
+  .job-board-strip {
+    min-height: 58px;
+    padding-block: 8px;
+  }
+
+  .job-filter-panel {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .job-filter-form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 13px;
+  }
+
+  .job-filter-form > button {
+    grid-column: 1;
+  }
+
+  .job-results-section {
+    gap: 12px;
+  }
+
+  .job-results-section > div:first-child {
+    align-items: flex-start;
+  }
+
+  .tracker-desktop-page {
+    padding-top: 18px;
+  }
+
+  .tracker-kanban-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cold-mail-page {
+    padding-inline: 12px;
+  }
+
+  .cold-mail-header {
+    gap: 12px;
+  }
+
+  .cold-mail-header > div:last-child {
+    width: 100%;
+  }
+
+  .cold-mail-header > div:last-child > * {
+    align-self: flex-start;
+  }
+
+  .cold-mail-mode-switch {
+    max-width: 100%;
+  }
+
+  .cold-mail-stats > div {
+    min-height: 70px;
+    padding: 11px 12px;
+  }
+
+  .cold-mail-workspace {
+    gap: 14px;
+  }
+
+  .cold-mail-pipeline,
+  .cold-mail-detail {
+    border-radius: 15px;
+  }
+}

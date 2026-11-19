@@ -358,6 +358,8 @@ def invalid_resume_response(error: str) -> AtsScoreResponse:
         ],
         warnings=[error],
         llm_analysis=None,
+        analysis_source="validation",
+        analysis_notice=error,
         error=error,
     )
 
@@ -414,6 +416,8 @@ def build_score_response(
         suggestions=suggestions,
         warnings=det.warnings,
         llm_analysis=llm,
+        analysis_source="heuristic_ai" if llm else "heuristic_only",
+        analysis_notice=None if llm else "AI analysis was unavailable; this score uses deterministic ATS rules.",
     )
 
 

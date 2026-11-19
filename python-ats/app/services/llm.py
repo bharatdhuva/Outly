@@ -95,7 +95,7 @@ class LlmClient:
             temperature=0.1,
         )
 
-    async def tailor_resume(self, resume: str, jd: str) -> LlmTailorResult | None:
+    async def tailor_resume(self, resume: str, jd: str, relevant_context: str = "") -> LlmTailorResult | None:
         return await self._invoke_structured(  # type: ignore[return-value]
             LlmTailorResult,
             _read_prompt("tailor_system.txt"),
@@ -103,6 +103,7 @@ class LlmClient:
             {
                 "resume": resume[: self.settings.max_text_chars],
                 "jd": jd[: self.settings.max_text_chars],
+                "relevant_context": relevant_context[:16000],
             },
             temperature=0.25,
         )

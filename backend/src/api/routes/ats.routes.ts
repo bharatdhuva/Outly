@@ -116,6 +116,36 @@ export function scoreResumeLocally(resume: string, jd?: string) {
   const text = (resume || "").trim();
   const jdText = (jd || "").trim();
 
+  // The local fallback must enforce the same resume gate as the Python scorer.
+  // Previously it returned a positive score and isValidResume=true for any text.
+  const lower = text.toLowerCase();
+  const sectionCount = [
+    /\b(experience|work history|employment|professional history|job history)\b/i,
+    /\b(education|academic|university|college|degree|qualification)\b/i,
+    /\b(skills|technical skills|expertise|technologies|core competencies|programming languages)\b/i,
+    /\b(projects|personal projects|academic projects|key projects)\b/i,
+    /\b(summary|professional summary|objective|career objective|profile|about me)\b/i,
+    /\b(certifications|certificates|awards)\b/i,
+  ].filter((pattern) => pattern.test(text)).length;
+  const hasContact = EMAIL_RE.test(text) || PHONE_RE.test(text) || LINK_RE.test(text) || /\b(email|phone|contact)\b/i.test(text);
+  const hasNonResumeSignals = /\b(invoice|bill to|amount due|payment due|receipt|subtotal|tax invoice|transaction id|tax return|internal revenue|form w-?2|1040)\b/i.test(lower) && sectionCount < 2;
+  const isRecipe = /\b(ingredients|instructions|cook time|prep time|servings|recipe)\b/i.test(lower) && !/\b(experience|education)\b/i.test(lower);
+  const isCode = /import\s+.*\s+from|const\s+.*=|function\s+.*\(|class\s+.*\s*\{/i.test(lower) && !/\b(experience|education|skills)\b/i.test(lower);
+  const validationWordCount = text.match(/\b\w+\b/g)?.length ?? 0;
+  if (text.length < 150 || validationWordCount < 25 || sectionCount < 2 || !hasContact || hasNonResumeSignals || isRecipe || isCode) {
+    const error = "This document does not appear to be a valid resume/CV. Upload a resume with contact details and at least two standard sections such as Experience, Education, Skills, or Projects.";
+    return {
+      score: 0, overall_score: 0, isValidResume: false,
+      breakdown: { skills_match: 0, experience_match: 0, formatting_readability: 0, impact_metrics: 0 },
+      breakdown_detail: {}, matched_keywords: [],
+      missing_keywords: { hard_skills: [], soft_skills: [], tools_technologies: [] },
+      experience_analysis: { seniority_match: "Poor", comments: "The document was rejected by resume validation." },
+      formatting_issues: ["The document structure is invalid for resume analysis."],
+      suggestions: ["Upload a genuine resume/CV with contact details and standard resume sections."],
+      warnings: [error], llm_analysis: null, error,
+    };
+  }
+
   // 1. Contact Info (max 10)
   let contactScore = 0;
   const contactReasons: string[] = [];
@@ -338,6 +368,8 @@ export function scoreResumeLocally(resume: string, jd?: string) {
     suggestions: suggestions.slice(0, 6),
     warnings,
     llm_analysis: null,
+    analysis_source: "heuristic",
+    analysis_notice: "The AI ATS service did not respond; this result uses deterministic resume rules only.",
   };
 }
 
@@ -353,7 +385,7 @@ async function proxyJson(
       method: "POST",
       headers: pythonHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(req.body ?? {}),
-      signal: AbortSignal.timeout(45000),
+      signal: AbortSignal.timeout(210000),
     });
 
     const text = await response.text();
@@ -525,7 +557,9 @@ router.post("/score", checkDemoQuota("ats_check"), checkAtsLimit, async (req: Au
       method: "POST",
       headers: pythonHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(req.body ?? {}),
-      signal: AbortSignal.timeout(8000),
+      // Scoring includes deterministic analysis and a bounded Gemini call. An 8s
+      // proxy timeout silently discarded the AI result on almost every cold start.
+      signal: AbortSignal.timeout(150000),
     });
 
     const text = await response.text();
