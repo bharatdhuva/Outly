@@ -21,13 +21,13 @@ export default function ResumeCarousel() {
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center w-full h-[490px] sm:h-[570px] max-w-[460px] mx-auto select-none overflow-visible font-sans">
+    <div className="relative flex flex-col items-center justify-start w-full max-w-[460px] mx-auto select-none overflow-visible font-sans pt-0">
       
       {/* Subtle Ambient Teal Glow matching landing page */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(18,163,148,0.12),transparent_68%)] rounded-full blur-3xl -z-10 pointer-events-none" />
 
       {/* Stacked Cards Deck Container */}
-      <div className="relative w-full h-[400px] sm:h-[480px] flex items-center justify-center">
+      <div className="relative w-full h-[460px] sm:h-[500px] flex items-start justify-center pt-0">
         {RESUME_IMAGES.map((img, index) => {
           const total = RESUME_IMAGES.length;
           const offset = (index - activeIndex + total) % total;
@@ -67,7 +67,7 @@ export default function ResumeCarousel() {
                 opacity,
                 filter,
               }}
-              className="absolute w-[86%] sm:w-[90%] max-w-[350px] aspect-[1/1.42] rounded-[22px] overflow-hidden border border-black/[0.08] bg-white cursor-pointer transition-all duration-700 ease-out hover:scale-[1.015] group shadow-[0_20px_48px_-8px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.04)]"
+              className="absolute top-0 w-[86%] sm:w-[90%] max-w-[350px] aspect-[1/1.42] rounded-[22px] overflow-hidden border border-black/[0.08] bg-white cursor-pointer transition-all duration-700 ease-out hover:scale-[1.015] group shadow-[0_20px_48px_-8px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.04)]"
             >
               {/* Card Header Bar - Landing Page Ink Aesthetic */}
               <div className="h-9 w-full bg-[#111111] px-3.5 flex items-center justify-between shrink-0 select-none text-white shadow-xs">

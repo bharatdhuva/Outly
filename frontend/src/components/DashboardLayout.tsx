@@ -22,8 +22,21 @@ import {
   Search,
   Bell,
   Lock,
-  Send
+  Send,
+  Box,
+  FileText,
+  BookOpen,
+  LayoutTemplate,
+  AlignLeft,
+  Building2,
+  Target,
+  DollarSign,
+  Share2,
+  Mail,
+  ArrowRight,
+  Sparkles
 } from "lucide-react";
+import "./MegaNav.css";
 import {
   Dialog,
   DialogContent,
@@ -60,6 +73,184 @@ const popoverVariants = {
   exit: { opacity: 0, y: -4, scale: 0.96, transition: { duration: 0.14, ease: [0.4, 0, 1, 1] } },
 };
 
+interface MegaMenuItem {
+  title: string;
+  desc: string;
+  href?: string;
+  guideKey?: string;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  badge?: string;
+}
+
+interface MegaMenuGroup {
+  heading: string;
+  items: MegaMenuItem[];
+}
+
+interface MegaMenuConfig {
+  key: "resumes" | "jobs" | "tools";
+  label: string;
+  groups: MegaMenuGroup[];
+  footerLink?: {
+    label: string;
+    href?: string;
+    guideKey?: string;
+  };
+}
+
+const MEGA_MENUS: MegaMenuConfig[] = [
+  {
+    key: "resumes",
+    label: "Resume",
+    groups: [
+      {
+        heading: "Build & Improve",
+        items: [
+          {
+            title: "ATS Resume Checker",
+            desc: "Analyze score & algorithms",
+            href: "/ats-score",
+            icon: CheckCircle2,
+          },
+          {
+            title: "Tailor Resume",
+            desc: "Target job descriptions",
+            href: "/resume-tailor",
+            icon: Box,
+          },
+          {
+            title: "Resume Vault",
+            desc: "Saved resumes & versions",
+            href: "/resume-vault",
+            icon: FileText,
+          },
+        ],
+      },
+      {
+        heading: "Resume Strategy",
+        items: [
+          {
+            title: "How to write a resume",
+            desc: "Impactful writing guide",
+            guideKey: "how-to-write",
+            icon: BookOpen,
+          },
+          {
+            title: "Choosing a resume format",
+            desc: "Pick the best structure",
+            guideKey: "resume-format",
+            icon: LayoutTemplate,
+          },
+        ],
+      },
+      {
+        heading: "Formatting",
+        items: [
+          {
+            title: "Writing a resume summary",
+            desc: "Hook recruiters instantly",
+            guideKey: "resume-summary",
+            icon: AlignLeft,
+          },
+          {
+            title: "Fit experience on one page",
+            desc: "One-page format strategy",
+            guideKey: "one-page",
+            icon: FileText,
+          },
+        ],
+      },
+    ],
+    footerLink: {
+      label: "How we score resumes",
+      href: "/ats-score",
+    },
+  },
+  {
+    key: "jobs",
+    label: "Jobs",
+    groups: [
+      {
+        heading: "Find & Track",
+        items: [
+          {
+            title: "Job Search",
+            desc: "Find matches instantly",
+            href: "/job-search",
+            icon: Building2,
+          },
+          {
+            title: "Job Tracker",
+            desc: "Track on a visual board",
+            href: "/applications",
+            icon: Target,
+          },
+        ],
+      },
+      {
+        heading: "Interview & Offer",
+        items: [
+          {
+            title: "Job Interview Guides",
+            desc: "Behavioral & tech guides",
+            guideKey: "interview-prep",
+            icon: HelpCircle,
+          },
+          {
+            title: "Salary negotiation guide",
+            desc: "Maximize your offer",
+            guideKey: "salary-negotiation",
+            icon: DollarSign,
+          },
+        ],
+      },
+      {
+        heading: "Networking",
+        items: [
+          {
+            title: "LinkedIn networking tactics",
+            desc: "Unlock hidden roles",
+            guideKey: "linkedin-networking",
+            icon: Share2,
+          },
+          {
+            title: "Job search sprint strategy",
+            desc: "Weekly sprint workflow",
+            guideKey: "sprint-strategy",
+            icon: Zap,
+          },
+        ],
+      },
+    ],
+    footerLink: {
+      label: "Explore career playbooks",
+      guideKey: "interview-prep",
+    },
+  },
+  {
+    key: "tools",
+    label: "Tools",
+    groups: [
+      {
+        heading: "AI Outreach",
+        items: [
+          {
+            title: "Cold Mail Automation",
+            desc: "Personalized recruiter emails",
+            href: "/cold-mail",
+            icon: Mail,
+            badge: "AI",
+          },
+        ],
+      },
+    ],
+    footerLink: {
+      label: "How outreach automation works",
+      href: "/cold-mail",
+    },
+  },
+];
+
 const pageTitles: Record<string, string> = {
   "/onboarding": "Overview",
   "/cold-mail": "Cold Mail",
@@ -84,7 +275,8 @@ function PlanStatusAvatar({
   initials,
   sizeClass = "h-8 w-8 text-[11px]",
   innerBorderClass = "border-2 border-white",
-  plainBorderClass = "border border-primary/10"
+  plainBorderClass = "border border-primary/10",
+  showProBadge = true
 }: {
   isPremium: boolean;
   profilePic?: string | null;
@@ -93,10 +285,21 @@ function PlanStatusAvatar({
   sizeClass?: string;
   innerBorderClass?: string;
   plainBorderClass?: string;
+  showProBadge?: boolean;
 }) {
   return (
-    <div className={isPremium ? `relative ${sizeClass} rounded-full ring-2 ring-primary ring-offset-2 ring-offset-white shadow-sm flex items-center justify-center shrink-0` : `relative ${sizeClass} overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${plainBorderClass}`}>
-      <div className={`relative ${sizeClass} overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${isPremium ? innerBorderClass : ""}`}>
+    <div
+      className={
+        isPremium
+          ? `relative ${sizeClass} rounded-full ring-[2.5px] ring-[#12A394] ring-offset-2 ring-offset-white shadow-xs flex items-center justify-center shrink-0`
+          : `relative ${sizeClass} overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${plainBorderClass}`
+      }
+    >
+      <div
+        className={`relative w-full h-full overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${
+          isPremium ? innerBorderClass : ""
+        }`}
+      >
         {profilePic ? (
           <img
             src={profilePic}
@@ -113,7 +316,182 @@ function PlanStatusAvatar({
           </div>
         )}
       </div>
+
+      {/* Profile Pro Circle / Badge */}
+      {isPremium && showProBadge && (
+        <span
+          className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-[#12A394] text-white flex items-center justify-center ring-2 ring-white shadow-xs z-10"
+          title="Outly Pro Active"
+        >
+          <Sparkles className="h-2 w-2 fill-white text-white" />
+        </span>
+      )}
     </div>
+  );
+}
+
+function ProfileDropdownMenu({
+  isPremium,
+  profilePic,
+  fullName,
+  initials,
+  userEmail,
+  isDemo,
+  onClose,
+  onNavigate,
+  onLogout,
+  onLockedFeature
+}: {
+  isPremium: boolean;
+  profilePic?: string | null;
+  fullName: string;
+  initials: string;
+  userEmail: string;
+  isDemo: boolean;
+  onClose: () => void;
+  onNavigate: (path: string) => void;
+  onLogout: () => void;
+  onLockedFeature: (feature: string) => void;
+}) {
+  return (
+    <m.div
+      variants={popoverVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      style={{ transformOrigin: "top right" }}
+      className="absolute right-0 top-full mt-2 w-64 sm:w-72 rounded-2xl bg-white/98 backdrop-blur-2xl border border-black/[0.08] font-sans shadow-[0_20px_50px_-10px_rgba(20,25,30,0.18),0_1px_3px_rgba(0,0,0,0.06)] z-[130] p-2.5 overflow-hidden select-none"
+    >
+      {/* ─── USER PROFILE CARD HEADER ─── */}
+      <div className="p-3 rounded-xl bg-[#FAF9F5] border border-black/[0.04]">
+        <div className="flex items-center gap-3">
+          <PlanStatusAvatar
+            isPremium={isPremium}
+            profilePic={profilePic}
+            fullName={fullName}
+            initials={initials}
+            sizeClass="h-10 w-10 text-xs"
+            showProBadge={true}
+          />
+          <div className="flex-1 min-w-0">
+            <div className="text-[13px] font-bold text-neutral-900 truncate tracking-tight">
+              {fullName}
+            </div>
+            <div className="text-[11px] text-neutral-500 font-normal truncate mt-0.5">
+              {userEmail}
+            </div>
+          </div>
+        </div>
+
+        {/* PRO STATUS / UPGRADE PILL */}
+        {isDemo ? (
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              onLockedFeature("Upgrading to Pro");
+            }}
+            className="mt-2.5 w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-700 hover:bg-amber-500/15 transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-1.5">
+              <Zap className="h-3 w-3 fill-amber-500 text-amber-500" />
+              <span className="text-[10px] font-bold uppercase tracking-wider">Demo Account</span>
+            </div>
+            <span className="text-[10.5px] font-semibold text-amber-600 underline underline-offset-2">Upgrade</span>
+          </button>
+        ) : isPremium ? (
+          <div className="mt-2.5 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#12A394]/10 border border-[#12A394]/20 text-[#12A394] select-none">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="h-3 w-3 fill-[#12A394] text-[#12A394]" />
+              <span className="text-[10.5px] font-bold uppercase tracking-wider">Cloud Pro Active</span>
+            </div>
+            <span className="text-[10px] font-semibold text-[#12A394]/80">Unlimited</span>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              onNavigate("/pricing");
+            }}
+            className="mt-2.5 w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#12A394] hover:bg-[#0E8A7D] text-white transition-colors shadow-xs cursor-pointer group"
+          >
+            <div className="flex items-center gap-1.5">
+              <Zap className="h-3 w-3 fill-white text-white" />
+              <span className="text-[11px] font-bold">Upgrade to Pro</span>
+            </div>
+            <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+          </button>
+        )}
+      </div>
+
+      {/* ─── ACTION MENU ITEMS ─── */}
+      <div className="mt-2 space-y-0.5">
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
+            onNavigate("/pricing");
+          }}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="h-3.5 w-3.5 text-[#12A394]" />
+            <span>Pricing &amp; Plans</span>
+          </div>
+          <span className="text-[10px] text-neutral-400 font-mono">₹9/mo</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
+            if (isDemo) {
+              onLockedFeature("Settings");
+            } else {
+              onNavigate("/settings");
+            }
+          }}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <SettingsIcon className="h-3.5 w-3.5 text-neutral-500" />
+            <span>Settings</span>
+          </div>
+          {isDemo && <Lock className="h-3 w-3 text-amber-600/70" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
+            onNavigate("/support");
+          }}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <HelpCircle className="h-3.5 w-3.5 text-neutral-500" />
+            <span>Support &amp; Help</span>
+          </div>
+        </button>
+      </div>
+
+      {/* ─── DIVIDER ─── */}
+      <div className="h-px bg-neutral-200/60 my-1.5 mx-1" />
+
+      {/* ─── LOGOUT ─── */}
+      <button
+        type="button"
+        onClick={() => {
+          onClose();
+          onLogout();
+        }}
+        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50/80 hover:text-rose-700 transition-colors cursor-pointer"
+      >
+        <LogOut className="h-3.5 w-3.5 text-rose-500" />
+        <span>Sign Out</span>
+      </button>
+    </m.div>
   );
 }
 
@@ -219,6 +597,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [activeDropdown, setActiveDropdown] = useState<"resumes" | "jobs" | "tools" | null>(null);
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
   const dropdownCloseTimer = useRef<number | null>(null);
+  const headerNavRef = useRef<HTMLDivElement>(null);
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const mobileProfileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -523,7 +903,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     dropdownCloseTimer.current = window.setTimeout(() => {
       setActiveDropdown(null);
       dropdownCloseTimer.current = null;
-    }, 260);
+    }, 120);
   };
 
   const toggleDropdown = (dropdown: "resumes" | "jobs" | "tools") => {
@@ -533,6 +913,36 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     }
     setActiveDropdown((current) => (current === dropdown ? null : dropdown));
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (headerNavRef.current && !headerNavRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (activeGuide) {
+          setActiveGuide(null);
+        }
+        if (activeDropdown) {
+          const currentKey = activeDropdown;
+          setActiveDropdown(null);
+          triggerRefs.current[currentKey]?.focus();
+        }
+      }
+    };
+
+    if (activeDropdown || activeGuide) {
+      document.addEventListener("mousedown", handleClickOutside);
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeDropdown, activeGuide]);
 
   const isResumeActive = location.pathname.startsWith("/resume-") || location.pathname === "/ats-score" || location.pathname === "/resume-vault" || location.pathname === "/resumes";
   const isJobsActive = location.pathname === "/job-search" || location.pathname === "/applications" || location.pathname === "/analytics" || location.pathname === "/jobs";
@@ -612,353 +1022,206 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[#FAF9F5] text-[#171717] flex flex-col font-sans overflow-x-clip">
 
       {/* Header Spacer Wrapper to prevent layout shift */}
-      <div className="h-16 w-full shrink-0 relative bg-[#FAF9F5]">
-        {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-black/[0.07] bg-white/95 backdrop-blur-[28px] shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_4px_12px_-2px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] shrink-0 select-none h-16 mobile-scroll-header">
+      <div className="h-16 w-full shrink-0 relative bg-white">
+        {/* ─── TOP NAVIGATION HEADER (FULL WIDTH) ─── */}
+        <header
+          ref={headerNavRef}
+          className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-black/[0.07] bg-white/95 backdrop-blur-[28px] shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_4px_12px_-2px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] shrink-0 select-none h-16 mobile-scroll-header"
+          onMouseLeave={scheduleDropdownClose}
+        >
           <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
 
-            {/* Left: Brand Logo */}
-            <div className="flex h-full items-center gap-10 lg:gap-12">
-              <Link
-                to="/onboarding"
-                className="inline-flex items-center gap-[8px] no-underline select-none hover:opacity-80 transition-opacity duration-150 shrink-0"
-                aria-label="Outly home"
-              >
-                <Send size={20} strokeWidth={1.8} className="shrink-0 text-[#12A394]" />
-                <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em', color: '#12A394', lineHeight: 1 }}>Outly</span>
-              </Link>
-
-              {/* Middle: Desktop Links & Dropdowns */}
-              <nav className="hidden h-full items-center gap-7 lg:gap-8 font-sans md:flex">
-
-                {/* Dropdown 1: RESUMES */}
-                <div
-                  className="relative h-full flex items-center"
-                  onMouseEnter={() => openDropdown("resumes")}
-                  onMouseLeave={scheduleDropdownClose}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown("resumes")}
-                    className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${(isResumeActive || activeDropdown === "resumes")
-                        ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
-                        : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                      }`}
-                  >
-                    <span>Resume</span>
-                    <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${(isResumeActive || activeDropdown === "resumes") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
-                      } ${activeDropdown === "resumes" ? "rotate-180" : ""}`} />
-                  </button>
-
-                  <AnimatePresence>
-                  {activeDropdown === "resumes" && (
-                    <m.div
-                      variants={dropdownVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-[#E8E8E6] bg-white/98 backdrop-blur-xl p-5 shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] select-none mt-2"
-                      onMouseEnter={() => openDropdown("resumes")}
-                      onMouseLeave={scheduleDropdownClose}
-                      style={{ transformOrigin: "top center" }}
-                    >
-                      {/* Left: Tools */}
-                      <div className="col-span-7 space-y-2.5">
-                        <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">Tools</div>
-                        <div className="space-y-1">
-                          <Link
-                            to="/ats-score"
-                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                          >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                              {/* Circle Check (ATS Resume Checker) */}
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <polyline points="8 12 11 15 16 9" />
-                              </svg>
-                            </div>
-                            <div>
-                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">ATS Resume Checker</span>
-                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Analyze your resume against ATS algorithms.</span>
-                            </div>
-                          </Link>
-
-                          <Link
-                            to="/resume-tailor"
-                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                          >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                              {/* 3D Cube (AI Resume Builder) */}
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-                                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                                <line x1="12" y1="22.08" x2="12" y2="12" />
-                              </svg>
-                            </div>
-                            <div>
-                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Tailor Resume</span>
-                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Tailor your CV for specific job descriptions.</span>
-                            </div>
-                          </Link>
-
-                          <Link
-                            to="/resume-vault"
-                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                          >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                              {/* Document List (Resume Examples) */}
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="16" y1="13" x2="8" y2="13" />
-                                <line x1="16" y1="17" x2="8" y2="17" />
-                              </svg>
-                            </div>
-                            <div>
-                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Resume Vault</span>
-                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Manage saved resumes and tailored versions.</span>
-                            </div>
-                          </Link>
-                        </div>
-                      </div>
-
-                      {/* Right: Learning */}
-                      <div className="col-span-5 border-l border-outly-border pl-4 space-y-2.5">
-                        <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
-                        <div className="space-y-3.5 pt-1">
-                          <button
-                            onClick={() => setActiveGuide("how-to-write")}
-                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                          >
-                            How to write a resume
-                          </button>
-                          <button
-                            onClick={() => setActiveGuide("resume-format")}
-                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                          >
-                            Choosing a resume format
-                          </button>
-                          <button
-                            onClick={() => setActiveGuide("resume-summary")}
-                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                          >
-                            Writing a resume summary
-                          </button>
-                          <button
-                            onClick={() => setActiveGuide("one-page")}
-                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                          >
-                            Fit experience on one page
-                          </button>
-                        </div>
-                      </div>
-                    </m.div>
-                  )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Dropdown 2: JOBS */}
-                <div
-                  className="relative h-full flex items-center"
-                  onMouseEnter={() => openDropdown("jobs")}
-                  onMouseLeave={scheduleDropdownClose}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown("jobs")}
-                    className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${(isJobsActive || activeDropdown === "jobs")
-                        ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
-                        : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                      }`}
-                  >
-                    <span>Jobs</span>
-                    <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ${(isJobsActive || activeDropdown === "jobs") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
-                      } ${activeDropdown === "jobs" ? "rotate-180" : ""}`} />
-                  </button>
-
-                  <AnimatePresence>
-                  {activeDropdown === "jobs" && (
-                    <m.div
-                      variants={dropdownVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="absolute left-0 top-full z-50 grid w-[540px] grid-cols-12 gap-5 rounded-2xl border border-[#E8E8E6] bg-white/98 backdrop-blur-xl p-5 shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] select-none mt-2"
-                      onMouseEnter={() => openDropdown("jobs")}
-                      onMouseLeave={scheduleDropdownClose}
-                      style={{ transformOrigin: "top center" }}
-                    >
-                      {/* Left: Job Search */}
-                      <div className="col-span-7 space-y-2.5">
-                        <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">Job Search</div>
-                        <div className="space-y-1">
-                          <Link
-                            to="/job-search"
-                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                          >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                              {/* Office Building (Job Board) — Enhancv style */}
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-                                <line x1="9" y1="22" x2="9" y2="16" />
-                                <line x1="9" y1="16" x2="15" y2="16" />
-                                <line x1="15" y1="16" x2="15" y2="22" />
-                                <line x1="9" y1="8" x2="9.01" y2="8" />
-                                <line x1="15" y1="8" x2="15.01" y2="8" />
-                                <line x1="9" y1="12" x2="9.01" y2="12" />
-                                <line x1="15" y1="12" x2="15.01" y2="12" />
-                              </svg>
-                            </div>
-                            <div>
-                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Job Search</span>
-                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Find matches and track them instantly.</span>
-                            </div>
-                          </Link>
-
-                          <Link
-                            to="/applications"
-                            className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                          >
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                              {/* Target/Bullseye (Job Tracker) */}
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <circle cx="12" cy="12" r="6" />
-                                <circle cx="12" cy="2" r="2" />
-                              </svg>
-                            </div>
-                            <div>
-                              <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Job Tracker</span>
-                              <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Organize your applications in a visual board.</span>
-                            </div>
-                          </Link>
-                        </div>
-                      </div>
-
-                      {/* Right: Resources */}
-                      <div className="col-span-5 border-l border-outly-border pl-4 space-y-2.5">
-                        <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1">Learning</div>
-                        <div className="space-y-3.5 pt-1">
-                          <button
-                            onClick={() => setActiveGuide("interview-prep")}
-                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                          >
-                            Job Interview Guides
-                          </button>
-                          <button
-                            onClick={() => setActiveGuide("salary-negotiation")}
-                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                          >
-                            Salary negotiation guide
-                          </button>
-                          <button
-                            onClick={() => setActiveGuide("linkedin-networking")}
-                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                          >
-                            LinkedIn networking tactics
-                          </button>
-                          <button
-                            onClick={() => setActiveGuide("sprint-strategy")}
-                            className="block text-[11.5px] font-semibold text-outly-dark/70 hover:text-outly-accent hover:translate-x-0.5 transition duration-200 text-left w-full"
-                          >
-                            Job search sprint strategy
-                          </button>
-                        </div>
-                      </div>
-                    </m.div>
-                  )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Dropdown 3: TOOLS */}
-                <div
-                  className="relative h-full flex items-center"
-                  onMouseEnter={() => openDropdown("tools")}
-                  onMouseLeave={scheduleDropdownClose}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown("tools")}
-                    className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${(isToolsActive || activeDropdown === "tools")
-                        ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
-                        : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                      }`}
-                  >
-                    <span>Tools</span>
-                    <ChevronDown className={`h-3.5 w-3.5 translate-y-px transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${(isToolsActive || activeDropdown === "tools") ? "text-[#2DC08D]" : "text-neutral-400 group-hover:text-[#2DC08D]"
-                      } ${activeDropdown === "tools" ? "rotate-180" : ""}`} />
-                  </button>
-
-                  <AnimatePresence>
-                  {activeDropdown === "tools" && (
-                    <m.div
-                      variants={dropdownVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="absolute left-0 top-full z-50 flex flex-col w-[320px] sm:w-[340px] gap-2.5 rounded-2xl border border-[#E8E8E6] bg-white/98 backdrop-blur-xl p-5 shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] select-none mt-2"
-                      onMouseEnter={() => openDropdown("tools")}
-                      onMouseLeave={scheduleDropdownClose}
-                      style={{ transformOrigin: "top center" }}
-                    >
-                      <div className="text-[9px] font-extrabold text-[#7D7871] uppercase tracking-[0.15em] mb-1 px-1">AI Outreach</div>
-                      <div className="space-y-1">
-                        <Link
-                          to="/cold-mail"
-                          className="flex items-center gap-4 rounded-xl p-2 hover:bg-black/5 transition duration-155 group text-left"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-outly-border/40 text-[#4A4844] group-hover:text-[#2DC08D] transition duration-150">
-                            {/* Envelope (Cold Mail) */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                              <polyline points="22,6 12,13 2,6" />
-                            </svg>
-                          </div>
-                          <div>
-                            <span className="block text-[13px] font-bold text-outly-dark/80 group-hover:text-[#2DC08D] transition duration-150">Cold Mail Automation</span>
-                            <span className="block text-[11px] text-[#6A6660] mt-0.5 leading-relaxed">Automate personalized emails to recruiters.</span>
-                          </div>
-                        </Link>
-                      </div>
-                    </m.div>
-                  )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Standalone Link: PRICING */}
-                {isDemo ? (
-                  <button
-                    type="button"
-                    onClick={() => handleLockedDemoFeature("Pricing & Billing")}
-                    className="flex h-full items-center gap-1.5 border-b-[2.5px] border-transparent text-[15px] leading-none tracking-normal text-[#403E3B] font-medium hover:text-[#2DC08D] transition-colors duration-200 cursor-pointer"
-                  >
-                    <span>Pricing</span>
-                    <Lock className="w-3 h-3 text-amber-600/70" />
-                  </button>
-                ) : (
-                  <Link
-                    to="/pricing"
-                    className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${isPricingActive
-                        ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
-                        : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                      }`}
-                  >
-                    <span>Pricing</span>
-                  </Link>
-                )}
-
-                {/* Standalone Link: SUPPORT */}
+              {/* Left: Brand Logo */}
+              <div className="flex h-full items-center gap-10 lg:gap-12">
                 <Link
-                  to="/support"
-                  className={`flex h-full items-center gap-1.5 border-b-[2.5px] text-[15px] leading-none tracking-normal transition-colors duration-200 cursor-pointer ${isSupportActive
-                      ? "border-[#2DC08D] text-[#2DC08D] font-semibold"
-                      : "border-transparent text-[#403E3B] font-medium hover:text-[#2DC08D]"
-                    }`}
+                  to="/onboarding"
+                  className="inline-flex items-center gap-[8px] no-underline select-none hover:opacity-80 transition-opacity duration-150 shrink-0"
+                  aria-label="Outly home"
                 >
-                  <span>Support</span>
+                  <Send size={20} strokeWidth={1.8} className="shrink-0 text-[#12A394]" />
+                  <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em', color: '#12A394', lineHeight: 1 }}>Outly</span>
                 </Link>
 
-              </nav>
+                {/* Middle: Desktop Links & Dropdowns */}
+                <nav className="hidden h-full items-center gap-1.5 font-sans md:flex relative">
+                  {MEGA_MENUS.map((menu) => {
+                    const isOpen = activeDropdown === menu.key;
+                    const isPageActive =
+                      (menu.key === "resumes" && isResumeActive) ||
+                      (menu.key === "jobs" && isJobsActive) ||
+                      (menu.key === "tools" && isToolsActive);
+
+                    return (
+                      <button
+                        key={menu.key}
+                        ref={(el) => { triggerRefs.current[menu.key] = el; }}
+                        type="button"
+                        aria-expanded={isOpen}
+                        aria-haspopup="true"
+                        aria-controls={`mn-panel-${menu.key}`}
+                        onClick={() => toggleDropdown(menu.key)}
+                        onMouseEnter={() => openDropdown(menu.key)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
+                            e.preventDefault();
+                            openDropdown(menu.key);
+                          }
+                        }}
+                        className={`mn-trigger ${isOpen || isPageActive ? "is-active" : ""}`}
+                      >
+                        <span>{menu.label}</span>
+                        <ChevronDown className="mn-chevron" />
+                      </button>
+                    );
+                  })}
+
+                  {/* Standalone Link: PRICING */}
+                  {isDemo ? (
+                    <button
+                      type="button"
+                      onClick={() => handleLockedDemoFeature("Pricing & Billing")}
+                      className="mn-trigger text-[#403E3B] font-medium"
+                    >
+                      <span>Pricing</span>
+                      <Lock className="w-3 h-3 text-amber-600/70 ml-1" />
+                    </button>
+                  ) : (
+                    <Link
+                      to="/pricing"
+                      className={`mn-trigger ${isPricingActive ? "is-active" : ""}`}
+                    >
+                      <span>Pricing</span>
+                    </Link>
+                  )}
+
+                  {/* Standalone Link: SUPPORT */}
+                  <Link
+                    to="/support"
+                    className={`mn-trigger ${isSupportActive ? "is-active" : ""}`}
+                  >
+                    <span>Support</span>
+                  </Link>
+
+                  {/* Mega Panel Floating Card (Anchored to Nav/Resume Section) */}
+                  <div
+                    className={`mn-dropdown-floating ${activeDropdown ? "is-open" : ""}`}
+                    aria-hidden={!activeDropdown}
+                    onMouseEnter={() => {
+                      if (dropdownCloseTimer.current) {
+                        window.clearTimeout(dropdownCloseTimer.current);
+                        dropdownCloseTimer.current = null;
+                      }
+                    }}
+                    onMouseLeave={scheduleDropdownClose}
+                  >
+                    <div className="mn-panel-inner">
+                      <AnimatePresence mode="wait" initial={false}>
+                        {activeDropdown && (
+                          <m.div
+                            key={activeDropdown}
+                            id={`mn-panel-${activeDropdown}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15, ease: "easeInOut" }}
+                            className="mn-panel-grid"
+                          >
+                            {MEGA_MENUS.find((m) => m.key === activeDropdown)?.groups.map((group, gIdx, allGroups) => {
+                              const isLastCol = gIdx === allGroups.length - 1;
+                              const currentMenu = MEGA_MENUS.find((m) => m.key === activeDropdown);
+
+                              return (
+                                <div key={group.heading} className="mn-column">
+                                  <div className="mn-heading">{group.heading}</div>
+                                  <div>
+                                    {group.items.map((item) => {
+                                      const IconComponent = item.icon;
+
+                                      if (item.href) {
+                                        return (
+                                          <Link
+                                            key={item.title}
+                                            to={item.href}
+                                            tabIndex={activeDropdown ? 0 : -1}
+                                            onClick={() => setActiveDropdown(null)}
+                                            className="mn-item"
+                                          >
+                                            <div className="mn-icon-tile">
+                                              <IconComponent size={16} strokeWidth={1.6} />
+                                            </div>
+                                            <div className="mn-text-col">
+                                              <div className="mn-title-row">
+                                                <span className="mn-title">{item.title}</span>
+                                                {item.badge && <span className="mn-badge">{item.badge}</span>}
+                                              </div>
+                                              <span className="mn-desc">{item.desc}</span>
+                                            </div>
+                                          </Link>
+                                        );
+                                      }
+
+                                      return (
+                                        <button
+                                          key={item.title}
+                                          type="button"
+                                          tabIndex={activeDropdown ? 0 : -1}
+                                          onClick={() => {
+                                            setActiveDropdown(null);
+                                            if (item.guideKey) setActiveGuide(item.guideKey);
+                                          }}
+                                          className="mn-item"
+                                        >
+                                          <div className="mn-icon-tile">
+                                            <IconComponent size={16} strokeWidth={1.6} />
+                                          </div>
+                                          <div className="mn-text-col">
+                                            <div className="mn-title-row">
+                                              <span className="mn-title">{item.title}</span>
+                                              {item.badge && <span className="mn-badge">{item.badge}</span>}
+                                            </div>
+                                            <span className="mn-desc">{item.desc}</span>
+                                          </div>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {/* Optional footer link at the bottom of the last column */}
+                                  {isLastCol && currentMenu?.footerLink && (
+                                    currentMenu.footerLink.href ? (
+                                      <Link
+                                        to={currentMenu.footerLink.href}
+                                        tabIndex={activeDropdown ? 0 : -1}
+                                        onClick={() => setActiveDropdown(null)}
+                                        className="mn-footer-link"
+                                      >
+                                        <span>{currentMenu.footerLink.label}</span>
+                                        <ArrowRight size={14} strokeWidth={1.6} />
+                                      </Link>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        tabIndex={activeDropdown ? 0 : -1}
+                                        onClick={() => {
+                                          setActiveDropdown(null);
+                                          if (currentMenu.footerLink?.guideKey) setActiveGuide(currentMenu.footerLink.guideKey);
+                                        }}
+                                        className="mn-footer-link"
+                                      >
+                                        <span>{currentMenu.footerLink.label}</span>
+                                        <ArrowRight size={14} strokeWidth={1.6} />
+                                      </button>
+                                    )
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </m.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                </nav>
             </div>
 
             {/* Right Side: Profile initials & Logout CTA */}
@@ -1331,7 +1594,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
-      <main className="flex-1 w-full flex flex-col min-h-0 pb-24 md:pb-0 overflow-x-clip">
+      <main className="flex-1 w-full flex flex-col min-h-0 pb-16 md:pb-0 overflow-x-clip">
         {children}
       </main>
 
@@ -1491,37 +1754,74 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       </div>
 
-      {/* ─── INTERACTIVE EDUCATIONAL GUIDE DIALOG (ENHANCV STYLE) ─── */}
-      <Dialog open={activeGuide !== null} onOpenChange={(open) => { if (!open) setActiveGuide(null); }}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[540px] border-outly-border bg-card rounded-2xl p-6 shadow-2xl select-none">
-          {activeGuide && guidesData[activeGuide] && (
-            <>
-              <DialogHeader className="space-y-2 border-b border-outly-border pb-4 text-left">
-                <DialogTitle className="text-xl font-bold text-outly-dark font-sans leading-tight">
-                  {guidesData[activeGuide].title}
-                </DialogTitle>
-                <DialogDescription className="text-xs text-outly-dark/50 font-medium">
-                  {guidesData[activeGuide].description}
-                </DialogDescription>
-              </DialogHeader>
+      {/* ─── INTERACTIVE EDUCATIONAL GUIDE MODAL (MOTION ANIMATED) ─── */}
+      <AnimatePresence>
+        {activeGuide && guidesData[activeGuide] && (
+          <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/45 backdrop-blur-[6px]"
+              onClick={() => setActiveGuide(null)}
+            />
 
-              <div className="py-4 text-left">
+            {/* Modal Card with Smooth Spring Entrance */}
+            <m.div
+              initial={{ opacity: 0, scale: 0.92, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 14 }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              className="relative z-[501] w-full max-w-[580px] max-h-[85vh] overflow-y-auto bg-white rounded-[24px] border border-black/[0.06] p-7 sm:p-8 shadow-[0_28px_72px_-12px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.04)] select-none modal-scroll text-left"
+            >
+              {/* Close X Button */}
+              <button
+                type="button"
+                onClick={() => setActiveGuide(null)}
+                className="absolute right-5 top-5 w-8 h-8 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 transition-colors cursor-pointer"
+                aria-label="Close dialog"
+              >
+                <X size={16} />
+              </button>
+
+              {/* Header */}
+              <div className="border-b border-black/[0.06] pb-4.5 pr-8">
+                <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold tracking-wider uppercase text-[#12A394] bg-[#12A394]/10 px-2.5 py-0.5 rounded-full mb-2.5">
+                  <BookOpen size={12} className="text-[#12A394]" />
+                  Career Guide
+                </span>
+                <h2 className="text-[21px] sm:text-[23px] font-semibold text-[#111111] leading-tight tracking-[-0.025em]">
+                  {guidesData[activeGuide].title}
+                </h2>
+                <p className="text-[13px] text-[#666666] leading-relaxed mt-1.5">
+                  {guidesData[activeGuide].description}
+                </p>
+              </div>
+
+              {/* Content */}
+              <div className="py-4.5">
                 {guidesData[activeGuide].content}
               </div>
 
-              <div className="border-t border-outly-border pt-4 flex justify-end">
+              {/* Footer */}
+              <div className="border-t border-black/[0.06] pt-4.5 flex items-center justify-between">
+                <span className="text-[11.5px] text-[#888888] font-medium hidden sm:inline">
+                  Outly Knowledge Base • Press Esc to close
+                </span>
                 <button
                   type="button"
                   onClick={() => setActiveGuide(null)}
-                  className="rounded-xl bg-outly-accent text-white text-[11.5px] font-bold tracking-wider uppercase py-2.5 px-6 shadow-sm hover:bg-outly-accent/90 transition active:scale-95"
+                  className="rounded-full bg-[#12A394] hover:bg-[#0B8A7D] text-white text-[13px] font-medium px-5 py-2 transition-all shadow-[0_2px_8px_rgba(18,163,148,0.22)] hover:shadow-[0_4px_14px_rgba(18,163,148,0.32)] active:scale-95 cursor-pointer ml-auto"
                 >
                   Close Guide
                 </button>
               </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+            </m.div>
+          </div>
+        )}
+      </AnimatePresence>
 
 
 
@@ -1535,13 +1835,19 @@ const guidesData: Record<string, { title: string; description: string; content: 
     title: "How to Write a Professional Resume",
     description: "Learn the foundational principles of writing a resume that secures interviews.",
     content: (
-      <div className="space-y-4 text-xs text-outly-dark/75 leading-relaxed">
-        <p className="font-bold text-[13px] text-outly-dark">1. Use the Reverse-Chronological Format</p>
-        <p>List your work history starting with your most recent job and working backward. This is the format recruiters prefer and ATS systems parse most accurately.</p>
-        <p className="font-bold text-[13px] text-outly-dark">2. Focus on Achievements, Not Just Duties</p>
-        <p>Instead of listing responsibilities like "Responsible for managing a team," write "Led a cross-functional team of 6 engineers to launch our core product 2 weeks ahead of schedule." Use metrics wherever possible.</p>
-        <p className="font-bold text-[13px] text-outly-dark">3. Start Bullets with Strong Action Verbs</p>
-        <p>Begin each bullet point with powerful verbs like <em>Spearheaded</em>, <em>Optimized</em>, <em>Engineered</em>, or <em>Architected</em>. Avoid passive phrasing.</p>
+      <div className="space-y-3.5 text-[13px] text-[#333333] leading-relaxed">
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">1. Use the Reverse-Chronological Format</p>
+          <p className="text-[#555555]">List your work history starting with your most recent job and working backward. This is the format recruiters prefer and ATS systems parse most accurately.</p>
+        </div>
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">2. Focus on Achievements, Not Just Duties</p>
+          <p className="text-[#555555]">Instead of listing responsibilities like "Responsible for managing a team," write "Led a cross-functional team of 6 engineers to launch our core product 2 weeks ahead of schedule." Use metrics wherever possible.</p>
+        </div>
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">3. Start Bullets with Strong Action Verbs</p>
+          <p className="text-[#555555]">Begin each bullet point with powerful verbs like <em>Spearheaded</em>, <em>Optimized</em>, <em>Engineered</em>, or <em>Architected</em>. Avoid passive phrasing.</p>
+        </div>
       </div>
     )
   },
@@ -1549,13 +1855,22 @@ const guidesData: Record<string, { title: string; description: string; content: 
     title: "Choosing the Right Resume Format",
     description: "Understand chronological, functional, and hybrid resume layouts.",
     content: (
-      <div className="space-y-4 text-xs text-outly-dark/75 leading-relaxed">
-        <p>Select a format that matches your career level and industry:</p>
-        <ul className="list-disc pl-5 space-y-2">
-          <li><strong>Reverse-Chronological:</strong> Best for candidates with a steady career path. Highlights progression and stability.</li>
-          <li><strong>Functional (Skills-Based):</strong> Best for career changers or those with employment gaps. Focuses on transferrable skills rather than when/where they were acquired.</li>
-          <li><strong>Hybrid (Combination):</strong> Best for experienced professionals. Features a prominent skills summary at the top, followed by chronological work history.</li>
-        </ul>
+      <div className="space-y-3.5 text-[13px] text-[#333333] leading-relaxed">
+        <p className="text-[#444444]">Select a format that matches your career level and industry:</p>
+        <div className="space-y-2.5">
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3.5">
+            <span className="font-semibold text-[13px] text-[#111111] block mb-0.5">Reverse-Chronological</span>
+            <span className="text-[#555555]">Best for candidates with a steady career path. Highlights progression and stability.</span>
+          </div>
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3.5">
+            <span className="font-semibold text-[13px] text-[#111111] block mb-0.5">Functional (Skills-Based)</span>
+            <span className="text-[#555555]">Best for career changers or those with employment gaps. Focuses on transferrable skills.</span>
+          </div>
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3.5">
+            <span className="font-semibold text-[13px] text-[#111111] block mb-0.5">Hybrid (Combination)</span>
+            <span className="text-[#555555]">Best for experienced professionals. Features a prominent skills summary at the top followed by chronological history.</span>
+          </div>
+        </div>
       </div>
     )
   },
@@ -1563,12 +1878,21 @@ const guidesData: Record<string, { title: string; description: string; content: 
     title: "Writing a Compelling Resume Summary",
     description: "Hook recruiters in 6 seconds with a high-impact professional summary.",
     content: (
-      <div className="space-y-4 text-xs text-outly-dark/75 leading-relaxed">
-        <p>Your summary should sit at the very top of your resume and answer three questions: Who are you? What are your key achievements? What value do you bring?</p>
-        <p className="border-l-4 border-outly-accent pl-3 italic bg-outly-cream p-3 rounded-r-xl text-[11px] leading-relaxed text-outly-dark/80">
-          "Result-driven Software Engineer with 5+ years of experience building high-performance web applications. Spearheaded transition to microservices, reducing server response times by 40%. Proven track record of optimizing application performance and mentoring junior developers."
+      <div className="space-y-4 text-[13px] text-[#333333] leading-relaxed">
+        <p className="text-[#444444]">
+          Your summary should sit at the very top of your resume and answer three essential questions: <strong>Who are you?</strong> <strong>What are your key achievements?</strong> <strong>What value do you bring?</strong>
         </p>
-        <p>Keep your summary concise—aim for 3 to 4 sentences or bullet points that highlight your most impressive qualifications.</p>
+        <div className="rounded-xl bg-[#F8F9FA] border-l-4 border-[#12A394] border-y border-r border-y-[#E9ECEF] border-r-[#E9ECEF] p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-[#12A394] mb-1.5 flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#12A394]" /> Example Formula
+          </div>
+          <p className="italic text-[12.5px] text-[#222222] leading-relaxed">
+            "Result-driven Software Engineer with 5+ years of experience building high-performance web applications. Spearheaded transition to microservices, reducing server response times by 40%. Proven track record of optimizing application performance and mentoring junior developers."
+          </p>
+        </div>
+        <p className="text-[#555555]">
+          Keep your summary concise—aim for 3 to 4 sentences or bullet points that highlight your most impressive qualifications.
+        </p>
       </div>
     )
   },
@@ -1576,13 +1900,19 @@ const guidesData: Record<string, { title: string; description: string; content: 
     title: "Fitting Your Experience on One Page",
     description: "Strategies to keep your resume concise, dense, and impactful.",
     content: (
-      <div className="space-y-4 text-xs text-outly-dark/75 leading-relaxed">
-        <p className="font-bold text-[13px] text-outly-dark">1. The 10-Year Rule</p>
-        <p>Only go back 10–15 years in your work history. Older experience is rarely relevant to modern roles and takes up valuable page space.</p>
-        <p className="font-bold text-[13px] text-outly-dark">2. Maximize Whitespace and Margins</p>
-        <p>Set your page margins to 0.5 inches (the minimum readable margin) and adjust line height to 1.15 to maximize text space without sacrificing readability.</p>
-        <p className="font-bold text-[13px] text-outly-dark">3. Edit Ruthlessly</p>
-        <p>Remove filler words. Combine short bullets. Ensure every single word on the page contributes directly to explaining why you are qualified for the target role.</p>
+      <div className="space-y-3.5 text-[13px] text-[#333333] leading-relaxed">
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">1. The 10-Year Rule</p>
+          <p className="text-[#555555]">Only go back 10–15 years in your work history. Older experience is rarely relevant to modern roles and takes up valuable page space.</p>
+        </div>
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">2. Maximize Whitespace &amp; Margins</p>
+          <p className="text-[#555555]">Set your page margins to 0.5 inches (the minimum readable margin) and adjust line height to 1.15 to maximize text space without sacrificing readability.</p>
+        </div>
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">3. Edit Ruthlessly</p>
+          <p className="text-[#555555]">Remove filler words. Combine short bullets. Ensure every single word on the page contributes directly to explaining why you are qualified for the target role.</p>
+        </div>
       </div>
     )
   },
@@ -1590,14 +1920,26 @@ const guidesData: Record<string, { title: string; description: string; content: 
     title: "Mastering the Behavioral Interview",
     description: "Use the STAR method to answer common behavioral and situational questions.",
     content: (
-      <div className="space-y-4 text-xs text-outly-dark/75 leading-relaxed">
-        <p>When asked questions like "Tell me about a time you resolved a conflict," structure your response using the <strong>STAR</strong> method:</p>
-        <ul className="list-disc pl-5 space-y-2">
-          <li><strong>Situation:</strong> Set the scene and provide necessary context. Keep it brief.</li>
-          <li><strong>Task:</strong> Describe the challenge, goal, or problem you had to solve.</li>
-          <li><strong>Action:</strong> Explain the specific actions <em>you</em> took to address the task. Highlight your individual contributions.</li>
-          <li><strong>Result:</strong> Share the positive outcome of your actions. Use quantitative data (e.g., "resulting in a 15% increase in efficiency").</li>
-        </ul>
+      <div className="space-y-3.5 text-[13px] text-[#333333] leading-relaxed">
+        <p className="text-[#444444]">When asked behavioral questions like "Tell me about a time you resolved a conflict," structure your response using the <strong>STAR</strong> method:</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3.5">
+            <span className="font-semibold text-[13px] text-[#12A394] block mb-0.5">S • Situation</span>
+            <span className="text-[#555555] text-[12.5px]">Set the scene and provide necessary context. Keep it brief.</span>
+          </div>
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3.5">
+            <span className="font-semibold text-[13px] text-[#12A394] block mb-0.5">T • Task</span>
+            <span className="text-[#555555] text-[12.5px]">Describe the challenge, goal, or problem you had to solve.</span>
+          </div>
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3.5">
+            <span className="font-semibold text-[13px] text-[#12A394] block mb-0.5">A • Action</span>
+            <span className="text-[#555555] text-[12.5px]">Explain the specific actions you took. Highlight individual contribution.</span>
+          </div>
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3.5">
+            <span className="font-semibold text-[13px] text-[#12A394] block mb-0.5">R • Result</span>
+            <span className="text-[#555555] text-[12.5px]">Share positive outcomes and data (e.g. "+15% efficiency").</span>
+          </div>
+        </div>
       </div>
     )
   },
@@ -1605,13 +1947,19 @@ const guidesData: Record<string, { title: string; description: string; content: 
     title: "Salary Negotiation Masterclass",
     description: "Get paid what you are worth with proven negotiation strategies.",
     content: (
-      <div className="space-y-4 text-xs text-outly-dark/75 leading-relaxed">
-        <p className="font-bold text-[13px] text-outly-dark">1. Research Your Market Value</p>
-        <p>Use sites like Glassdoor, Levels.fyi, and LinkedIn to find the typical compensation range for your role, experience level, and location before entering discussions.</p>
-        <p className="font-bold text-[13px] text-outly-dark">2. Let the Employer Name the First Number</p>
-        <p>When asked about salary expectations, defer: "I am flexible and open to a competitive offer that aligns with the responsibilities of the role. What range is budgeted for this position?"</p>
-        <p className="font-bold text-[13px] text-outly-dark">3. Negotiate the Entire Package</p>
-        <p>If the base salary is fixed, negotiate other elements like signing bonuses, stock options, remote work flexibility, or additional paid time off.</p>
+      <div className="space-y-3.5 text-[13px] text-[#333333] leading-relaxed">
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">1. Research Your Market Value</p>
+          <p className="text-[#555555]">Use sites like Glassdoor, Levels.fyi, and LinkedIn to find compensation benchmarks for your role, seniority, and location.</p>
+        </div>
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">2. Let the Employer Name the First Number</p>
+          <p className="text-[#555555]">When asked expectations, defer: "I am flexible and open to a competitive offer that aligns with role responsibilities. What range is budgeted?"</p>
+        </div>
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">3. Negotiate the Entire Package</p>
+          <p className="text-[#555555]">If base salary is fixed, negotiate signing bonuses, equity, remote flexibility, or additional paid time off.</p>
+        </div>
       </div>
     )
   },
@@ -1619,16 +1967,21 @@ const guidesData: Record<string, { title: string; description: string; content: 
     title: "Networking on LinkedIn Effectively",
     description: "How to reach out to recruiters and hiring managers to secure referrals.",
     content: (
-      <div className="space-y-4 text-xs text-outly-dark/75 leading-relaxed">
-        <p className="font-bold text-[13px] text-outly-dark">1. Optimize Your Profile First</p>
-        <p>Ensure your headline contains target keywords (e.g., "React Developer | TypeScript") and your About section tells a compelling story of your career journey.</p>
-        <p className="font-bold text-[13px] text-outly-dark">2. Personalize Connection Requests</p>
-        <p>Never send a blank connection request to someone in your target industry. Always include a brief note:</p>
-        <p className="bg-outly-cream p-3 rounded-xl border border-[#e8e2d5] italic text-[11px] leading-relaxed text-outly-dark/80">
-          "Hi [Name], I noticed your profile and love the work you are doing at [Company]. I am a Software Engineer specializing in React and would love to connect to follow your updates."
-        </p>
-        <p className="font-bold text-[13px] text-outly-dark">3. Ask for Advice, Not a Job</p>
-        <p>When starting a conversation, ask for a brief informational interview: "I'd love to learn about your career path. Do you have 10 minutes for a quick virtual coffee next week?" People love sharing their stories.</p>
+      <div className="space-y-3.5 text-[13px] text-[#333333] leading-relaxed">
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">1. Optimize Your Profile First</p>
+          <p className="text-[#555555]">Ensure your headline contains target keywords (e.g. "Full-Stack Engineer | React, Node") and your About section tells a compelling career story.</p>
+        </div>
+        <div className="rounded-xl bg-[#F8F9FA] border-l-4 border-[#12A394] border-y border-r border-y-[#E9ECEF] border-r-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13px] text-[#111111] mb-1">2. Personalize Connection Requests</p>
+          <p className="italic text-[12px] text-[#333333]">
+            "Hi [Name], I noticed your profile and love the work you are doing at [Company]. I am a Software Engineer specializing in React and would love to connect to follow your updates."
+          </p>
+        </div>
+        <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-4">
+          <p className="font-semibold text-[13.5px] text-[#111111] mb-1">3. Ask for Advice, Not a Job</p>
+          <p className="text-[#555555]">Ask for a 10-minute informational coffee chat to learn about their career journey. People love sharing their stories.</p>
+        </div>
       </div>
     )
   },
@@ -1636,14 +1989,26 @@ const guidesData: Record<string, { title: string; description: string; content: 
     title: "Job Search Sprint Strategy",
     description: "Organize your job search to maximize results and minimize burnout.",
     content: (
-      <div className="space-y-4 text-xs text-outly-dark/75 leading-relaxed">
-        <p>Treat your job search like a software sprint. Plan your week into distinct, manageable blocks:</p>
-        <ul className="list-disc pl-5 space-y-2">
-          <li><strong>Monday (Sourcing):</strong> Find and list 10 target roles in your Job Tracker. Do not apply yet.</li>
-          <li><strong>Tuesday &amp; Wednesday (Tailoring &amp; Submitting):</strong> Use the AI Resume Builder to tailor your resume and submit applications. Aim for quality over quantity.</li>
-          <li><strong>Thursday (Outreach):</strong> Send personalized cold emails or LinkedIn messages to recruiters at your target companies.</li>
-          <li><strong>Friday (Follow-ups &amp; Upskilling):</strong> Follow up on pending applications and practice interview questions.</li>
-        </ul>
+      <div className="space-y-3.5 text-[13px] text-[#333333] leading-relaxed">
+        <p className="text-[#444444]">Treat your job search like an agile sprint with structured weekly blocks:</p>
+        <div className="space-y-2">
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3 flex items-start gap-3">
+            <span className="font-bold text-[11px] uppercase tracking-wider text-[#12A394] bg-[#12A394]/10 px-2 py-0.5 rounded shrink-0 mt-0.5">Mon</span>
+            <span className="text-[#555555] text-[12.5px]"><strong>Sourcing:</strong> Find and bookmark 10 target roles in your Job Tracker. Do not apply yet.</span>
+          </div>
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3 flex items-start gap-3">
+            <span className="font-bold text-[11px] uppercase tracking-wider text-[#12A394] bg-[#12A394]/10 px-2 py-0.5 rounded shrink-0 mt-0.5">Tue-Wed</span>
+            <span className="text-[#555555] text-[12.5px]"><strong>Tailoring &amp; Submitting:</strong> Use AI Resume Tailor to customize your CV and submit. Quality over quantity.</span>
+          </div>
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3 flex items-start gap-3">
+            <span className="font-bold text-[11px] uppercase tracking-wider text-[#12A394] bg-[#12A394]/10 px-2 py-0.5 rounded shrink-0 mt-0.5">Thu</span>
+            <span className="text-[#555555] text-[12.5px]"><strong>Outreach:</strong> Send personalized cold messages to hiring managers and recruiters.</span>
+          </div>
+          <div className="rounded-xl bg-[#F8F9FA] border border-[#E9ECEF] p-3 flex items-start gap-3">
+            <span className="font-bold text-[11px] uppercase tracking-wider text-[#12A394] bg-[#12A394]/10 px-2 py-0.5 rounded shrink-0 mt-0.5">Fri</span>
+            <span className="text-[#555555] text-[12.5px]"><strong>Follow-ups:</strong> Follow up on pending applications and practice interview responses.</span>
+          </div>
+        </div>
       </div>
     )
   }

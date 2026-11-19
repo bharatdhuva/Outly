@@ -39,16 +39,16 @@ export default function MobileHub({ category }: MobileHubProps) {
 
   const tabs = {
     resumes: [
-      { id: "ats", label: "ATS Score", icon: FileCheck },
-      { id: "tailor", label: "Tailor Resume", icon: Sparkles },
-      { id: "vault", label: "Resume Vault", icon: FolderArchive },
+      { id: "ats", label: "ATS Score", shortLabel: "ATS Score", icon: FileCheck },
+      { id: "tailor", label: "Tailor Resume", shortLabel: "Tailor", icon: Sparkles },
+      { id: "vault", label: "Resume Vault", shortLabel: "Vault", icon: FolderArchive },
     ],
     jobs: [
-      { id: "search", label: "Job Search", icon: Search },
-      { id: "tracker", label: "Job Tracker", icon: Briefcase },
+      { id: "search", label: "Job Search", shortLabel: "Search", icon: Search },
+      { id: "tracker", label: "Job Tracker", shortLabel: "Tracker", icon: Briefcase },
     ],
     tools: [
-      { id: "mail", label: "Cold Mail", icon: Mail },
+      { id: "mail", label: "Cold Mail", shortLabel: "Cold Mail", icon: Mail },
     ],
   }[category];
 
@@ -95,45 +95,46 @@ export default function MobileHub({ category }: MobileHubProps) {
   }
 
   return (
-    <div className="relative flex-1 min-h-[calc(100vh-8rem)] w-full flex flex-col font-sans text-outly-dark animate-fade-in text-left bg-transparent">
-      {/* Tab bar header */}
-      <div className="sticky z-30 bg-outly-cream/95 backdrop-blur-md border-b border-outly-border px-4 sm:px-6 pt-3 select-none shadow-xs transition-[top] duration-150 ease-out top-16 sticky-tabs-container">
-        <div className="relative w-full overflow-hidden">
-          <div 
-            className="flex gap-4 sm:gap-6 overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6 scrollbar-none"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
+    <div className="relative flex-1 min-h-0 w-full flex flex-col font-sans text-outly-dark animate-fade-in text-left bg-transparent">
+      {/* Modern Segmented Sub Selector */}
+      <div className="sticky z-30 bg-white/95 backdrop-blur-md border-b border-black/[0.06] px-3 sm:px-6 py-2 sm:py-2.5 select-none shadow-xs transition-[top] duration-150 ease-out top-16 sticky-tabs-container">
+        <div className="w-full max-w-lg mx-auto">
+          <div className={`grid gap-1 bg-[#F1F1EF] p-1 rounded-xl ${
+            tabs.length === 3 ? "grid-cols-3" : tabs.length === 2 ? "grid-cols-2" : "grid-cols-1"
+          }`}>
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               const showBadge = category === "jobs" && tab.id === "tracker" && jobsCount > 0;
+              const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
+                  type="button"
                   onClick={() => handleTabChange(tab.id)}
-                  className={`relative pb-3 pt-1 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 cursor-pointer outline-none shrink-0 flex items-center gap-1.5 active:scale-[0.96] ${
-                    isActive ? "text-[#2DC08D]" : "text-zinc-500/80 hover:text-zinc-800"
+                  className={`relative py-1.5 sm:py-2 px-1.5 rounded-lg text-[11.5px] sm:text-[12px] font-medium flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer outline-none select-none active:scale-[0.98] ${
+                    isActive
+                      ? "bg-white text-[#111111] font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                      : "text-[#666666] hover:text-[#111111]"
                   }`}
                 >
-                  {tab.icon && <tab.icon className={`h-3.5 w-3.5 shrink-0 transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-400"}`} />}
-                  <span>{tab.label}</span>
+                  {Icon && (
+                    <Icon className={`h-3.5 w-3.5 shrink-0 transition-colors ${
+                      isActive ? "text-[#12A394]" : "text-[#777777]"
+                    }`} />
+                  )}
+                  <span className="truncate">
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="sm:hidden">{tab.shortLabel || tab.label}</span>
+                  </span>
                   {showBadge && (
-                    <span className="flex h-3.5 min-w-3.5 px-1 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white leading-none scale-90 translate-y-[-1px]">
+                    <span className="flex h-3.5 min-w-3.5 px-1 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white leading-none">
                       {jobsCount}
                     </span>
-                  )}
-                  {isActive && (
-                    <m.div
-                      layoutId={`mobile-hub-underline-${category}`}
-                      className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#2DC08D] rounded-full"
-                      transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                    />
                   )}
                 </button>
               );
             })}
           </div>
-          {/* Fade gradient on the right edge */}
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FAF8F5] to-transparent pointer-events-none" />
         </div>
       </div>
 

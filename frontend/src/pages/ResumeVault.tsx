@@ -395,7 +395,7 @@ export default function ResumeVaultPage() {
   const pdfUrl = selectedResume ? api.resume.getFileUrl(String(selectedResume.id)) : null;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left font-sans">
+    <div className="mx-auto w-full max-w-6xl px-3.5 sm:px-6 py-2.5 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-6 sm:pb-20 text-left font-sans">
       
       {/* Top Header matching ResumeTailor & AtsScore */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
@@ -406,10 +406,10 @@ export default function ResumeVaultPage() {
               Resume / Vault
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
+          <h1 className="hidden sm:block text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
             Resume Vault
           </h1>
-          <p className="text-[13px] text-neutral-500 font-normal mt-1">
+          <p className="text-xs sm:text-[13px] text-neutral-500 font-normal mt-0.5 sm:mt-1">
             Every version of your resume in one place, ready to tailor for the next application.
           </p>
         </div>
@@ -572,7 +572,7 @@ export default function ResumeVaultPage() {
         </div>
 
         {/* ─── RIGHT COLUMN: PREVIEW CANVAS & ACTIONS ─── */}
-        <div className="lg:col-span-8 xl:col-span-9 space-y-4">
+        <div className={`lg:col-span-8 xl:col-span-9 space-y-4 ${!selectedResume ? "hidden lg:block" : ""}`}>
           {selectedResume ? (
             <>
               {/* Header: Title + Actions */}

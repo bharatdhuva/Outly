@@ -27,19 +27,19 @@ export default function OnboardingPage() {
   }, []);
 
   return (
-    <div className="relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none overflow-x-clip pb-16 font-sans text-[#111111] bg-white">
-      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-4 sm:px-8 py-6 lg:grid-cols-12 lg:gap-16 lg:pt-12 lg:pb-12">
+    <div className="relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none overflow-x-clip pb-12 font-sans text-[#111111] bg-white">
+      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-start gap-8 px-4 sm:px-8 py-4 lg:grid-cols-12 lg:gap-12 lg:pt-8 lg:pb-8">
         <m.div
           variants={heroContentVariants}
           initial="hidden"
           animate="visible"
-          className="flex flex-col justify-center space-y-8 text-left lg:col-span-6"
+          className="flex flex-col justify-start space-y-7 text-left lg:col-span-6 pt-1 sm:pt-1.5"
         >
-          <m.div variants={itemVariants} className="space-y-5">
-            <h1 className="text-3xl sm:text-4xl lg:text-[46px] font-semibold leading-[1.15] tracking-[-0.045em] text-[#111111] [word-spacing:0.01em]">
+          <m.div variants={itemVariants} className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl lg:text-[50px] xl:text-[54px] font-semibold leading-[1.18] lg:leading-[1.20] tracking-[-0.03em] text-[#111111]">
               Check your resume <span className="text-[#12A394] font-semibold">ATS score</span> &amp; land more interviews
             </h1>
-            <p className="max-w-xl text-[16px] sm:text-[17px] font-normal leading-[1.58] tracking-[-0.01em] text-[#6a6a66]">
+            <p className="max-w-xl text-[16px] sm:text-[17.5px] font-normal leading-[1.55] tracking-[-0.015em] text-[#555552]">
               Automated 27-factor scoring, targeted tailoring, and keyword alignment calibrated for applicant tracking systems.
             </p>
           </m.div>
@@ -106,7 +106,7 @@ export default function OnboardingPage() {
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: dur.enter, ease: ease.out, delay: 0.15 }}
-          className="flex items-center justify-center lg:col-span-6 w-full py-4"
+          className="flex items-start justify-center lg:col-span-6 w-full pt-0"
         >
           <ResumeCarousel />
         </m.div>

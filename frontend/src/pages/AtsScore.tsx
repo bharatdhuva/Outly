@@ -817,29 +817,29 @@ export default function AtsScorePage() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 animate-fade-in pb-20 text-left">
+    <div className="mx-auto w-full max-w-6xl px-3.5 sm:px-6 py-2.5 sm:py-8 space-y-4 sm:space-y-6 animate-fade-in pb-6 sm:pb-20 text-left">
       {/* Top Header matching ResumeTailor & ResumeVault */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 text-left">
         <div>
           <div className="hidden sm:inline-flex items-center gap-2 mb-1">
-            <CheckCircle className="w-3.5 h-3.5 text-[#2DC08D]" />
+            <CheckCircle className="w-3.5 h-3.5 text-[#12A394]" />
             <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
               Resume / Checker
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
+          <h1 className="hidden sm:block text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1.5">
             ATS Resume Checker
           </h1>
-          <p className="text-[13px] text-neutral-500 font-normal mt-1">
+          <p className="text-xs sm:text-[13px] text-neutral-500 font-normal mt-0.5 sm:mt-1">
             We check your resume against 27 factors that applicant tracking systems look at, and tell you exactly what to fix.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start">
         
         {/* ─── LEFT COLUMN: UPLOAD / PREVIEW ─── */}
-        <div className="lg:col-span-6 space-y-6 text-left">
+        <div className="lg:col-span-6 space-y-4 sm:space-y-6 text-left">
           {/* Upload card matching Vidyst design */}
           <div className="space-y-3">
             {isLimitExceeded || scanCount >= 3 ? (
@@ -975,25 +975,25 @@ export default function AtsScorePage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-black/[0.06] bg-white p-6 sm:p-8 shadow-sm">
+              <div className="rounded-2xl border border-black/[0.06] bg-white p-4 sm:p-8 shadow-sm">
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-2xl p-8 sm:p-14 text-center flex flex-col items-center justify-center transition-all cursor-pointer ${
+                  className={`border-2 border-dashed rounded-xl sm:rounded-2xl p-6 sm:p-14 text-center flex flex-col items-center justify-center transition-all cursor-pointer ${
                     isDragging
                       ? "border-zinc-900 bg-zinc-50"
                       : "border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50/50"
                   }`}
                 >
-                  <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight font-sans">
+                  <h2 className="text-xl sm:text-3xl font-bold text-zinc-900 tracking-tight font-sans">
                     Drop your resume here
                   </h2>
-                  <p className="text-xs sm:text-sm text-zinc-500 mt-2.5">
+                  <p className="text-xs sm:text-sm text-zinc-500 mt-2">
                     or <span className="underline underline-offset-4 text-zinc-900 font-semibold">browse files</span>
                   </p>
-                  <p className="font-mono text-[11px] text-zinc-400 mt-6 tracking-wide">
+                  <p className="font-mono text-[10.5px] sm:text-[11px] text-zinc-400 mt-4 sm:mt-6 tracking-wide">
                     PDF, DOCX, TXT · up to 5 MB
                   </p>
                 </div>
@@ -1026,7 +1026,7 @@ export default function AtsScorePage() {
         </div>
 
         {/* ─── RIGHT COLUMN: ATS REPORT CARD ─── */}
-        <div className="lg:col-span-6 rounded-2xl border border-black/[0.06] bg-white p-6 sm:p-8 shadow-sm flex flex-col justify-between text-left">
+        <div className="lg:col-span-6 rounded-2xl border border-black/[0.06] bg-white p-4 sm:p-8 shadow-sm flex flex-col justify-between text-left">
           
           <div>
             {/* Header */}

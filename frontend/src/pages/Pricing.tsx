@@ -1,9 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Check, ArrowRight, Lock, Loader2, Sparkles, Tag, ChevronDown } from "lucide-react";
+import {
+  Check,
+  X,
+  ArrowUpRight,
+  ArrowRight,
+  ShieldCheck,
+  Lock,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
+import pricingCatImage from "@/assets/pricing-cat.webp";
+import pricingSeaImage from "@/assets/pricing-sea.webp";
+import pricingFieldImage from "@/assets/pricing-field.webp";
 import { api } from "@/lib/api";
 import { m, AnimatePresence } from "motion/react";
 import {
@@ -13,15 +25,36 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import "./Pricing.css";
 
 export default function Pricing() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  const [displayPrice, setDisplayPrice] = useState(9);
+  const priceValueRef = useRef(9);
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("outly_premium_user") === "true");
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
+
+  useEffect(() => {
+    const target = billingCycle === "yearly" ? 99 : 9;
+    const start = priceValueRef.current;
+    const duration = 400;
+    const started = performance.now();
+    let frame = 0;
+    const animate = (now: number) => {
+      const progress = Math.min((now - started) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const value = Math.round(start + (target - start) * eased);
+      priceValueRef.current = value;
+      setDisplayPrice(value);
+      if (progress < 1) frame = window.requestAnimationFrame(animate);
+    };
+    frame = window.requestAnimationFrame(animate);
+    return () => window.cancelAnimationFrame(frame);
+  }, [billingCycle]);
 
   useEffect(() => {
     if (showSuccess) {
@@ -76,9 +109,9 @@ export default function Pricing() {
       return;
     }
 
-    let orderData;
+    let orderData: any;
     try {
-      const amountInPaise = billingCycle === "monthly" ? 100 : 9900;
+      const amountInPaise = billingCycle === "monthly" ? 900 : 9900;
       orderData = await api.payment.createOrder(amountInPaise, "INR");
     } catch (err: any) {
       setIsProcessingPayment(false);
@@ -106,7 +139,7 @@ export default function Pricing() {
       amount: orderData.amount,
       currency: orderData.currency,
       name: "Outly",
-      description: `Outly Pro (${billingCycle === "monthly" ? "₹1 Monthly Trial" : "₹99 Yearly Trial"})`,
+      description: `Outly Pro (${billingCycle === "monthly" ? "₹9 Monthly" : "₹99 Yearly"})`,
       image: logoTransparent,
       order_id: orderData.order_id,
       handler: async function (response: any) {
@@ -180,168 +213,147 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-full w-full font-geist py-8 sm:py-12 px-4 sm:px-6 flex flex-col items-center justify-start animate-fade-in text-neutral-900 select-none">
+    <div className="pricing-page animate-fade-in">
+      <div className="pricing-page-glow" aria-hidden="true" />
 
-      {/* ─── HERO HEADER ─── */}
-      <div className="text-center max-w-xl mx-auto space-y-3">
-        {/* ─── TOP EYEBROW ─── */}
-        <div className="inline-flex items-center gap-2 mb-1">
-          <Tag className="w-3.5 h-3.5 text-[#2DC08D]" />
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.22em] text-neutral-500">
-            PRICING
-          </span>
+      {/* ─── HEADER (EXACT SAME AS LANDING) ─── */}
+      <div className="pricing-page-header">
+        <h2>
+          Start free.<br />
+          <i>Upgrade when you need more room.</i>
+        </h2>
+
+        {/* ─── BILLING TOGGLE (SMOOTH SLIDING SELECTOR) ─── */}
+        <div className="billing-toggle" role="tablist" aria-label="Billing cycle">
+          <span
+            className={`billing-slider ${billingCycle === "yearly" ? "billing-slider-yearly" : ""}`}
+            aria-hidden="true"
+          />
+          <button
+            type="button"
+            role="tab"
+            aria-selected={billingCycle === "monthly"}
+            className={`billing-monthly ${billingCycle === "monthly" ? "billing-active" : ""}`}
+            onClick={() => setBillingCycle("monthly")}
+          >
+            Monthly
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={billingCycle === "yearly"}
+            className={`billing-yearly ${billingCycle === "yearly" ? "billing-active" : ""}`}
+            onClick={() => setBillingCycle("yearly")}
+          >
+            Yearly <span>save 20%</span>
+          </button>
         </div>
-
-        <h1 className="text-4xl sm:text-[48px] md:text-[54px] font-bold text-neutral-900 tracking-[-0.035em] leading-[1.06]">
-          A clearer way to move forward.
-        </h1>
-        <p className="text-[14px] sm:text-[15px] text-neutral-500 font-normal leading-relaxed max-w-md mx-auto pt-1">
-          Tools for a more focused job search. Start free, then upgrade when you need more room.
-        </p>
       </div>
 
-      {/* ─── BILLING TOGGLE (iOS-STYLE WARM LINEN SLIDING PILL) ─── */}
-      <div className="inline-flex items-center p-1 bg-[#EDE9E2]/90 border border-[#E2DDD3]/80 rounded-full mx-auto mt-7 text-xs font-semibold text-neutral-600 relative select-none">
-        <button
-          type="button"
-          onClick={() => setBillingCycle("monthly")}
-          className={`relative z-10 px-5 py-1.5 rounded-full transition-colors duration-200 cursor-pointer active:scale-[0.97] ${
-            billingCycle === "monthly" ? "text-neutral-900" : "text-neutral-600 hover:text-neutral-900"
-          }`}
-        >
-          {billingCycle === "monthly" && (
-            <m.div
-              layoutId="billing-pill"
-              className="absolute inset-0 rounded-full bg-white shadow-sm -z-10"
-              transition={{ type: "spring", stiffness: 450, damping: 32 }}
-            />
-          )}
-          Monthly
-        </button>
-        <button
-          type="button"
-          onClick={() => setBillingCycle("yearly")}
-          className={`relative z-10 px-5 py-1.5 rounded-full transition-colors duration-200 cursor-pointer active:scale-[0.97] ${
-            billingCycle === "yearly" ? "text-neutral-900" : "text-neutral-600 hover:text-neutral-900"
-          }`}
-        >
-          {billingCycle === "yearly" && (
-            <m.div
-              layoutId="billing-pill"
-              className="absolute inset-0 rounded-full bg-white shadow-sm -z-10"
-              transition={{ type: "spring", stiffness: 450, damping: 32 }}
-            />
-          )}
-          Yearly (save 20%)
-        </button>
-      </div>
+      {/* ─── PRICING CARDS GRID (EXACT SAME AS LANDING WITH CAT & PIXEL ART) ─── */}
+      <div className="pricing-page-grid">
 
-      {/* ─── PRICING CARDS GRID (EXACT 2 CARDS: NORMAL + BLUE) ─── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[800px] mx-auto mt-10 items-stretch text-left">
+        {/* ─── CARD 1: FREE CARD WITH SLEEPING CAT ─── */}
+        <article className="price-card free-card">
+          <div className="pricing-cat" aria-hidden="true">
+            <img src={pricingCatImage} alt="Sleeping cat" />
+            <span>z</span>
+            <span>z</span>
+          </div>
+          <img className="pricing-art" src={pricingSeaImage} alt="" />
 
-        {/* ─── CARD 1: NORMAL FREE CARD ─── */}
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0, ease: [0.16, 1, 0.3, 1] }}
-          whileHover={{ y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
-          className="border border-[#E2DDD3] bg-white rounded-[28px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(0,0,0,0.025)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)] transition-shadow duration-300"
-        >
-          <div>
-            <h2 className="text-3xl font-bold text-neutral-900 tracking-tight">Free</h2>
-            <p className="text-xs text-neutral-500 mt-2 min-h-[36px] leading-relaxed font-normal">
-              For individuals getting started with smarter job search
-            </p>
+          <div className="price-content">
+            <h3>Free</h3>
+            <p>Everything you need to get moving.</p>
 
-            {/* Price block */}
-            <div className="mt-5 flex items-baseline">
-              <span className="text-5xl font-bold text-neutral-900 tracking-tight">₹0</span>
+            <div className="price">
+              <b>₹0</b>
+              <span>forever</span>
             </div>
 
-            {/* Button */}
-            <button
-              disabled
-              className="w-full mt-6 bg-white hover:bg-neutral-50 text-neutral-900 text-sm font-semibold py-3 px-5 rounded-xl border border-neutral-300 transition-colors shadow-2xs text-center cursor-default"
-            >
-              Start for free
-            </button>
-
-            {/* Features section header */}
-            <div className="mt-8 flex items-center justify-between text-xs font-semibold text-neutral-900">
-              <span>Key features:</span>
-              <ChevronDown className="w-4 h-4 text-neutral-500" />
-            </div>
-
-            {/* Real Outly Free Features List */}
-            <ul className="mt-4 space-y-3 text-xs text-neutral-700">
-              <li className="flex items-start gap-2.5">
-                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+            <ul>
+              <li>
+                <Check size={15} />
                 <span>3 free ATS resume checks per 12 hours</span>
               </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+              <li>
+                <Check size={15} />
                 <span>Resume Vault (upload &amp; store master resumes)</span>
               </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+              <li>
+                <Check size={15} />
                 <span>AI Job Search &amp; match discovery</span>
               </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+              <li>
+                <Check size={15} />
                 <span>Application status tracker board</span>
               </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-neutral-400 font-bold select-none">&gt;</span>
+              <li>
+                <Check size={15} />
                 <span>Recruiter Cold Mail outreach generator</span>
               </li>
+              <li className="unavailable">
+                <X size={15} />
+                <span>Unlimited tailoring</span>
+              </li>
             </ul>
+
+            <button
+              type="button"
+              disabled
+              className="button button-white cursor-default"
+            >
+              {isPremium ? "Included in Pro" : "Current plan"}
+            </button>
           </div>
-        </m.div>
+        </article>
 
-        {/* ─── CARD 2: BRAND FEATURED CARD (OUTLY EMERALD THEME) ─── */}
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          whileHover={{ y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
-          className="relative border-2 border-[#2DC08D] bg-white rounded-[28px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(45,192,141,0.12)] hover:shadow-[0_16px_40px_rgba(45,192,141,0.22)] transition-shadow duration-300"
-        >
-          {/* Centered top floating pill badge */}
-          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#2DC08D] text-white text-[11px] font-semibold px-4 py-0.5 rounded-full shadow-sm whitespace-nowrap">
-            Best for active job seekers
-          </div>
+        {/* ─── CARD 2: PRO CARD WITH PIXEL FIELD ART & RAZORPAY INTEGRATION ─── */}
+        <article className="price-card pro-card">
+          <img className="pricing-art" src={pricingFieldImage} alt="" />
 
-          <div>
-            <h2 className="text-3xl font-bold text-neutral-900 tracking-tight">Pro</h2>
-            <p className="text-xs text-neutral-500 mt-2 min-h-[36px] leading-relaxed font-normal">
-              For ambitious job seekers looking to land interviews and offers faster with AI
-            </p>
+          <div className="price-content">
+            <div className="pro-label">best for active job seekers</div>
+            <h3>Pro</h3>
+            <p>More room for every application.</p>
 
-            {/* Price block */}
-            <div className="mt-5 flex items-baseline gap-1.5 flex-wrap overflow-hidden">
-              <AnimatePresence mode="wait" initial={false}>
-                <m.span
-                  key={billingCycle}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-5xl font-bold text-neutral-900 tracking-tight inline-block"
-                >
-                  {billingCycle === "yearly" ? "₹99" : "₹1"}
-                </m.span>
-              </AnimatePresence>
-              <span className="text-xs text-neutral-600 font-normal">
-                /month per member, billed {billingCycle === "yearly" ? "yearly" : "monthly"}
-              </span>
+            <div className="price">
+              <b>₹{displayPrice}</b>
+              <span>{billingCycle === "yearly" ? "/ year" : "/ month"}</span>
             </div>
 
-            {/* Outly Primary Button */}
-            <m.button
+            <ul>
+              <li>
+                <Check size={15} />
+                <span>Unlimited ATS checks with 27-factor scoring</span>
+              </li>
+              <li>
+                <Check size={15} />
+                <span>Unlimited AI resume tailoring for any job description</span>
+              </li>
+              <li>
+                <Check size={15} />
+                <span>Deep ATS score, keyword gap &amp; recruiter fixes</span>
+              </li>
+              <li>
+                <Check size={15} />
+                <span>Unlimited Resume Vault storage &amp; tailored versions</span>
+              </li>
+              <li>
+                <Check size={15} />
+                <span>Full Cold Mail automation &amp; recruiter outreach</span>
+              </li>
+              <li>
+                <Check size={15} />
+                <span>Unlimited job tracking on Kanban board</span>
+              </li>
+            </ul>
+
+            <button
+              type="button"
               onClick={handleRazorpayPayment}
               disabled={isProcessingPayment}
-              whileTap={{ scale: 0.97 }}
-              className="w-full mt-6 bg-[#2DC08D] hover:bg-[#25a77a] text-white text-sm font-semibold py-3 px-5 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-85"
+              className="button button-teal"
             >
               {isProcessingPayment ? (
                 <>
@@ -350,77 +362,47 @@ export default function Pricing() {
                 </>
               ) : isPremium ? (
                 <>
-                  <Sparkles className="w-4 h-4 text-white" />
+                  <Sparkles className="w-4 h-4" />
                   <span>Active Pro Plan</span>
                 </>
               ) : (
-                <span>Try for free</span>
+                <>
+                  <span>Try now</span>
+                  <ArrowUpRight size={16} />
+                </>
               )}
-            </m.button>
+            </button>
 
-            {/* Sub-button link: or buy now */}
-            <div className="mt-2.5 text-center text-xs text-neutral-500">
-              or{" "}
+            {!isPremium && (
               <button
+                type="button"
                 onClick={handleRazorpayPayment}
-                className="text-[#2DC08D] font-semibold underline underline-offset-2 hover:text-[#25a77a] cursor-pointer"
+                className="buy-link"
               >
-                buy now
+                or buy now
               </button>
-            </div>
-
-            {/* Features section header */}
-            <div className="mt-6 flex items-center justify-between text-xs font-semibold text-neutral-900">
-              <span>Everything in Free, plus:</span>
-              <ChevronDown className="w-4 h-4 text-neutral-500" />
-            </div>
-
-            {/* Real Outly Pro Features List */}
-            <ul className="mt-4 space-y-3 text-xs text-neutral-700">
-              <li className="flex items-start gap-2.5">
-                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Unlimited ATS checks with 27-factor scoring</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Unlimited AI resume tailoring for any job description</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Deep ATS score, keyword gap &amp; recruiter fixes</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Unlimited Resume Vault storage &amp; tailored versions</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Unlimited job tracking on Kanban board</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-[#2DC08D] font-bold select-none">&gt;</span>
-                <span>Full Cold Mail automation &amp; recruiter outreach</span>
-              </li>
-            </ul>
+            )}
           </div>
-        </m.div>
+        </article>
 
       </div>
 
-      {/* ─── BOTTOM BANNER: NOT SURE WHERE TO START? ─── */}
-      <div className="w-full max-w-[760px] mx-auto mt-14 pt-8 border-t border-neutral-200/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-left">
+      {/* ─── DATA PRIVACY NOTE ─── */}
+      <p className="pricing-note">
+        <ShieldCheck size={14} /> your data stays yours on every plan. no pressure, cancel anytime.
+      </p>
+
+      {/* ─── COMPARE PLANS BANNER ─── */}
+      <div className="pricing-page-compare-bar">
         <div>
-          <h3 className="text-base sm:text-[17px] font-bold text-neutral-900 tracking-tight">
-            Not sure where to start?
-          </h3>
-          <p className="text-xs text-neutral-500 font-normal mt-0.5">
-            Start free. Upgrade when your search deserves more room.
-          </p>
+          <h3>Not sure where to start?</h3>
+          <p>Start free. Upgrade when your search deserves more room.</p>
         </div>
 
         <button
+          type="button"
           onClick={() => setShowCompare(true)}
-          className="text-xs font-semibold text-neutral-900 hover:text-black flex items-center gap-1 cursor-pointer transition-colors"
+          className="pricing-page-compare-btn"
         >
           <span>Compare plans</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -428,17 +410,17 @@ export default function Pricing() {
       </div>
 
       {/* ─── FOOTER ─── */}
-      <div className="w-full max-w-[760px] mx-auto mt-12 pt-6 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-400 font-normal">
+      <footer className="pricing-page-footer">
         <span>© 2026 Outly</span>
-        <span className="flex items-center gap-1.5 text-neutral-400">
-          <Lock className="w-3 h-3 text-neutral-400" />
+        <span className="inline-flex items-center gap-1.5">
+          <Lock className="w-3 h-3" />
           <span>Your data stays private</span>
         </span>
-      </div>
+      </footer>
 
       {/* ─── PAYMENT SUCCESS MODAL ─── */}
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[360px] bg-white p-6 shadow-2xl rounded-2xl border border-neutral-200 select-none text-center flex flex-col items-center font-geist">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[90%] max-w-[360px] bg-white p-6 shadow-2xl rounded-2xl border border-neutral-200 select-none text-center flex flex-col items-center">
           <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">
             <Sparkles className="h-6 w-6" />
           </div>
@@ -451,7 +433,7 @@ export default function Pricing() {
 
       {/* ─── COMPARE PLANS MODAL ─── */}
       <Dialog open={showCompare} onOpenChange={setShowCompare}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] max-w-[560px] bg-white p-6 shadow-2xl rounded-2xl border border-neutral-200 font-geist text-left">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] max-w-[560px] bg-white p-6 shadow-2xl rounded-2xl border border-neutral-200 text-left">
           <DialogHeader className="space-y-1">
             <DialogTitle className="text-lg font-bold text-neutral-900">Compare Plans</DialogTitle>
             <DialogDescription className="text-xs text-neutral-500">
@@ -498,8 +480,6 @@ export default function Pricing() {
           </div>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }
-

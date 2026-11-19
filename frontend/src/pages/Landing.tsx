@@ -186,17 +186,17 @@ export default function OutlyLanding() {
   const [tapePaused, setTapePaused] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [yearly, setYearly] = useState(false)
-  const [displayPrice, setDisplayPrice] = useState(99)
-  const priceValueRef = useRef(99)
+  const [displayPrice, setDisplayPrice] = useState(9)
+  const priceValueRef = useRef(9)
   const [activeNav, setActiveNav] = useState('features')
   useEffect(() => {
     prefetchOnIdle(['/login', '/pricing'])
   }, [])
   useEffect(() => { if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; const timer = window.setInterval(() => setSlide(s => (s + 1) % slides.length), 5000); return () => window.clearInterval(timer) }, [paused])
   useEffect(() => {
-    const target = yearly ? 999 : 99
+    const target = yearly ? 99 : 9
     const start = priceValueRef.current
-    const duration = 550
+    const duration = 400
     const started = performance.now()
     let frame = 0
     const animate = (now: number) => {

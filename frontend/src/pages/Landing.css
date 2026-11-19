@@ -716,8 +716,8 @@ main{overflow:hidden}.mobile-menu,.mobile-sheet{display:none}
 .billing-toggle button{position:relative;z-index:1;width:88px;padding-left:8px;padding-right:8px}
 .billing-toggle button.billing-yearly{width:130px}
 .billing-toggle button.billing-active{background:transparent!important}
-.billing-slider{position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:88px;border-radius:99px;background:#f1f1ef;display:block!important;pointer-events:none;transition:transform .35s cubic-bezier(.22,1,.36,1);font:initial!important;color:transparent!important;margin:0!important}
-.billing-slider-yearly{transform:translateX(88px)}
+.billing-slider{position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:88px;border-radius:99px;background:#f1f1ef;display:block!important;pointer-events:none;transition:transform .35s cubic-bezier(.22,1,.36,1),width .35s cubic-bezier(.22,1,.36,1);font:initial!important;color:transparent!important;margin:0!important}
+.billing-slider-yearly{transform:translateX(88px);width:130px!important}
 .billing-toggle .billing-yearly span{position:relative;z-index:1}
 .pixel-sun{cursor:pointer}
 .sun-blink::before{animation:sun-eye-blink .22s steps(2,end)}
