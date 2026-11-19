@@ -269,62 +269,45 @@ const pageTitles: Record<string, string> = {
 };
 
 function PlanStatusAvatar({
-  isPremium,
   profilePic,
   fullName,
   initials,
-  sizeClass = "h-8 w-8 text-[11px]",
-  innerBorderClass = "border-2 border-white",
-  plainBorderClass = "border border-primary/10",
-  showProBadge = true
+  sizeClass = "h-8.5 w-8.5 text-[11px]",
 }: {
-  isPremium: boolean;
   profilePic?: string | null;
   fullName: string;
   initials: string;
   sizeClass?: string;
+  isPremium?: boolean;
   innerBorderClass?: string;
   plainBorderClass?: string;
   showProBadge?: boolean;
 }) {
+  const [imgError, setImgError] = useState(false);
+
+  // If profilePic exists, is not the generic default placeholder, and hasn't errored
+  const isDefaultPlaceholder =
+    typeof profilePic === "string" && profilePic.includes("default-user=");
+  const showImage = Boolean(profilePic && !isDefaultPlaceholder && !imgError);
+
   return (
     <div
-      className={
-        isPremium
-          ? `relative ${sizeClass} rounded-full ring-[2.5px] ring-[#12A394] ring-offset-2 ring-offset-white shadow-xs flex items-center justify-center shrink-0`
-          : `relative ${sizeClass} overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${plainBorderClass}`
-      }
+      className={`relative ${sizeClass} rounded-full overflow-hidden shrink-0 select-none bg-neutral-200 flex items-center justify-center`}
     >
-      <div
-        className={`relative w-full h-full overflow-hidden rounded-full bg-[#1a1a1a] font-bold text-white shrink-0 shadow-inner ${
-          isPremium ? innerBorderClass : ""
-        }`}
-      >
-        {profilePic ? (
-          <img
-            src={profilePic}
-            alt={fullName}
-            className="h-full w-full object-cover"
-            loading="eager"
-            decoding="sync"
-            // @ts-ignore
-            fetchPriority="high"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#1a1a1a] text-white">
-            {initials}
-          </div>
-        )}
-      </div>
-
-      {/* Profile Pro Circle / Badge */}
-      {isPremium && showProBadge && (
-        <span
-          className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-[#12A394] text-white flex items-center justify-center ring-2 ring-white shadow-xs z-10"
-          title="Outly Pro Active"
-        >
-          <Sparkles className="h-2 w-2 fill-white text-white" />
-        </span>
+      {showImage ? (
+        <img
+          src={profilePic!}
+          alt={fullName}
+          referrerPolicy="no-referrer"
+          className="h-full w-full rounded-full object-cover"
+          loading="eager"
+          decoding="sync"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center rounded-full bg-[#1A1A1A] text-white font-semibold">
+          {initials}
+        </div>
       )}
     </div>
   );
@@ -554,7 +537,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           }
         };
       }
-    } catch {}
+    } catch { }
     return undefined;
   }, []);
 
@@ -971,7 +954,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
             const payload = JSON.parse(window.atob(base64));
             if (payload.exp) expTime = payload.exp * 1000;
-          } catch (_) {}
+          } catch (_) { }
         }
       }
 
@@ -1031,144 +1014,119 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         >
           <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
 
-              {/* Left: Brand Logo */}
-              <div className="flex h-full items-center gap-10 lg:gap-12">
+            {/* Left: Brand Logo */}
+            <div className="flex h-full items-center gap-10 lg:gap-12">
+              <Link
+                to="/onboarding"
+                className="inline-flex items-center gap-[8px] no-underline select-none hover:opacity-80 transition-opacity duration-150 shrink-0"
+                aria-label="Outly home"
+              >
+                <Send size={20} strokeWidth={1.8} className="shrink-0 text-[#12A394]" />
+                <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em', color: '#12A394', lineHeight: 1 }}>Outly</span>
+              </Link>
+
+              {/* Middle: Desktop Links & Dropdowns */}
+              <nav className="hidden h-full items-center gap-1.5 font-sans md:flex relative">
+                {MEGA_MENUS.map((menu) => {
+                  const isOpen = activeDropdown === menu.key;
+                  const isPageActive =
+                    (menu.key === "resumes" && isResumeActive) ||
+                    (menu.key === "jobs" && isJobsActive) ||
+                    (menu.key === "tools" && isToolsActive);
+
+                  return (
+                    <button
+                      key={menu.key}
+                      ref={(el) => { triggerRefs.current[menu.key] = el; }}
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-haspopup="true"
+                      aria-controls={`mn-panel-${menu.key}`}
+                      onClick={() => toggleDropdown(menu.key)}
+                      onMouseEnter={() => openDropdown(menu.key)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
+                          e.preventDefault();
+                          openDropdown(menu.key);
+                        }
+                      }}
+                      className={`mn-trigger ${isOpen || isPageActive ? "is-active" : ""}`}
+                    >
+                      <span>{menu.label}</span>
+                      <ChevronDown className="mn-chevron" />
+                    </button>
+                  );
+                })}
+
+                {/* Standalone Link: PRICING */}
+                {isDemo ? (
+                  <button
+                    type="button"
+                    onClick={() => handleLockedDemoFeature("Pricing & Billing")}
+                    className="mn-trigger text-[#403E3B] font-medium"
+                  >
+                    <span>Pricing</span>
+                    <Lock className="w-3 h-3 text-amber-600/70 ml-1" />
+                  </button>
+                ) : (
+                  <Link
+                    to="/pricing"
+                    className={`mn-trigger ${isPricingActive ? "is-active" : ""}`}
+                  >
+                    <span>Pricing</span>
+                  </Link>
+                )}
+
+                {/* Standalone Link: SUPPORT */}
                 <Link
-                  to="/onboarding"
-                  className="inline-flex items-center gap-[8px] no-underline select-none hover:opacity-80 transition-opacity duration-150 shrink-0"
-                  aria-label="Outly home"
+                  to="/support"
+                  className={`mn-trigger ${isSupportActive ? "is-active" : ""}`}
                 >
-                  <Send size={20} strokeWidth={1.8} className="shrink-0 text-[#12A394]" />
-                  <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em', color: '#12A394', lineHeight: 1 }}>Outly</span>
+                  <span>Support</span>
                 </Link>
 
-                {/* Middle: Desktop Links & Dropdowns */}
-                <nav className="hidden h-full items-center gap-1.5 font-sans md:flex relative">
-                  {MEGA_MENUS.map((menu) => {
-                    const isOpen = activeDropdown === menu.key;
-                    const isPageActive =
-                      (menu.key === "resumes" && isResumeActive) ||
-                      (menu.key === "jobs" && isJobsActive) ||
-                      (menu.key === "tools" && isToolsActive);
+                {/* Mega Panel Floating Card (Anchored to Nav/Resume Section) */}
+                <div
+                  className={`mn-dropdown-floating ${activeDropdown ? "is-open" : ""}`}
+                  aria-hidden={!activeDropdown}
+                  onMouseEnter={() => {
+                    if (dropdownCloseTimer.current) {
+                      window.clearTimeout(dropdownCloseTimer.current);
+                      dropdownCloseTimer.current = null;
+                    }
+                  }}
+                  onMouseLeave={scheduleDropdownClose}
+                >
+                  <div className="mn-panel-inner">
+                    <AnimatePresence mode="wait" initial={false}>
+                      {activeDropdown && (
+                        <m.div
+                          key={activeDropdown}
+                          id={`mn-panel-${activeDropdown}`}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15, ease: "easeInOut" }}
+                          className="mn-panel-grid"
+                        >
+                          {MEGA_MENUS.find((m) => m.key === activeDropdown)?.groups.map((group, gIdx, allGroups) => {
+                            const isLastCol = gIdx === allGroups.length - 1;
+                            const currentMenu = MEGA_MENUS.find((m) => m.key === activeDropdown);
 
-                    return (
-                      <button
-                        key={menu.key}
-                        ref={(el) => { triggerRefs.current[menu.key] = el; }}
-                        type="button"
-                        aria-expanded={isOpen}
-                        aria-haspopup="true"
-                        aria-controls={`mn-panel-${menu.key}`}
-                        onClick={() => toggleDropdown(menu.key)}
-                        onMouseEnter={() => openDropdown(menu.key)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
-                            e.preventDefault();
-                            openDropdown(menu.key);
-                          }
-                        }}
-                        className={`mn-trigger ${isOpen || isPageActive ? "is-active" : ""}`}
-                      >
-                        <span>{menu.label}</span>
-                        <ChevronDown className="mn-chevron" />
-                      </button>
-                    );
-                  })}
+                            return (
+                              <div key={group.heading} className="mn-column">
+                                <div className="mn-heading">{group.heading}</div>
+                                <div>
+                                  {group.items.map((item) => {
+                                    const IconComponent = item.icon;
 
-                  {/* Standalone Link: PRICING */}
-                  {isDemo ? (
-                    <button
-                      type="button"
-                      onClick={() => handleLockedDemoFeature("Pricing & Billing")}
-                      className="mn-trigger text-[#403E3B] font-medium"
-                    >
-                      <span>Pricing</span>
-                      <Lock className="w-3 h-3 text-amber-600/70 ml-1" />
-                    </button>
-                  ) : (
-                    <Link
-                      to="/pricing"
-                      className={`mn-trigger ${isPricingActive ? "is-active" : ""}`}
-                    >
-                      <span>Pricing</span>
-                    </Link>
-                  )}
-
-                  {/* Standalone Link: SUPPORT */}
-                  <Link
-                    to="/support"
-                    className={`mn-trigger ${isSupportActive ? "is-active" : ""}`}
-                  >
-                    <span>Support</span>
-                  </Link>
-
-                  {/* Mega Panel Floating Card (Anchored to Nav/Resume Section) */}
-                  <div
-                    className={`mn-dropdown-floating ${activeDropdown ? "is-open" : ""}`}
-                    aria-hidden={!activeDropdown}
-                    onMouseEnter={() => {
-                      if (dropdownCloseTimer.current) {
-                        window.clearTimeout(dropdownCloseTimer.current);
-                        dropdownCloseTimer.current = null;
-                      }
-                    }}
-                    onMouseLeave={scheduleDropdownClose}
-                  >
-                    <div className="mn-panel-inner">
-                      <AnimatePresence mode="wait" initial={false}>
-                        {activeDropdown && (
-                          <m.div
-                            key={activeDropdown}
-                            id={`mn-panel-${activeDropdown}`}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.15, ease: "easeInOut" }}
-                            className="mn-panel-grid"
-                          >
-                            {MEGA_MENUS.find((m) => m.key === activeDropdown)?.groups.map((group, gIdx, allGroups) => {
-                              const isLastCol = gIdx === allGroups.length - 1;
-                              const currentMenu = MEGA_MENUS.find((m) => m.key === activeDropdown);
-
-                              return (
-                                <div key={group.heading} className="mn-column">
-                                  <div className="mn-heading">{group.heading}</div>
-                                  <div>
-                                    {group.items.map((item) => {
-                                      const IconComponent = item.icon;
-
-                                      if (item.href) {
-                                        return (
-                                          <Link
-                                            key={item.title}
-                                            to={item.href}
-                                            tabIndex={activeDropdown ? 0 : -1}
-                                            onClick={() => setActiveDropdown(null)}
-                                            className="mn-item"
-                                          >
-                                            <div className="mn-icon-tile">
-                                              <IconComponent size={16} strokeWidth={1.6} />
-                                            </div>
-                                            <div className="mn-text-col">
-                                              <div className="mn-title-row">
-                                                <span className="mn-title">{item.title}</span>
-                                                {item.badge && <span className="mn-badge">{item.badge}</span>}
-                                              </div>
-                                              <span className="mn-desc">{item.desc}</span>
-                                            </div>
-                                          </Link>
-                                        );
-                                      }
-
+                                    if (item.href) {
                                       return (
-                                        <button
+                                        <Link
                                           key={item.title}
-                                          type="button"
+                                          to={item.href}
                                           tabIndex={activeDropdown ? 0 : -1}
-                                          onClick={() => {
-                                            setActiveDropdown(null);
-                                            if (item.guideKey) setActiveGuide(item.guideKey);
-                                          }}
+                                          onClick={() => setActiveDropdown(null)}
                                           className="mn-item"
                                         >
                                           <div className="mn-icon-tile">
@@ -1181,47 +1139,72 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                             </div>
                                             <span className="mn-desc">{item.desc}</span>
                                           </div>
-                                        </button>
+                                        </Link>
                                       );
-                                    })}
-                                  </div>
+                                    }
 
-                                  {/* Optional footer link at the bottom of the last column */}
-                                  {isLastCol && currentMenu?.footerLink && (
-                                    currentMenu.footerLink.href ? (
-                                      <Link
-                                        to={currentMenu.footerLink.href}
-                                        tabIndex={activeDropdown ? 0 : -1}
-                                        onClick={() => setActiveDropdown(null)}
-                                        className="mn-footer-link"
-                                      >
-                                        <span>{currentMenu.footerLink.label}</span>
-                                        <ArrowRight size={14} strokeWidth={1.6} />
-                                      </Link>
-                                    ) : (
+                                    return (
                                       <button
+                                        key={item.title}
                                         type="button"
                                         tabIndex={activeDropdown ? 0 : -1}
                                         onClick={() => {
                                           setActiveDropdown(null);
-                                          if (currentMenu.footerLink?.guideKey) setActiveGuide(currentMenu.footerLink.guideKey);
+                                          if (item.guideKey) setActiveGuide(item.guideKey);
                                         }}
-                                        className="mn-footer-link"
+                                        className="mn-item"
                                       >
-                                        <span>{currentMenu.footerLink.label}</span>
-                                        <ArrowRight size={14} strokeWidth={1.6} />
+                                        <div className="mn-icon-tile">
+                                          <IconComponent size={16} strokeWidth={1.6} />
+                                        </div>
+                                        <div className="mn-text-col">
+                                          <div className="mn-title-row">
+                                            <span className="mn-title">{item.title}</span>
+                                            {item.badge && <span className="mn-badge">{item.badge}</span>}
+                                          </div>
+                                          <span className="mn-desc">{item.desc}</span>
+                                        </div>
                                       </button>
-                                    )
-                                  )}
+                                    );
+                                  })}
                                 </div>
-                              );
-                            })}
-                          </m.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+
+                                {/* Optional footer link at the bottom of the last column */}
+                                {isLastCol && currentMenu?.footerLink && (
+                                  currentMenu.footerLink.href ? (
+                                    <Link
+                                      to={currentMenu.footerLink.href}
+                                      tabIndex={activeDropdown ? 0 : -1}
+                                      onClick={() => setActiveDropdown(null)}
+                                      className="mn-footer-link"
+                                    >
+                                      <span>{currentMenu.footerLink.label}</span>
+                                      <ArrowRight size={14} strokeWidth={1.6} />
+                                    </Link>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      tabIndex={activeDropdown ? 0 : -1}
+                                      onClick={() => {
+                                        setActiveDropdown(null);
+                                        if (currentMenu.footerLink?.guideKey) setActiveGuide(currentMenu.footerLink.guideKey);
+                                      }}
+                                      className="mn-footer-link"
+                                    >
+                                      <span>{currentMenu.footerLink.label}</span>
+                                      <ArrowRight size={14} strokeWidth={1.6} />
+                                    </button>
+                                  )
+                                )}
+                              </div>
+                            );
+                          })}
+                        </m.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                </nav>
+                </div>
+              </nav>
             </div>
 
             {/* Right Side: Profile initials & Logout CTA */}
@@ -1270,50 +1253,50 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </button>
 
                 <AnimatePresence>
-                {notificationsOpen && (
-                  <m.div
-                    variants={popoverVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    style={{ transformOrigin: "top right" }}
-                    className="absolute right-0 top-full mt-2.5 w-[300px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2"
-                  >
-                    <div className="px-4 py-2 border-b border-zinc-100 flex items-center justify-between">
-                      <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={markAllNotificationsAsRead}
-                          className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
-                        >
-                          Mark all as read
-                        </button>
-                      )}
-                    </div>
-                    <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
-                      {notifications.length === 0 ? (
-                        <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
-                          No notifications yet
-                        </div>
-                      ) : (
-                        notifications.map(item => (
-                          <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
-                            {!item.read && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-start gap-2">
-                                <span className="text-[11.5px] font-bold text-zinc-800 truncate">{item.title}</span>
-                                <span className="text-[8.5px] text-zinc-400 font-medium shrink-0">{item.time}</span>
-                              </div>
-                              <p className="text-[10px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
-                            </div>
+                  {notificationsOpen && (
+                    <m.div
+                      variants={popoverVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      style={{ transformOrigin: "top right" }}
+                      className="absolute right-0 top-full mt-2.5 w-[300px] rounded-2xl bg-card border border-[#e8e2d5] font-sans shadow-xl z-[125] py-2"
+                    >
+                      <div className="px-4 py-2 border-b border-zinc-100 flex items-center justify-between">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={markAllNotificationsAsRead}
+                            className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
+                          >
+                            Mark all as read
+                          </button>
+                        )}
+                      </div>
+                      <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
+                        {notifications.length === 0 ? (
+                          <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
+                            No notifications yet
                           </div>
-                        ))
-                      )}
-                    </div>
-                  </m.div>
-                )}
+                        ) : (
+                          notifications.map(item => (
+                            <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
+                              {!item.read && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start gap-2">
+                                  <span className="text-[11.5px] font-bold text-zinc-800 truncate">{item.title}</span>
+                                  <span className="text-[8.5px] text-zinc-400 font-medium shrink-0">{item.time}</span>
+                                </div>
+                                <p className="text-[10px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </m.div>
+                  )}
                 </AnimatePresence>
               </div>
 
@@ -1330,89 +1313,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 <AnimatePresence>
                 {profileMenuOpen && (
-                  <m.div
-                    variants={popoverVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    style={{ transformOrigin: "top right" }}
-                    className="absolute right-0 top-full mt-2 w-48 rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[120] py-1.5 overflow-hidden"
-                  >
-                    <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
-                      {fullName}
-                    </div>
-                    {isDemo ? (
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          handleLockedDemoFeature("Upgrading to Pro");
-                        }}
-                        className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
-                          <span>Upgrade to Pro</span>
-                        </div>
-                        <Lock className="h-3 w-3 text-amber-600/70" />
-                      </button>
-                    ) : isPremium ? (
-                      <div className="px-3 py-2.5 border-b border-[#e8e2d5] bg-primary/5 flex items-center gap-2 select-none">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
-                          Cloud Pro Active
-                        </span>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          navigate("/pricing");
-                        }}
-                        className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
-                      >
-                        <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
-                        Upgrade to Pro
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        if (isDemo) {
-                          handleLockedDemoFeature("Settings");
-                        } else {
-                          navigate("/settings");
-                        }
-                      }}
-                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <SettingsIcon className="h-3.5 w-3.5" />
-                        <span>Settings</span>
-                      </div>
-                      {isDemo && <Lock className="h-3 w-3 text-amber-600/70" />}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        navigate("/support");
-                      }}
-                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
-                    >
-                      <HelpCircle className="h-3.5 w-3.5 text-outly-accent" />
-                      Support &amp; Help
-                    </button>
-                    <div className="h-px bg-[#e8e2d5] my-1" />
-                    <button
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        handleLogout();
-                      }}
-                      className="w-full text-left text-xs font-semibold text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
-                    >
-                      <LogOut className="h-3.5 w-3.5" />
-                      Sign Out
-                    </button>
-                  </m.div>
+                  <ProfileDropdownMenu
+                    isPremium={isPremium}
+                    profilePic={profilePic}
+                    fullName={fullName}
+                    initials={initials}
+                    userEmail={userEmail}
+                    isDemo={isDemo}
+                    onClose={() => setProfileMenuOpen(false)}
+                    onNavigate={navigate}
+                    onLogout={handleLogout}
+                    onLockedFeature={handleLockedDemoFeature}
+                  />
                 )}
                 </AnimatePresence>
               </div>
@@ -1434,50 +1346,50 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </button>
 
                 <AnimatePresence>
-                {notificationsOpen && (
-                  <m.div
-                    variants={popoverVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    style={{ transformOrigin: "top right" }}
-                    className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[125] py-2.5"
-                  >
-                    <div className="px-4 pb-2 border-b border-zinc-50 flex items-center justify-between">
-                      <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={markAllNotificationsAsRead}
-                          className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
-                        >
-                          Mark all as read
-                        </button>
-                      )}
-                    </div>
-                    <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
-                      {notifications.length === 0 ? (
-                        <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
-                          No notifications yet
-                        </div>
-                      ) : (
-                        notifications.map(item => (
-                          <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
-                            {!item.read && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-start gap-2">
-                                <span className="text-[12px] font-bold text-zinc-800 truncate">{item.title}</span>
-                                <span className="text-[9px] text-zinc-400 font-medium shrink-0">{item.time}</span>
-                              </div>
-                              <p className="text-[10.5px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
-                            </div>
+                  {notificationsOpen && (
+                    <m.div
+                      variants={popoverVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      style={{ transformOrigin: "top right" }}
+                      className="absolute right-[-48px] top-full mt-2 w-[280px] rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[125] py-2.5"
+                    >
+                      <div className="px-4 pb-2 border-b border-zinc-50 flex items-center justify-between">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-zinc-500">Notifications</span>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={markAllNotificationsAsRead}
+                            className="text-[10px] font-extrabold text-[#f23c5d] hover:underline"
+                          >
+                            Mark all as read
+                          </button>
+                        )}
+                      </div>
+                      <div className="divide-y divide-zinc-50 max-h-60 overflow-y-auto">
+                        {notifications.length === 0 ? (
+                          <div className="px-4 py-6 text-center text-xs text-zinc-400 font-semibold">
+                            No notifications yet
                           </div>
-                        ))
-                      )}
-                    </div>
-                  </m.div>
-                )}
+                        ) : (
+                          notifications.map(item => (
+                            <div key={item.id} className="px-4 py-3 text-left transition-colors hover:bg-zinc-50/50 flex gap-2.5 items-start">
+                              {!item.read && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#f23c5d] shrink-0 mt-1.5" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start gap-2">
+                                  <span className="text-[12px] font-bold text-zinc-800 truncate">{item.title}</span>
+                                  <span className="text-[9px] text-zinc-400 font-medium shrink-0">{item.time}</span>
+                                </div>
+                                <p className="text-[10.5px] text-zinc-500 leading-normal mt-0.5 font-medium">{item.description}</p>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </m.div>
+                  )}
                 </AnimatePresence>
               </div>
 
@@ -1500,91 +1412,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 <AnimatePresence>
                 {profileMenuOpen && (
-                  <m.div
-                    variants={popoverVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    style={{ transformOrigin: "top right" }}
-                    className="absolute right-0 top-full mt-2 w-48 rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[120] py-1.5 overflow-hidden"
-                  >
-                    <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#f0ece4]">
-                      {fullName}
-                    </div>
-
-                    {isDemo ? (
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          handleLockedDemoFeature("Upgrading to Pro");
-                        }}
-                        className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
-                          <span>Upgrade to Pro</span>
-                        </div>
-                        <Lock className="h-3 w-3 text-amber-600/70" />
-                      </button>
-                    ) : isPremium ? (
-                      <div className="px-3 py-2.5 border-b border-[#f0ece4] bg-primary/5 flex items-center gap-2 select-none">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
-                          Cloud Pro Active
-                        </span>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          navigate("/pricing");
-                        }}
-                        className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
-                      >
-                        <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
-                        Upgrade to Pro
-                      </button>
-                    )}
-
-                    <button
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        if (isDemo) {
-                          handleLockedDemoFeature("Settings");
-                        } else {
-                          navigate("/settings");
-                        }
-                      }}
-                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <SettingsIcon className="h-3.5 w-3.5" />
-                        <span>Settings</span>
-                      </div>
-                      {isDemo && <Lock className="h-3 w-3 text-amber-600/70" />}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        navigate("/support");
-                      }}
-                      className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
-                    >
-                      <HelpCircle className="h-3.5 w-3.5 text-outly-accent" />
-                      Support &amp; Help
-                    </button>
-                    <div className="h-px bg-[#e8e2d5] my-1" />
-                    <button
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        handleLogout();
-                      }}
-                      className="w-full text-left text-xs font-semibold text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
-                    >
-                      <LogOut className="h-3.5 w-3.5" />
-                      Sign Out
-                    </button>
-                  </m.div>
+                  <ProfileDropdownMenu
+                    isPremium={isPremium}
+                    profilePic={profilePic}
+                    fullName={fullName}
+                    initials={initials}
+                    userEmail={userEmail}
+                    isDemo={isDemo}
+                    onClose={() => setProfileMenuOpen(false)}
+                    onNavigate={navigate}
+                    onLogout={handleLogout}
+                    onLockedFeature={handleLockedDemoFeature}
+                  />
                 )}
                 </AnimatePresence>
               </div>
@@ -1594,7 +1433,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
-      <main className="flex-1 w-full flex flex-col min-h-0 pb-16 md:pb-0 overflow-x-clip">
+      <main className="flex-1 w-full flex flex-col min-h-0 pb-24 md:pb-0 overflow-x-clip">
         {children}
       </main>
 

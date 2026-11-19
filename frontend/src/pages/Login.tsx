@@ -100,18 +100,28 @@ function loadGoogleGsi(): Promise<void> {
       resolve();
       return;
     }
-    const existing = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
-    if (existing) {
-      resolve();
-      return;
+    let script = document.querySelector('script[src*="accounts.google.com/gsi/client"]') as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
     }
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () => resolve();
-    document.head.appendChild(script);
+    const check = () => {
+      if (typeof (window as any).google?.accounts !== "undefined") {
+        resolve();
+      }
+    };
+    script.addEventListener("load", check);
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if (typeof (window as any).google?.accounts !== "undefined" || attempts > 30) {
+        clearInterval(interval);
+        resolve();
+      }
+    }, 50);
   });
 }
 
@@ -155,6 +165,10 @@ export default function Login() {
     await loadGoogleGsi();
 
     const google = (window as any).google;
+    const clientId =
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      "1093257173105-1go6agnd7q3bm7akap29l9kom9lkarpo.apps.googleusercontent.com";
+
     if (typeof google === "undefined" || !google.accounts) {
       try {
         const res = await api.auth.googleLogin("mock_bypass_token");
@@ -169,11 +183,11 @@ export default function Login() {
 
     try {
       const client = google.accounts.oauth2.initTokenClient({
-        client_id: "137235712014-et2q796j1m13efh3qacdlkdbom3o11b4.apps.googleusercontent.com",
+        client_id: clientId,
         scope: "email profile openid",
         callback: async (response: any) => {
           if (response.error) {
-            toast({ title: "Google sign-in failed", description: "Unable to authenticate. Please try again.", variant: "destructive" });
+            toast({ title: "Google sign-in failed", description: response.error_description || "Unable to authenticate. Please try again.", variant: "destructive" });
             setIsGoogleLoading(false);
             return;
           }

@@ -317,6 +317,7 @@ router.post("/signup", async (req, res) => {
         id: user._id.toString(),
         email: user.email,
         fullName: user.fullName,
+        profilePic: user.profilePic || "",
         plan: user.plan,
         createdAt: user.createdAt
       }
@@ -354,17 +355,24 @@ router.post("/google", async (req, res) => {
       payload = {
         email: "bharatdhuva27@gmail.com",
         name: "Bharat Dhuva",
-        picture: "https://lh3.googleusercontent.com/a/default-user=s96-c"
+        picture: ""
       };
-    } else if (accessToken) {
-      const userInfoResponse = await axios.get("https://openidconnect.googleapis.com/v1/userinfo", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      payload = userInfoResponse.data;
-    } else {
+    } else if (typeof googleToken === "string" && googleToken.split(".").length === 3) {
       const verificationUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(googleToken)}`;
       const tokenInfoResponse = await axios.get(verificationUrl);
       payload = tokenInfoResponse.data;
+    } else {
+      try {
+        const userInfoResponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${googleToken}` },
+        });
+        payload = userInfoResponse.data;
+      } catch {
+        const userInfoResponse = await axios.get("https://openidconnect.googleapis.com/v1/userinfo", {
+          headers: { Authorization: `Bearer ${googleToken}` },
+        });
+        payload = userInfoResponse.data;
+      }
     }
 
     if (!payload?.email) {
@@ -373,6 +381,8 @@ router.post("/google", async (req, res) => {
 
     const emailNormalized = payload.email.toLowerCase();
     let user = await User.findOne({ email: emailNormalized });
+
+    const googlePhoto = payload.picture || "";
 
     let isNewUser = false;
     if (!user) {
@@ -384,7 +394,7 @@ router.post("/google", async (req, res) => {
         email: emailNormalized,
         passwordHash,
         fullName: payload.name || "",
-        profilePic: payload.picture || "",
+        profilePic: googlePhoto,
         plan: "free"
       });
 
@@ -394,9 +404,19 @@ router.post("/google", async (req, res) => {
       sendWelcomeMail(user.email, user.fullName || undefined).catch((err) =>
         console.error("Google welcome email trigger error:", err)
       );
-    } else if (payload.picture && user.profilePic !== payload.picture) {
-      user.profilePic = payload.picture;
-      await user.save();
+    } else {
+      let needsSave = false;
+      if (googlePhoto && user.profilePic !== googlePhoto) {
+        user.profilePic = googlePhoto;
+        needsSave = true;
+      }
+      if (payload.name && !user.fullName) {
+        user.fullName = payload.name;
+        needsSave = true;
+      }
+      if (needsSave) {
+        await user.save();
+      }
     }
 
     const token = jwt.sign(
@@ -467,6 +487,7 @@ router.post("/login", async (req, res) => {
         id: user._id.toString(),
         email: user.email,
         fullName: user.fullName,
+        profilePic: user.profilePic || "",
         plan: user.plan,
         createdAt: user.createdAt
       }
@@ -614,6 +635,7 @@ router.post("/upgrade", requireAuth, async (req: AuthenticatedRequest, res: Resp
         id: user._id.toString(),
         email: user.email,
         fullName: user.fullName,
+        profilePic: user.profilePic || "",
         plan: user.plan,
         createdAt: user.createdAt
       },

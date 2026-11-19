@@ -79,9 +79,13 @@ export function DemoSignupModal() {
       return;
     }
 
+    const clientId =
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      "1093257173105-1go6agnd7q3bm7akap29l9kom9lkarpo.apps.googleusercontent.com";
+
     try {
       const client = google.accounts.oauth2.initTokenClient({
-        client_id: "137235712014-et2q796j1m13efh3qacdlkdbom3o11b4.apps.googleusercontent.com",
+        client_id: clientId,
         scope: "email profile openid",
         callback: async (response: any) => {
           if (response.error) {
