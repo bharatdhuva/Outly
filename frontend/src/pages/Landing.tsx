@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Menu, Plane, Plus, Search, Send, ShieldCheck, Target, X } from 'lucide-react'
+import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Plane, Plus, Search, Send, ShieldCheck, Target, X } from 'lucide-react'
 import gmailLogo from '@/assets/logos/google-gmail.svg'
 import calendarLogo from '@/assets/logos/google-calendar.svg'
 import linkedinLogo from '@/assets/logos/linkedin-icon.svg'
@@ -182,7 +182,6 @@ export default function OutlyLanding() {
   const [slide, setSlide] = useState(0)
   const [paused, setPaused] = useState(false)
   const [tapePaused, setTapePaused] = useState(false)
-  const [menu, setMenu] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [yearly, setYearly] = useState(false)
   const [displayPrice, setDisplayPrice] = useState(99)
@@ -272,20 +271,17 @@ export default function OutlyLanding() {
     {createPortal(<nav className="nav-pill" aria-label="Main navigation">
       <Brand />
       <div className="nav-links">{[['features', 'Overview'], ['how-it-works', 'How it works'], ['pricing', 'Pricing'], ['faq', 'FAQ']].map(([id, label]) => <a href={`#${id}`} key={id}>{label}</a>)}</div>
+      <div className="nav-mobile-links">
+        <a href="#features">Overview</a>
+        <a href="#pricing">Pricing</a>
+      </div>
       <div className="nav-actions">
         <a className="nav-signin-link" href="/login">Sign in</a>
-        <button className="mobile-menu" aria-label="Open menu" onClick={() => setMenu(true)}><Menu size={18} /></button>
       </div>
     </nav>, document.body)}
-    {createPortal(<div className={`mobile-sheet${menu ? ' open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setMenu(false) }}>
-      <div className="mobile-sheet-panel">
-        <button className="mobile-sheet-close" onClick={() => setMenu(false)}>✕</button>
-        {[['#features', 'Overview'], ['#how-it-works', 'How it works'], ['#pricing', 'Pricing'], ['#faq', 'FAQ']].map(([href, label]) => <a href={href} key={href} onClick={() => setMenu(false)}>{label}</a>)}
-        <a href="/login" className="mobile-sheet-cta" onClick={() => setMenu(false)}>Sign in</a>
-      </div>
-    </div>, document.body)}
+
     <main id="top" onMouseEnter={() => { }}>
-      <section className="hero" aria-labelledby="hero-title"><h1 id="hero-title"><span className="hero-title-line"><span className="hero-static-your">Your</span><HeroRotator /></span><br /><i>one calm place.</i></h1><p className="hero-copy">Find the right roles, tailor your resume, and keep every application moving.<br />Your whole search, in one calm place.</p><div className="hero-actions"><a className="button button-teal" href="/login">Start your search <ArrowUpRight size={17} /></a><a className="button button-outline" href="#pricing">View pricing</a></div><div className="tool-chips" aria-label="Outly integrations"><div className="tool-chips-track"><div className="tool-chips-set"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div><div className="tool-chips-set" aria-hidden="true"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div></div></div></section>
+      <section className="hero" aria-labelledby="hero-title"><h1 id="hero-title"><span className="hero-title-line"><span className="hero-static-your">Your</span><HeroRotator /></span><br /><i>one place.</i></h1><p className="hero-copy">Find the right roles, tailor your resume, and keep every application moving.<br />Your whole search, in one place.</p><div className="hero-actions"><a className="button button-teal" href="/login">Start your search <ArrowUpRight size={17} /></a><a className="button button-outline" href="#pricing">View pricing</a></div><div className="tool-chips" aria-label="Outly integrations"><div className="tool-chips-track"><div className="tool-chips-set"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div><div className="tool-chips-set" aria-hidden="true"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div></div></div></section>
       <section className="features-section" id="features"><div className="section-heading"><div><h2>Less searching.<br /><i>More actual work.</i></h2></div><p>From the first job description to the interview invite, Outly helps with the parts that take your time.</p></div><div className="bento-grid">{[
         { title: 'Resume ATS score', desc: 'A 27-factor score, clear fixes, and a target worth working toward.', type: 'score', tag: 'know where you stand' },
         { title: 'Resume Tailor', desc: 'Shape your resume around the role without losing your own voice.', type: 'keywords', tag: 'make the match clear' },
