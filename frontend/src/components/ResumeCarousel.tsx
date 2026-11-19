@@ -23,8 +23,8 @@ export default function ResumeCarousel() {
   return (
     <div className="relative flex flex-col items-center justify-center w-full h-[490px] sm:h-[570px] max-w-[460px] mx-auto select-none overflow-visible font-sans">
       
-      {/* Outly #2DC08D Vibrant Ambient Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(45,192,141,0.22),transparent_68%)] rounded-full blur-3xl -z-10 pointer-events-none" />
+      {/* Subtle Ambient Teal Glow matching landing page */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(18,163,148,0.12),transparent_68%)] rounded-full blur-3xl -z-10 pointer-events-none" />
 
       {/* Stacked Cards Deck Container */}
       <div className="relative w-full h-[400px] sm:h-[480px] flex items-center justify-center">
@@ -38,23 +38,23 @@ export default function ResumeCarousel() {
           let filter = "";
 
           if (offset === 0) {
-            // Front / Active Card - Glowing #2DC08D Theme & Elevated Drop Shadow
+            // Front / Active Card - Clean landing page surface & elevated drop shadow
             zIndex = 30;
             transform = "translateY(0px) scale(1) rotate(0deg)";
             opacity = 1;
-            filter = "drop-shadow(0 22px 40px rgba(45,192,141,0.38)) drop-shadow(0 8px 16px rgba(15,23,42,0.06))";
+            filter = "drop-shadow(0 20px 36px rgba(18,163,148,0.22)) drop-shadow(0 4px 12px rgba(0,0,0,0.06))";
           } else if (offset === 1) {
             // Second Card in Deck
             zIndex = 20;
             transform = "translateY(20px) scale(0.92) rotate(3.5deg)";
             opacity = 0.88;
-            filter = "drop-shadow(0 14px 28px rgba(45,192,141,0.2))";
+            filter = "drop-shadow(0 14px 26px rgba(18,163,148,0.12))";
           } else {
             // Third Card in Deck
             zIndex = 10;
             transform = "translateY(38px) scale(0.85) rotate(-3.5deg)";
             opacity = 0.65;
-            filter = "drop-shadow(0 8px 16px rgba(45,192,141,0.12))";
+            filter = "drop-shadow(0 8px 16px rgba(18,163,148,0.08))";
           }
 
           return (
@@ -67,22 +67,22 @@ export default function ResumeCarousel() {
                 opacity,
                 filter,
               }}
-              className="absolute w-[86%] sm:w-[90%] max-w-[350px] aspect-[1/1.42] rounded-2xl overflow-hidden border-2 border-[#2DC08D] bg-white cursor-pointer transition-all duration-700 ease-out hover:scale-[1.015] group shadow-md"
+              className="absolute w-[86%] sm:w-[90%] max-w-[350px] aspect-[1/1.42] rounded-[22px] overflow-hidden border border-black/[0.08] bg-white cursor-pointer transition-all duration-700 ease-out hover:scale-[1.015] group shadow-[0_20px_48px_-8px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.04)]"
             >
-              {/* Card Header Bar - Full Vibrant #2DC08D Brand Theme */}
-              <div className="h-9 w-full bg-[#2DC08D] px-3.5 flex items-center justify-between shrink-0 select-none text-white shadow-xs">
+              {/* Card Header Bar - Landing Page Ink Aesthetic */}
+              <div className="h-9 w-full bg-[#111111] px-3.5 flex items-center justify-between shrink-0 select-none text-white shadow-xs">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-white/40" />
                   <div className="w-2.5 h-2.5 rounded-full bg-white/70" />
                   <div className="w-2.5 h-2.5 rounded-full bg-white" />
                 </div>
                 
-                <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/30 text-[10px] font-bold text-white tracking-wide">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/15 text-[10px] font-medium text-white/90 tracking-wide">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#12A394] animate-pulse" />
                   <span>outly.online/resume</span>
                 </div>
 
-                <span className="text-[10px] font-black bg-white text-[#2DC08D] px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+                <span className="text-[10px] font-semibold bg-[#12A394] text-white px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
                   ATS 98%
                 </span>
               </div>
@@ -105,20 +105,20 @@ export default function ResumeCarousel() {
         })}
       </div>
 
-      {/* Active Card Title & Indicator Controls - #2DC08D Matched Styling */}
+      {/* Active Card Title & Indicator Controls - Matched Landing Page Styling */}
       <div className="flex flex-col items-center gap-3.5 mt-6 z-40">
         
         {/* Template Badge */}
-        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border-2 border-[#2DC08D] shadow-sm animate-fade-in">
-          <span className="text-xs font-extrabold text-[#2d3639]">
+        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f7f7f5] border border-black/[0.08] shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+          <span className="text-xs font-semibold text-[#111111]">
             {RESUME_IMAGES[activeIndex].title}
           </span>
-          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#2DC08D] text-white shadow-xs">
+          <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#12A394] text-white shadow-xs">
             {RESUME_IMAGES[activeIndex].tag}
           </span>
         </div>
 
-        {/* Brand Matched Dot Indicators */}
+        {/* Matched Dot Indicators */}
         <div className="flex items-center gap-2">
           {RESUME_IMAGES.map((_, index) => (
             <button
@@ -127,8 +127,8 @@ export default function ResumeCarousel() {
               onClick={() => setActiveIndex(index)}
               className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
                 activeIndex === index
-                  ? "w-8 bg-[#2DC08D] shadow-[0_2px_10px_rgba(45,192,141,0.5)]"
-                  : "w-2.5 bg-[#2DC08D]/25 hover:bg-[#2DC08D]/60"
+                  ? "w-8 bg-[#12A394] shadow-[0_2px_8px_rgba(18,163,148,0.35)]"
+                  : "w-2.5 bg-black/15 hover:bg-black/30"
               }`}
               aria-label={`Go to resume template ${index + 1}`}
             />
