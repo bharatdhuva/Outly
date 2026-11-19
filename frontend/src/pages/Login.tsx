@@ -26,7 +26,7 @@ import "./Login.css";
 function LoginBrand() {
   return (
     <span className="login-brand">
-      <span className="login-brand-mark"><img src="/favicon.png" alt="Outly" className="h-6 w-6 shrink-0 object-contain rounded-md" /></span>
+      <span className="login-brand-mark"><Send size={23} strokeWidth={2} /></span>
       <span>Outly</span>
     </span>
   );
@@ -199,7 +199,7 @@ export default function Login() {
     const google = (window as any).google;
     const clientId =
       import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-      "1093257173105-1go6agnd7q3bm7akap29l9kom9lkarpo.apps.googleusercontent.com";
+      "137235712014-et2q796j1m13efh3qacdlkdbom3o11b4.apps.googleusercontent.com";
 
     if (typeof google === "undefined" || !google.accounts) {
       clearTimeout(safetyTimer);

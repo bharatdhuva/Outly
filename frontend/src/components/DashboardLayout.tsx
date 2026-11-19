@@ -286,6 +286,10 @@ function PlanStatusAvatar({
 }) {
   const [imgError, setImgError] = useState(false);
 
+  useEffect(() => {
+    setImgError(false);
+  }, [profilePic]);
+
   // If profilePic exists, is not the generic default placeholder, and hasn't errored
   const isDefaultPlaceholder =
     typeof profilePic === "string" && profilePic.includes("default-user=");
@@ -355,38 +359,41 @@ function ProfileDropdownMenu({
             fullName={fullName}
             initials={initials}
             sizeClass="h-10 w-10 text-xs"
-            showProBadge={true}
           />
           <div className="flex-1 min-w-0">
             <div className="text-[13px] font-bold text-neutral-900 truncate tracking-tight">
               {fullName}
             </div>
-            <div className="text-[11px] text-neutral-500 font-normal truncate mt-0.5">
-              {userEmail}
-            </div>
+            {userEmail && userEmail !== "anonymous" && (
+              <div className="text-[11px] text-neutral-500 font-normal truncate mt-0.5">
+                {userEmail}
+              </div>
+            )}
           </div>
         </div>
 
         {/* PRO STATUS / UPGRADE PILL */}
         {isDemo ? (
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              onLockedFeature("Upgrading to Pro");
-            }}
-            className="mt-2.5 w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-700 hover:bg-amber-500/15 transition-colors cursor-pointer"
-          >
+          <div className="mt-2.5 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-800">
             <div className="flex items-center gap-1.5">
-              <Zap className="h-3 w-3 fill-amber-500 text-amber-500" />
+              <Zap className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
               <span className="text-[10px] font-bold uppercase tracking-wider">Demo Account</span>
             </div>
-            <span className="text-[10.5px] font-semibold text-amber-600 underline underline-offset-2">Upgrade</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onLockedFeature("Upgrading to Pro");
+              }}
+              className="text-[10.5px] font-bold text-amber-700 hover:text-amber-900 underline underline-offset-2 cursor-pointer"
+            >
+              Upgrade
+            </button>
+          </div>
         ) : isPremium ? (
           <div className="mt-2.5 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#12A394]/10 border border-[#12A394]/20 text-[#12A394] select-none">
             <div className="flex items-center gap-1.5">
-              <Sparkles className="h-3 w-3 fill-[#12A394] text-[#12A394]" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-[#12A394]" />
               <span className="text-[10.5px] font-bold uppercase tracking-wider">Cloud Pro Active</span>
             </div>
             <span className="text-[10px] font-semibold text-[#12A394]/80">Unlimited</span>
@@ -417,13 +424,13 @@ function ProfileDropdownMenu({
             onClose();
             onNavigate("/pricing");
           }}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-2.5">
             <Sparkles className="h-3.5 w-3.5 text-[#12A394]" />
             <span>Pricing &amp; Plans</span>
           </div>
-          <span className="text-[10px] text-neutral-400 font-mono">₹9/mo</span>
+          <span className="text-[10.5px] text-neutral-400 font-mono group-hover:text-neutral-600">₹9/mo</span>
         </button>
 
         <button
@@ -1047,7 +1054,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 className="inline-flex items-center gap-[8px] no-underline select-none hover:opacity-80 transition-opacity duration-150 shrink-0"
                 aria-label="Outly home"
               >
-                <img src="/favicon.png" alt="Outly" className="h-[22px] w-[22px] shrink-0 object-contain rounded-md" />
+                <Send size={20} strokeWidth={2} className="shrink-0 text-[#12A394]" />
                 <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em', color: '#12A394', lineHeight: 1 }}>Outly</span>
               </Link>
 
@@ -1339,91 +1346,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                 <AnimatePresence>
                   {profileMenuOpen && (
-                    <m.div
-                      variants={popoverVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      style={{ transformOrigin: "top right" }}
-                      className="absolute right-0 top-full mt-2 w-48 rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[120] py-1.5 overflow-hidden"
-                    >
-                      <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#e8e2d5]">
-                        {fullName}
-                      </div>
-                      {isDemo ? (
-                        <button
-                          onClick={() => {
-                            setProfileMenuOpen(false);
-                            handleLockedDemoFeature("Upgrading to Pro");
-                          }}
-                          className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
-                            <span>Upgrade to Pro</span>
-                          </div>
-                          <Lock className="h-3 w-3 text-amber-600/70" />
-                        </button>
-                      ) : isPremium ? (
-                        <div className="px-3 py-2.5 border-b border-[#e8e2d5] bg-primary/5 flex items-center gap-2 select-none">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-                          <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
-                            Cloud Pro Active
-                          </span>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            setProfileMenuOpen(false);
-                            navigate("/pricing");
-                          }}
-                          className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
-                        >
-                          <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
-                          Upgrade to Pro
-                        </button>
-                      )}
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          if (isDemo) {
-                            handleLockedDemoFeature("Settings");
-                          } else {
-                            navigate("/settings");
-                          }
-                        }}
-                        className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          <SettingsIcon className="h-3.5 w-3.5" />
-                          <span>Settings</span>
-                        </div>
-                        {isDemo && <Lock className="h-3 w-3 text-amber-600/70" />}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          navigate("/support");
-                        }}
-                        className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
-                      >
-                        <HelpCircle className="h-3.5 w-3.5 text-outly-accent" />
-                        Support &amp; Help
-                      </button>
-                      <div className="h-px bg-[#e8e2d5] my-1" />
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          handleLogout();
-                        }}
-                        className="w-full text-left text-xs font-semibold text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
-                      >
-                        <LogOut className="h-3.5 w-3.5" />
-                        Sign Out
-                      </button>
-                    </m.div>
-                  )}
-                  {profileMenuOpen && (
                     <ProfileDropdownMenu
                       isPremium={isPremium}
                       profilePic={profilePic}
@@ -1522,93 +1444,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </button>
 
                 <AnimatePresence>
-                  {profileMenuOpen && (
-                    <m.div
-                      variants={popoverVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      style={{ transformOrigin: "top right" }}
-                      className="absolute right-0 top-full mt-2 w-48 rounded-2xl bg-white/98 backdrop-blur-xl border border-[#E8E8E6] font-sans shadow-[0_16px_40px_-8px_rgba(20,25,30,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-[120] py-1.5 overflow-hidden"
-                    >
-                      <div className="px-3 py-2 text-[11.5px] font-bold text-outly-dark/70 border-b border-[#f0ece4]">
-                        {fullName}
-                      </div>
-
-                      {isDemo ? (
-                        <button
-                          onClick={() => {
-                            setProfileMenuOpen(false);
-                            handleLockedDemoFeature("Upgrading to Pro");
-                          }}
-                          className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
-                            <span>Upgrade to Pro</span>
-                          </div>
-                          <Lock className="h-3 w-3 text-amber-600/70" />
-                        </button>
-                      ) : isPremium ? (
-                        <div className="px-3 py-2.5 border-b border-[#f0ece4] bg-primary/5 flex items-center gap-2 select-none">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-                          <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
-                            Cloud Pro Active
-                          </span>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            setProfileMenuOpen(false);
-                            navigate("/pricing");
-                          }}
-                          className="w-full text-left text-xs font-semibold text-amber-600 hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors border-b border-[#e8e2d5]"
-                        >
-                          <Zap className="h-3.5 w-3.5 fill-amber-500/10 text-amber-500" />
-                          Upgrade to Pro
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          if (isDemo) {
-                            handleLockedDemoFeature("Settings");
-                          } else {
-                            navigate("/settings");
-                          }
-                        }}
-                        className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center justify-between px-3 py-2.5 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          <SettingsIcon className="h-3.5 w-3.5" />
-                          <span>Settings</span>
-                        </div>
-                        {isDemo && <Lock className="h-3 w-3 text-amber-600/70" />}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          navigate("/support");
-                        }}
-                        className="w-full text-left text-xs font-semibold text-outly-dark hover:bg-black/5 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
-                      >
-                        <HelpCircle className="h-3.5 w-3.5 text-outly-accent" />
-                        Support &amp; Help
-                      </button>
-                      <div className="h-px bg-[#e8e2d5] my-1" />
-                      <button
-                        onClick={() => {
-                          setProfileMenuOpen(false);
-                          handleLogout();
-                        }}
-                        className="w-full text-left text-xs font-semibold text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-2 px-3 py-2.5 transition-colors"
-                      >
-                        <LogOut className="h-3.5 w-3.5" />
-                        Sign Out
-                      </button>
-                    </m.div>
-                  )}
                   {profileMenuOpen && (
                     <ProfileDropdownMenu
                       isPremium={isPremium}

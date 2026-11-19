@@ -76,7 +76,7 @@ function HeroRotator() {
   )
 }
 
-function Brand() { return <a className="brand" href="#top" aria-label="Outly home" onClick={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}><span className="brand-mark"><img src="/favicon.png" alt="Outly" style={{ width: 22, height: 22, objectFit: 'contain', borderRadius: 4 }} /></span><span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, letterSpacing: '-0.02em' }}>Outly</span></a> }
+function Brand() { return <a className="brand" href="#top" aria-label="Outly home" onClick={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}><span className="brand-mark"><Send size={20} strokeWidth={2} /></span><span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, letterSpacing: '-0.02em' }}>Outly</span></a> }
 
 function MiniWindow({ type }: { type: string }) {
   if (type === 'score') return <div className="mini-window score-ui"><div className="mini-top"><span>role match</span><span className="tiny-dot" /> Product designer · Stripe</div><div className="score-layout"><div className="score-ring"><span>86<small>%</small></span></div><div className="score-lines"><b>strong match</b><span>keyword coverage</span><div className="meter"><i style={{ width: '86%' }} /></div><span>recruiter fixes</span><div className="meter"><i style={{ width: '72%' }} /></div><small>3 keywords to add</small></div></div></div>
