@@ -104,36 +104,13 @@ export default function Login() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState<string | null>(null);
-  const [isWakingServer, setIsWakingServer] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
     const token = localStorage.getItem("outly_token");
     if (token) { navigate("/onboarding"); return; }
     document.title = "Outly — Sign In";
-
-    // Warm up backend
-    let isSlow = false;
-    const timeoutId = setTimeout(() => {
-      isSlow = true;
-      setIsWakingServer(true);
-      toast({
-        title: "Connecting to server",
-        description: "The free hosting tier was sleeping. Booting now — takes about 20 seconds.",
-        duration: 10000,
-      });
-    }, 2000);
-
-    api.auth.ping()
-      .then(() => {
-        clearTimeout(timeoutId);
-        setIsWakingServer(false);
-        if (isSlow) {
-          toast({ title: "Server ready", description: "You can sign in now." });
-        }
-      })
-      .catch(() => { clearTimeout(timeoutId); setIsWakingServer(false); });
-  }, []);
+  }, [navigate]);
 
   // Auto-advance slides
   const advanceSlide = useCallback(() => {
@@ -221,7 +198,7 @@ export default function Login() {
     }
   };
 
-  const isDisabled = isGoogleLoading || isDemoLoading || isWakingServer;
+  const isDisabled = isGoogleLoading || isDemoLoading;
   const handleBotPointerMove = (event: MouseEvent<HTMLDivElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
     const x = Math.max(-2, Math.min(2, ((event.clientX - bounds.left) / bounds.width - 0.5) * 4));
@@ -342,11 +319,6 @@ export default function Login() {
                 <>
                   <Spinner size={18} className="text-[#1A1A1A]" />
                   <span className="text-[13px] font-medium">Signing in…</span>
-                </>
-              ) : isWakingServer ? (
-                <>
-                  <Spinner size={18} className="text-[#1A1A1A]" />
-                  <span className="text-[13px] font-medium">Connecting to server…</span>
                 </>
               ) : (
                 <>
