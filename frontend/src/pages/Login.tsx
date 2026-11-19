@@ -220,7 +220,28 @@ export default function Login() {
       localStorage.removeItem("outly_token");
       localStorage.removeItem("outly_user_session");
 
-      const res = await api.auth.demo();
+      let res;
+      try {
+        res = await api.auth.demo();
+      } catch (backendErr: any) {
+        console.warn("Backend demo endpoint unavailable, launching client demo session:", backendErr);
+        const expiresAt = new Date(Date.now() + 25 * 60 * 1000).toISOString();
+        res = {
+          token: "demo_guest_jwt_token_" + Math.random().toString(36).substring(2),
+          user: {
+            id: "demo_guest_user",
+            email: "demo-guest@outly.demo",
+            fullName: "Alex (Demo)",
+            profilePic: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80",
+            plan: "free" as const,
+            role: "demo" as const,
+            isDemo: true,
+            demoExpiresAt: expiresAt,
+            createdAt: new Date().toISOString(),
+          }
+        };
+      }
+
       saveUserSession(res);
       toast({
         title: "Welcome to Outly Demo",
