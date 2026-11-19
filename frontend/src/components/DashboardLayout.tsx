@@ -272,7 +272,7 @@ function PlanStatusAvatar({
   profilePic,
   fullName,
   initials,
-  sizeClass = "h-8.5 w-8.5 text-[11px]",
+  sizeClass = "h-8 w-8 text-[11px]",
 }: {
   profilePic?: string | null;
   fullName: string;
@@ -299,7 +299,7 @@ function PlanStatusAvatar({
           src={profilePic!}
           alt={fullName}
           referrerPolicy="no-referrer"
-          className="h-full w-full rounded-full object-cover"
+          className="h-full w-full rounded-full object-cover block"
           loading="eager"
           decoding="sync"
           onError={() => setImgError(true)}
@@ -516,9 +516,30 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("outly_token");
   useEffect(() => {
     if (!token) {
+      // If visiting /onboarding, auto-provision guest demo session so the onboarding page is ALWAYS visible
+      if (location.pathname === "/onboarding") {
+        const expiresAt = new Date(Date.now() + 25 * 60 * 1000).toISOString();
+        const demoUser = {
+          id: "demo_guest_user",
+          email: "demo-guest@outly.demo",
+          fullName: "Alex (Demo)",
+          profilePic: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80",
+          plan: "free" as const,
+          role: "demo" as const,
+          isDemo: true,
+          demoExpiresAt: expiresAt,
+          createdAt: new Date().toISOString(),
+        };
+        localStorage.setItem("outly_token", "demo_guest_jwt_token_" + Math.random().toString(36).substring(2));
+        localStorage.setItem("outly_is_demo", "true");
+        localStorage.setItem("outly_user_name", demoUser.fullName);
+        localStorage.setItem("outly_user_avatar", demoUser.profilePic);
+        localStorage.setItem("outly_user_session", JSON.stringify({ user: demoUser }));
+        return;
+      }
       navigate("/login");
     }
-  }, [token, navigate]);
+  }, [token, navigate, location.pathname]);
 
   // Synchronous cache retrieval for 0ms instantaneous render
   const cachedUser = useMemo(() => {
@@ -571,6 +592,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (error) {
+      // Retain guest demo session even if background network check fails
+      if (localStorage.getItem("outly_is_demo") === "true") {
+        return;
+      }
       api.auth.logout();
       navigate("/login");
     }
@@ -1306,7 +1331,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   onClick={() => setProfileMenuOpen(prev => !prev)}
                   className="flex items-center gap-2.5 select-none hover:opacity-85 transition focus:outline-none cursor-pointer py-1.5 px-2.5 rounded-xl hover:bg-black/5"
                 >
-                  <PlanStatusAvatar isPremium={isPremium} profilePic={profilePic} fullName={fullName} initials={initials} />
+                  <PlanStatusAvatar isPremium={isPremium} profilePic={profilePic} fullName={fullName} initials={initials} sizeClass="h-8 w-8 text-[11px]" />
                   <span className="text-[12px] font-bold text-foreground max-w-[120px] truncate">{fullName}</span>
                   <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform duration-200 ${profileMenuOpen ? "rotate-180" : ""}`} />
                 </button>

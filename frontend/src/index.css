@@ -2051,6 +2051,18 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── PREVENT ACCIDENTAL BROWSER FOCUS OUTLINES ON HEADINGS & STATIC CONTAINERS ─── */
+h1:focus,
+h2:focus,
+h3:focus,
+h4:focus,
+h5:focus,
+h6:focus,
+[tabindex="-1"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* ─── GLOBAL ACCESSIBILITY: REDUCED MOTION ─── */
 @media (prefers-reduced-motion: reduce) {
   *,

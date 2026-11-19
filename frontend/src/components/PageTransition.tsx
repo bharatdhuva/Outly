@@ -63,20 +63,6 @@ export function PageTransition({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Scroll restoration: top on new route
     window.scrollTo(0, 0);
-
-    // Focus management for accessibility
-    const timer = setTimeout(() => {
-      const heading =
-        document.querySelector("main h1") ||
-        document.querySelector("h1") ||
-        document.querySelector("main");
-      if (heading && !heading.hasAttribute("tabindex")) {
-        heading.setAttribute("tabindex", "-1");
-        (heading as HTMLElement).focus({ preventScroll: true });
-      }
-    }, 50);
-
-    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   const hasViewTransition =
