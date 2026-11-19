@@ -4,7 +4,6 @@ import { dur, ease } from "@/lib/motion-tokens";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import logoTransparent from "@/assets/brand/outly_your_career_at_peak.png";
 import {
   ScrollText,
   Settings as SettingsIcon,
@@ -22,7 +21,8 @@ import {
   User,
   Search,
   Bell,
-  Lock
+  Lock,
+  Send
 } from "lucide-react";
 import {
   Dialog,
@@ -131,12 +131,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   useEffect(() => {
+    let wasScrolled = false;
     const handleScroll = () => {
       const isScrolled = window.scrollY > 50;
-      if (isScrolled) {
-        document.body.classList.add("scrolled-header");
-      } else {
-        document.body.classList.remove("scrolled-header");
+      if (isScrolled !== wasScrolled) {
+        wasScrolled = isScrolled;
+        if (isScrolled) {
+          document.body.classList.add("scrolled-header");
+        } else {
+          document.body.classList.remove("scrolled-header");
+        }
       }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -610,17 +614,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       {/* Header Spacer Wrapper to prevent layout shift */}
       <div className="h-16 w-full shrink-0 relative bg-[#FAF9F5]">
         {/* ─── TOP NAVIGATION HEADER (ENHANCV STYLE) ─── */}
-        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[#E8E8E6] bg-[#FAF9F5]/90 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)] shrink-0 select-none h-16 mobile-scroll-header">
+        <header className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-black/[0.07] bg-white/95 backdrop-blur-[28px] shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_4px_12px_-2px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] shrink-0 select-none h-16 mobile-scroll-header">
           <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
 
             {/* Left: Brand Logo */}
             <div className="flex h-full items-center gap-10 lg:gap-12">
-              <Link to="/onboarding" className="flex h-full -translate-y-px items-center hover:opacity-90 transition-opacity">
-                <img
-                  src={logoTransparent}
-                  alt="Outly Logo"
-                  className="h-[24px] md:h-7 -translate-y-px w-auto object-contain shrink-0"
-                />
+              <Link
+                to="/onboarding"
+                className="inline-flex items-center gap-[8px] no-underline select-none hover:opacity-80 transition-opacity duration-150 shrink-0"
+                aria-label="Outly home"
+              >
+                <Send size={20} strokeWidth={1.8} className="shrink-0 text-[#12A394]" />
+                <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em', color: '#12A394', lineHeight: 1 }}>Outly</span>
               </Link>
 
               {/* Middle: Desktop Links & Dropdowns */}
@@ -1331,7 +1336,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* ─── MOBILE BOTTOM TAB BAR (iOS-STYLE SPRING INDICATOR) ─── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] bg-outly-cream/95 backdrop-blur-md border-t border-outly-border flex items-center justify-around shadow-[0_-2px_12px_rgba(0,0,0,0.03)] select-none">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] bg-white/95 backdrop-blur-[20px] border-t border-black/[0.07] flex items-center justify-around shadow-[0_-1px_0_0_rgba(255,255,255,0.8)_inset,0_-4px_12px_-2px_rgba(0,0,0,0.05)] select-none">
 
         {/* Tab 1: Resumes */}
         <Link
@@ -1349,18 +1354,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 {isActive && (
                   <m.div
                     layoutId="mobile-bottom-indicator"
-                    className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
+                    className="absolute top-0 w-10 h-[3px] bg-[#12A394] rounded-b-full"
                     transition={{ type: "spring", stiffness: 500, damping: 35 }}
                   />
                 )}
                 <m.div
                   animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
                   transition={{ type: "spring", stiffness: 450, damping: 28 }}
-                  className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
+                  className={`transition-colors duration-200 ${isActive ? "text-[#12A394]" : "text-[#6a6a66]/60"}`}
                 >
                   <ScrollText className="h-5 w-5" />
                 </m.div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-semibold text-[#12A394]" : "font-medium text-[#6a6a66]/70"}`}>
                   Resumes
                 </span>
               </>
@@ -1383,18 +1388,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 {isActive && (
                   <m.div
                     layoutId="mobile-bottom-indicator"
-                    className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
+                    className="absolute top-0 w-10 h-[3px] bg-[#12A394] rounded-b-full"
                     transition={{ type: "spring", stiffness: 500, damping: 35 }}
                   />
                 )}
                 <m.div
                   animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
                   transition={{ type: "spring", stiffness: 450, damping: 28 }}
-                  className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
+                  className={`transition-colors duration-200 ${isActive ? "text-[#12A394]" : "text-[#6a6a66]/60"}`}
                 >
                   <Briefcase className="h-5 w-5" />
                 </m.div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-semibold text-[#12A394]" : "font-medium text-[#6a6a66]/70"}`}>
                   Jobs
                 </span>
               </>
@@ -1416,18 +1421,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 {isActive && (
                   <m.div
                     layoutId="mobile-bottom-indicator"
-                    className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
+                    className="absolute top-0 w-10 h-[3px] bg-[#12A394] rounded-b-full"
                     transition={{ type: "spring", stiffness: 500, damping: 35 }}
                   />
                 )}
                 <m.div
                   animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
                   transition={{ type: "spring", stiffness: 450, damping: 28 }}
-                  className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
+                  className={`transition-colors duration-200 ${isActive ? "text-[#12A394]" : "text-[#6a6a66]/60"}`}
                 >
                   <Wrench className="h-5 w-5" />
                 </m.div>
-                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
+                <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-semibold text-[#12A394]" : "font-medium text-[#6a6a66]/70"}`}>
                   Tools
                 </span>
               </>
@@ -1464,18 +1469,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   {isActive && (
                     <m.div
                       layoutId="mobile-bottom-indicator"
-                      className="absolute top-0 w-10 h-[3px] bg-[#2DC08D] rounded-b-full"
+                      className="absolute top-0 w-10 h-[3px] bg-[#12A394] rounded-b-full"
                       transition={{ type: "spring", stiffness: 500, damping: 35 }}
                     />
                   )}
                   <m.div
                     animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }}
                     transition={{ type: "spring", stiffness: 450, damping: 28 }}
-                    className={`transition-colors duration-200 ${isActive ? "text-[#2DC08D]" : "text-zinc-500/70"}`}
+                    className={`transition-colors duration-200 ${isActive ? "text-[#12A394]" : "text-[#6a6a66]/60"}`}
                   >
                     <User className="h-5 w-5" />
                   </m.div>
-                  <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-bold text-[#2DC08D]" : "font-medium text-zinc-500/80"}`}>
+                  <span className={`mt-1 text-[10px] transition-colors duration-200 ${isActive ? "font-semibold text-[#12A394]" : "font-medium text-[#6a6a66]/70"}`}>
                     Profile
                   </span>
                 </>

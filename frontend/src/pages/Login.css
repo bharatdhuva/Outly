@@ -140,6 +140,7 @@
 }
 
 .login-brand-mark {
+  view-transition-name: outly-brand-icon;
   display: grid;
   place-items: center;
   width: 32px;

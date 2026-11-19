@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "motion/react";
 import logoIcon from "@/assets/brand/logo_light.png";
 import logoNew from "@/assets/brand/outly_your_career_at_peak.png";
 import gmailPng from "@/assets/integrations/gmail_icon.png";
@@ -73,7 +73,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
   return (
     <AnimatePresence>
       {visible ? (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -85,7 +85,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
         >
           <div className="flex h-full w-full items-center px-8 md:px-16 lg:px-24">
             <div className="flex w-full flex-col justify-center text-center md:w-[45%] md:text-left">
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: -15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.4 }}
@@ -103,11 +103,11 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                 >
                   LIVE BOOT
                 </span>
-              </motion.div>
+              </m.div>
 
               <div className="mb-5" style={{ lineHeight: 1.05 }}>
                 {headingWords.map((word, index) => (
-                  <motion.span
+                  <m.span
                     key={`${word}-${index}`}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -121,11 +121,11 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                     }}
                   >
                     {word}
-                  </motion.span>
+                  </m.span>
                 ))}
               </div>
 
-              <motion.p
+              <m.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7, duration: 0.5 }}
@@ -138,9 +138,9 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                 }}
               >
                 A fast startup-style handoff with brand-first motion, live system staging, and a clean reveal into the dashboard.
-              </motion.p>
+              </m.p>
 
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.9, duration: 0.4 }}
@@ -161,7 +161,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                     RUNTIME
                   </span>
                   <AnimatePresence mode="wait">
-                    <motion.span
+                    <m.span
                       key={typingIndex}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -170,12 +170,12 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                       style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}
                     >
                       {TYPING_TEXTS[typingIndex]}
-                    </motion.span>
+                    </m.span>
                   </AnimatePresence>
                 </div>
-              </motion.div>
+              </m.div>
 
-              <motion.div
+              <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.0, duration: 0.3 }}
@@ -208,11 +208,11 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                     }}
                   />
                 </div>
-              </motion.div>
+              </m.div>
 
               <div className="flex gap-3">
                 {STATUS_CARDS.map((card) => (
-                  <motion.div
+                  <m.div
                     key={card.label}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -235,12 +235,12 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                       {card.label}
                     </div>
                     <div style={{ fontSize: 16, fontWeight: 600, color: "#fff" }}>{card.value}</div>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
             </div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.18, duration: 0.45 }}
@@ -294,7 +294,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                 </div>
 
                 {FLOATING_ICONS.map((item, index) => (
-                  <motion.div
+                  <m.div
                     key={`${item.name}-${index}`}
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -327,10 +327,10 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
                         />
                       </div>
                     </div>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
-            </motion.div>
+            </m.div>
           </div>
 
           <style>{`
@@ -343,8 +343,9 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
               `,
             ).join("")}
           `}</style>
-        </motion.div>
+        </m.div>
       ) : null}
     </AnimatePresence>
   );
 }
+

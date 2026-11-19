@@ -35,8 +35,8 @@ export default function OnboardingPage() {
           animate="visible"
           className="flex flex-col justify-center space-y-8 text-left lg:col-span-6"
         >
-          <m.div variants={itemVariants} className="space-y-4">
-            <h1 className="text-3xl sm:text-4xl lg:text-[46px] font-semibold leading-[1.12] tracking-[-0.045em] text-[#111111]">
+          <m.div variants={itemVariants} className="space-y-5">
+            <h1 className="text-3xl sm:text-4xl lg:text-[46px] font-semibold leading-[1.15] tracking-[-0.045em] text-[#111111] [word-spacing:0.01em]">
               Check your resume <span className="text-[#12A394] font-semibold">ATS score</span> &amp; land more interviews
             </h1>
             <p className="max-w-xl text-[16px] sm:text-[17px] font-normal leading-[1.58] tracking-[-0.01em] text-[#6a6a66]">

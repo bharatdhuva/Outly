@@ -31,6 +31,11 @@ export function AnimatedNumber({
     const to = value;
     prevRef.current = value;
 
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      el.textContent = format(to);
+      return;
+    }
+
     const controls = animate(from, to, {
       duration,
       ease: [0.16, 1, 0.3, 1],

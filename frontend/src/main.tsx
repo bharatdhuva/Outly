@@ -2,6 +2,10 @@ import { createRoot } from "react-dom/client";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import App from "./App.tsx";
 import "./index.css";
+import { initWebVitals } from "./lib/vitals";
+
+// Initialize Core Web Vitals RUM monitoring
+initWebVitals();
 
 // Sync visual viewport height with CSS variable for reliable mobile keyboard scrolling
 if (typeof window !== "undefined") {

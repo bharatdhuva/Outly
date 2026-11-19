@@ -1,6 +1,6 @@
 import * as React from "react";
 import { UploadCloud, X, File as FileIcon, CheckCircle2, Trash2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "motion/react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,7 @@ export const FileUploadCard = React.forwardRef<HTMLDivElement, FileUploadCardPro
     };
 
     return (
-      <motion.div
+      <m.div
         ref={ref}
         variants={cardVariants}
         initial="hidden"
@@ -158,7 +158,7 @@ export const FileUploadCard = React.forwardRef<HTMLDivElement, FileUploadCardPro
             <ul className="space-y-3.5">
               <AnimatePresence>
                 {files.map((file) => (
-                  <motion.li
+                  <m.li
                     key={file.id}
                     variants={fileItemVariants}
                     initial="hidden"
@@ -204,14 +204,15 @@ export const FileUploadCard = React.forwardRef<HTMLDivElement, FileUploadCardPro
                          {file.status === 'completed' ? <Trash2 className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
                       </Button>
                     </div>
-                  </motion.li>
+                  </m.li>
                 ))}
               </AnimatePresence>
             </ul>
           </div>
         )}
-      </motion.div>
+      </m.div>
     );
   }
 );
 FileUploadCard.displayName = "FileUploadCard";
+

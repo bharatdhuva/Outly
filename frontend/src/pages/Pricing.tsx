@@ -5,7 +5,7 @@ import { Check, ArrowRight, Lock, Loader2, Sparkles, Tag, ChevronDown } from "lu
 import confetti from "canvas-confetti";
 import logoTransparent from "../assets/brand/outly_your_career_at_peak.png";
 import { api } from "@/lib/api";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "motion/react";
 import {
   Dialog,
   DialogContent,
@@ -210,7 +210,7 @@ export default function Pricing() {
           }`}
         >
           {billingCycle === "monthly" && (
-            <motion.div
+            <m.div
               layoutId="billing-pill"
               className="absolute inset-0 rounded-full bg-white shadow-sm -z-10"
               transition={{ type: "spring", stiffness: 450, damping: 32 }}
@@ -226,7 +226,7 @@ export default function Pricing() {
           }`}
         >
           {billingCycle === "yearly" && (
-            <motion.div
+            <m.div
               layoutId="billing-pill"
               className="absolute inset-0 rounded-full bg-white shadow-sm -z-10"
               transition={{ type: "spring", stiffness: 450, damping: 32 }}
@@ -240,7 +240,7 @@ export default function Pricing() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[800px] mx-auto mt-10 items-stretch text-left">
 
         {/* ─── CARD 1: NORMAL FREE CARD ─── */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0, ease: [0.16, 1, 0.3, 1] }}
@@ -296,10 +296,10 @@ export default function Pricing() {
               </li>
             </ul>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* ─── CARD 2: BRAND FEATURED CARD (OUTLY EMERALD THEME) ─── */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
@@ -320,7 +320,7 @@ export default function Pricing() {
             {/* Price block */}
             <div className="mt-5 flex items-baseline gap-1.5 flex-wrap overflow-hidden">
               <AnimatePresence mode="wait" initial={false}>
-                <motion.span
+                <m.span
                   key={billingCycle}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -329,7 +329,7 @@ export default function Pricing() {
                   className="text-5xl font-bold text-neutral-900 tracking-tight inline-block"
                 >
                   {billingCycle === "yearly" ? "₹99" : "₹1"}
-                </motion.span>
+                </m.span>
               </AnimatePresence>
               <span className="text-xs text-neutral-600 font-normal">
                 /month per member, billed {billingCycle === "yearly" ? "yearly" : "monthly"}
@@ -337,7 +337,7 @@ export default function Pricing() {
             </div>
 
             {/* Outly Primary Button */}
-            <motion.button
+            <m.button
               onClick={handleRazorpayPayment}
               disabled={isProcessingPayment}
               whileTap={{ scale: 0.97 }}
@@ -356,7 +356,7 @@ export default function Pricing() {
               ) : (
                 <span>Try for free</span>
               )}
-            </motion.button>
+            </m.button>
 
             {/* Sub-button link: or buy now */}
             <div className="mt-2.5 text-center text-xs text-neutral-500">
@@ -403,7 +403,7 @@ export default function Pricing() {
               </li>
             </ul>
           </div>
-        </motion.div>
+        </m.div>
 
       </div>
 
@@ -502,3 +502,4 @@ export default function Pricing() {
     </div>
   );
 }
+

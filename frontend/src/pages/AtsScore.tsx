@@ -884,8 +884,8 @@ export default function AtsScorePage() {
                 </div>
                 <div className="w-48 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-zinc-900 rounded-full transition-all duration-300"
-                    style={{ width: `${parsingFile ? uploadProgress : scanProgress}%` }}
+                    className="h-full w-full bg-zinc-900 rounded-full transition-transform duration-300 ease-out origin-left"
+                    style={{ transform: `scaleX(${Math.max(0, Math.min(1, (parsingFile ? uploadProgress : scanProgress) / 100))})` }}
                   />
                 </div>
               </div>
@@ -1059,10 +1059,10 @@ export default function AtsScorePage() {
                   </div>
                   <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-700 ${
+                      className={`h-full w-full rounded-full transition-transform duration-700 ease-out origin-left ${
                         result.score >= 80 ? "bg-emerald-600" : result.score >= 50 ? "bg-amber-500" : "bg-red-500"
                       }`}
-                      style={{ width: `${result.score}%` }}
+                      style={{ transform: `scaleX(${Math.max(0, Math.min(1, result.score / 100))})` }}
                     />
                   </div>
                 </div>

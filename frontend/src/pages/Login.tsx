@@ -12,7 +12,7 @@
  * - whileTap on buttons (via m.button) instead of active:scale-[0.98] class
  * - Hardcoded hex colors replaced with CSS token classes
  */
-import { type MouseEvent, useState, useEffect, useCallback } from "react";
+import { type MouseEvent, useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
 import { m, AnimatePresence } from "motion/react";
@@ -70,9 +70,9 @@ const panelVariants = {
 } as const;
 
 const errorVariants = {
-  hidden: { opacity: 0, height: 0 },
-  visible: { opacity: 1, height: "auto", transition: { duration: dur.normal, ease: ease.out } },
-  exit: { opacity: 0, height: 0, transition: { duration: dur.exit, ease: ease.in } },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.15, ease: ease.out } },
+  exit: { opacity: 0, transition: { duration: 0.12, ease: ease.in } },
 } as const;
 
 // ─── Session persistence helper ───────────────────────────────────────────────
@@ -94,6 +94,27 @@ function saveUserSession(res: any) {
   }
 }
 
+function loadGoogleGsi(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof (window as any).google?.accounts !== "undefined") {
+      resolve();
+      return;
+    }
+    const existing = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
+    if (existing) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => resolve();
+    document.head.appendChild(script);
+  });
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function Login() {
   const navigate = useNavigate();
@@ -104,6 +125,11 @@ export default function Login() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState<string | null>(null);
+
+  // Lazy load Google GSI script only when login screen is viewed
+  useEffect(() => {
+    loadGoogleGsi();
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -126,6 +152,7 @@ export default function Login() {
   const handleGoogleSignIn = async () => {
     if (isGoogleLoading || isDemoLoading) return;
     setIsGoogleLoading(true);
+    await loadGoogleGsi();
 
     const google = (window as any).google;
     if (typeof google === "undefined" || !google.accounts) {
@@ -199,14 +226,19 @@ export default function Login() {
   };
 
   const isDisabled = isGoogleLoading || isDemoLoading;
+  const botBoundsRef = useRef<DOMRect | null>(null);
+  const handleBotPointerEnter = (event: MouseEvent<HTMLDivElement>) => {
+    botBoundsRef.current = event.currentTarget.getBoundingClientRect();
+  };
   const handleBotPointerMove = (event: MouseEvent<HTMLDivElement>) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
+    const bounds = botBoundsRef.current || event.currentTarget.getBoundingClientRect();
     const x = Math.max(-2, Math.min(2, ((event.clientX - bounds.left) / bounds.width - 0.5) * 4));
     const y = Math.max(-2, Math.min(2, ((event.clientY - bounds.top) / bounds.height - 0.5) * 4));
     event.currentTarget.style.setProperty("--bot-eye-x", `${x}px`);
     event.currentTarget.style.setProperty("--bot-eye-y", `${y}px`);
   };
   const resetBotEyes = (event: MouseEvent<HTMLDivElement>) => {
+    botBoundsRef.current = null;
     event.currentTarget.style.setProperty("--bot-eye-x", "0px");
     event.currentTarget.style.setProperty("--bot-eye-y", "0px");
   };
@@ -215,7 +247,12 @@ export default function Login() {
     <div className="login-page flex flex-col lg:flex-row min-h-screen w-full selection:bg-primary/15">
 
       {/* ── LEFT PANEL ── */}
-      <div className="login-left hidden lg:flex w-1/2 flex-col justify-between p-14 xl:p-16 sticky top-0 h-screen shrink-0 select-none overflow-hidden" onMouseMove={handleBotPointerMove} onMouseLeave={resetBotEyes}>
+      <div
+        className="login-left hidden lg:flex w-1/2 flex-col justify-between p-14 xl:p-16 sticky top-0 h-screen shrink-0 select-none overflow-hidden"
+        onMouseEnter={handleBotPointerEnter}
+        onMouseMove={handleBotPointerMove}
+        onMouseLeave={resetBotEyes}
+      >
 
         {/* Logo */}
         <button

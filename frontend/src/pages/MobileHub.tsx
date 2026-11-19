@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
+import { m } from "motion/react";
 import { api } from "@/lib/api";
+import PageSkeleton from "@/components/PageSkeleton";
 import { 
   FileCheck, 
   Sparkles, 
@@ -13,12 +14,12 @@ import {
   Calendar 
 } from "lucide-react";
 
-import AtsScore from "./AtsScore";
-import ResumeTailor from "./ResumeTailor";
-import ResumeVault from "./ResumeVault";
-import Applications from "./Applications";
-import JobSearch from "./JobSearch";
-import ColdMail from "./ColdMail";
+const AtsScore = lazy(() => import("./AtsScore"));
+const ResumeTailor = lazy(() => import("./ResumeTailor"));
+const ResumeVault = lazy(() => import("./ResumeVault"));
+const Applications = lazy(() => import("./Applications"));
+const JobSearch = lazy(() => import("./JobSearch"));
+const ColdMail = lazy(() => import("./ColdMail"));
 
 interface MobileHubProps {
   category: "resumes" | "jobs" | "tools";
@@ -121,7 +122,7 @@ export default function MobileHub({ category }: MobileHubProps) {
                     </span>
                   )}
                   {isActive && (
-                    <motion.div
+                    <m.div
                       layoutId={`mobile-hub-underline-${category}`}
                       className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#2DC08D] rounded-full"
                       transition={{ type: "spring", stiffness: 500, damping: 35 }}
@@ -138,13 +139,12 @@ export default function MobileHub({ category }: MobileHubProps) {
 
       {/* Content area */}
       <div className="flex-1 w-full min-h-0 max-w-full overflow-x-hidden">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
+        <Suspense fallback={<PageSkeleton />}>
+          <m.div
             key={`${category}-${activeTab}`}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="w-full h-full"
           >
             {category === "resumes" && activeTab === "ats" && <AtsScore />}
@@ -155,9 +155,10 @@ export default function MobileHub({ category }: MobileHubProps) {
             {category === "jobs" && activeTab === "search" && <JobSearch />}
 
             {category === "tools" && activeTab === "mail" && <ColdMail />}
-          </motion.div>
-        </AnimatePresence>
+          </m.div>
+        </Suspense>
       </div>
     </div>
   );
 }
+

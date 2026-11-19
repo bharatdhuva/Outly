@@ -1,12 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
+    /* ── Motion System Tokens ── */
+    --dur-micro: 150ms;
+    --dur-enter: 220ms;
+    --dur-exit: 160ms;
+    --dur-route: 200ms;
+    --dur-scroll: 450ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
     --background: 45 22% 96.5%;
     /* Warm Linen / Paper tone — #F8F7F4 (oklch(0.975 0.004 85)) */
     --foreground: 223 47% 13%;
@@ -2023,4 +2030,47 @@ body {
   [role="dialog"] {
     max-height: calc(var(--visual-viewport-height, 100dvh) - 1.5rem) !important;
   }
-}
+}
+
+/* ─── VIEW TRANSITIONS API BASE ─── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-route);
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(root) {
+  animation-name: vt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: vt-fade-in;
+}
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── GLOBAL ACCESSIBILITY: REDUCED MOTION ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+

@@ -91,6 +91,18 @@ export default function ColdMailPage() {
     const val = sessionStorage.getItem("cm_mainMode");
     return (val as "manual" | "csv") || "manual";
   });
+
+  useEffect(() => {
+    if (mainMode === "csv") {
+      const existing = document.querySelector('script[src*="dotlottie-wc"]');
+      if (!existing) {
+        const s = document.createElement("script");
+        s.src = "https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.14/dist/dotlottie-wc.js";
+        s.type = "module";
+        document.head.appendChild(s);
+      }
+    }
+  }, [mainMode]);
   const [isAdding, setIsAdding] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState<string>(() => {
     return sessionStorage.getItem("cm_selectedVariantId") || "primary";

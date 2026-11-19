@@ -160,6 +160,23 @@ export default function Applications() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<TrackerApplication> }) =>
       api.tracker.update(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ["applications"] });
+      const previousApps = queryClient.getQueryData<TrackerApplication[]>(["applications"]);
+      queryClient.setQueryData<TrackerApplication[]>(["applications"], (old = []) =>
+        old.map((a) => (a.id === id ? { ...a, ...data } : a))
+      );
+      if (selectedApp && selectedApp.id === id) {
+        setSelectedApp((prev) => (prev ? { ...prev, ...data } : null));
+      }
+      return { previousApps };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousApps) {
+        queryClient.setQueryData(["applications"], context.previousApps);
+      }
+      notify.error("Failed to update application");
+    },
     onSuccess: (updated) => {
       queryClient.setQueryData<TrackerApplication[]>(["applications"], (old = []) =>
         old.map((a) => (a.id === updated.id ? updated : a))
@@ -168,7 +185,6 @@ export default function Applications() {
         setSelectedApp(updated);
       }
     },
-    onError: () => notify.error("Failed to update application"),
   });
 
   const deleteMutation = useMutation({
