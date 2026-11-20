@@ -1,5 +1,5 @@
 .onboarding-page {
-  background: #faf9f6;
+  background: #fafaf9;
 }
 
 .onboarding-eyebrow {
@@ -30,9 +30,7 @@
   .onboarding-page {
     min-height: calc(100dvh - 4rem);
     padding-bottom: 5.5rem;
-    background:
-      radial-gradient(ellipse at 50% 0%, rgba(18, 163, 148, 0.07), transparent 28rem),
-      #faf9f6;
+    background: #fafaf9;
   }
 
   .onboarding-layout {

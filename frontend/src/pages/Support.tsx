@@ -212,7 +212,7 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="min-h-full w-full bg-[#FAF9F5] text-[#171717] font-sans py-10 sm:py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-start select-none">
+    <div className="min-h-full w-full bg-[#FAFAF9] text-[#171717] font-sans py-10 sm:py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-start select-none">
       <div className="w-full max-w-4xl space-y-14 sm:space-y-20">
 
         {/* ─── HERO & SEARCH (Landing Page Style) ─── */}

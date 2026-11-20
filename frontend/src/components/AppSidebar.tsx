@@ -16,6 +16,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { m, AnimatePresence } from "motion/react";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { dur, ease } from "@/lib/motion-tokens";
+import { prefetchRoute } from "@/lib/prefetch";
 
 const navSections = [
   {
@@ -117,6 +118,8 @@ export function AppSidebar({
                       to={item.url}
                       end={item.url === "/onboarding"}
                       onClick={onClose}
+                      onMouseEnter={() => prefetchRoute(item.url)}
+                      onFocus={() => prefetchRoute(item.url)}
                       className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-150 ${
                         isActive
                           ? "bg-primary/10 text-primary font-semibold"

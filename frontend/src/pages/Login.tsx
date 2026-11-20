@@ -15,6 +15,7 @@
 import { type FormEvent, type MouseEvent, useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
+import { prefetchOnIdle } from "@/lib/prefetch";
 import { m, AnimatePresence } from "motion/react";
 import { ChevronRight, Send, AlertCircle } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,7 +35,7 @@ import "./Login.css";
 function LoginBrand() {
   return (
     <span className="login-brand">
-      <span className="login-brand-mark"><Send size={23} strokeWidth={2} /></span>
+      <span className="login-brand-mark"><Send size={20} strokeWidth={2} /></span>
       <span>Outly</span>
     </span>
   );
@@ -171,6 +172,7 @@ export default function Login() {
   // Lazy load Google GSI script only when login screen is viewed
   useEffect(() => {
     loadGoogleGsi();
+    prefetchOnIdle(["/onboarding", "/resumes"]);
   }, []);
 
   // Check URL query parameters for external error redirects
@@ -518,13 +520,23 @@ export default function Login() {
           </button>
 
           {/* Heading */}
-          <div className="mb-7">
-            <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-tight text-[#1A1A1A] leading-tight mb-2">
-              {isSignUp ? "Create your account" : "Welcome back"}
-            </h1>
-            <p className="text-[14px] text-[#6B6760] leading-relaxed">
-              {isSignUp ? "Start building a more thoughtful job search." : "Sign in to continue your job search with Outly."}
-            </p>
+          <div className="mb-7 min-h-[72px]">
+            <AnimatePresence mode="wait">
+              <m.div
+                key={isSignUp ? "signup-heading" : "login-heading"}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.16, ease: ease.out }}
+              >
+                <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-tight text-[#1A1A1A] leading-tight mb-2">
+                  {isSignUp ? "Create your account" : "Welcome back"}
+                </h1>
+                <p className="text-[14px] text-[#6B6760] leading-relaxed">
+                  {isSignUp ? "Start building a more thoughtful job search." : "Sign in to continue your job search with Outly."}
+                </p>
+              </m.div>
+            </AnimatePresence>
           </div>
 
           <div className="login-auth-options">
@@ -558,7 +570,22 @@ export default function Login() {
             <div className="login-or-divider"><span>or</span></div>
 
             <form className="login-email-form" onSubmit={handleEmailAuth}>
-              {isSignUp && <label className="login-field"><span>Your name</span><input type="text" name="name" autoComplete="name" value={authName} onChange={(e) => setAuthName(e.target.value)} placeholder="Priya Sharma" maxLength={80} required /></label>}
+              <AnimatePresence initial={false}>
+                {isSignUp && (
+                  <m.label
+                    key="field-name"
+                    className="login-field"
+                    initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginBottom: 14 }}
+                    exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                    transition={{ duration: 0.2, ease: ease.out }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <span>Your name</span>
+                    <input type="text" name="name" autoComplete="name" value={authName} onChange={(e) => setAuthName(e.target.value)} placeholder="Priya Sharma" maxLength={80} required />
+                  </m.label>
+                )}
+              </AnimatePresence>
               <label className="login-field"><span>Email</span><input type="email" name="email" autoComplete="email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder="you@example.com" maxLength={254} required /></label>
               <label className="login-field"><span>Password</span><input type="password" name="password" autoComplete={isSignUp ? "new-password" : "current-password"} value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} placeholder={isSignUp ? "At least 8 characters" : "Your password"} minLength={isSignUp ? 8 : undefined} maxLength={128} required /></label>
               {authError && <p className="login-auth-error" role="alert">{authError}</p>}

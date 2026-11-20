@@ -11,10 +11,17 @@ export function prefetchRoute(route: string) {
 
   switch (route) {
     case "/login":
+    case "/signup":
+      import("../pages/Login");
       break;
     case "/onboarding":
     case "/dashboard":
       import("../pages/Onboarding");
+      break;
+    case "/resumes":
+    case "/jobs":
+    case "/tools":
+      import("../pages/MobileHub");
       break;
     case "/pricing":
       import("../pages/Pricing");
@@ -37,6 +44,18 @@ export function prefetchRoute(route: string) {
     case "/resume-vault":
       import("../pages/ResumeVault");
       break;
+    case "/settings":
+      import("../pages/Settings");
+      break;
+    case "/analytics":
+      import("../pages/Analytics");
+      break;
+    case "/support":
+      import("../pages/Support");
+      break;
+    case "/logs":
+      import("../pages/Logs");
+      break;
   }
 }
 
@@ -47,8 +66,8 @@ export function prefetchOnIdle(routes: string[]) {
     routes.forEach((r) => prefetchRoute(r));
   };
   if ("requestIdleCallback" in window) {
-    (window as any).requestIdleCallback(run, { timeout: 2500 });
+    (window as any).requestIdleCallback(run, { timeout: 2000 });
   } else {
-    setTimeout(run, 1500);
+    setTimeout(run, 1200);
   }
 }

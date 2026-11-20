@@ -60,7 +60,7 @@ const App = () => {
       <TooltipProvider>
         <LazyMotion features={domAnimation}>
           <Toaster />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true }}>
             <GlobalPageTransitionInterceptor />
             <LimitReachedModal />
             <DemoSignupModal />

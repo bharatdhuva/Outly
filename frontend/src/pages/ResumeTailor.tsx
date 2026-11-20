@@ -966,19 +966,21 @@ export default function ResumeTailorPage() {
             </div>
           </div>
 
-          <div className="tailor-field-card rounded-[24px] sm:rounded-[28px] border border-black/[0.06] bg-white p-4 sm:p-6 h-[170px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col focus-within:border-black/20 transition-all">
-            <textarea
-              ref={jdTextareaRef}
-              className="flex-1 w-full resize-none border-0 bg-transparent text-[13px] leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:outline-none font-mono"
-              placeholder="Paste the job description here..."
-              value={jobDesc}
-              onChange={(e) => setJobDesc(e.target.value)}
-              onKeyDown={(e) => {
-                if ((e.ctrlKey || e.metaKey) && (e.key === "a" || e.key === "A")) {
-                  e.currentTarget.select();
-                }
-              }}
-            />
+          <div className="tailor-field-card rounded-[24px] sm:rounded-[28px] border border-black/[0.06] bg-white p-3 sm:p-4 h-[170px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col transition-all">
+            <div className="flex-1 w-full bg-[#f8f8f6] border border-black/[0.04] rounded-[18px] sm:rounded-[22px] p-4 sm:p-5 flex flex-col transition-all focus-within:border-black/20 focus-within:bg-[#fbfbf9] focus-within:ring-2 focus-within:ring-black/[0.02]">
+              <textarea
+                ref={jdTextareaRef}
+                className="flex-1 w-full resize-none border-0 bg-transparent text-[13px] leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:outline-none font-mono"
+                placeholder="Paste the job description here..."
+                value={jobDesc}
+                onChange={(e) => setJobDesc(e.target.value)}
+                onKeyDown={(e) => {
+                  if ((e.ctrlKey || e.metaKey) && (e.key === "a" || e.key === "A")) {
+                    e.currentTarget.select();
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -994,7 +996,7 @@ export default function ResumeTailorPage() {
             </span>
           </div>
 
-          <div className="tailor-field-card rounded-[24px] sm:rounded-[28px] border border-black/[0.06] bg-white p-4 sm:p-6 min-h-[170px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col">
+          <div className="tailor-field-card rounded-[24px] sm:rounded-[28px] border border-black/[0.06] bg-white p-3 sm:p-4 min-h-[170px] sm:h-[460px] shadow-[0_4px_24px_rgba(0,0,0,0.025)] flex flex-col">
             <input
               type="file"
               ref={fileInputRef}
@@ -1020,7 +1022,7 @@ export default function ResumeTailorPage() {
               </div>
             ) : !resumeFile && selectedVaultId === "custom" ? (
               isLimitExceeded ? (
-                <div className="flex-1 border border-dashed border-neutral-200 rounded-lg flex flex-col items-center justify-center p-6 text-center select-none">
+                <div className="flex-1 border border-dashed border-neutral-200 rounded-[18px] sm:rounded-[22px] bg-[#f8f8f6]/70 flex flex-col items-center justify-center p-6 text-center select-none">
                   <Lock className="w-6 h-6 text-neutral-400 mx-auto mb-2" />
                   <p className="text-xs font-semibold text-neutral-800">Limit Reached{countdownText ? ` · Unlocks in ${countdownText}` : " (3/3)"}</p>
                   <p className="text-[11px] text-neutral-500 max-w-xs mx-auto mt-1 mb-3">
@@ -1040,8 +1042,8 @@ export default function ResumeTailorPage() {
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border border-dashed rounded-lg flex-1 flex flex-col items-center justify-center text-center p-6 transition-colors cursor-pointer ${
-                    isDragging ? "border-neutral-900 bg-neutral-50" : "border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50/50"
+                  className={`border border-dashed rounded-[18px] sm:rounded-[22px] flex-1 flex flex-col items-center justify-center text-center p-6 transition-colors cursor-pointer ${
+                    isDragging ? "border-neutral-900 bg-neutral-100/70" : "border-neutral-200/90 bg-[#f8f8f6]/70 hover:border-neutral-400 hover:bg-[#f8f8f6]"
                   }`}
                 >
                   <p className="text-xl sm:text-2xl font-normal text-neutral-800">
@@ -1134,7 +1136,7 @@ export default function ResumeTailorPage() {
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto rounded-lg border border-neutral-100 bg-neutral-50/50 p-3">
+                <div className="flex-1 overflow-y-auto rounded-[18px] sm:rounded-[22px] border border-black/[0.04] bg-[#f8f8f6] p-4">
                   {isValidResume === false ? (
                     <div className="flex flex-col items-center justify-center p-4 text-center h-full">
                       <AlertCircle className="w-6 h-6 text-amber-600 mb-2" />
@@ -1143,7 +1145,7 @@ export default function ResumeTailorPage() {
                         {resumeValidationError || "Document does not contain standard resume sections (Experience, Education, Skills)."}
                       </p>
                     </div>
-                  ) : resumeFile && resumeFile.type === "application/pdf" ? (
+                  ) : resumeFile && (resumeFile.type.toLowerCase().includes("pdf") || resumeFile.name.toLowerCase().endsWith(".pdf")) ? (
                     <PdfViewer file={resumeFile} />
                   ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
                     <PdfViewer url={api.resume.getFileUrl(selectedVaultId)} />

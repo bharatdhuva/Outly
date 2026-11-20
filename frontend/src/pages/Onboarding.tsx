@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ResumeCarousel from "@/components/ResumeCarousel";
 import { m } from "motion/react";
 import { dur, ease, fadeUpVariants } from "@/lib/motion-tokens";
+import { prefetchOnIdle, prefetchRoute } from "@/lib/prefetch";
 import "./Onboarding.css";
 
 const heroContentVariants = {
@@ -25,10 +26,11 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     document.title = "Outly — Overview & ATS Score";
+    prefetchOnIdle(window.innerWidth < 768 ? ["/resumes"] : ["/ats-score", "/resume-tailor"]);
   }, []);
 
   return (
-    <div className="onboarding-page relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none overflow-x-clip pb-12 font-sans text-[#111111] bg-white">
+    <div className="onboarding-page relative flex-1 min-h-[calc(100vh-4rem)] w-full select-none overflow-x-clip pb-12 font-sans text-[#111111]">
       <div className="onboarding-layout relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-start gap-8 px-4 sm:px-8 py-4 lg:grid-cols-12 lg:gap-12 lg:pt-8 lg:pb-8">
         <m.div
           variants={heroContentVariants}
@@ -37,12 +39,11 @@ export default function OnboardingPage() {
           className="onboarding-copy flex flex-col justify-start space-y-7 text-left lg:col-span-6 pt-1 sm:pt-1.5"
         >
           <m.div variants={itemVariants} className="onboarding-intro space-y-4">
-            <div className="onboarding-eyebrow"><span /> Resume tools, in one place</div>
             <h1 className="onboarding-title text-4xl sm:text-5xl lg:text-[50px] xl:text-[54px] font-semibold leading-[1.18] lg:leading-[1.20] tracking-[-0.03em] text-[#111111]">
-              Make your resume <em>work harder.</em>
+              Check your resume <span className="font-semibold text-[#12A394]">ATS score</span> &amp; land more interviews
             </h1>
             <p className="onboarding-description max-w-xl text-[16px] sm:text-[17.5px] font-normal leading-[1.55] tracking-[-0.015em] text-[#555552]">
-              Check your ATS score, tailor your resume to the role, and make your next move with confidence.
+              Automated 27-factor scoring, targeted tailoring, and keyword alignment calibrated for applicant tracking systems.
             </p>
           </m.div>
 
@@ -52,6 +53,8 @@ export default function OnboardingPage() {
               type="button"
               whileTap={{ scale: 0.98 }}
               transition={{ duration: dur.instant }}
+              onPointerEnter={() => prefetchRoute(window.innerWidth < 768 ? "/resumes" : "/ats-score")}
+              onFocus={() => prefetchRoute(window.innerWidth < 768 ? "/resumes" : "/ats-score")}
               onClick={() => {
                 if (window.innerWidth < 768) {
                   navigate("/resumes?tab=ats");
@@ -69,6 +72,8 @@ export default function OnboardingPage() {
               type="button"
               whileTap={{ scale: 0.98 }}
               transition={{ duration: dur.instant }}
+              onPointerEnter={() => prefetchRoute(window.innerWidth < 768 ? "/resumes" : "/resume-tailor")}
+              onFocus={() => prefetchRoute(window.innerWidth < 768 ? "/resumes" : "/resume-tailor")}
               onClick={() => {
                 if (window.innerWidth < 768) {
                   navigate("/resumes?tab=tailor");

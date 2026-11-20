@@ -313,7 +313,6 @@ export default function Pricing() {
           <img className="pricing-art" src={pricingFieldImage} alt="" />
 
           <div className="price-content">
-            <div className="pro-label">best for active job seekers</div>
             <h3>Pro</h3>
             <p>More room for every application.</p>
 

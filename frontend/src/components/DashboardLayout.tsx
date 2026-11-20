@@ -1037,7 +1037,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-[#171717] flex flex-col font-sans overflow-x-clip">
+    <div className="min-h-screen bg-[#FAFAF9] text-[#171717] flex flex-col font-sans overflow-x-clip">
 
       {/* Header Spacer Wrapper to prevent layout shift */}
       <div className={`${hasMobileHubTabs ? "h-0 md:h-16" : "h-16"} w-full shrink-0 relative bg-white`}>
@@ -1061,7 +1061,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </Link>
 
               {/* Middle: Desktop Links & Dropdowns */}
-              <nav className="hidden h-full items-center gap-1.5 font-sans md:flex relative">
+              <nav className="hidden h-full items-center gap-1.5 font-sans md:flex relative xl:gap-4">
                 {MEGA_MENUS.map((menu) => {
                   const isOpen = activeDropdown === menu.key;
                   const isPageActive =

@@ -110,7 +110,7 @@ export default function MobileHub({ category }: MobileHubProps) {
   }
 
   return (
-    <div className="flex-1 min-h-0 w-full flex flex-col font-sans text-outly-dark text-left bg-white">
+    <div className="flex-1 min-h-0 w-full flex flex-col font-sans text-outly-dark text-left bg-[#FAFAF9]">
       {/* Modern Segmented Sub Selector */}
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-black/[0.06] px-3 sm:px-6 py-2 select-none shadow-xs">
         <div className="w-full max-w-lg mx-auto">

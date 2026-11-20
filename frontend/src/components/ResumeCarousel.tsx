@@ -92,6 +92,9 @@ export default function ResumeCarousel() {
                 <img
                   src={img.src}
                   alt={img.title}
+                  loading={offset === 0 ? "eager" : "lazy"}
+                  fetchPriority={offset === 0 ? "high" : "low"}
+                  decoding="async"
                   className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.01]"
                 />
 

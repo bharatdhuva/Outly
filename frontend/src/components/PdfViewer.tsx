@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Download, Loader2, AlertCircle } from "lucide-react";
+import { API_BASE } from "@/lib/api";
+
+function getResumeRequestHeaders(url: string): Record<string, string> {
+  const token = localStorage.getItem("outly_token");
+  if (!token) return {};
+
+  // The resume endpoint is authenticated even when its URL is relative.
+  // Never send the bearer token to a different host.
+  const targetOrigin = new URL(url, window.location.href).origin;
+  const apiOrigin = new URL(API_BASE, window.location.href).origin;
+  return targetOrigin === apiOrigin ? { Authorization: `Bearer ${token}` } : {};
+}
 
 let cachedPdfJsPromise: Promise<any> | null = null;
 
@@ -84,9 +96,11 @@ export default function PdfViewer({
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(bUrl), 1000);
       } else if (url) {
-        const token = localStorage.getItem("outly_token");
-        const headers: Record<string, string> = token && !url.startsWith("/") ? { "Authorization": `Bearer ${token}` } : {};
-        const res = await fetch(url, { headers });
+        const res = await fetch(url, {
+          headers: getResumeRequestHeaders(url),
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error(`Resume download failed (${res.status})`);
         const blob = await res.blob();
         const bUrl = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -116,6 +130,7 @@ export default function PdfViewer({
 
   useEffect(() => {
     let active = true;
+    let currentBlobUrl: string | null = null;
 
     // Plain text content fallback only when no file or url provided
     if (!file && !url && content) {
@@ -131,9 +146,10 @@ export default function PdfViewer({
 
     setLoading(true);
     setError(null);
+    setBlobUrl(null);
+    setRenderMode("canvas");
 
     const renderPdf = async () => {
-      let currentBlobUrl = "";
       let pdfData: ArrayBuffer;
 
       try {
@@ -141,10 +157,10 @@ export default function PdfViewer({
           pdfData = await file.arrayBuffer();
           currentBlobUrl = URL.createObjectURL(file);
         } else if (url) {
-          const token = localStorage.getItem("outly_token");
-          const headers: Record<string, string> =
-            token && !url.startsWith("/") ? { Authorization: `Bearer ${token}` } : {};
-          const res = await fetch(url, { headers });
+          const res = await fetch(url, {
+            headers: getResumeRequestHeaders(url),
+            credentials: "include",
+          });
           if (!res.ok) throw new Error(`HTTP error ${res.status}`);
           pdfData = await res.arrayBuffer();
           const pdfBlob = new Blob([pdfData], { type: "application/pdf" });
@@ -217,6 +233,7 @@ export default function PdfViewer({
 
     return () => {
       active = false;
+      if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
     };
   }, [file, url, content]);
 

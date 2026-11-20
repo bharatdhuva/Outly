@@ -4,13 +4,13 @@
 }
 
 .login-page {
-  background: #faf9f6;
+  background: #fafaf9;
   color: #171717;
 }
 
 .login-left {
   position: relative;
-  background: #8fe9f7;
+  background: #fafaf9;
   border-right: 0;
   padding: 0;
   width: calc(50% - 10px);
@@ -119,7 +119,7 @@
 
 .login-right {
   position: relative;
-  background: #faf9f6;
+  background: #fafaf9;
 }
 
 .login-right-brand {
@@ -132,19 +132,19 @@
 .login-brand {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 8px;
   color: #168b7d;
-  font-size: 21px;
-  font-weight: 650;
-  letter-spacing: -.045em;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.02em;
 }
 
 .login-brand-mark {
   view-transition-name: outly-brand-icon;
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
   color: #12a394;
 }
 

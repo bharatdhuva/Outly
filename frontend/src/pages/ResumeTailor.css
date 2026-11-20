@@ -226,9 +226,9 @@
 .tailor-field-card {
   min-height: 400px;
   height: 440px;
-  padding: 22px;
+  padding: 16px;
   border-color: var(--tailor-line);
-  border-radius: 18px;
+  border-radius: 28px;
   box-shadow: 0 2px 5px rgba(25, 26, 24, .025), 0 12px 30px rgba(25, 26, 24, .03);
 }
 

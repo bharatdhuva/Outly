@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from "lucide-react";
 import { useNotifications, notify, type ActiveToast } from "@/lib/notify";
+import "./toaster.css";
 
 function ToastItem({ toast }: { toast: ActiveToast }) {
   const [mounted, setMounted] = useState(false);
@@ -105,24 +106,26 @@ function ToastItem({ toast }: { toast: ActiveToast }) {
         transform: translateY > 0 ? `translateY(${translateY}px)` : undefined,
         opacity: translateY > 0 ? Math.max(0.2, 1 - translateY / 100) : undefined,
       }}
-      className={`pointer-events-auto flex w-full items-center justify-between gap-2.5 rounded-xl border border-border bg-card px-3.5 py-1 text-card-foreground shadow-md transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-opacity motion-reduce:transform-none ${
+      className={`outly-toast ${
+        isSuccess ? "outly-toast--success" : isError ? "outly-toast--error" : isWarning ? "outly-toast--warning" : "outly-toast--info"
+      } ${
         isVisible
-          ? "translate-y-0 opacity-100 md:translate-x-0 md:translate-y-0"
-          : "translate-y-3 opacity-0 md:translate-x-4 md:translate-y-0"
+          ? "outly-toast--visible"
+          : "outly-toast--hidden"
       }`}
     >
-      <div className="flex min-w-0 items-center gap-2.5 py-2">
-        {isSuccess && <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />}
-        {isError && <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />}
-        {isWarning && <AlertTriangle className="h-4 w-4 shrink-0 text-warning" />}
-        {!isSuccess && !isError && !isWarning && <Info className="h-4 w-4 shrink-0 text-info" />}
+      <div className="outly-toast__content">
+        {isSuccess && <CheckCircle2 className="outly-toast__icon" aria-hidden="true" />}
+        {isError && <AlertCircle className="outly-toast__icon" aria-hidden="true" />}
+        {isWarning && <AlertTriangle className="outly-toast__icon" aria-hidden="true" />}
+        {!isSuccess && !isError && !isWarning && <Info className="outly-toast__icon" aria-hidden="true" />}
 
-        <span className="truncate text-xs font-medium leading-normal text-card-foreground">
+        <span className="outly-toast__message">
           {toast.message}
         </span>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="outly-toast__controls">
         {toast.action && (
           <button
             type="button"
@@ -130,7 +133,7 @@ function ToastItem({ toast }: { toast: ActiveToast }) {
               toast.action?.onClick();
               triggerDismiss();
             }}
-            className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center px-2 text-xs font-semibold text-primary transition-colors hover:text-primary/80 focus:outline-none"
+            className="outly-toast__action"
           >
             {toast.action.label}
           </button>
@@ -140,9 +143,9 @@ function ToastItem({ toast }: { toast: ActiveToast }) {
           type="button"
           onClick={triggerDismiss}
           aria-label="Close notification"
-          className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center p-1 text-muted-foreground transition-colors hover:text-card-foreground focus:outline-none"
+          className="outly-toast__close"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
     </div>
@@ -155,7 +158,7 @@ export function Toaster() {
   return (
     <div
       aria-label="Notifications"
-      className="fixed z-[9999] pointer-events-none flex flex-col gap-2 bottom-[calc(4rem+12px+env(safe-area-inset-bottom,0px))] left-4 right-4 w-[calc(100vw-32px)] max-w-[calc(100vw-32px)] items-center md:bottom-auto md:top-[calc(4rem+12px)] md:right-4 md:left-auto md:w-[360px] md:max-w-[360px] md:items-end font-sans"
+      className="outly-toast-region"
     >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} />

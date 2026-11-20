@@ -14,8 +14,8 @@
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-    --background: 45 22% 96.5%;
-    /* Warm Linen / Paper tone — #F8F7F4 (oklch(0.975 0.004 85)) */
+    --background: 60 9.09% 97.84%;
+    /* Shared page canvas: #FAFAF9 */
     --foreground: 223 47% 13%;
 
     --card: 40 35% 98.5%;
@@ -82,8 +82,8 @@
 
   html,
   body {
-    background-color: #FAF9F5;
-    background: #FAF9F5;
+    background-color: #FAFAF9;
+    background: #FAFAF9;
     @apply text-foreground antialiased;
     font-family: 'Geist', 'Geist Fallback', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Inter, system-ui, sans-serif;
     overflow-x: clip;

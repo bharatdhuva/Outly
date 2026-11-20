@@ -902,7 +902,7 @@ export default function AtsScorePage() {
                         {result.error || "The uploaded document lacks standard resume sections (Experience, Education, Skills)."}
                       </p>
                     </div>
-                  ) : resumeFile && resumeFile.type === "application/pdf" ? (
+                  ) : resumeFile && (resumeFile.type.toLowerCase().includes("pdf") || resumeFile.name.toLowerCase().endsWith(".pdf")) ? (
                     <PdfViewer file={resumeFile} />
                   ) : !resumeFile && resumes.find(r => String(r.id) === selectedVaultId)?.filename.toLowerCase().endsWith(".pdf") ? (
                     <PdfViewer url={api.resume.getFileUrl(selectedVaultId)} />

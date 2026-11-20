@@ -27,7 +27,7 @@ export default {
       },
       colors: {
         outly: {
-          cream: '#F8F7F4',
+          cream: '#FAFAF9',
           accent: '#2dc08d',
           logo: '#f23c5d',
           dark: '#1a1a1a',
