@@ -244,17 +244,11 @@ export default function Login() {
     await loadGoogleGsi();
 
     const google = (window as any).google;
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-    if (!clientId) {
-      clearTimeout(safetyTimer);
-      window.removeEventListener("focus", onWindowFocus);
-      setIsGoogleLoading(false);
-      setFailModalTitle("Google Sign-In Not Configured");
-      setFailModalMessage("Set VITE_GOOGLE_CLIENT_ID to your Web OAuth client ID, and use the same client ID in the backend GOOGLE_CLIENT_ID setting.");
-      setFailModalOpen(true);
-      return;
-    }
+    // Keep the established public web client as a fallback for production builds
+    // where Vite's optional environment variable has not been configured.
+    const clientId =
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      "137235712014-et2q796j1m13efh3qacdlkdbom3o11b4.apps.googleusercontent.com";
 
     if (typeof google === "undefined" || !google.accounts) {
       clearTimeout(safetyTimer);

@@ -1,0 +1,184 @@
+.onboarding-page {
+  background: #faf9f6;
+}
+
+.onboarding-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #68716d;
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: 0.015em;
+}
+
+.onboarding-eyebrow > span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #12a394;
+  box-shadow: 0 0 0 4px rgba(18, 163, 148, 0.1);
+}
+
+.onboarding-title em {
+  color: #12a394;
+  font-weight: 500;
+  font-style: italic;
+}
+
+@media (max-width: 767px) {
+  .onboarding-page {
+    min-height: calc(100dvh - 4rem);
+    padding-bottom: 5.5rem;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(18, 163, 148, 0.07), transparent 28rem),
+      #faf9f6;
+  }
+
+  .onboarding-layout {
+    gap: 1.5rem;
+    padding: 1.5rem 1.125rem 1.25rem;
+  }
+
+  .onboarding-copy {
+    gap: 1.25rem;
+    padding-top: 0;
+  }
+
+  .onboarding-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .onboarding-eyebrow {
+    font-size: 11px;
+  }
+
+  .onboarding-title {
+    max-width: 22rem;
+    margin: 0;
+    font-size: clamp(2.45rem, 9vw, 3.15rem);
+    line-height: 0.99;
+    letter-spacing: -0.065em;
+    text-wrap: balance;
+  }
+
+  .onboarding-description {
+    max-width: 32rem;
+    margin: 0;
+    color: #626661;
+    font-size: 15px;
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+  }
+
+  .onboarding-actions {
+    display: grid;
+    grid-template-columns: 1.08fr 0.92fr;
+    gap: 0.625rem;
+    max-width: none;
+    width: 100%;
+  }
+
+  .onboarding-actions button {
+    min-height: 50px;
+    padding: 0 0.75rem;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .onboarding-actions button:last-child {
+    border-color: transparent;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(25, 32, 29, 0.055);
+  }
+
+  .onboarding-proof {
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding-top: 0.125rem;
+  }
+
+  .onboarding-proof > div:first-child {
+    gap: 0.45rem;
+  }
+
+  .onboarding-proof > div:first-child > span {
+    font-size: 11px;
+  }
+
+  .onboarding-proof > div:last-child {
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.45rem 0.7rem;
+  }
+
+  .onboarding-proof > div:last-child > span {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .onboarding-carousel {
+    max-width: 25rem;
+    margin: 0 auto;
+    padding-top: 0.125rem;
+  }
+
+  .onboarding-carousel > div:nth-child(2) {
+    height: 24rem;
+    padding-top: 0;
+  }
+
+  .onboarding-carousel > div:nth-child(2) > div {
+    width: 72%;
+    max-width: 17rem;
+    border-radius: 18px;
+    box-shadow: 0 14px 34px -12px rgba(20, 73, 66, 0.22), 0 3px 8px rgba(0, 0, 0, 0.07);
+  }
+
+  .onboarding-carousel > div:nth-child(2) > div > div:first-child {
+    height: 1.8rem;
+  }
+
+  .onboarding-carousel > div:nth-child(3) {
+    gap: 0.7rem;
+    margin-top: 0.875rem;
+  }
+
+  .onboarding-carousel > div:nth-child(3) > div:first-child {
+    max-width: calc(100vw - 3rem);
+    gap: 0.5rem;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .onboarding-carousel > div:nth-child(3) > div:first-child > span:first-child {
+    font-size: 11px;
+  }
+
+  .onboarding-carousel > div:nth-child(3) > div:first-child > span:last-child {
+    font-size: 9px;
+    padding: 0.2rem 0.45rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .onboarding-layout {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  .onboarding-title {
+    font-size: 2.3rem;
+  }
+
+  .onboarding-actions button {
+    padding-right: 0.45rem;
+    padding-left: 0.45rem;
+    font-size: 12px;
+  }
+
+  .onboarding-carousel > div:nth-child(2) > div {
+    width: 76%;
+  }
+}
