@@ -13,7 +13,7 @@
 #hero-title .hero-title-line {
   transform: translateX(0);
 }
-:root{--bg:#fafaf9;--surface:#f7f7f5;--white:#fff;--text:#171717;--muted:#6B6B66;--hair:rgba(0,0,0,.08);--card-hair:rgba(0,0,0,.05);--teal:#12A394;--teal-hover:#0B8A7D;--ink:#111;--sky:#12A394;--sky-hover:#0B8A7D;--radius:24px;--font-sans:'Geist','Geist Fallback',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--font-mono:'Geist Mono','SFMono-Regular',Consolas,monospace;color-scheme:light}
+:root{--bg:#fff;--surface:#fff;--white:#fff;--text:#171717;--muted:#6B6B66;--hair:rgba(0,0,0,.08);--card-hair:rgba(0,0,0,.05);--teal:#12A394;--teal-hover:#0B8A7D;--ink:#111;--sky:#12A394;--sky-hover:#0B8A7D;--radius:24px;--font-sans:'Geist','Geist Fallback',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--font-mono:'Geist Mono','SFMono-Regular',Consolas,monospace;color-scheme:light}
 main#top,main#top *{font-family:var(--font-sans)}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:16px;line-height:1.6;transition:background .25s,color .25s}a{color:inherit;text-decoration:none}button{font:inherit;color:inherit}button,a{-webkit-tap-highlight-color:transparent}button:focus-visible,a:focus-visible{outline:3px solid var(--teal);outline-offset:4px}::selection{background:rgba(14,159,142,.22)}
 main{overflow:hidden}.mobile-menu,.mobile-sheet{display:none}
@@ -1716,3 +1716,7 @@ main{overflow:hidden}.mobile-menu,.mobile-sheet{display:none}
 @media(prefers-reduced-motion:reduce){
   .nav-menu-toggle span,.nav-pill .nav-mobile-links{transition:none!important}
 }
+
+/* Restore the centered pill navbar with a solid white fill. */
+.nav-pill{background:#fff!important}
+.nav-mobile-divider{display:none!important}

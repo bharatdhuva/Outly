@@ -14,14 +14,13 @@
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-    --background: 60 9.09% 97.84%;
-    /* Shared page canvas: #FAFAF9 */
+    --background: 0 0% 100%;
     --foreground: 223 47% 13%;
 
-    --card: 40 35% 98.5%;
+    --card: 0 0% 100%;
     --card-foreground: 223 47% 13%;
 
-    --popover: 40 35% 98.5%;
+    --popover: 0 0% 100%;
     --popover-foreground: 223 47% 13%;
 
     --primary: 159 62% 46%;
@@ -54,7 +53,7 @@
 
     --radius: 0.625rem;
 
-    --sidebar-background: 40 35% 98.5%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 13% 46%;
     --sidebar-primary: 159 62% 46%;
     --sidebar-primary-foreground: 0 0% 100%;
@@ -64,7 +63,7 @@
     --sidebar-ring: 159 62% 46%;
 
     --gradient-primary: linear-gradient(135deg, hsl(159 62% 46%), hsl(165 70% 40%));
-    --gradient-card: linear-gradient(180deg, hsl(40 35% 99.5%), hsl(40 30% 97.5%));
+    --gradient-card: linear-gradient(180deg, #ffffff, #ffffff);
     --shadow-glow: 0 10px 35px hsl(159 62% 46% / 0.15);
     --shadow-card: 0 18px 45px hsl(223 47% 13% / 0.08), 0 2px 8px hsl(223 47% 13% / 0.04);
   }
@@ -82,8 +81,8 @@
 
   html,
   body {
-    background-color: #FAFAF9;
-    background: #FAFAF9;
+    background-color: #ffffff;
+    background: #ffffff;
     @apply text-foreground antialiased;
     font-family: 'Geist', 'Geist Fallback', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Inter, system-ui, sans-serif;
     overflow-x: clip;

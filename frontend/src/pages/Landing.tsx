@@ -305,7 +305,6 @@ export default function OutlyLanding() {
   return <>
     {createPortal(<nav className={`nav-pill${mobileNavOpen ? ' nav-open' : ''}`} aria-label="Main navigation" ref={mobileNavRef}>
       <Brand />
-      <span className="nav-mobile-divider" aria-hidden="true" />
       <div className="nav-links">{[['top', 'Overview'], ['how-it-works', 'How it works'], ['pricing', 'Pricing'], ['faq', 'FAQ']].map(([id, label]) => <a href={`#${id}`} key={id}>{label}</a>)}</div>
       <div className={`nav-mobile-links${mobileNavOpen ? ' is-open' : ''}`} id="mobile-navigation-links" aria-hidden={!mobileNavOpen}>
         <a href="#top" onClick={() => setMobileNavOpen(false)}>Overview</a>

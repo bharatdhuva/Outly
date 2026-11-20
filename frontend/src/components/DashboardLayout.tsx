@@ -34,6 +34,7 @@ import {
   Share2,
   Mail,
   ArrowRight,
+  ArrowUpRight,
   Sparkles,
   Clock
 } from "lucide-react";
@@ -79,6 +80,7 @@ interface MegaMenuItem {
   desc: string;
   href?: string;
   guideKey?: string;
+  featured?: boolean;
   icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
   badge?: string;
 }
@@ -111,18 +113,21 @@ const MEGA_MENUS: MegaMenuConfig[] = [
             title: "ATS Resume Checker",
             desc: "Analyze score & algorithms",
             href: "/ats-score",
+            featured: true,
             icon: CheckCircle2,
           },
           {
             title: "Tailor Resume",
             desc: "Target job descriptions",
             href: "/resume-tailor",
+            featured: true,
             icon: Box,
           },
           {
             title: "Resume Vault",
             desc: "Saved resumes & versions",
             href: "/resume-vault",
+            featured: true,
             icon: FileText,
           },
         ],
@@ -178,12 +183,14 @@ const MEGA_MENUS: MegaMenuConfig[] = [
             title: "Job Search",
             desc: "Find matches instantly",
             href: "/job-search",
+            featured: true,
             icon: Building2,
           },
           {
             title: "Job Tracker",
             desc: "Track on a visual board",
             href: "/applications",
+            featured: true,
             icon: Target,
           },
         ],
@@ -239,6 +246,7 @@ const MEGA_MENUS: MegaMenuConfig[] = [
             title: "Cold Mail Automation",
             desc: "Personalized recruiter emails",
             href: "/cold-mail",
+            featured: true,
             icon: Mail,
             badge: "AI",
           },
@@ -967,6 +975,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const isToolsActive = ["/cold-mail", "/linkedin-posts", "/twitter", "/logs", "/tools"].some(path => location.pathname.startsWith(path));
   const isPricingActive = location.pathname === "/pricing";
   const isSupportActive = location.pathname === "/support";
+  const resumeTriggerLeft = triggerRefs.current.resumes?.getBoundingClientRect().left;
+  const dropdownContentOffset = activeDropdown && resumeTriggerLeft !== undefined
+    ? resumeTriggerLeft + 12
+    : 0;
 
   const isDemo = Boolean(userData?.user?.isDemo) || localStorage.getItem("outly_is_demo") === "true";
 
@@ -1037,14 +1049,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] text-[#171717] flex flex-col font-sans overflow-x-clip">
+    <div className="min-h-screen bg-white text-[#171717] flex flex-col font-sans overflow-x-clip">
 
       {/* Header Spacer Wrapper to prevent layout shift */}
       <div className={`${hasMobileHubTabs ? "h-0 md:h-16" : "h-16"} w-full shrink-0 relative bg-white`}>
         {/* ─── TOP NAVIGATION HEADER (FULL WIDTH) ─── */}
         <header
           ref={headerNavRef}
-          className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-black/[0.07] bg-white/95 backdrop-blur-[28px] shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_4px_12px_-2px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] shrink-0 select-none h-16 mobile-scroll-header"
+          className="fixed top-0 left-0 right-0 z-[100] w-full bg-white shrink-0 select-none h-16 mobile-scroll-header"
           onMouseLeave={scheduleDropdownClose}
         >
           <div className="flex w-full items-center justify-between px-4 sm:px-10 lg:px-12 h-16">
@@ -1060,185 +1072,59 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em', color: '#12A394', lineHeight: 1 }}>Outly</span>
               </Link>
 
-              {/* Middle: Desktop Links & Dropdowns */}
-              <nav className="hidden h-full items-center gap-1.5 font-sans md:flex relative xl:gap-4">
-                {MEGA_MENUS.map((menu) => {
-                  const isOpen = activeDropdown === menu.key;
-                  const isPageActive =
-                    (menu.key === "resumes" && isResumeActive) ||
-                    (menu.key === "jobs" && isJobsActive) ||
-                    (menu.key === "tools" && isToolsActive);
-
+              {/* Middle: Primary navigation */}
+              <nav className="hidden h-full items-center gap-6 font-sans md:flex relative">
+                {([
+                  { key: "resumes", label: "Resume", active: isResumeActive },
+                  { key: "jobs", label: "Jobs", active: isJobsActive },
+                  { key: "tools", label: "Tools", active: isToolsActive },
+                ] as const).map((item) => {
+                  const isOpen = activeDropdown === item.key;
                   return (
                     <button
-                      key={menu.key}
-                      ref={(el) => { triggerRefs.current[menu.key] = el; }}
+                      key={item.key}
+                      ref={(el) => { triggerRefs.current[item.key] = el; }}
                       type="button"
                       aria-expanded={isOpen}
                       aria-haspopup="true"
-                      aria-controls={`mn-panel-${menu.key}`}
-                      onClick={() => toggleDropdown(menu.key)}
-                      onMouseEnter={() => openDropdown(menu.key)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
-                          e.preventDefault();
-                          openDropdown(menu.key);
+                      aria-controls={`mn-panel-${item.key}`}
+                      onClick={() => toggleDropdown(item.key)}
+                      onMouseEnter={() => openDropdown(item.key)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
+                          event.preventDefault();
+                          openDropdown(item.key);
                         }
                       }}
-                      className={`mn-trigger ${isOpen || isPageActive ? "is-active" : ""}`}
+                      className={`mn-trigger ${isOpen || item.active ? "is-active" : ""}`}
                     >
-                      <span>{menu.label}</span>
+                      <span>{item.label}</span>
                       <ChevronDown className="mn-chevron" />
                     </button>
                   );
                 })}
-
-                {/* Standalone Link: PRICING */}
                 {isDemo ? (
                   <button
                     type="button"
                     onClick={() => handleLockedDemoFeature("Pricing & Billing")}
-                    className="mn-trigger text-[#403E3B] font-medium"
+                    className={`mn-trigger ${isPricingActive ? "is-active" : ""}`}
                   >
-                    <span>Pricing</span>
-                    <Lock className="w-3 h-3 text-amber-600/70 ml-1" />
+                    Pricing
                   </button>
                 ) : (
                   <Link
                     to="/pricing"
                     className={`mn-trigger ${isPricingActive ? "is-active" : ""}`}
                   >
-                    <span>Pricing</span>
+                    Pricing
                   </Link>
                 )}
-
-                {/* Standalone Link: SUPPORT */}
                 <Link
                   to="/support"
                   className={`mn-trigger ${isSupportActive ? "is-active" : ""}`}
                 >
-                  <span>Support</span>
+                  Support
                 </Link>
-
-                {/* Mega Panel Floating Card (Anchored to Nav/Resume Section) */}
-                <div
-                  className={`mn-dropdown-floating ${activeDropdown ? "is-open" : ""}`}
-                  aria-hidden={!activeDropdown}
-                  onMouseEnter={() => {
-                    if (dropdownCloseTimer.current) {
-                      window.clearTimeout(dropdownCloseTimer.current);
-                      dropdownCloseTimer.current = null;
-                    }
-                  }}
-                  onMouseLeave={scheduleDropdownClose}
-                >
-                  <div className="mn-panel-inner">
-                    <AnimatePresence mode="wait" initial={false}>
-                      {activeDropdown && (
-                        <m.div
-                          key={activeDropdown}
-                          id={`mn-panel-${activeDropdown}`}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.15, ease: "easeInOut" }}
-                          className="mn-panel-grid"
-                        >
-                          {MEGA_MENUS.find((m) => m.key === activeDropdown)?.groups.map((group, gIdx, allGroups) => {
-                            const isLastCol = gIdx === allGroups.length - 1;
-                            const currentMenu = MEGA_MENUS.find((m) => m.key === activeDropdown);
-
-                            return (
-                              <div key={group.heading} className="mn-column">
-                                <div className="mn-heading">{group.heading}</div>
-                                <div>
-                                  {group.items.map((item) => {
-                                    const IconComponent = item.icon;
-
-                                    if (item.href) {
-                                      return (
-                                        <Link
-                                          key={item.title}
-                                          to={item.href}
-                                          tabIndex={activeDropdown ? 0 : -1}
-                                          onClick={() => setActiveDropdown(null)}
-                                          className="mn-item"
-                                        >
-                                          <div className="mn-icon-tile">
-                                            <IconComponent size={16} strokeWidth={1.6} />
-                                          </div>
-                                          <div className="mn-text-col">
-                                            <div className="mn-title-row">
-                                              <span className="mn-title">{item.title}</span>
-                                              {item.badge && <span className="mn-badge">{item.badge}</span>}
-                                            </div>
-                                            <span className="mn-desc">{item.desc}</span>
-                                          </div>
-                                        </Link>
-                                      );
-                                    }
-
-                                    return (
-                                      <button
-                                        key={item.title}
-                                        type="button"
-                                        tabIndex={activeDropdown ? 0 : -1}
-                                        onClick={() => {
-                                          setActiveDropdown(null);
-                                          if (item.guideKey) setActiveGuide(item.guideKey);
-                                        }}
-                                        className="mn-item"
-                                      >
-                                        <div className="mn-icon-tile">
-                                          <IconComponent size={16} strokeWidth={1.6} />
-                                        </div>
-                                        <div className="mn-text-col">
-                                          <div className="mn-title-row">
-                                            <span className="mn-title">{item.title}</span>
-                                            {item.badge && <span className="mn-badge">{item.badge}</span>}
-                                          </div>
-                                          <span className="mn-desc">{item.desc}</span>
-                                        </div>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-
-                                {/* Optional footer link at the bottom of the last column */}
-                                {isLastCol && currentMenu?.footerLink && (
-                                  currentMenu.footerLink.href ? (
-                                    <Link
-                                      to={currentMenu.footerLink.href}
-                                      tabIndex={activeDropdown ? 0 : -1}
-                                      onClick={() => setActiveDropdown(null)}
-                                      className="mn-footer-link"
-                                    >
-                                      <span>{currentMenu.footerLink.label}</span>
-                                      <ArrowRight size={14} strokeWidth={1.6} />
-                                    </Link>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      tabIndex={activeDropdown ? 0 : -1}
-                                      onClick={() => {
-                                        setActiveDropdown(null);
-                                        if (currentMenu.footerLink?.guideKey) setActiveGuide(currentMenu.footerLink.guideKey);
-                                      }}
-                                      className="mn-footer-link"
-                                    >
-                                      <span>{currentMenu.footerLink.label}</span>
-                                      <ArrowRight size={14} strokeWidth={1.6} />
-                                    </button>
-                                  )
-                                )}
-                              </div>
-                            );
-                          })}
-                        </m.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
               </nav>
             </div>
 
@@ -1528,8 +1414,78 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
+          <div
+            className={`mn-dropdown-floating ${activeDropdown ? "is-open" : ""}`}
+            data-menu={activeDropdown ?? ""}
+            aria-hidden={!activeDropdown}
+            onMouseEnter={() => {
+              if (dropdownCloseTimer.current) {
+                window.clearTimeout(dropdownCloseTimer.current);
+                dropdownCloseTimer.current = null;
+              }
+            }}
+            onMouseLeave={scheduleDropdownClose}
+          >
+            <div className="mn-panel-inner">
+              <AnimatePresence mode="wait" initial={false}>
+                {activeDropdown && (
+                  <m.div
+                    key={activeDropdown}
+                    id={`mn-panel-${activeDropdown}`}
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.16, ease: ease.out }}
+                    style={{ "--mn-menu-offset": `${dropdownContentOffset}px` } as React.CSSProperties}
+                    className="mn-panel-grid"
+                  >
+                    {MEGA_MENUS.find((menu) => menu.key === activeDropdown)?.groups.map((group) => (
+                      <div key={group.heading} className="mn-column">
+                        <div className="mn-heading">{group.heading}</div>
+                        <div className="mn-column-links">
+                          {group.items.map((item) => item.href ? (
+                            <Link
+                              key={item.title}
+                              to={item.href}
+                              onClick={() => setActiveDropdown(null)}
+                              className="mn-item"
+                            >
+                              <span>{item.title}</span>
+                              {item.featured && <ArrowUpRight className="mn-item-arrow" size={16} strokeWidth={1.7} aria-hidden="true" />}
+                            </Link>
+                          ) : (
+                            <button
+                              key={item.title}
+                              type="button"
+                              onClick={() => {
+                                setActiveDropdown(null);
+                                if (item.guideKey) setActiveGuide(item.guideKey);
+                              }}
+                              className="mn-item"
+                            >
+                              <span>{item.title}</span>
+                              {item.featured && <ArrowUpRight className="mn-item-arrow" size={16} strokeWidth={1.7} aria-hidden="true" />}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </m.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </header>
       </div>
+      {activeDropdown && (
+        <button
+          type="button"
+          className="mn-dropdown-backdrop"
+          aria-label="Close navigation menu"
+          onMouseEnter={() => setActiveDropdown(null)}
+          onClick={() => setActiveDropdown(null)}
+        />
+      )}
 
       {/* ─── MAIN CONTENT LAYOUT (FULL WIDTH) ─── */}
       <main className="flex-1 w-full flex flex-col min-h-0 pb-24 md:pb-0 overflow-x-clip">
