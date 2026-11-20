@@ -154,6 +154,7 @@ export default function AtsScorePage() {
   const resultContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isInitialMount = useRef(true);
+  const scanInProgressRef = useRef(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -256,7 +257,6 @@ export default function AtsScorePage() {
   const [activeCategory, setActiveCategory] = useState<"content" | "format" | "style" | "sections" | "roles">("content");
   
   // Custom React state scanning loader
-  const [scanProgress, setScanProgress] = useState(0);
   const [scanStatus, setScanStatus] = useState("");
   const [showScanLoader, setShowScanLoader] = useState(false);
 
@@ -268,29 +268,18 @@ export default function AtsScorePage() {
 
   // Switch vault resume
   const handleVaultSelect = (idStr: string) => {
-    if ((isLimitExceeded || scanCount >= 3) && idStr !== "custom") {
-      window.dispatchEvent(
-        new CustomEvent("outly_limit_exceeded", {
-          detail: {
-            code: "LIMIT_ATS_EXCEEDED",
-            message: "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
-          },
-        })
-      );
-      return;
-    }
     setSelectedVaultId(idStr);
     setResumeFile(null); // Clear uploaded file when vault item is selected
     setResumeFileName("");
+    setResume("");
+    setResult(null);
     if (idStr === "custom") {
       setResume("");
-      setResult(null);
     } else {
       const found = resumes.find(r => String(r.id) === idStr);
       if (found && found.content) {
         setResume(found.content);
-        // Automatically trigger evaluation scan for the vault item
-        triggerAtsScan(found.content);
+        setResumeFileName(found.filename || found.label || "Saved resume");
       }
     }
   };
@@ -398,18 +387,6 @@ export default function AtsScorePage() {
   };
 
   const processResumeFile = async (file: File) => {
-    if (isLimitExceeded || scanCount >= 3) {
-      window.dispatchEvent(
-        new CustomEvent("outly_limit_exceeded", {
-          detail: {
-            code: "LIMIT_ATS_EXCEEDED",
-            message: "Free tier is limited to 3 ATS checks per 12 hours. Upgrade to Outly Pro for unlimited scans.",
-          },
-        })
-      );
-      return;
-    }
-
     const ext = file.name.split(".").pop()?.toLowerCase();
     if (ext !== "txt" && ext !== "pdf" && ext !== "docx") {
       toast({
@@ -431,6 +408,8 @@ export default function AtsScorePage() {
 
     setResumeFile(file);
     setResumeFileName(file.name);
+    setResume("");
+    setResult(null);
     setParsingFile(true);
     setUploadProgress(0);
 
@@ -448,8 +427,6 @@ export default function AtsScorePage() {
       const data = await api.ats.parseFile(file);
       setResume(data.content);
       setSelectedVaultId("custom");
-      // Automatically trigger evaluation scan after parsing
-      triggerAtsScan(data.content);
     } catch (err: any) {
       const errStr = String(err?.message || err);
       const isLimit =
@@ -495,7 +472,6 @@ export default function AtsScorePage() {
           if (text && text.trim().length > 20) {
             setResume(text);
             setSelectedVaultId("custom");
-            triggerAtsScan(text);
             return;
           }
         }
@@ -544,7 +520,7 @@ export default function AtsScorePage() {
     }
   };
 
-  // Trigger evaluation scan with loader simulation
+  // Run the ATS check only after the user explicitly asks for a score.
   const triggerAtsScan = async (resumeText: string) => {
     if (isLimitExceeded || scanCount >= 3) {
       window.dispatchEvent(
@@ -558,52 +534,15 @@ export default function AtsScorePage() {
       return;
     }
     if (!resumeText.trim()) return;
-
-    const loadingStatuses = [
-      "Extracting text profile & layout structure...",
-      "Analyzing semantic density and content quality...",
-      "Running 27 universal ATS compatibility checks...",
-      "Scanning experience timeline for quantified metrics...",
-      "Verifying font, spacing, and section margins...",
-      "Comparing keyword match vectors with hiring systems...",
-      "Synthesizing actionable formatting recommendations..."
-    ];
-
+    if (scanInProgressRef.current) return;
+    scanInProgressRef.current = true;
     setShowScanLoader(true);
-    setScanProgress(0);
-    
-    let statusIndex = 0;
-    setScanStatus(loadingStatuses[0]);
-
-    // Interval to cycle through statuses continuously
-    const statusTimer = setInterval(() => {
-      statusIndex = (statusIndex + 1) % loadingStatuses.length;
-      setScanStatus(loadingStatuses[statusIndex]);
-    }, 1200);
-
-    // Progress bar animation triggers (gradually increment and hold at 98)
-    let progress = 0;
-    const progressTimer = setInterval(() => {
-      progress += Math.floor(Math.random() * 5) + 2; // increment by 2-6%
-      if (progress >= 98) {
-        progress = 98;
-      }
-      setScanProgress(progress);
-    }, 150);
-
+    setScanStatus("Analyzing resume content and ATS readability…");
+    setResult(null);
     setLoading(true);
     try {
       const data = await api.ats.score(resumeText, "");
-      
-      // Stop the timers
-      clearInterval(statusTimer);
-      clearInterval(progressTimer);
 
-      // Complete the progress bar cleanly
-      setScanProgress(100);
-      setScanStatus("Finalizing ATS scoring report...");
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
       setResult(data);
       
       // Frontend-level lock: count successful scans and lock after 3
@@ -639,7 +578,7 @@ export default function AtsScorePage() {
       refetchLimitStatus();
       window.dispatchEvent(new CustomEvent("outly-notification", {
         detail: {
-          title: "Resume Scanned 🔍",
+          title: "ATS check complete",
           description: `Your resume has been successfully scanned. ATS Match Score: ${data.score}/100.`
         }
       }));
@@ -651,14 +590,11 @@ export default function AtsScorePage() {
         });
       } else {
         toast({
-          title: "Resume Uploaded Successfully",
-          description: `Analysis complete with match score: ${data.score}/100.`,
+          title: "ATS check complete",
+          description: `Your resume score is ${data.score}/100.`,
         });
       }
     } catch (err: any) {
-      clearInterval(statusTimer);
-      clearInterval(progressTimer);
-      
       const errStr = String(err?.message || err);
       const isLimitError =
         err?.data?.code === "LIMIT_ATS_EXCEEDED" ||
@@ -726,6 +662,7 @@ export default function AtsScorePage() {
       setResult(null);
       refetchLimitStatus();
     } finally {
+      scanInProgressRef.current = false;
       setShowScanLoader(false);
       setLoading(false);
     }
@@ -733,6 +670,7 @@ export default function AtsScorePage() {
 
   // Manual check score click
   const handleCheckScoreClick = () => {
+    if (!resume.trim() || parsingFile || loading || showScanLoader) return;
     triggerAtsScan(resume);
   };
 
@@ -814,20 +752,20 @@ export default function AtsScorePage() {
                 <span className="ats-loading-orbit"><Loader2 className="animate-spin" /></span>
                 <div>
                   <p className="ats-loading-title">
-                    {parsingFile ? "Uploading resume..." : scanStatus || "Checking 27 factors..."}
+                    {parsingFile ? "Uploading resume..." : scanStatus || "Checking your resume…"}
                   </p>
                   <p className="ats-loading-copy">
-                    {parsingFile ? `${uploadProgress}% processed` : `${scanProgress}% analyzed`}
+                    {parsingFile ? `${uploadProgress}% processed` : "This can take a few moments"}
                   </p>
                 </div>
                 <div className="ats-progress-track">
                   <div
-                    className="ats-progress-fill"
-                    style={{ transform: `scaleX(${Math.max(0, Math.min(1, (parsingFile ? uploadProgress : scanProgress) / 100))})` }}
+                    className={`ats-progress-fill ${parsingFile ? "" : "is-indeterminate"}`}
+                    style={parsingFile ? { transform: `scaleX(${Math.max(0, Math.min(1, uploadProgress / 100))})` } : undefined}
                   />
                 </div>
               </div>
-            ) : result ? (
+            ) : (result || resume.trim()) ? (
               <div className="ats-resume-loaded">
                 <div className="ats-file-toolbar">
                   <div className="ats-file-name">
@@ -894,7 +832,7 @@ export default function AtsScorePage() {
                 </div>
 
                 <div className="ats-resume-preview">
-                  {result.isValidResume === false ? (
+                  {result?.isValidResume === false ? (
                     <div className="ats-invalid-resume">
                       <AlertCircle className="w-6 h-6 text-amber-500 mx-auto" />
                       <p className="ats-invalid-title">This file doesn’t look like a resume</p>
@@ -975,7 +913,14 @@ export default function AtsScorePage() {
                     {result.isValidResume === false ? "Resume not recognized" : result.score >= 80 ? "Strong foundation" : result.score >= 50 ? "Room to improve" : "Needs attention"}
                   </span>
                   <div className="ats-score-track"><span style={{ width: `${Math.max(0, Math.min(100, result.score))}%` }} /></div>
-                  {result.analysis_source && result.isValidResume !== false && <span className={`ats-analysis-source ${result.analysis_source === "heuristic_ai" ? "is-ai" : ""}`}>{result.analysis_source === "heuristic_ai" ? "Rules + Gemini analysis" : "Deterministic rules"}</span>}
+                  {result.analysis_source && result.isValidResume !== false && (
+                    <div className="ats-analysis-provenance">
+                      <span className={`ats-analysis-source ${result.analysis_source === "heuristic_ai" ? "is-ai" : ""}`}>
+                        {result.analysis_source === "heuristic_ai" ? "ATS rules + AI analysis" : "Rule-based ATS estimate"}
+                      </span>
+                      {result.analysis_notice && <small>{result.analysis_notice}</small>}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1037,15 +982,31 @@ export default function AtsScorePage() {
           <div className="ats-report-actions">
             {!result ? (
               <>
-                <p>Add your resume to see your score.</p>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={parsingFile}
-                  className="resume-primary-action ats-primary-button"
-                >
-                  {parsingFile ? <Spinner size={14} className="text-white" /> : null}
-                  <span>{parsingFile ? "Uploading..." : "Upload resume"}</span>
-                </button>
+                {resume.trim() ? (
+                  <>
+                    <p>{showScanLoader ? "Checking your resume…" : "Resume preview ready. Run an ATS check when you’re ready."}</p>
+                    <button
+                      onClick={handleCheckScoreClick}
+                      disabled={parsingFile || loading || showScanLoader || !resume.trim()}
+                      className="resume-primary-action ats-primary-button"
+                    >
+                      {showScanLoader ? <Spinner size={14} className="text-white" /> : null}
+                      <span>{showScanLoader ? "Checking ATS score…" : "Check ATS score"}</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p>Add your resume to see your score.</p>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={parsingFile}
+                      className="resume-primary-action ats-primary-button"
+                    >
+                      {parsingFile ? <Spinner size={14} className="text-white" /> : null}
+                      <span>{parsingFile ? "Uploading..." : "Upload resume"}</span>
+                    </button>
+                  </>
+                )}
               </>
             ) : (
               <div className="ats-action-row">
