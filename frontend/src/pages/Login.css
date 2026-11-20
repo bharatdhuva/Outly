@@ -4,13 +4,13 @@
 }
 
 .login-page {
-  background: #fff;
+  background: #faf9f6;
   color: #171717;
 }
 
 .login-left {
   position: relative;
-  background: #3bc9ee;
+  background: #8fe9f7;
   border-right: 0;
   padding: 0;
   width: calc(50% - 10px);
@@ -46,7 +46,7 @@
   padding: 32px 30px 28px;
   background: #fff;
   border-radius: 22px;
-  border-bottom: 5px solid #fff36b;
+  border-bottom: 5px solid #ffe680;
   box-shadow: 0 16px 30px rgba(20, 116, 144, .12);
   transform: translateY(-42px);
 }
@@ -109,7 +109,7 @@
 
 .login-bot-pink {
   left: 22%;
-  background: #f22b8d;
+  background: #0e9f8e;
 }
 
 .login-bot-orange {
@@ -119,7 +119,7 @@
 
 .login-right {
   position: relative;
-  background: #fff;
+  background: #faf9f6;
 }
 
 .login-right-brand {
@@ -256,3 +256,27 @@
     font-size: 18px;
   }
 }
+
+.login-promo{background:#f2eee4}
+.login-auth-options{display:flex;flex-direction:column;gap:14px;width:100%}
+.login-google-button{background:#fff;color:#181916;border:0;box-shadow:0 2px 10px rgba(32,38,30,.07)}
+.login-google-button:hover{background:#f4f3ef;box-shadow:0 4px 14px rgba(32,38,30,.1)}
+.login-or-divider{display:flex;align-items:center;gap:12px;color:#898981;font-size:12px;text-transform:lowercase}
+.login-or-divider::before,.login-or-divider::after{content:"";height:1px;background:#e7e5dd;flex:1}
+.login-email-form{display:flex;flex-direction:column;gap:12px}
+.login-field{display:flex;flex-direction:column;gap:6px;color:#353630;font-size:12px;font-weight:550}
+.login-field input{width:100%;height:46px;padding:0 14px;border:1px solid transparent;border-radius:12px;background:#f1f0eb;color:#1c1d19;font:400 14px Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;outline:none;transition:border-color .15s,background .15s,box-shadow .15s}
+.login-field input::placeholder{color:#9b9a91}
+.login-field input:focus{border-color:#16a392;background:#fff;box-shadow:0 0 0 3px rgba(18,163,148,.12)}
+.login-submit-button{width:100%;min-height:48px;margin-top:2px;border:0;border-radius:999px;background:#119b8d;color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:background .15s,transform .15s}
+.login-submit-button:hover{background:#0b887b}
+.login-submit-button:active{transform:scale(.99)}
+.login-submit-button:disabled{opacity:.58;cursor:not-allowed}
+.login-auth-error{margin:0;padding:10px 12px;border-radius:10px;background:#fff1ed;color:#9e3f2c;font-size:12px;line-height:1.45}
+.login-mode-switch{text-align:center;margin:0;color:#77776f;font-size:12px}
+.login-mode-switch button{border:0;background:transparent;color:#087f74;cursor:pointer;padding:4px;font-family:inherit;font-size:12px;font-weight:600}
+.login-mode-switch button:hover{text-decoration:underline;text-underline-offset:3px}
+.login-demo-option{width:100%;margin-top:2px}
+.login-demo-option .login-demo-button{width:100%;min-height:44px!important;border:0!important;background:transparent!important;color:#5e6059!important;font-size:13px!important;box-shadow:none!important}
+.login-demo-option .login-demo-button:hover{background:#efeee8!important;color:#252620!important}
+.login-demo-option>p{margin-top:3px}

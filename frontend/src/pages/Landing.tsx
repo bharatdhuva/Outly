@@ -109,89 +109,26 @@ function HeroRotator() {
 
 function Brand() { return <a className="brand" href="#top" aria-label="Outly home" onClick={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}><span className="brand-mark"><Send size={20} strokeWidth={2} /></span><span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, letterSpacing: '-0.02em' }}>Outly</span></a> }
 
-function MiniWindow({ type }: { type: string }) {
-  if (type === 'score') return <div className="mini-window score-ui"><div className="mini-top"><span>role match</span><span className="tiny-dot" /> Product designer · Stripe</div><div className="score-layout"><div className="score-ring"><span>86<small>%</small></span></div><div className="score-lines"><b>strong match</b><span>keyword coverage</span><div className="meter"><i style={{ width: '86%' }} /></div><span>recruiter fixes</span><div className="meter"><i style={{ width: '72%' }} /></div><small>3 keywords to add</small></div></div></div>
-  if (type === 'mail') return <div className="mini-window mail-ui"><div className="mail-head"><span>to</span><b>Priya Sharma · Stripe recruiter</b><span className="draft-tag">draft</span></div><div className="mail-body"><b>Application · Product Designer</b><p>Hi Priya, I saw the product design role at Stripe and was drawn to the work on making payments feel simple. My recent work on...</p><div className="typing"><i /> written in your voice</div></div></div>
-  if (type === 'vault') return <div className="mini-window vault-ui"><div className="mini-top"><span>resume vault</span><span>3 versions</span></div>{[['Master resume', 'Updated just now'], ['Stripe · Product Designer', 'Tailored today'], ['Linear · Product Designer', 'Tailored yesterday']].map(([a, b], i) => <div className="file-row" key={a}><FileText size={16} /><span><b>{a}</b><small>{b}</small></span><span className={i ? 'file-arrow' : 'file-master'}>{i ? '↗' : 'master'}</span></div>)}</div>
-  if (type === 'board') return <div className="mini-window board-ui"><div className="board-column"><label>saved <em>3</em></label><div className="board-card"><b>Figma</b><small>Product Designer</small></div><div className="board-card"><b>Linear</b><small>Product Designer</small></div></div><div className="board-column"><label>interview <em>1</em></label><div className="board-card active-board"><b>Stripe</b><small>Interview · 2:30 PM</small></div></div><div className="board-column"><label>offer <em>0</em></label><div className="empty-card">you&apos;ll get here</div></div></div>
-  if (type === 'brief') return <div className="mini-window brief-ui"><div className="brief-title"><span className="brief-sun">☼</span><div><small>tuesday · morning brief</small><b>good morning, rohan.</b></div><span className="brief-count">2 things</span></div><div className="brief-item"><span className="brief-bullet teal" /><span><b>Stripe recruiter replied</b><small>reply before Friday</small></span><ArrowUpRight size={15} /></div><div className="brief-item"><span className="brief-bullet yellow" /><span><b>Your Figma interview</b><small>tomorrow at 2:30 PM · synced</small></span><CalendarDays size={15} /></div></div>
-  return <div className="mini-window calendar-ui"><div className="calendar-head"><b>April 2026</b><span>‹ &nbsp; ›</span></div><div className="calendar-grid">{'MTWTFSS'.split('').map((d, i) => <small key={i}>{d}</small>)}{Array.from({ length: 14 }, (_, i) => <span key={i} className={i === 9 ? 'calendar-selected' : ''}>{i + 1}</span>)}</div><div className="calendar-event"><span /> Stripe Interview <b>2:30 PM</b><small>calendar synced</small></div></div>
-}
-
 function PlanList() {
-  const ref = useRef<HTMLDivElement>(null)
-  // 0 = idle, 1 = running, 2 = done
-  const [states, setStates] = useState<number[]>(Array(6).fill(0))
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          // Stagger: each step starts running 480ms after previous one starts
-          Array(6).fill(null).forEach((_, i) => {
-            setTimeout(() => {
-              setStates(prev => { const n = [...prev]; n[i] = 1; return n })
-              setTimeout(() => {
-                setStates(prev => { const n = [...prev]; n[i] = 2; return n })
-              }, 820)
-            }, i * 480)
-          })
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.25 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
-  const steps: [string, string, string][] = [
-    ['research the role', 'Know what the team needs.', 'analysing JD'],
-    ['tailor the resume', 'Show the experience that fits.', 'rewriting bullets'],
-    ['score the match', 'See the gaps, not guess.', '27 factors'],
-    ['draft the outreach', 'Reach out like yourself.', 'your voice'],
-    ['track the reply', 'Keep the next step in view.', 'reply detected'],
-    ['prep the interview', 'Walk in with a plan.', 'brief ready'],
+  const steps: [string, string][] = [
+    ['Research the role', 'Know the team.'],
+    ['Tailor the resume', 'Show relevant work.'],
+    ['Score the match', 'Spot skill gaps.'],
+    ['Draft the outreach', 'Write your intro.'],
+    ['Track the reply', 'Follow each reply.'],
+    ['Prep the interview', 'Plan your next step.'],
   ]
 
-  const doneCount = states.filter(s => s === 2).length
-  const fillPct = (doneCount / 6) * 100
-
   return (
-    <div className="pl-wrap" ref={ref}>
-      {/* left rail */}
-      <div className="pl-rail">
-        <div className="pl-rail-fill" style={{ height: `${fillPct}%` }} />
-        {states.map((s, i) => (
-          <span
-            key={i}
-            className={`pl-node${s === 1 ? ' pl-node-running' : s === 2 ? ' pl-node-done' : ''}`}
-            style={{ top: `${(i / 5) * 100}%` }}
-          >
-            {s === 2 && (
-              <svg viewBox="0 0 8 8" fill="none">
-                <path className="pl-check" d="M1.5 4l1.8 1.8L6.5 2.5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
-          </span>
-        ))}
-      </div>
-
-      {/* step rows */}
+    <div className="pl-wrap pl-static">
       <div className="pl-rows">
-        {steps.map(([title, desc, tag], i) => (
-          <div
-            key={title}
-            className={`pl-row${states[i] === 1 ? ' pl-row-running' : states[i] === 2 ? ' pl-row-done' : ''}`}
-          >
+        {steps.map(([title, desc]) => (
+          <div key={title} className="pl-row pl-row-done">
+            <span className="pl-step-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" /><path d="m7.5 12.2 3 3 6-6.4" /></svg></span>
             <div className="pl-row-main">
               <span className="pl-title">{title}</span>
-              {states[i] === 1 && <span className="pl-tag pl-tag-run">{tag} <span className="pl-dots"><i /><i /><i /></span></span>}
-              {states[i] === 2 && <span className="pl-tag pl-tag-done">done</span>}
+              <span className="pl-desc">{desc}</span>
             </div>
-            <span className="pl-desc">{desc}</span>
           </div>
         ))}
       </div>
@@ -220,6 +157,28 @@ export default function OutlyLanding() {
   const [displayPrice, setDisplayPrice] = useState(9)
   const priceValueRef = useRef(9)
   const [activeNav, setActiveNav] = useState('features')
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const mobileNavRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    if (!mobileNavOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const focusable = mobileNavRef.current?.querySelectorAll<HTMLElement>('a,button')
+    focusable?.[0]?.focus()
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileNavOpen(false)
+      if (event.key !== 'Tab' || !focusable?.length) return
+      const first = focusable[0], last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+    }
+    const onPointerDown = (event: PointerEvent) => {
+      if (!mobileNavRef.current?.contains(event.target as Node)) setMobileNavOpen(false)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => { document.body.style.overflow = previousOverflow; document.removeEventListener('keydown', onKeyDown); document.removeEventListener('pointerdown', onPointerDown) }
+  }, [mobileNavOpen])
   useEffect(() => {
     prefetchOnIdle(['/login', '/pricing'])
   }, [])
@@ -321,13 +280,13 @@ export default function OutlyLanding() {
     particlePointerRef.current.active = false
   }
   return <>
-    {createPortal(<nav className="nav-pill" aria-label="Main navigation">
+    {createPortal(<nav className={`nav-pill${mobileNavOpen ? ' nav-open' : ''}`} aria-label="Main navigation" ref={mobileNavRef}>
       <Brand />
       <span className="nav-mobile-divider" aria-hidden="true" />
-      <div className="nav-links">{[['features', 'Overview'], ['how-it-works', 'How it works'], ['pricing', 'Pricing'], ['faq', 'FAQ']].map(([id, label]) => <a href={`#${id}`} key={id}>{label}</a>)}</div>
-      <div className="nav-mobile-links">
-        <a href="#features">Overview</a>
-        <a href="#pricing">Pricing</a>
+      <div className="nav-links">{[['top', 'Overview'], ['how-it-works', 'How it works'], ['pricing', 'Pricing'], ['faq', 'FAQ']].map(([id, label]) => <a href={`#${id}`} key={id}>{label}</a>)}</div>
+      <div className="nav-mobile-links" id="mobile-navigation-links">
+        <a href="#top" onClick={() => setMobileNavOpen(false)}>Overview</a>
+        <a href="#pricing" onClick={() => setMobileNavOpen(false)}>Pricing</a>
       </div>
       <div className="nav-actions">
         <Link className="nav-signin-link" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Sign in</Link>
@@ -336,18 +295,24 @@ export default function OutlyLanding() {
 
     <main id="top" onMouseEnter={() => { }}>
       <section className="hero" aria-labelledby="hero-title"><h1 id="hero-title"><span className="hero-title-line"><span className="hero-static-your">Your</span><HeroRotator /></span><br /><i>one place.</i></h1><p className="hero-copy">Find the right roles, tailor your resume, and keep every application moving. <br />Your whole search, in one place.</p><div className="hero-actions"><Link className="button button-teal landing-hero-cta" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Start your search <ArrowUpRight size={17} /></Link><a className="button button-outline" href="#pricing">View pricing</a></div><div className="tool-chips" aria-label="Outly integrations"><div className="tool-chips-track"><div className="tool-chips-set"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div><div className="tool-chips-set" aria-hidden="true"><b><img className="tool-logo" src={geminiLogo} alt="" />Gemini</b><b><img className="tool-logo gmail-logo" src={gmailLogo} alt="" />Gmail</b><b><img className="tool-logo calendar-logo" src={calendarLogo} alt="" />Calendar</b><b><img className="tool-logo linkedin-logo" src={linkedinLogo} alt="" />LinkedIn</b><b><img className="tool-logo tool-logo-naukri naukri-logo" src={naukriLogo} alt="" />Naukri</b><b><img className="tool-logo wellfound-logo" src={wellfoundLogo} alt="" />Wellfound</b><b><img className="tool-logo workday-logo" src={workdayLogo} alt="" />Workday</b></div></div></div></section>
-      <section className="features-section" id="features"><div className="section-heading"><div><h2>Less searching.<br /><i>More actual work.</i></h2></div><p>From the first job description to the interview invite, Outly helps with the parts that take your time.</p></div><div className="bento-grid">{[
-        { title: 'Resume ATS score', desc: 'A 27-factor score, clear fixes, and a target worth working toward.', type: 'score', tag: 'know where you stand' },
-        { title: 'Resume Tailor', desc: 'Shape your resume around the role without losing your own voice.', type: 'keywords', tag: 'make the match clear' },
-        { title: 'Resume Vault', desc: 'Keep your master resume and every tailored version together.', type: 'vault', tag: 'one source of truth' },
-        { title: 'AI Job Search', desc: 'Find roles that fit your experience and what you want next.', type: 'search', tag: 'find your next' },
-        { title: 'Application Tracker', desc: 'Move each role from saved to applied, interview, and offer.', type: 'board', tag: 'keep your place' },
-        { title: 'Cold Mail Engine', desc: 'Find the right recruiter and draft a personal note in your own voice.', type: 'mail', tag: 'reach out with care' },
-      ].map((card, i) => <article className={`feature-card feature-${card.type}`} key={card.title}><div className="feature-visual">{card.type === 'search' ? <div className="search-visual"><Search /><span>Product designer · remote</span><b>match 94%</b><div className="search-result"><span>Stripe</span><strong>Senior Product Designer</strong><small>Remote · posted 2 days ago</small></div></div> : card.type === 'keywords' ? <div className="keyword-ui"><div className="mini-top">keyword gap <b>3 to add</b></div>{[['product strategy', true], ['design systems', true], ['experimentation', false], ['stakeholder work', true]].map(([w, ok]) => <div className="keyword-row" key={String(w)}><span className={ok ? 'keyword-ok' : ''}>{ok ? '✓' : '+'}</span>{w}</div>)}</div> : card.type === 'privacy' ? <div className="privacy-visual"><ShieldCheck size={28} /><b>your resume, your rules.</b><span>stored privately · never sold</span><div className="privacy-line"><i /> training use <b>off</b></div></div> : <MiniWindow type={card.type} />}</div><div className="feature-copy"><h3>{card.title}</h3><p>{card.desc}</p></div></article>)}</div></section>
-      <section className="steps-section" id="how-it-works"><div className="section-heading"><div><h2>From upload to a<br /><i>better next step.</i></h2></div><p>A clear start, then one good move at a time. Most people are ready in about two minutes.</p></div><div className="steps-grid">{[['01', 'Upload your master resume', 'Outly takes it from there. Keep your original close.', 'resume'], ['02', 'Find a role worth your time', 'Paste a description or discover a match.', 'search'], ['03', 'Make your application fit', 'Get a tailored resume and the ATS score to improve it.', 'tailor'], ['04', 'Reach out and track it', 'Review the note, send when ready, and track the reply.', 'send']].map(([num, title, desc, icon], i) => <article className={`step-card step-${i + 1}`} key={num}><div className="step-illustration">{icon === 'resume' ? <FileText /> : icon === 'search' ? <Search /> : icon === 'tailor' ? <Target /> : <Send />}</div><h3>{title}</h3><p>{desc}</p><div className="pixel-stair" /></article>)}</div></section>
+      
+      <section className="features-section feature-board" id="features" aria-labelledby="feature-board-title">
+        <div className="section-heading"><div><h2 id="feature-board-title">Four tools.<br /><i>One steady search.</i></h2></div><p>Everything you need to move from finding a role to making a thoughtful first contact.</p></div>
+        <div className="feature-board-grid">
+          {[
+            ['01', 'Find the right roles', 'Search for work that fits your skills, goals, and the way you want to work.'],
+            ['02', 'Tailor your resume', 'Shape each application around the role while keeping your voice.'],
+            ['03', 'Save every version', 'Keep your master resume and tailored copies together in your vault.'],
+            ['04', 'Write a better cold email', 'Draft a personal note to the right recruiter, ready when you are.'],
+          ].map(([num, title, description], index) => <article className={`feature-board-card feature-board-${index + 1}`} key={num}>
+            <span className="feature-board-number">{num}</span><h3>{title}</h3><p>{description}</p><span className="feature-board-accent" aria-hidden="true" />
+          </article>)}
+        </div>
+      </section>
       <section className="ats-marquee" aria-label="Job search platforms"><div className="marquee-band"><div className={`marquee-track ${tapePaused ? 'marquee-paused' : ''}`}>{[0, 1].map(copy => <span className="marquee-set" key={copy} aria-hidden={copy === 1}>{jobPlatformBrands.map((brand, index) => <span className="marquee-brand" key={`${copy}-${brand.name}-${index}`} role={copy === 0 ? 'img' : undefined} aria-label={copy === 0 ? brand.name : undefined}><img src={brand.logo} alt="" aria-hidden="true" loading="eager" /><span>{brand.name}</span></span>)}</span>)}</div><button onClick={() => setTapePaused(!tapePaused)} className="tape-pause" aria-label={tapePaused ? 'Play job board logos' : 'Pause job board logos'} aria-pressed={tapePaused} title={tapePaused ? 'Play logos' : 'Pause logos'}>{tapePaused ? <Play size={14} fill="currentColor" /> : <Pause size={14} fill="currentColor" />}</button></div></section>
       <section className="plan-section"><div className="plan-scene"><PixelLandscape /><div className="plan-float"><h2>Give every<br />application <i>its own plan.</i></h2><PlanList /><Link className="button button-dark" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Get started, it&apos;s free <ArrowUpRight size={16} /></Link></div></div></section>
       <section className="trust-section"><div className="section-heading"><div><h2>Where your data<br /><i>lives with you.</i></h2></div><p>A job search is personal. Outly is built to treat it that way, from the first upload to the last follow-up.</p></div><div className="trust-grid"><article><PixelLandscape kind="local-scene" /><h3>Stored for your search</h3><p>Your master resume and tailored versions stay in your private Outly account, ready when you need them.</p></article><article><PixelLandscape kind="cloud-scene" /><h3>Private cloud</h3><p>Your search stays accessible without turning your personal documents into public information.</p></article><article><PixelLandscape kind="quiet-scene" /><h3>Never used for training</h3><p>We do not sell your information or use your resume to train external models. Your next move is yours.</p></article></div></section>
+      <section className="steps-section" id="how-it-works"><div className="section-heading"><div><h2>From upload to a<br /><i>better next step.</i></h2></div><p>A clear start, then one good move at a time. Most people are ready in about two minutes.</p></div><div className="steps-grid">{[['01', 'Upload your master resume', 'Outly takes it from there. Keep your original close.', 'resume'], ['02', 'Find a role worth your time', 'Paste a description or discover a match.', 'search'], ['03', 'Make your application fit', 'Get a tailored resume and the ATS score to improve it.', 'tailor'], ['04', 'Reach out and track it', 'Review the note, send when ready, and track the reply.', 'send']].map(([num, title, desc, icon], i) => <article className={`step-card step-${i + 1}`} key={num}><div className="step-illustration">{icon === 'resume' ? <FileText /> : icon === 'search' ? <Search /> : icon === 'tailor' ? <Target /> : <Send />}</div><h3>{title}</h3><p>{desc}</p><div className="pixel-stair" /></article>)}</div></section>
       <section className="pricing-section" id="pricing"><div className="pricing-glow" /><div className="pricing-header"><div><h2>Start free.<br /><i>Upgrade when you need more room.</i></h2></div><div className="billing-toggle"><span className={`billing-slider ${yearly ? 'billing-slider-yearly' : ''}`} aria-hidden="true" /><button className={`billing-monthly ${!yearly ? 'billing-active' : ''}`} onClick={() => setYearly(false)}>Monthly</button><button className={`billing-yearly ${yearly ? 'billing-active' : ''}`} onClick={() => setYearly(true)}>Yearly <span>save 20%</span></button></div></div><div className="pricing-grid"><article className="price-card free-card"><div className="pricing-cat"><img src={pricingCatImage} alt="" /><span>z</span><span>z</span></div><img className="pricing-art" src={pricingSeaImage} alt="" /><div className="price-content"><h3>Free</h3><p>Everything you need to get moving.</p><div className="price"><b>₹0</b><span>forever</span></div><ul>{['3 ATS checks every 12 hours', 'Resume Vault', 'AI job search', 'Application tracker board', 'Cold-mail generator'].map(x => <li key={x}><Check size={15} />{x}</li>)}<li className="unavailable"><X size={15} />Unlimited tailoring</li></ul><Link className="button button-white" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Get started <ArrowUpRight size={16} /></Link></div></article><article className="price-card pro-card"><img className="pricing-art" src={pricingFieldImage} alt="" /><div className="price-content"><div className="pro-label">best for active job seekers</div><h3>Pro</h3><p>More room for every application.</p><div className="price"><b>₹{displayPrice}</b><span>{yearly ? '/ year' : '/ month'}</span></div><ul>{['Unlimited ATS checks · 27-factor score', 'Unlimited resume tailoring', 'Deep keyword-gap insights', 'Unlimited Resume Vault & tracking', 'Full cold-mail automation'].map(x => <li key={x}><Check size={15} />{x}</li>)}</ul><Link className="button button-teal" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Try now <ArrowUpRight size={16} /></Link><Link className="buy-link" to="/pricing" onMouseEnter={() => prefetchRoute('/pricing')} onFocus={() => prefetchRoute('/pricing')}>or buy now</Link></div></article></div><p className="pricing-note"><ShieldCheck size={14} /> your data stays yours on every plan. no pressure, cancel anytime.</p></section>
       <section className="faq-section" id="faq"><h2 className="faq-title">FAQ</h2><div className="faq-list">{faq.map(([q, a], i) => <article className={`faq-item ${openFaq === i ? 'faq-open' : ''}`} key={q}><button aria-expanded={openFaq === i} onClick={() => setOpenFaq(openFaq === i ? null : i)}><span>{q}</span><span className="faq-plus"><ChevronRight size={15} /></span></button><div className="faq-answer"><p>{a}</p></div></article>)}</div></section>
       <section className="closing"><div className="closing-pixels" /><h2>Meet your next<br /><i>good thing.</i></h2><p>It could be working in two minutes.<br />Free to start. Yours to steer.</p><div className="closing-actions"><Link className="button button-dark" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Get started, it&apos;s free <ArrowUpRight size={16} /></Link><Link className="button button-white" to="/login" onMouseEnter={() => prefetchRoute('/login')} onFocus={() => prefetchRoute('/login')}>Sign in</Link></div><PixelLandscape kind="closing-sea" /></section>

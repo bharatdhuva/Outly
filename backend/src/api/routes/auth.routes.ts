@@ -230,16 +230,25 @@ router.post("/signup", async (req, res) => {
   try {
     const { email, password, fullName } = req.body;
 
-    if (!email || !password) {
+    if (typeof email !== "string" || typeof password !== "string") {
       return res.status(400).json({ error: "Email and password are required." });
     }
 
     const emailNormalized = email.toLowerCase().trim();
+    if (emailNormalized.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailNormalized)) {
+      return res.status(400).json({ error: "Enter a valid email address." });
+    }
+    if (password.length < 8 || password.length > 128) {
+      return res.status(400).json({ error: "Password must be between 8 and 128 characters." });
+    }
+    if (fullName !== undefined && (typeof fullName !== "string" || fullName.trim().length > 80)) {
+      return res.status(400).json({ error: "Name must be 80 characters or fewer." });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email: emailNormalized });
     if (existingUser) {
-      return res.status(400).json({ error: "An account with this email already exists." });
+      return res.status(409).json({ error: "An account with this email already exists. Sign in instead." });
     }
 
     // Hash password
@@ -311,27 +320,47 @@ router.post("/google", async (req, res) => {
       return res.status(400).json({ error: "Missing Google credential." });
     }
 
-    let payload: { email?: string; email_verified?: string; aud?: string; name?: string; picture?: string } | null = null;
+    if (!env.GOOGLE_CLIENT_ID) {
+      logger.error("Google login is not configured: GOOGLE_CLIENT_ID is missing.");
+      return res.status(500).json({ error: "Google sign-in is not configured on the server." });
+    }
 
-    if (typeof googleToken === "string" && googleToken.split(".").length === 3) {
-      const verificationUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(googleToken)}`;
-      const tokenInfoResponse = await axios.get(verificationUrl);
-      payload = tokenInfoResponse.data;
-    } else {
+    const isIdToken = typeof googleToken === "string" && googleToken.split(".").length === 3;
+    const tokenInfoResponse = await axios.get("https://oauth2.googleapis.com/tokeninfo", {
+      params: isIdToken ? { id_token: googleToken } : { access_token: googleToken },
+    });
+    const tokenInfo = tokenInfoResponse.data as {
+      email?: string;
+      email_verified?: boolean | string;
+      aud?: string;
+      issued_to?: string;
+      audience?: string;
+      azp?: string;
+      name?: string;
+      picture?: string;
+    };
+    const tokenAudience = tokenInfo.aud || tokenInfo.issued_to || tokenInfo.audience || tokenInfo.azp;
+    if (!tokenAudience || tokenAudience !== env.GOOGLE_CLIENT_ID) {
+      logger.warn("Rejected Google credential for an unexpected OAuth client.");
+      return res.status(401).json({ error: "Google sign-in used a different OAuth client. Please try again." });
+    }
+
+    let payload = tokenInfo;
+    if (!isIdToken) {
       try {
-        const userInfoResponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: { Authorization: `Bearer ${googleToken}` },
-        });
-        payload = userInfoResponse.data;
-      } catch {
         const userInfoResponse = await axios.get("https://openidconnect.googleapis.com/v1/userinfo", {
           headers: { Authorization: `Bearer ${googleToken}` },
         });
-        payload = userInfoResponse.data;
+        payload = { ...tokenInfo, ...userInfoResponse.data };
+      } catch {
+        const userInfoResponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${googleToken}` },
+        });
+        payload = { ...tokenInfo, ...userInfoResponse.data };
       }
     }
 
-    if (!payload?.email) {
+    if (!payload.email || !(payload.email_verified === true || payload.email_verified === "true")) {
       return res.status(400).json({ error: "Invalid Google credential." });
     }
 
@@ -407,13 +436,16 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (typeof email !== "string" || typeof password !== "string" || !email.trim() || !password) {
       return res.status(400).json({ error: "Email and password are required." });
     }
 
     const emailNormalized = email.toLowerCase().trim();
 
     // Find user
+    if (emailNormalized.length > 254) {
+      return res.status(400).json({ error: "Enter a valid email address." });
+    }
     const user = await User.findOne({ email: emailNormalized });
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password." });

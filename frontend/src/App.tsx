@@ -84,6 +84,14 @@ const App = () => {
                   </PageTransition>
                 }
               />
+              <Route
+                path="/signup"
+                element={
+                  <PageTransition>
+                    <Login />
+                  </PageTransition>
+                }
+              />
 
               {/* Protected/Workspace Dashboard Pages — App shell stays mounted */}
               <Route

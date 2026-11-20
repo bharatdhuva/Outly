@@ -12,8 +12,8 @@
  * - whileTap on buttons (via m.button) instead of active:scale-[0.98] class
  * - Hardcoded hex colors replaced with CSS token classes
  */
-import { type MouseEvent, useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { type FormEvent, type MouseEvent, useState, useEffect, useCallback, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
 import { m, AnimatePresence } from "motion/react";
 import { ChevronRight, Send, AlertCircle } from "lucide-react";
@@ -147,6 +147,7 @@ function loadGoogleGsi(): Promise<void> {
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const navigateTo = usePageTransition();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -154,6 +155,12 @@ export default function Login() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(location.pathname === "/signup");
+  const [authName, setAuthName] = useState("");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authError, setAuthError] = useState<string | null>(null);
   const [demoError, setDemoError] = useState<string | null>(null);
 
   // Failure modal state
@@ -172,11 +179,16 @@ export default function Login() {
     const errorParam = params.get("error") || params.get("message");
     if (errorParam) {
       setFailModalTitle("Sign-In Failed");
-      setFailModalMessage(decodeURIComponent(errorParam));
+      setFailModalMessage(errorParam);
       setFailModalOpen(true);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
+
+  useEffect(() => {
+    setIsSignUp(location.pathname === "/signup");
+    setAuthError(null);
+  }, [location.pathname]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -197,7 +209,7 @@ export default function Login() {
 
   // Google sign-in
   const handleGoogleSignIn = async () => {
-    if (isGoogleLoading || isDemoLoading) return;
+    if (isGoogleLoading || isDemoLoading || isAuthLoading) return;
     setIsGoogleLoading(true);
 
     // Auto-release loading state after 12 seconds if Google popup hangs
@@ -218,7 +230,7 @@ export default function Login() {
           if (loading) {
             setFailModalTitle("Sign-In Window Closed");
             setFailModalMessage(
-              "Google sign-in was not completed. If Google showed 'Access blocked: Authorization Error (Error 400: origin_mismatch)', ensure https://www.outly.online is registered under Authorized JavaScript Origins in Google Cloud Console."
+            `Google rejected this site origin. In Google Cloud Console, add ${window.location.origin} under Authorized JavaScript origins for the same Web OAuth client ID used by both VITE_GOOGLE_CLIENT_ID and GOOGLE_CLIENT_ID.`
             );
             setFailModalOpen(true);
           }
@@ -232,9 +244,17 @@ export default function Login() {
     await loadGoogleGsi();
 
     const google = (window as any).google;
-    const clientId =
-      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-      "1093257173105-1go6agnd7q3bm7akap29l9kom9lkarpo.apps.googleusercontent.com";
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+    if (!clientId) {
+      clearTimeout(safetyTimer);
+      window.removeEventListener("focus", onWindowFocus);
+      setIsGoogleLoading(false);
+      setFailModalTitle("Google Sign-In Not Configured");
+      setFailModalMessage("Set VITE_GOOGLE_CLIENT_ID to your Web OAuth client ID, and use the same client ID in the backend GOOGLE_CLIENT_ID setting.");
+      setFailModalOpen(true);
+      return;
+    }
 
     if (typeof google === "undefined" || !google.accounts) {
       clearTimeout(safetyTimer);
@@ -260,7 +280,7 @@ export default function Login() {
             err?.message ||
             (err?.type === "popup_closed"
               ? "Sign-in was cancelled. Please try again."
-              : "Google OAuth authorization failed. If you see 'Error 400: origin_mismatch', please ensure https://www.outly.online is added in Google Cloud Console.");
+              : `Google OAuth authorization failed. Add ${window.location.origin} to Authorized JavaScript origins for the same Web OAuth client used by the frontend and backend.`);
           setFailModalTitle("Google Sign-In Failed");
           setFailModalMessage(msg);
           setFailModalOpen(true);
@@ -319,7 +339,7 @@ export default function Login() {
 
   // Demo session
   const handleTryDemo = async () => {
-    if (isDemoLoading || isGoogleLoading) return;
+    if (isDemoLoading || isGoogleLoading || isAuthLoading) return;
     setIsDemoLoading(true);
     setDemoError(null);
 
@@ -372,7 +392,33 @@ export default function Login() {
     }
   };
 
-  const isDisabled = isGoogleLoading || isDemoLoading;
+  const handleEmailAuth = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isAuthLoading || isGoogleLoading || isDemoLoading) return;
+    setAuthError(null);
+    setIsAuthLoading(true);
+    try {
+      const result = isSignUp
+        ? await api.auth.signup(authEmail.trim(), authPassword, authName.trim())
+        : await api.auth.login(authEmail.trim(), authPassword);
+      queryClient.clear();
+      saveUserSession(result);
+      queryClient.setQueryData(["currentUser"], { user: result.user });
+      toast({
+        title: isSignUp ? "Account created" : "Signed in",
+        description: isSignUp ? "Welcome to Outly. Your workspace is ready." : `Welcome back${result.user.fullName ? `, ${result.user.fullName}` : ""}.`,
+      });
+      navigate("/onboarding", { replace: true });
+    } catch (err: any) {
+      const message = err?.message || (isSignUp ? "Could not create your account. Please try again." : "Could not sign in. Please check your details and try again.");
+      setAuthError(message);
+      toast({ title: isSignUp ? "Sign-up failed" : "Sign-in failed", description: message, variant: "destructive" });
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
+  const isDisabled = isGoogleLoading || isDemoLoading || isAuthLoading;
   const botBoundsRef = useRef<DOMRect | null>(null);
   const handleBotPointerEnter = (event: MouseEvent<HTMLDivElement>) => {
     botBoundsRef.current = event.currentTarget.getBoundingClientRect();
@@ -478,26 +524,23 @@ export default function Login() {
           </button>
 
           {/* Heading */}
-          <div className="mb-9">
+          <div className="mb-7">
             <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-tight text-[#1A1A1A] leading-tight mb-2">
-              Welcome to Outly
+              {isSignUp ? "Create your account" : "Welcome back"}
             </h1>
             <p className="text-[14px] text-[#6B6760] leading-relaxed">
-              Your workspace for resume optimization and recruiter outreach.
+              {isSignUp ? "Start building a more thoughtful job search." : "Sign in to continue your job search with Outly."}
             </p>
           </div>
 
-          {/* Buttons */}
-          <div className="space-y-3">
-
-            {/* Primary: Google */}
+          <div className="login-auth-options">
             <m.button
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isDisabled}
               whileTap={isDisabled ? {} : { scale: 0.97 }}
               transition={{ duration: dur.instant }}
-              className="w-full min-h-[48px] bg-white border border-[#E0DBCF] hover:border-[#B0ADA9] rounded-[24px] text-[14px] font-medium text-[#1A1A1A] flex items-center justify-center gap-3 select-none transition-colors duration-150 shadow-[0_1px_3px_rgba(26,26,26,0.07)] hover:shadow-[0_4px_16px_rgba(26,26,26,0.10)] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="login-google-button w-full min-h-[48px] rounded-full text-[14px] font-medium flex items-center justify-center gap-3 select-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               {isGoogleLoading ? (
                 <>
@@ -518,15 +561,33 @@ export default function Login() {
               )}
             </m.button>
 
-            {/* Secondary: Try Demo */}
-            <div className="w-full">
+            <div className="login-or-divider"><span>or</span></div>
+
+            <form className="login-email-form" onSubmit={handleEmailAuth}>
+              {isSignUp && <label className="login-field"><span>Your name</span><input type="text" name="name" autoComplete="name" value={authName} onChange={(e) => setAuthName(e.target.value)} placeholder="Priya Sharma" maxLength={80} required /></label>}
+              <label className="login-field"><span>Email</span><input type="email" name="email" autoComplete="email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder="you@example.com" maxLength={254} required /></label>
+              <label className="login-field"><span>Password</span><input type="password" name="password" autoComplete={isSignUp ? "new-password" : "current-password"} value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} placeholder={isSignUp ? "At least 8 characters" : "Your password"} minLength={isSignUp ? 8 : undefined} maxLength={128} required /></label>
+              {authError && <p className="login-auth-error" role="alert">{authError}</p>}
+              <button type="submit" disabled={isDisabled} className="login-submit-button">
+                {isAuthLoading ? <><Spinner size={17} /><span>{isSignUp ? "Creating account…" : "Signing in…"}</span></> : (isSignUp ? "Create account" : "Sign in with email")}
+              </button>
+            </form>
+
+            <p className="login-mode-switch">
+              {isSignUp ? "Already have an account?" : "New to Outly?"}{" "}
+              <button type="button" onClick={() => navigate(isSignUp ? "/login" : "/signup")}>
+                {isSignUp ? "Sign in" : "Create account"}
+              </button>
+            </p>
+
+            <div className="login-demo-option">
               <m.button
                 type="button"
                 onClick={handleTryDemo}
                 disabled={isDisabled}
                 whileTap={isDisabled ? {} : { scale: 0.97 }}
                 transition={{ duration: dur.instant }}
-                className="login-demo-button w-full min-h-[48px] bg-transparent border-2 border-primary/70 hover:border-primary hover:bg-primary/5 text-primary rounded-[24px] text-[14px] font-medium flex items-center justify-center gap-2 select-none transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="login-demo-button w-full min-h-[48px] rounded-full text-[14px] font-medium flex items-center justify-center gap-2 select-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 {isDemoLoading ? (
                   <>
@@ -585,7 +646,7 @@ export default function Login() {
       <Dialog open={failModalOpen} onOpenChange={setFailModalOpen}>
         <DialogContent className="max-w-[420px] p-6 rounded-2xl bg-white border border-neutral-200 shadow-2xl font-sans">
           <DialogHeader className="flex flex-col items-center text-center">
-            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center mb-3 text-rose-600">
+            <div className="h-12 w-12 rounded-full bg-[#e3efe9] flex items-center justify-center mb-3 text-[#168b7d]">
               <AlertCircle className="h-6 w-6" />
             </div>
             <DialogTitle className="text-lg font-bold text-neutral-900">
