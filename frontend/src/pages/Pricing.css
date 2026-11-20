@@ -118,7 +118,7 @@
   background: #f1f1ef;
   display: block !important;
   pointer-events: none;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1), width 0.65s cubic-bezier(0.4, 0, 0.2, 1);
   margin: 0 !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }

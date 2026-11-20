@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, ChevronRight, FileText, Pause, Plane, Play, Plus, Search, Send, ShieldCheck, Target, X } from 'lucide-react'
@@ -76,6 +76,8 @@ const jobPlatformBrands = [
 function HeroRotator() {
   const [index, setIndex] = useState(0)
   const [animating, setAnimating] = useState(false)
+  const [rotatorWidth, setRotatorWidth] = useState<number>()
+  const measureRef = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -92,8 +94,29 @@ function HeroRotator() {
   const current = heroWords[index]
   const Icon = current.icon
 
+  useLayoutEffect(() => {
+    const measure = measureRef.current
+    if (!measure) return
+
+    const updateWidth = () => setRotatorWidth(measure.getBoundingClientRect().width)
+    updateWidth()
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', updateWidth)
+      return () => window.removeEventListener('resize', updateWidth)
+    }
+    const observer = new ResizeObserver(updateWidth)
+    observer.observe(measure)
+    return () => observer.disconnect()
+  }, [current.text])
+
   return (
-    <span className="hero-rotator">
+    <span className="hero-rotator" style={rotatorWidth ? { width: `${rotatorWidth}px` } : undefined}>
+      <span ref={measureRef} className="hero-rotator-measure" aria-hidden="true">
+        <span className="hero-rotator-icon-box" style={{ background: current.bg }}>
+          <Icon strokeWidth={2.4} />
+        </span>
+        <span className="hero-rotator-text">{current.text}</span>
+      </span>
       <span className={`hero-rotator-item ${animating ? 'is-exiting' : 'is-entering'}`}>
         <span
           className="hero-rotator-icon-box"
