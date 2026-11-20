@@ -21,8 +21,10 @@ class Settings(BaseSettings):
     gemini_embedding_model: str = "models/gemini-embedding-001"
 
 
-    llm_timeout_seconds: float = 45.0
-    llm_max_retries: int = 3
+    # Keep the full Gemini request (including one retry) within the 60s
+    # serverless request budget while still allowing for a cold model call.
+    llm_timeout_seconds: float = 20.0
+    llm_max_retries: int = 1
     embedding_timeout_seconds: float = 20.0
 
     max_file_bytes: int = 5 * 1024 * 1024

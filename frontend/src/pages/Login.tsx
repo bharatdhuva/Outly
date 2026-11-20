@@ -73,11 +73,6 @@ const slideVariants = {
   exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: ease.in } },
 } as const;
 
-const panelVariants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: ease.out } },
-} as const;
-
 const errorVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.15, ease: ease.out } },
@@ -504,12 +499,7 @@ export default function Login() {
 
       {/* ── RIGHT PANEL ── */}
       <div className="login-right w-full lg:w-1/2 flex flex-col justify-center items-center min-h-screen p-6 lg:p-16">
-        <m.div
-          variants={panelVariants}
-          initial="hidden"
-          animate="visible"
-          className="w-full max-w-[400px] flex flex-col"
-        >
+        <div className="w-full max-w-[400px] flex flex-col">
           {/* Mobile logo */}
           <button
             type="button"
@@ -660,7 +650,7 @@ export default function Login() {
             <span>Back to home</span>
           </m.button>
 
-        </m.div>
+        </div>
       </div>
 
       {/* ─── GOOGLE SIGN-IN FAIL POPUP MODAL ─── */}

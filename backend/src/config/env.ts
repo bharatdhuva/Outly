@@ -15,13 +15,11 @@ export const env = {
 
   getPythonAtsUrl: (host?: string) => {
     const raw = (process.env.PYTHON_ATS_URL ?? "").trim();
-    // In local development, an explicit localhost URL is the actual Python
-    // microservice. Do not rewrite it to https://<frontend-host>/python-ats:
-    // that path is only used when the app is deployed behind Vercel.
-    if (!process.env.VERCEL && raw && /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?(?:\/|$)/i.test(raw)) {
-      return raw.replace(/\/$/, "");
-    }
-    if (raw && !raw.includes("onrender.com") && !raw.includes("outly-python-ats") && !raw.includes("localhost")) {
+    const isLocalUrl = /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?(?:\/|$)/i.test(raw);
+    // Honor an explicitly configured remote Python ATS service on every host.
+    // Only ignore localhost when running in Vercel, where localhost refers to
+    // the Node function rather than the separately running Python service.
+    if (raw && (!isLocalUrl || !process.env.VERCEL)) {
       return raw.replace(/\/$/, "");
     }
     // On Vercel: Python ATS is co-deployed on the same deployment.
@@ -43,11 +41,9 @@ export const env = {
   },
   PYTHON_ATS_URL: (() => {
     const raw = (process.env.PYTHON_ATS_URL ?? "").trim();
-    if (!process.env.VERCEL && raw && /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?(?:\/|$)/i.test(raw)) {
-      return raw.replace(/\/$/, "");
-    }
-    // If explicitly set to a non-Render, non-localhost URL, use it
-    if (raw && !raw.includes("onrender.com") && !raw.includes("outly-python-ats") && !raw.includes("localhost")) {
+    const isLocalUrl = /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?(?:\/|$)/i.test(raw);
+    // Honor a configured remote service; a local URL is only valid outside Vercel.
+    if (raw && (!isLocalUrl || !process.env.VERCEL)) {
       return raw.replace(/\/$/, "");
     }
     // On Vercel: Python ATS is co-deployed on the same domain via /python-ats/*

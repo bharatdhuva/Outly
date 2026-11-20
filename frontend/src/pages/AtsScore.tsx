@@ -51,7 +51,7 @@ function getMissingKeywordsArray(kw: any): string[] {
 function getKeyRecommendations(res: EvaluationResult): string[] {
   const list: string[] = [];
 
-  // 1. Resume-specific recommendations from heuristic & AI analysis
+  // Python rule-based recommendations remain separate from Gemini's review.
   if (res.suggestions && Array.isArray(res.suggestions)) {
     res.suggestions.forEach((s) => {
       if (s && typeof s === "string" && s.trim()) {
@@ -77,16 +77,7 @@ function getKeyRecommendations(res: EvaluationResult): string[] {
     if (!list.includes(seniorityNote)) list.push(seniorityNote);
   }
 
-  // Show model findings separately from deterministic rules so users can tell
-  // whether the AI analysis actually ran and see its resume-grounded feedback.
-  if (res.llm_analysis) {
-    for (const item of [...(res.llm_analysis.weaknesses || []), ...(res.llm_analysis.rewrite_suggestions || []).map((entry) => `${entry.section}: ${entry.suggested}`)]) {
-      const trimmed = item.trim();
-      if (trimmed && !list.includes(trimmed)) list.push(trimmed);
-    }
-  }
-
-  // 4. Missing keywords (grouped as ONE concrete recommendation listing top skills)
+  // Missing keywords from Python's deterministic analysis.
   const missing = getMissingKeywordsArray(res.missing_keywords);
   if (missing.length > 0) {
     const topMissing = missing.slice(0, 5).join(", ");
@@ -97,6 +88,20 @@ function getKeyRecommendations(res: EvaluationResult): string[] {
   }
 
   return list;
+}
+
+function getGeminiSuggestions(res: EvaluationResult) {
+  const analysis = res.llm_analysis;
+  if (!analysis) return [];
+
+  return [
+    ...(analysis.weaknesses || []).map((text) => ({ section: "Improve", text, rationale: "" })),
+    ...(analysis.rewrite_suggestions || []).map((item) => ({
+      section: item.section,
+      text: item.suggested,
+      rationale: item.rationale,
+    })),
+  ].filter((item) => item.text.trim());
 }
 
 export default function AtsScorePage() {
@@ -197,6 +202,12 @@ export default function AtsScorePage() {
     try {
       loadedResult = savedResult ? JSON.parse(savedResult) : null;
     } catch {
+      loadedResult = null;
+    }
+    // Discard old cached results so the next score carries the new explicit
+    // Python source and separate Gemini feedback payload.
+    if (loadedResult && !["python_gemini", "python_only", "validation"].includes(loadedResult.analysis_source)) {
+      localStorage.removeItem(`ats_result_${userEmail}`);
       loadedResult = null;
     }
     
@@ -678,6 +689,7 @@ export default function AtsScorePage() {
   const formatScore = result?.breakdown?.formatting_readability ?? 0;
   const styleScore = result?.breakdown?.impact_metrics ?? 0;
   const keyRecommendations = result ? getKeyRecommendations(result) : [];
+  const geminiSuggestions = result ? getGeminiSuggestions(result) : [];
   const matchedKeywords = result?.matched_keywords ?? [];
   const missingKeywords = getMissingKeywordsArray(result?.missing_keywords);
 
@@ -915,8 +927,8 @@ export default function AtsScorePage() {
                   <div className="ats-score-track"><span style={{ width: `${Math.max(0, Math.min(100, result.score))}%` }} /></div>
                   {result.analysis_source && result.isValidResume !== false && (
                     <div className="ats-analysis-provenance">
-                      <span className={`ats-analysis-source ${result.analysis_source === "heuristic_ai" ? "is-ai" : ""}`}>
-                        {result.analysis_source === "heuristic_ai" ? "ATS rules + AI analysis" : "Rule-based ATS estimate"}
+                      <span className={`ats-analysis-source ${result.analysis_source === "python_gemini" ? "is-ai" : ""}`}>
+                        {result.analysis_source === "python_gemini" ? "Python ATS score + Gemini feedback" : "Python ATS score only"}
                       </span>
                       {result.analysis_notice && <small>{result.analysis_notice}</small>}
                     </div>
@@ -960,9 +972,29 @@ export default function AtsScorePage() {
             {/* Detailed recommendations if result is present */}
             {result && (
               <div className="ats-recommendations">
+                {result.llm_analysis && (
+                  <div className="ats-recommendation-card ats-gemini-card">
+                    <div className="ats-section-heading"><h3>Gemini improvement suggestions</h3><span>{geminiSuggestions.length} suggestions</span></div>
+                    {result.llm_analysis?.strengths?.length ? (
+                      <p className="ats-gemini-strengths"><strong>What’s working:</strong> {result.llm_analysis.strengths.join(" · ")}</p>
+                    ) : null}
+                    {geminiSuggestions.length > 0 ? (
+                      <ul>
+                        {geminiSuggestions.map((item, i) => (
+                          <li key={`gemini-${i}`}>
+                            <span className="ats-recommendation-number">{String(i + 1).padStart(2, "0")}</span>
+                            <span><strong>{item.section}:</strong> {item.text}{item.rationale && <small className="ats-gemini-rationale">{item.rationale}</small>}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="ats-gemini-strengths">Gemini reviewed your resume and found no high-priority rewrites.</p>
+                    )}
+                  </div>
+                )}
                 {keyRecommendations.length > 0 ? (
                   <div className="ats-recommendation-card">
-                    <div className="ats-section-heading"><h3>Next best fixes</h3><span>{keyRecommendations.length} suggestions</span></div>
+                    <div className="ats-section-heading"><h3>Python ATS checks</h3><span>{keyRecommendations.length} findings</span></div>
                     <ul>
                       {keyRecommendations.map((rec, i) => (
                         <li key={i}><span className="ats-recommendation-number">{String(i + 1).padStart(2, "0")}</span><span>{rec}</span></li>

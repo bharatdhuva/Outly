@@ -367,6 +367,7 @@ def invalid_resume_response(error: str) -> AtsScoreResponse:
 def build_score_response(
     det: DeterministicAts,
     llm: LlmAtsAnalysis | None,
+    analysis_notice: str | None = None,
 ) -> AtsScoreResponse:
     breakdown = FrontendBreakdown(
         skills_match=_to_100(det.detail["keyword_coverage"]),
@@ -383,26 +384,6 @@ def build_score_response(
         ),
         impact_metrics=_to_100(det.detail["bullet_quality"]),
     )
-    suggestions = list(det.suggestions)
-    missing = det.missing
-    seniority = det.seniority
-    if llm:
-        for item in llm.rewrite_suggestions:
-            line = f"{item.section}: {item.suggested}"
-            if line not in suggestions:
-                suggestions.append(line)
-        suggestions = suggestions[:8]
-        if llm.seniority_comments:
-            seniority = ExperienceAnalysis(
-                seniority_match=llm.seniority_match,
-                comments=llm.seniority_comments,
-            )
-        if llm.inferred_hard_skills:
-            missing = MissingKeywords(
-                hard_skills=list(dict.fromkeys([*missing.hard_skills, *llm.inferred_hard_skills])),
-                soft_skills=list(dict.fromkeys([*missing.soft_skills, *llm.inferred_soft_skills])),
-                tools_technologies=list(dict.fromkeys([*missing.tools_technologies, *llm.inferred_tools])),
-            )
     return AtsScoreResponse(
         score=det.overall,
         overall_score=det.overall,
@@ -410,14 +391,14 @@ def build_score_response(
         breakdown=breakdown,
         breakdown_detail=det.detail,
         matched_keywords=det.matched,
-        missing_keywords=missing,
-        experience_analysis=seniority,
+        missing_keywords=det.missing,
+        experience_analysis=det.seniority,
         formatting_issues=det.formatting_issues,
-        suggestions=suggestions,
+        suggestions=list(det.suggestions),
         warnings=det.warnings,
         llm_analysis=llm,
-        analysis_source="heuristic_ai" if llm else "heuristic_only",
-        analysis_notice=None if llm else "AI analysis was unavailable; this score uses deterministic ATS rules.",
+        analysis_source="python_gemini" if llm else "python_only",
+        analysis_notice=analysis_notice,
     )
 
 
@@ -442,10 +423,13 @@ async def score_resume(
 
     det = score_deterministic(resume, jd_clean or None, settings)
     llm_result: LlmAtsAnalysis | None = None
+    analysis_notice: str | None = None
     if llm_client is not None and getattr(llm_client, "available", False):
         llm_result = await llm_client.analyse_resume(resume, jd_clean, det.notes)  # type: ignore[union-attr]
         if llm_result is None:
             det.warnings.append("LLM analysis unavailable; returning deterministic score only.")
+            analysis_notice = "Gemini feedback could not be generated. The score and rule-based checks below are from Python ATS."
     elif llm_client is not None:
         det.warnings.append("GEMINI_API_KEY not set; llm_analysis is null.")
-    return build_score_response(det, llm_result)
+        analysis_notice = "Gemini is not configured on the Python ATS service. The score and rule-based checks below are from Python ATS."
+    return build_score_response(det, llm_result, analysis_notice)

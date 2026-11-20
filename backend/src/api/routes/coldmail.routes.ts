@@ -46,6 +46,9 @@ router.get("/companies", async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ error: "Unauthorized" });
     const companies = await companyQueries.getAll(req.user.id);
+    // This list is frequently mutated from the workspace; avoid conditional
+    // 304 responses that leave clients without a usable company list.
+    res.set("Cache-Control", "no-store");
     res.json(companies);
   } catch (e) {
     res.status(500).json({ error: String(e) });

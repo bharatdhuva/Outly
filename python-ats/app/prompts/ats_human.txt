@@ -1,4 +1,7 @@
-Perform an ATS audit. Suggest concrete rewrites per section using only resume facts.
+Python has already computed the numeric score. Do not calculate, change, or predict
+that score. Return the three highest-impact ways the candidate can improve it,
+with concrete section rewrites and a short rationale. If a target job description
+is present, prioritize its requirements. Use only facts present in the resume.
 
 <resume>
 {resume}

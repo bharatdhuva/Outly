@@ -56,8 +56,8 @@ See `.env.example`. Important:
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `GEMINI_API_KEY` | empty | Without it, `llm_analysis` is `null` and embeddings use TF-IDF |
-| `GEMINI_MODEL` | `gemini-2.5-flash` | Chat model |
+| `GEMINI_API_KEY` | empty | Required for Gemini resume feedback; without it, Python returns the base score only |
+| `GEMINI_MODEL` | `gemini-3.5-flash` | Chat model used after Python computes the base score |
 | `GEMINI_EMBEDDING_MODEL` | `models/gemini-embedding-001` | Gemini embeddings |
 
 | `MAX_FILE_BYTES` | 5242880 | 5 MB, same as Node multer |
@@ -66,8 +66,8 @@ See `.env.example`. Important:
 | `MATCH_SEMANTIC_WEIGHT` | 0.30 | Hybrid matcher |
 | `MATCH_SENIORITY_WEIGHT` | 0.15 | Hybrid matcher |
 | `INTERNAL_API_KEY` | empty | If set, require `X-Internal-Key` |
-| `LLM_TIMEOUT_SECONDS` | 45 | Gemini timeout |
-| `LLM_MAX_RETRIES` | 3 | Exponential backoff |
+| `LLM_TIMEOUT_SECONDS` | 20 | Per-attempt Gemini timeout |
+| `LLM_MAX_RETRIES` | 1 | One retry with exponential backoff; capped at two total attempts |
 
 Mongo/Motor is **not** used: the legacy flow did not store ATS result documents. Activity logging stays in Express.
 
@@ -161,13 +161,14 @@ Adding a previously missing **must-have** skill never decreases the skill-overla
 ### Express (`backend`)
 
 1. Set `PYTHON_ATS_URL` (see `backend/.env.example`).
-2. `backend/src/api/routes/ats.routes.ts` now proxies to Python after `requireAuth` + plan limits + activity logs.
+2. `backend/src/api/routes/ats.routes.ts` proxies to Python after `requireAuth` + plan limits. Usage is logged only after Python returns a score.
 3. You can delete unused `backend/src/ai/atsScoreChain.ts` and `resumeJdMatcher.ts` once no other file imports them. `resumeTailorChain.ts` is unused after the proxy; `prompts.ts` still has cold-mail prompts — do not delete the whole file.
-4. Gemini keys can stay on Node for cold mail; this service needs its **own** `GEMINI_API_KEY` if you want LLM analysis/tailoring/Gemini embeddings.
+4. Set `GEMINI_API_KEY` on the **Python ATS service** (for Render, `outly-python-ats`). A Gemini key configured only on Node is used by cold mail and does not enable ATS feedback.
+5. If Python `INTERNAL_API_KEY` is enabled, set the same value as Node's `PYTHON_ATS_INTERNAL_KEY`.
 
 ### React (`frontend`)
 
-No required change for ATS page or tailor page.
+The ATS page keeps Python's deterministic score and Gemini's improvement feedback in separate report sections.
 
 Optional: call the matcher from the UI:
 

@@ -541,15 +541,8 @@ router.post("/score", checkDemoQuota("ats_check"), checkAtsLimit, async (req: Au
     return res.status(400).json({ error: "Resume is required." });
   }
 
-  if (req.user) {
-    try {
-      await activityQueries.add(req.user.id, "ats_check", "Ran ATS resume score check");
-    } catch (err) {
-      logger.error("Failed to log ATS check activity", { error: String(err), userId: req.user.id });
-    }
-  }
-
-  // 1. Attempt Python ATS microservice first (via direct internal Vercel URL to bypass Cloudflare)
+  // Python computes the score and runs the Gemini review. Do not replace a
+  // failed Python response with a local heuristic score that looks complete.
   const pythonBase = getPythonBase(req);
   const primaryUrl = `${pythonBase}/api/ats/score`;
   try {
@@ -557,9 +550,9 @@ router.post("/score", checkDemoQuota("ats_check"), checkAtsLimit, async (req: Au
       method: "POST",
       headers: pythonHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(req.body ?? {}),
-      // Scoring includes deterministic analysis and a bounded Gemini call. An 8s
-      // proxy timeout silently discarded the AI result on almost every cold start.
-      signal: AbortSignal.timeout(150000),
+      // Keep the proxy below Vercel's 60s function limit. Python computes the
+      // score first, then has up to two bounded attempts to get Gemini feedback.
+      signal: AbortSignal.timeout(55000),
     });
 
     const text = await response.text();
@@ -567,23 +560,25 @@ router.post("/score", checkDemoQuota("ats_check"), checkAtsLimit, async (req: Au
       try {
         const payload = JSON.parse(text);
         if (payload && (typeof payload.score === "number" || typeof payload.overall_score === "number")) {
+          if (req.user) {
+            try {
+              await activityQueries.add(req.user.id, "ats_check", "Ran Python ATS resume score check");
+            } catch (err) {
+              logger.error("Failed to log ATS check activity", { error: String(err), userId: req.user.id });
+            }
+          }
           return res.json(payload);
         }
       } catch { }
     }
-    logger.warn("Python ATS returned non-OK or non-JSON", { status: response.status, primaryUrl });
+    logger.warn("Python ATS returned non-OK or invalid score payload", { status: response.status, primaryUrl });
   } catch (err) {
-    logger.warn("Python ATS fetch failed or timed out, executing deterministic local scorer", { error: String(err), primaryUrl });
+    logger.warn("Python ATS fetch failed or timed out", { error: String(err), primaryUrl });
   }
 
-  // 2. Deterministic local scoring fallback: Fast, 100% reliable, zero Cloudflare hops
-  try {
-    const localScore = scoreResumeLocally(resume, jd);
-    return res.json(localScore);
-  } catch (scoreErr) {
-    logger.error("Local ATS scoring fallback error", { error: String(scoreErr) });
-    return res.status(500).json({ error: "Failed to score resume. Please try again." });
-  }
+  return res.status(503).json({
+    error: "The Python ATS service is unavailable. No score was generated; please try again shortly.",
+  });
 });
 
 router.post("/tailor", checkDemoQuota("ats_tailor"), checkTailorLimit, async (req: AuthenticatedRequest, res: Response) => {

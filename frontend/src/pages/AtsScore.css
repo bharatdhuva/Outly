@@ -123,6 +123,10 @@
 .ats-factor small { color: #858981; font: 9px "Geist Mono", monospace; }
 .ats-recommendations { padding-top: 15px; }
 .ats-recommendation-card { padding: 13px 14px; border: 1px solid #e8e9e3; border-radius: 14px; background: #f9f9f6; }
+.ats-gemini-card { border-color: #cfe5da; background: #f5faf7; }
+.ats-gemini-strengths { margin: 0 0 8px; color: #52715f; font-size: 10px; line-height: 1.55; }
+.ats-gemini-strengths strong { color: #285c43; }
+.ats-gemini-rationale { display: block; margin-top: 4px; color: #858981; font-size: 9px; }
 .ats-recommendation-card .ats-section-heading { margin-bottom: 6px; }
 .ats-recommendation-card ul { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .ats-recommendation-card li { display: grid; grid-template-columns: 23px 1fr; gap: 8px; padding: 9px 0; border-top: 1px solid rgba(25,26,24,.06); color: #5f635a; font-size: 10px; line-height: 1.55; }

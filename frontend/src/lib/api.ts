@@ -152,7 +152,7 @@ export const api = {
       ),
   },
   coldmail: {
-    companies: () => fetchApi<Company[]>("/coldmail/companies"),
+    companies: () => fetchApi<Company[]>("/coldmail/companies", { cache: "no-store" }),
     uploadCsv: (file: File) => {
       const form = new FormData();
       form.append("file", file);
@@ -571,7 +571,7 @@ export interface AppSettings {
 
 export interface EvaluationResult {
   score: number;
-  analysis_source?: "heuristic_ai" | "heuristic_only" | "validation" | "heuristic";
+  analysis_source?: "python_gemini" | "python_only" | "validation" | "heuristic_ai" | "heuristic_only" | "heuristic";
   analysis_notice?: string | null;
   llm_analysis?: {
     strengths?: string[];

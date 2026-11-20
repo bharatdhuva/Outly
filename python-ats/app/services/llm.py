@@ -55,12 +55,16 @@ class LlmClient:
         )
         chain = prompt | structured
         delay = 0.6
+        # Treat LLM_MAX_RETRIES as retries (not total attempts) and cap the
+        # call budget so the Python and Node serverless functions can finish.
+        attempt_count = min(max(1, self.settings.llm_max_retries + 1), 2)
+        timeout_seconds = min(max(1.0, self.settings.llm_timeout_seconds), 20.0)
         last_error: Exception | None = None
-        for attempt in range(self.settings.llm_max_retries):
+        for attempt in range(attempt_count):
             try:
                 result = await asyncio.wait_for(
                     chain.ainvoke(variables),
-                    timeout=self.settings.llm_timeout_seconds,
+                    timeout=timeout_seconds,
                 )
                 if isinstance(result, schema):
                     return result

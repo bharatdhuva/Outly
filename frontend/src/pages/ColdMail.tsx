@@ -22,6 +22,7 @@ import {
   Eye,
   Trash2,
   Edit,
+  Zap,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { m, AnimatePresence, useReducedMotion } from "motion/react";
@@ -191,17 +192,25 @@ export default function ColdMailPage() {
     action();
   };
 
-  const { data: companies = [], isLoading } = useQuery({
+  const {
+    data: companies = [],
+    isLoading,
+    isError: companiesQueryError,
+    refetch: refetchCompanies,
+  } = useQuery({
     queryKey: ["coldmail", "companies"],
     queryFn: api.coldmail.companies,
-    refetchInterval: 5000,
+    refetchInterval: 30000,
   });
 
-  const selectedCompany = companies.find((c: Company) => String(c.id) === selected);
+  const selectedCompany = companies.find((c: Company) => String(c.id) === String(selected))
+    ?? (isMobile && mobileDetailsOpen ? companies[0] : undefined);
+  const showMobileDetails = isMobile && mobileDetailsOpen && Boolean(selectedCompany);
 
   useEffect(() => {
-    if (selected === null && companies.length > 0) {
-      setSelected(companies[0].id);
+    const selectedExists = companies.some((company: Company) => String(company.id) === String(selected));
+    if (companies.length > 0 && !selectedExists) {
+      setSelected(String(companies[0].id));
     }
   }, [companies, selected]);
 
@@ -792,7 +801,7 @@ export default function ColdMailPage() {
             {/* ─── TWO COLUMN PIPELINE & DETAIL WORKSPACE ─── */}
             <div className="cold-mail-workspace grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start pt-1 w-full min-w-0 max-w-full">
               {/* Left Column: Company Pipeline List */}
-              {(!isMobile || !mobileDetailsOpen) && (
+              {(!isMobile || !showMobileDetails) && (
                 <div className="cold-mail-pipeline w-full min-w-0 max-w-full lg:col-span-5 rounded-2xl border border-neutral-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col">
                   {/* Pipeline Header */}
                   <div className="border-b border-neutral-100 px-3.5 sm:px-5 py-3 sm:py-3.5 bg-neutral-50/50 flex flex-wrap gap-2 items-center justify-between">
@@ -823,7 +832,20 @@ export default function ColdMailPage() {
 
                   {/* Company Items */}
                   <div className="divide-y divide-neutral-100 max-h-[580px] overflow-y-auto">
-                    {companies.length === 0 ? (
+                    {companies.length === 0 && companiesQueryError ? (
+                      <div className="p-8 text-center">
+                        <Building2 className="mx-auto mb-2.5 h-10 w-10 text-neutral-300" />
+                        <p className="font-semibold text-neutral-800 text-sm">Couldn’t load your companies</p>
+                        <p className="mt-1 text-xs text-neutral-500">The company list is temporarily unavailable. Try again.</p>
+                        <button
+                          type="button"
+                          onClick={() => void refetchCompanies()}
+                          className="mt-3 rounded-full border border-neutral-200 px-3.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    ) : companies.length === 0 ? (
                       <div className="p-12 text-center text-neutral-400">
                         <Building2 className="mx-auto mb-2.5 h-10 w-10 text-neutral-300" />
                         <p className="font-semibold text-neutral-800 text-sm">No company data found</p>
@@ -834,11 +856,11 @@ export default function ColdMailPage() {
                     ) : (
                       companies.map((company: Company) => {
                         const stepIdx = getCurrentStepIndex(company.status);
-                        const isSelected = selected === company.id;
+                        const isSelected = String(selected) === String(company.id);
                         return (
                           <button
                             onClick={() => {
-                              setSelected(company.id);
+                              setSelected(String(company.id));
                               if (isMobile) {
                                 setMobileDetailsOpen(true);
                               }
@@ -905,7 +927,7 @@ export default function ColdMailPage() {
               )}
 
               {/* Right Column: Selected Company Detail & AI Outreach Preview */}
-              {(!isMobile || mobileDetailsOpen) && (
+              {(!isMobile || showMobileDetails) && (
                 <div className="cold-mail-detail w-full min-w-0 max-w-full lg:col-span-7 space-y-4">
                   {selectedCompany ? (
                     <div className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4 sm:space-y-5 w-full min-w-0 max-w-full overflow-hidden">
